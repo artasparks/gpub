@@ -1,4 +1,4 @@
-gpub.diagrams.gooeTest = function() {
+gpub.diagrams.gooe.gooeTest = function() {
   module("Gooe");
   var sgfs = testdata.sgfs;
   var flatten = glift.bridge.flattener.flatten;

@@ -3,5 +3,6 @@
  */
 gpub.diagrams.pdf = {
   create: function(sgfobj) {
+
   },
 };

@@ -16,13 +16,16 @@ import subprocess
 
 FILES_TO_AUTOGEN = {
     # Name / Add Tests to Imports
-    'htmltests/QunitTest.html': True,
+    'htmltests/GPubQunitTest.html': True,
     }
 
 DIR_ORDER = [
     '.',
     'book',
     'diagrams',
+    'diagrams/gooe',
+    'diagrams/pdf',
+    'latex',
     ]
 
 COMBINED_LOC = 'compiled/gpub_combined.js'

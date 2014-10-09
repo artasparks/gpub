@@ -1,15 +1,15 @@
 gpub.diagrams.latex = {
   basicHeader_: [
-      '\\documentclass[letterpaper,12pt]{memoir}',
-      '\\usepackage{gooemacs}',
-      '\\usepackage{color}',
-      '\\usepackage{wrapfig}',
-      '\\usepackage{setspace}',
-      '\\usepackage{unicode}',
-      '\\usepackage[margin=1in]{geometry}',
-      '',
-      '\\setlength{\\parskip}{0.5em}',
-      '\\setlength{\\parindent}{0pt}'
+    '\\documentclass[letterpaper,12pt]{memoir}',
+    '\\usepackage{gooemacs}',
+    '\\usepackage{color}',
+    '\\usepackage{wrapfig}',
+    '\\usepackage{setspace}',
+    '\\usepackage{unicode}',
+    '\\usepackage[margin=1in]{geometry}',
+    '',
+    '\\setlength{\\parskip}{0.5em}',
+    '\\setlength{\\parindent}{0pt}'
   ],
 
   /** Basic latex header. Uses memoir class. */
@@ -20,20 +20,20 @@ gpub.diagrams.latex = {
   /** Diagram label macros. For making Figure.1, Dia.1, etc. */
   diagramLabelMacros: function() {
     return [
-        '% Mainline Diagrams. reset at parts',
-        '\\newcounter{GoFigure}[part]',
-        '\\newcommand{\\gofigure}{%',
-        ' \\stepcounter{GoFigure}',
-        ' \\centerline{\\textit{Figure.\\thinspace\\arabic{GoFigure}}}',
-        '}',
-        '% Variation Diagrams. reset at parts.',
-        '\\newcounter{GoDiagram}[part]',
-        '\\newcommand{\\godiagram}{%',
-        ' \\stepcounter{GoDiagram}',
-        ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoDiagram}}}',
-        '}',
-        '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
-        ''].join('\n');
+      '% Mainline Diagrams. reset at parts',
+      '\\newcounter{GoFigure}[part]',
+      '\\newcommand{\\gofigure}{%',
+      ' \\stepcounter{GoFigure}',
+      ' \\centerline{\\textit{Figure.\\thinspace\\arabic{GoFigure}}}',
+      '}',
+      '% Variation Diagrams. reset at parts.',
+      '\\newcounter{GoDiagram}[part]',
+      '\\newcommand{\\godiagram}{%',
+      ' \\stepcounter{GoDiagram}',
+      ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoDiagram}}}',
+      '}',
+      '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
+      ''].join('\n');
   },
 
   /** Basic latex footer */
@@ -49,9 +49,9 @@ gpub.diagrams.latex = {
    */
   generateTitleDef: function(title, subtitle, authors, publisher) {
     var strbuff = [
-        '\\definecolor{light-gray}{gray}{0.55}',
-        '\\newcommand*{\\mainBookTitle}{\\begingroup',
-        '  \\raggedleft'];
+      '\\definecolor{light-gray}{gray}{0.55}',
+      '\\newcommand*{\\mainBookTitle}{\\begingroup',
+      '  \\raggedleft'];
     for (var i = 0; i < authors.length; i++) {
       strbuff.push('  {\\Large ' + authors[i] + '} \\\\')
       if (i === 0) {
@@ -61,13 +61,13 @@ gpub.diagrams.latex = {
       }
     }
     return strbuff.concat(['  \\vspace*{5 em}',
-        '  {\\textcolor{light-gray}{\\Huge ' + title + '}}\\\\',
-        '  \\vspace*{\\baselineskip}',
-        '  {\\small \\bfseries ' + subtitle + '}\\par',
-        '  \\vfill',
-        '  {\\Large ' + publisher + '}\\par',
-        '  \\vspace*{2\\baselineskip}',
-        '\\endgroup}']).join('\n');
+      '  {\\textcolor{light-gray}{\\Huge ' + title + '}}\\\\',
+      '  \\vspace*{\\baselineskip}',
+      '  {\\small \\bfseries ' + subtitle + '}\\par',
+      '  \\vfill',
+      '  {\\Large ' + publisher + '}\\par',
+      '  \\vspace*{2\\baselineskip}',
+      '\\endgroup}']).join('\n');
   },
 
   /**
@@ -76,20 +76,20 @@ gpub.diagrams.latex = {
    */
   startDocument: function() {
     return [
-        '\\begin{document}',
-        '',
-        '\\pagestyle{empty}',
-        '\\mainBookTitle',
-        '\\newpage',
-        '\\tableofcontents',
-        '',
-        '\\chapterstyle{section}',
-        '\\pagestyle{companion}',
-        '\\makepagestyle{headings}',
-        '\\renewcommand{\\printchapternum}{\\space}',
-        '\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
-        '\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}'
-        ].join('\n');
+      '\\begin{document}',
+      '',
+      '\\pagestyle{empty}',
+      '\\mainBookTitle',
+      '\\newpage',
+      '\\tableofcontents',
+      '',
+      '\\chapterstyle{section}',
+      '\\pagestyle{companion}',
+      '\\makepagestyle{headings}',
+      '\\renewcommand{\\printchapternum}{\\space}',
+      '\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
+      '\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}'
+      ].join('\n');
   },
 
   /**
@@ -122,14 +122,14 @@ gpub.diagrams.latex = {
    */
   gameReviewChapterDiagram: function(diagStr, comment, title, label) {
     return [
-        '\\chapter{' + title + '}',
-        '{\\centering',
-        diagStr,
-        '}',
-        label,
-        '',
-        comment,
-        '\\vfill'].join('\n');
+      '\\chapter{' + title + '}',
+      '{\\centering',
+      diagStr,
+      '}',
+      label,
+      '',
+      comment,
+      '\\vfill'].join('\n');
   },
 
   /**
