@@ -3,15 +3,11 @@
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.1.0
+ * @version 0.1.1
  * --------------------------------------
  */
 (function(w) {
-var gpub = gpub || w.gpub || {};
-if (w) {
-  // expose Glift as a global.
-  w.gpub = gpub;
-}
+gpub = gpub || w.gpub || {};
 
 gpub.global = {
   /**
@@ -19,6 +15,6 @@ gpub.global = {
    * See: http://semver.org/
    * Currently in alpha.
    */
-  version: '0.1.0',
+  version: '0.1.1'
 };
 })(window);

@@ -15,18 +15,21 @@ import re
 import subprocess
 
 FILES_TO_AUTOGEN = {
-    # Name / Add Tests to Imports
-    'htmltests/GPubQunitTest.html': True,
-    }
+  # Name / Add Tests to Imports
+  'htmltests/GPubQunitTest.html': True,
+  }
 
 DIR_ORDER = [
-    '.',
-    'book',
-    'diagrams',
-    'diagrams/gooe',
-    'diagrams/pdf',
-    'latex',
-    ]
+  '.',
+  'book',
+  'diagrams',
+  'diagrams/gooe',
+  'diagrams/pdf',
+  'latex',
+  # Glift isn't technically part of gpub, but gpub depends on glift, so for the
+  # purpose of scripts, it's convenient to append it
+  # 'glift',
+]
 
 COMBINED_LOC = 'compiled/gpub_combined.js'
 COMPILED_LOC = 'compiled/gpub.js'
