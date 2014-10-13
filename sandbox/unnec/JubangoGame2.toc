@@ -1,0 +1,6 @@
+\contentsline {chapter}{Contents}{2}
+\contentsline {chapter}{\chapternumberline {1}Introduction}{3}
+\contentsline {chapter}{\chapternumberline {2}A Lively Opening}{5}
+\contentsline {chapter}{\chapternumberline {3}A Questionable Move}{9}
+\contentsline {chapter}{\chapternumberline {4}Looking for a Simple Game}{13}
+\contentsline {chapter}{\chapternumberline {5}A Creative Move}{17}

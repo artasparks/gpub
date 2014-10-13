@@ -19,5 +19,8 @@ var flags = flagz.init(
 var sgf = fs.readFileSync(flags.args[0]);
 
 console.log(gpub.diagrams.create(
-    '(;GB[1]C[foo]AW[aa]AB[ab]LB[ab:z])',
-    gpub.diagrams.types.GOOE));
+    sgf,
+    gpub.diagrams.types.GOOE,
+    flags.init_position,
+    flags.next_moves_path,
+    flags.board_region));
