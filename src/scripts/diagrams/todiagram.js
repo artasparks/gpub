@@ -16,11 +16,11 @@ var flags = flagz.init(
     'board_region': ['glift.enums.boardRegions', 'AUTO'],
   }).process();
 
-var sgf = fs.readFileSync(flags.args[0]);
+var sgf = fs.readFileSync(flags.args[0], {encoding: 'utf8'});
 
 console.log(gpub.diagrams.create(
     sgf,
     gpub.diagrams.types.GOOE,
-    flags.init_position,
-    flags.next_moves_path,
-    flags.board_region));
+    flags.processed.init_position,
+    flags.processed.next_moves_path,
+    flags.processed.board_region));

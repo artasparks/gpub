@@ -16,7 +16,7 @@ var init = function(helptext, args, flagkeys) {
  *  args: Array of arguments expected to be passed to the scirpt. Used to craft
  *      the usage message.
  *
- *  flagobj: The flag object is where the magic happens. It's a mapping from
+ *  flagdefs: The flag object is where the magic happens. It's a mapping from
  *      flag name to a flag array.
  *
  *      Flag names have have the format: 
@@ -98,7 +98,7 @@ FlagzDef.prototype = {
           itemkey = splat[0];
           value = splat[1];
         }
-        var flagarr = this.flagobj[itemkey];
+        var flagarr = this.flagdefs[itemkey];
         if (flagarr === undefined) {
           return this.unknownFlag(itemkey);
         }
