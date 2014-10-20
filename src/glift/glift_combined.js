@@ -290,9 +290,9 @@ glift.util.colors = {
     else return color;
   }
 };
-// Glift: A Go Studying Program
-// Copyright (c) 2011-2013, Josh <jrhoak@gmail.com>
-// Code licensed under the MIT License
+/**
+ * Various constants used throughout glift.
+ */
 glift.enums = {
   // Also sometimes referred to as colors. Might be good to change back
   states: {
@@ -314,7 +314,6 @@ glift.enums = {
     BOTTOM: 'BOTTOM'
   },
 
-  // The directions should work with the boardRegions.
   boardRegions: {
     LEFT: 'LEFT',
     RIGHT: 'RIGHT',
@@ -324,9 +323,11 @@ glift.enums = {
     TOP_RIGHT: 'TOP_RIGHT',
     BOTTOM_LEFT: 'BOTTOM_LEFT',
     BOTTOM_RIGHT: 'BOTTOM_RIGHT',
-    // TODO(kashomon): Perhaps remove these last two, or at least 'AUTO'
     ALL: 'ALL',
-    AUTO: 'AUTO'
+    // Automatically determine the board region.
+    AUTO: 'AUTO',
+    // Minimal cropbox, modulo some heuristics.
+    MINIMAL: 'MINIMAL'
   },
 
 
@@ -1731,21 +1732,13 @@ glift.displays = {
    * Create the display.  Delegates to board.create(...), which creates an SVG
    * based Go Board.
    */
-  create: function(options, boardBox) {
+  create: function(divId, boardBox, theme, options) {
     glift.util.majorPerfLog("Before environment creation");
-    options.boardBox = boardBox;
 
-    // Create an environment wrapper, which performs all the calculations
-    // necessary to draw the board.
-    var env = glift.displays.environment.get(options);
+    var env = glift.displays.environment.get(divId, boardBox, options);
 
     glift.util.majorPerfLog("After environment creation");
-    var themeKey = options.theme || 'DEFAULT';
-    var theme = glift.themes.get(themeKey); // Get a theme copy.
-    if (options.goBoardBackground && options.goBoardBackground !== '') {
-      glift.themes.setGoBoardBackground(theme, options.goBoardBackground);
-    }
-    return glift.displays.board.create(env, themeKey, theme, options.rotation);
+    return glift.displays.board.create(env, theme, options.rotation);
   }
 };
 glift.displays.bbox = {
@@ -2143,7 +2136,7 @@ glift.displays.cropbox = {
         boardRegions = glift.enums.boardRegions,
         region = region || boardRegions.ALL,
         drawBoardCoords = drawBoardCoords || false,
-        // we add an extra position around the edge for labels, so we need a
+        // We add an extra position around the edge for labels, so we need a
         // label modifier. 1 or 0.
         lblMod = drawBoardCoords ? 1 : 0,
         // So that we can 0 index, we subtract one.
@@ -2231,7 +2224,11 @@ glift.displays.cropbox = {
           left = halfInts - 2 - lblMod;
           leftExtension = this.LINE_EXTENSION;
           break;
-      default: break;
+
+      default:
+          // Note: this can happen if we've let AUTO or MINIMAL slip in here
+          // somehow.
+          throw new Error('Unknown board region: ' + region);
     };
 
     var cbox = glift.displays.bbox.fromPts(
@@ -2304,7 +2301,7 @@ glift.displays._CropBox.prototype = {
   }
 };
 (function() {
-/***
+/**
  * The Environment contains:
  *  - The bounding box for the lines.
  *  - The bounding box for the whole board
@@ -2313,36 +2310,30 @@ glift.displays._CropBox.prototype = {
  */
 glift.displays.environment = {
   /**
-   * Get the environment wrapper, passing in the display options.
+   * Gets the environment wrapper, passing in the display options. This is the
+   * preferred method.  It's expected that the proper display code will
    */
-  get: function(options) {
-    var point = glift.util.point;
-
-    // Calculate a new bounding box or use the bounding box that's passed in.
-    // For debugging reasons, we allow the user to provide a width and height
-    // override.
-    var bbox;
-    if (options.heightOverride && options.widthOverride) {
-      bbox = glift.displays.bbox.fromPts(
-          point(0,0), point(options.widthOverride, options.heightOverride));
-    } else if (options.boardBox) {
-      bbox = options.boardBox;
-    } else if (options.divId) {
-      bbox = glift.displays.bbox.fromDiv(options.divId);
-    } else {
-      throw new Error("No Bounding Box defined for display environment!")
+  get: function(divId, boardBox, options) {
+    if (!divId) {
+      throw new Error('No DivId Specified!')
     }
-    return new GuiEnvironment(options, bbox);
-  },
 
-  getInitialized: function(options) {
-    return glift.displays.environment.get(options).init();
+    // For speed and isolation purposes, it's preferred to define the boardBox
+    // rather than to calculate the h/w by inspecting the div here.
+    if (divId && !boardBox) {
+      boardBox = glift.displays.bbox.fromDiv(divId);
+    }
+
+    if (!boardBox) {
+      throw new Error('No Bounding Box defined for display environment!')
+    }
+    return new GuiEnvironment(divId, boardBox, options);
   }
 };
 
-var GuiEnvironment = function(options, bbox) {
+var GuiEnvironment = function(divId, bbox, options) {
+  this.divId = divId;
   this.bbox = bbox; // required
-  this.divId = options.divId || 'glift_display';
   this.divHeight = bbox.height();
   this.divWidth = bbox.width();
   this.boardRegion = options.boardRegion || glift.enums.boardRegions.ALL;
@@ -2389,7 +2380,6 @@ GuiEnvironment.prototype = {
     return this;
   }
 };
-
 })();
 /**
  * Collection of ID utilities, mostly for SVG.
@@ -2631,22 +2621,19 @@ glift.displays.getCropDimensions = function(width, height, cropbox) {
   };
 };
 glift.displays.board = {
-  create: function(env, themeName, theme, rotation) {
-    return new glift.displays.board.Display(
-        env, themeName, theme, rotation).draw();
+  create: function(env, theme, rotation) {
+    return new glift.displays.board.Display(env, theme, rotation).draw();
   }
 };
 
 /**
  * The core Display object returned to the user.
  */
-glift.displays.board.Display = function(
-    inEnvironment, themeName, theme, rotation) {
+glift.displays.board.Display = function(inEnvironment, theme, rotation) {
   // Due layering issues, we need to keep track of the order in which we
   // created the objects.
   this._objectHistory = [];
   this._environment = inEnvironment;
-  this._themeName = themeName;
   this._theme = theme;
 
   // Rotation indicates whether we should rotate by stones/marks in the display
@@ -2665,7 +2652,6 @@ glift.displays.board.Display.prototype = {
   intersectionPoints: function() { return this._environment.intersections; },
   intersections: function() { return this._intersections; },
   rotation: function() { return this._rotation; },
-  theme: function() { return this._themeName; },
   width: function() { return this._environment.goBoardBox.width() },
   height: function() { return this._environment.goBoardBox.height() },
 
@@ -5199,7 +5185,7 @@ glift.displays.statusbar._StatusBar.prototype = {
    * Note: Key bindings are set in the base_widget.
    */
   gameInfo: function(gameInfoArr, captureCount) {
-    var wrapperDivId = this.widget.wrapperDiv,
+    var wrapperDivId = this.widget.wrapperDivId,
         suffix = '_gameinfo',
         newDivId = wrapperDivId + suffix + '_wrapper',
         wrapperDivEl = glift.dom.elem(wrapperDivId),
@@ -5271,7 +5257,7 @@ glift.displays.statusbar._StatusBar.prototype = {
    */
   fullscreen: function() {
     var widget = this.widget,
-        wrapperDivId = widget.wrapperDiv,
+        wrapperDivId = widget.wrapperDivId,
         newDivId = wrapperDivId + '_fullscreen',
         newDiv = glift.dom.newDiv(newDivId),
         body = glift.dom.elem(document.body),
@@ -5299,7 +5285,7 @@ glift.displays.statusbar._StatusBar.prototype = {
     window.scrollTo(0, 0); // Scroll to the top.
     manager.fullscreenDivId = newDivId;
     widget.destroy();
-    widget.wrapperDiv = newDivId;
+    widget.wrapperDivId = newDivId;
     widget.draw();
     widget.applyState(state);
     manager.enableFullscreenAutoResize();
@@ -5311,7 +5297,7 @@ glift.displays.statusbar._StatusBar.prototype = {
       return; // We're not fullscreened
     }
     var widget = this.widget,
-        wrapperDivEl = glift.dom.elem(widget.wrapperDiv),
+        wrapperDivEl = glift.dom.elem(widget.wrapperDivId),
         state = widget.getCurrentState(),
         manager = widget.manager,
         prevScrollTop = manager.prevScrollTop,
@@ -5319,7 +5305,7 @@ glift.displays.statusbar._StatusBar.prototype = {
         state = widget.getCurrentState();
     widget.destroy();
     wrapperDivEl.remove(); // remove the fullscreen div completely
-    widget.wrapperDiv = widget.manager.divId;
+    widget.wrapperDivId = widget.manager.divId;
     window.scrollTo(0, manager.prevScrollTop || 0);
 
     // Re-enable scrolling now that we're done with fullscreen.
@@ -5840,9 +5826,10 @@ glift.rules = {};
 /**
  * Autonumber the shit out of the movetree.
  *
- * NOTE! This removes all numeric labels and replaces them with.
+ * NOTE! This removes all numeric labels and replaces them with the labels
+ * constructed here, but that's sort of the point.
  *
- * Modifies the current movtree
+ * Modifies the current movtree.
  */
 glift.rules.autonumber = function(movetree) {
   var digitregex = /\d+/;
@@ -6406,10 +6393,11 @@ glift.rules._MoveNode.prototype = {
    * movetree.
    */
   getChild: function(variationNum) {
-    if (variationNum === undefined) {
-      return this.children[0];
-    } else {
+    var variationNum = variationNum || 0;
+    if (this.children.length > 0) {
       return this.children[variationNum];
+    } else {
+      return null;
     }
   },
 
@@ -6509,9 +6497,9 @@ glift.rules.movetree = {
   searchMoveTreeDFS: function(moveTree, func) {
     func(moveTree);
     for (var i = 0; i < moveTree.node().numChildren(); i++) {
-      glift.rules.movetree.searchMoveTreeDFS(moveTree.moveDown(i), func);
+      var mtz = moveTree.newTreeRef();
+      glift.rules.movetree.searchMoveTreeDFS(mtz.moveDown(i), func);
     }
-    moveTree.moveUp();
   }
 };
 
@@ -7441,6 +7429,16 @@ glift.rules.treepath = {
       }
     }
     return out;
+  },
+
+  /**
+   * Converts a treepath back to a string.
+   */
+  toString: function(path) {
+    if (glift.util.typeOf(path) !== 'array') {
+      return path.toString();
+    }
+    return path.join('.');
   },
 
   /**
@@ -8937,36 +8935,33 @@ glift.bridge = {
 
 /**
  * Takes a movetree and returns the optimal BoardRegion for cropping purposes.
+ *
+ * Optionally, take a treepath
  */
-glift.bridge.getCropFromMovetree = function(movetree) {
+glift.bridge.getCropFromMovetree = function(movetree, treepath) {
   var bbox = glift.displays.bbox.fromPts;
-  var point = glift.util.point;
+  var pt = glift.util.point;
   var boardRegions = glift.enums.boardRegions;
   // Intersections need to be 0 rather than 1 indexed for this method.
   var ints = movetree.getIntersections() - 1;
   var middle = Math.ceil(ints / 2);
 
-  // Quads is a map from BoardRegion to the points that the board region
-  // represents.
-  var quads = {};
-
-  // Tracker is a mapfrom
+  // Tracker is a map from quad-key to array of points.
   var tracker = {};
   var numstones = 0;
 
-  // TODO(kashomon): Reevaluate this later.  It's not clear to me if we should
-  // be cropping boards smaller than 19.  It usually looks pretty weird.
+  // It's not clear to me if we should be cropping boards smaller than 19.  It
+  // usually looks pretty weird, so hence this override.
   if (movetree.getIntersections() !== 19) {
-    return glift.enums.boardRegions.ALL;
+    return boardRegions.ALL;
   }
-  quads[boardRegions.TOP_LEFT] =
-      bbox(point(0, 0), point(middle, middle));
-  quads[boardRegions.TOP_RIGHT] =
-      bbox(point(middle, 0), point(ints, middle));
-  quads[boardRegions.BOTTOM_LEFT] =
-      bbox(point(0, middle), point(middle, ints));
-  quads[boardRegions.BOTTOM_RIGHT] =
-      bbox(point(middle, middle), point(ints, ints));
+
+  var quads = {};
+  quads[boardRegions.TOP_LEFT] = bbox(pt(0, 0), pt(middle, middle));
+  quads[boardRegions.TOP_RIGHT] = bbox(pt(middle, 0), pt(ints, middle));
+  quads[boardRegions.BOTTOM_LEFT] = bbox(pt(0, middle), pt(middle, ints));
+  quads[boardRegions.BOTTOM_RIGHT] = bbox(pt(middle, middle), pt(ints, ints));
+
   movetree.recurseFromRoot(function(mt) {
     var stones = mt.properties().getAllStones();
     for (var color in stones) {
@@ -9879,6 +9874,7 @@ glift.widgets = {
     return new glift.widgets.WidgetManager(
         options.divId,
         options.sgfCollection,
+        options.sgfMapping,
         options.initialIndex,
         options.allowWrapAround,
         options.loadCollectionInBackground,
@@ -9897,340 +9893,16 @@ glift.widgets = {
  */
 glift.create = glift.widgets.create;
 /**
- * The Widget Manager manages state across widgets.  When widgets are created,
- * they are always created in the context of a Widget Manager.
- *
- * divId: the element id of the div without the selector hash (#)
- * sgfCollection: array of sgf objects or a string URL. At creation time of the
- *    manager, The param sgfCollection may either be an array or a string
- *    representing a URL.  If the sgfCollection is a string, then the JSON is
- *    requsted at draw-time and passed to this.sgfCollection.
- * sgfColIndex: numbered index into the sgfCollection.
- * allowWrapAround: true or false.  Whether to allow wrap around in the SGF
- *    manager.
- * loadColInBack: true or false. Whether or to load the SGFs in the background.
- * sgfDefaults: filled-in sgf default options.  See ./options/base_options.js
- * displayOptions: filled-in display options. See ./options/base_options.js
- * actions: combination of stone actions and icon actions.
- * metadata: metadata about the this instance of glift.
- */
-glift.widgets.WidgetManager = function(divId, sgfCollection, sgfColIndex,
-      allowWrapAround, loadColInBack, sgfDefaults, displayOptions, actions,
-      metadata) {
-  // Globally unique ID, at least across all glift instances in the current
-  // page. In theory, the divId should be globally unique, but might as well be
-  // absolutely sure.
-  this.id = divId + '-glift-' + glift.util.idGenerator.next();
-
-  // Register the instance. Maybe should be its own method.
-  glift.global.instanceRegistry[this.id] = this;
-
-  // Set as active, if the active instance hasn't already been set.
-  !glift.global.activeInstanceId && this.setActive();
-
-  // The original div id.
-  this.divId = divId;
-
-  // The fullscreen div id. Only set via the fullscreen button. Necessary to
-  // have for problem collections.
-  this.fullscreenDivId = null;
-  // The fullscreen div will always be at the top. So we jump up to the top
-  // during fullscreen and jump back afterwards.
-  this.prevScrollTop = null;
-  // If we set the window resize (done, for ex. in the case of full-screening),
-  // we track the window-resizing function.
-  this.oldWindowResize = null;
-
-  // Note: At creation time of the manager, The param sgfCollection may either
-  // be an array or a string representing a URL.  If the sgfCollection is a
-  // string, then the JSON is requsted at draw-time and passed to
-  // this.sgfCollection
-  this.sgfCollection = [];
-  this.sgfCollectionUrl = null;
-
-  // Suppert either explicit arrays or URLs for fetching JSON.
-  if (glift.util.typeOf(sgfCollection) === 'string') {
-    this.sgfCollectionUrl = sgfCollection;
-  } else {
-    this.sgfCollection = sgfCollection;
-  }
-
-  this.sgfColIndex = sgfColIndex;
-  this.allowWrapAround = allowWrapAround
-  this.sgfDefaults = sgfDefaults;
-  this.displayOptions = displayOptions;
-  this.actions = actions;
-
-  // True or false. Whether to load SGFs in the background.
-  this.loadColInBack = loadColInBack;
-  this.initBackgroundLoading = false;
-
-  // Defined on draw
-  this.currentWidget = undefined;
-
-  // Cache of SGFs.  Useful for reducing the number AJAX calls.
-  // Map from SGF name to String contents.
-  this.sgfCache = {};
-
-  /**
-   * Global metadata for this manager instance.
-   */
-  this.metadata = metadata || undefined;
-};
-
-glift.widgets.WidgetManager.prototype = {
-  draw: function() {
-    var that = this;
-    var afterCollectionLoad = function() {
-      if (!this.initBackgroundLoading && this.loadColInBack) {
-        // Only start background loading once.
-        this.initBackgroundLoading = true;
-        this.backgroundLoad();
-      }
-      var curObj = this.getCurrentSgfObj();
-      this.getSgfString(curObj, function(sgfObj) {
-        // Prevent flickering by destroying the widget after loading the SGF.
-        this.destroy();
-        this.currentWidget = this.createWidget(sgfObj).draw();
-      }.bind(this));
-    }.bind(this);
-
-    if (this.sgfCollection.length === 0 && this.sgfCollectionUrl) {
-      glift.ajax.get(this.sgfCollectionUrl, function(data) {
-        this.sgfCollection = JSON.parse(data);
-        afterCollectionLoad();
-      }.bind(this));
-    } else {
-      afterCollectionLoad();
-    }
-    return this;
-  },
-
-  /** Redraws the current widget. */
-  redraw: function() {
-    if (this.getCurrentWidget()) {
-      this.getCurrentWidget().redraw();
-    }
-  },
-
-  /** Set as the active widget in the global registry. */
-  setActive: function() { glift.global.activeInstanceId = this.id; },
-
-  /** Gets the current widget object. */
-  getCurrentWidget: function() { 
-    if (this.temporaryWidget) {
-      return this.temporaryWidget;
-    } else {
-      return this.currentWidget; 
-    }
-  },
-
-  /** Gets the current SGF Object from the SGF collection. */
-  getCurrentSgfObj: function() { return this.getSgfObj(this.sgfColIndex); },
-
-  /** Modifies the SgfOptions by resetting the icons settings. */
-  _resetIcons: function(processedObj) {
-    if (this.sgfCollection.length > 1) {
-      if (this.allowWrapAround) {
-        processedObj.icons.push(this.displayOptions.nextSgfIcon);
-        processedObj.icons.splice(0, 0, this.displayOptions.previousSgfIcon);
-      } else {
-        if (this.sgfColIndex === 0) {
-          processedObj.icons.push(this.displayOptions.nextSgfIcon);
-        } else if (this.sgfColIndex === this.sgfCollection.length - 1) {
-          processedObj.icons.splice(0, 0, this.displayOptions.previousSgfIcon);
-        } else {
-          processedObj.icons.push(this.displayOptions.nextSgfIcon);
-          processedObj.icons.splice(0, 0, this.displayOptions.previousSgfIcon);
-        }
-      }
-    }
-    return processedObj;
-  },
-
-  /**
-   * Get the current SGF Object from the sgfCollection. Note: If the item in the
-   * array is a string, then we try to figure out whether we're looking at an
-   * SGF or a URL and then we manufacture a simple sgf object.
-   */
-  getSgfObj: function(index) {
-    if (index < 0 || index > this.sgfCollection.length) {
-      throw new Error("Index [" + index +  " ] out of bounds."
-          + " List size was " + this.sgfCollection.length);
-    }
-    var curSgfObj = this.sgfCollection[index];
-    if (glift.util.typeOf(curSgfObj) === 'string') {
-      var out = {};
-      if (/^\s*\(;/.test(curSgfObj)) {
-        // This is a standard SGF String.
-        out.sgfString = curSgfObj;
-      } else {
-        // assume a URL.
-        out.url = curSgfObj
-      }
-      curSgfObj = out;
-    }
-    var proc = glift.widgets.options.setSgfOptions(curSgfObj, this.sgfDefaults);
-    return this._resetIcons(proc);
-  },
-
-  /**
-   * Get the SGF string.  Since these can be loaded with ajax, the data needs to
-   * be returned with a callback.
-   *
-   * sgfObj: A standard SGF Object.
-   */
-  getSgfString: function(sgfObj, callback) {
-    var alias = sgfObj.alias;
-    var url = sgfObj.url;
-    if (alias && this.sgfCache[alias]) {
-      // First, check the cache for aliases.
-      sgfObj.sgfString = this.sgfCache[alias];
-      callback(sgfObj);
-    } else if (url && this.sgfCache[url]) {
-      // Next, check the cache for urls.
-      sgfObj.sgfString = this.sgfCache[url];
-      callback(sgfObj);
-    } else if (sgfObj.url) {
-      // Check if we need to do an AJAX request.
-      this.loadSgfWithAjax(sgfObj.url, sgfObj, callback);
-    } else {
-      // Lastly: Just send the SGF object back.  Typically, this will be because
-      // either:
-      //  1. The SGF has been aliased.
-      //  2. We want to start with a blank state (i.e., in the case of the
-      //     editor).
-      if (sgfObj.alias && sgfObj.sgfString) {
-        // Create a new cache entry.
-        this.sgfCache[sgfObj.alias] = sgfObj.sgfString;
-      }
-      callback(sgfObj);
-    }
-  },
-
-  /** Get the currentDivId */
-  getDivId: function() {
-    if (this.fullscreenDivId) {
-      return this.fullscreenDivId;
-    } else {
-      return this.divId;
-    }
-  },
-
-  /** Create a Sgf Widget. */
-  createWidget: function(sgfObj) {
-    return new glift.widgets.BaseWidget(
-        this.getDivId(), sgfObj, this.displayOptions, this.actions, this);
-  },
-
-  /**
-   * Temporarily replace the current widget with another widget.  Used in the
-   * case of the PROBLEM_SOLUTION_VIEWER.
-   */
-  createTemporaryWidget: function(sgfObj) {
-    this.currentWidget && this.currentWidget.destroy();
-    sgfObj = glift.widgets.options.setSgfOptions(sgfObj, this.sgfDefaults);
-    this.temporaryWidget = this.createWidget(sgfObj).draw();
-  },
-
-  returnToOriginalWidget: function() {
-    this.temporaryWidget && this.temporaryWidget.destroy();
-    this.temporaryWidget = undefined;
-    this.currentWidget.draw();
-  },
-
-  /** Internal implementation of nextSgf/previous sgf. */
-  _nextSgfInternal: function(indexChange) {
-    if (!this.sgfCollection.length > 1) {
-      return; // Nothing to do
-    }
-    if (this.allowWrapAround) {
-      this.sgfColIndex = (this.sgfColIndex + indexChange + this.sgfCollection.length)
-          % this.sgfCollection.length;
-    } else {
-      this.sgfColIndex = this.sgfColIndex + indexChange;
-      if (this.sgfColIndex < 0) {
-        this.sgfColIndex = 0;
-      } else if (this.sgfColIndex >= this.sgfCollection.length) {
-        this.sgfColIndex = this.sgfCollection.length - 1;
-      }
-    }
-    this.draw();
-  },
-
-  /** Get the next SGF.  Requires that the list be non-empty. */
-  nextSgf: function() { this._nextSgfInternal(1); },
-
-  /** Get the next SGF.  Requires that the list be non-empty. */
-  prevSgf: function() { this._nextSgfInternal(-1); },
-
-  /** Clear out the SGF Cache. */
-  clearSgfCache: function() { this.sgfCache = {}; },
-
-  /**
-   * Load a urlOrObject with AJAX.  If the urlOrObject is an object, then we
-   * assume that the caller is trying to set some objects in the widget.
-   */
-  loadSgfWithAjax: function(url, sgfObj, callback) {
-    glift.ajax.get(url, function(data) {
-      this.sgfCache[url] = data;
-      sgfObj.sgfString = data;
-      callback(sgfObj);
-    }.bind(this));
-  },
-
-  /**
-   * Load the SGFs in the background.  Try once every 250ms until we get to the
-   * end of the SGF collection.
-   */
-  backgroundLoad: function() {
-    var loader = function(idx) {
-      if (idx < this.sgfCollection.length) {
-        var curObj = this.getSgfObj(idx);
-        this.getSgfString(curObj, function() {
-          setTimeout(function() {
-            loader(idx + 1);
-          }.bind(this), 250); // 250ms
-        });
-      }
-    }.bind(this);
-    loader(this.sgfColIndex + 1);
-  },
-
-  /** Enable auto-resizing of the glift instance. */
-  enableFullscreenAutoResize: function() {
-    if (window.onresize) { this.oldWindowResize = window.onresize; }
-    window.onresize = function() { this.redraw(); }.bind(this);
-  },
-
-  /** Disable auto-resizing of the glift instance. */
-  disableFullscreenAutoResize: function() {
-    window.onresize = this.oldWindowResize;
-    this.oldWindowResize = null;
-  },
-
-  /** Undraw the most recent widget and remove references to it. */
-  destroy: function() {
-    this.currentWidget && this.currentWidget.destroy();
-    this.currentWidget = undefined;
-    this.temporaryWidget && this.temporaryWidget.destroy();
-    this.temporaryWidget = undefined;
-    return this;
-  }
-};
-/**
  * The base web UI widget.
  */
 glift.widgets.BaseWidget = function(
     divId, sgfOptions, displayOptions, actions, manager) {
-  // TODO(kashomon): rename to wrapperDivId. Too confusing as is.
-  this.wrapperDiv = divId; // We split the wrapper div.
+  this.wrapperDivId = divId; // We split the wrapper div.
   this.type = sgfOptions.type;
   this.sgfOptions = glift.util.simpleClone(sgfOptions);
   this.displayOptions = glift.util.simpleClone(displayOptions);
   this.actions = actions; // deeply nested -- not worth cloning.
   this.manager = manager;
-
 
   // These variables are initialized by draw
   this.controller = undefined;
@@ -10266,16 +9938,17 @@ glift.widgets.BaseWidget.prototype = {
         this.sgfOptions.boardRegion === glift.enums.boardRegions.AUTO
         ? glift.bridge.getCropFromMovetree(this.controller.movetree)
         : this.sgfOptions.boardRegion;
+
     this.displayOptions.rotation = this.sgfOptions.rotation;
     glift.util.majorPerfLog('Calculated board regions');
 
     // This should be the only time we get the base width and height, until the
     // entire widget is re-drawn.
-    var parentDivBbox = glift.displays.bbox.fromDiv(this.wrapperDiv);
+    var parentDivBbox = glift.displays.bbox.fromDiv(this.wrapperDivId);
     if (parentDivBbox.width() === 0 || parentDivBbox.height() === 0) {
-      throw new Error("Div has has invalid dimensions. Bounding box had " +
-          "width: " + parentDivBbox.width() +
-          ", height: " + parentDivBbox.height());
+      throw new Error('Div has has invalid dimensions. Bounding box had ' +
+          'width: ' + parentDivBbox.width() +
+          ', height: ' + parentDivBbox.height());
     }
 
     // Recall that positioning returns an object that looks like:
@@ -10288,19 +9961,20 @@ glift.widgets.BaseWidget.prototype = {
         this.displayOptions.oneColumnSplits,
         this.displayOptions.twoColumnSplits).calcWidgetPositioning();
 
-    var divIds = this._createDivsForPositioning(positioning, this.wrapperDiv);
+    var divIds = this._createDivsForPositioning(positioning, this.wrapperDivId);
     glift.util.majorPerfLog('Created divs');
 
-    // TODO(kashomon): Remove these hacks. We shouldn't be modifying
-    // displayOptions.
-    this.displayOptions.divId = divIds.BOARD;
-
     var theme = glift.themes.get(this.displayOptions.theme);
+    if (this.displayOptions.goBoardBackground) {
+      glift.themes.setGoBoardBackground(
+          theme, this.displayOptions.goBoardBackground);
+    }
 
-    // TODO(kashomon): Pass in the theme rather than doing another copy here
     this.display = glift.displays.create(
-        this.displayOptions,
-        positioning.getBbox(glift.enums.boardComponents.BOARD));
+        divIds.BOARD,
+        positioning.getBbox(glift.enums.boardComponents.BOARD),
+        theme,
+        this.displayOptions);
     glift.util.majorPerfLog('Finish creating display');
 
     if (divIds.COMMENT_BOX) {
@@ -10557,14 +10231,338 @@ glift.widgets.BaseWidget.prototype = {
   destroy: function() {
     var managerId = this.manager.id;
     glift.keyMappings.unregisterInstance(managerId);
-    glift.dom.elem(this.wrapperDiv) &&
-        glift.dom.elem(this.wrapperDiv).empty();
+    glift.dom.elem(this.wrapperDivId) &&
+        glift.dom.elem(this.wrapperDivId).empty();
     if (this.keyHandlerFunc !== undefined) {
       document.body.keydown = null;
     }
     this.correctness = undefined;
     this.keyHandlerFunc = undefined;
     this.display = undefined;
+  }
+};
+/**
+ * The Widget Manager manages state across widgets.  When widgets are created,
+ * they are always created in the context of a Widget Manager.
+ *
+ * divId: the element id of the div without the selector hash (#)
+ * sgfCollection: array of sgf objects or a string URL. At creation time of the
+ *    manager, The param sgfCollection may either be an array or a string
+ *    representing a URL.  If the sgfCollection is a string, then the JSON is
+ *    requsted at draw-time and passed to this.sgfCollection.
+ * sgfCache: An initial setup for the SGF cache.
+ * sgfColIndex: numbered index into the sgfCollection.
+ * allowWrapAround: true or false.  Whether to allow wrap around in the SGF
+ *    manager.
+ * loadColInBack: true or false. Whether or to load the SGFs in the background.
+ * sgfDefaults: filled-in sgf default options.  See ./options/base_options.js
+ * displayOptions: filled-in display options. See ./options/base_options.js
+ * actions: combination of stone actions and icon actions.
+ * metadata: metadata about the this instance of glift.
+ */
+glift.widgets.WidgetManager = function(divId, sgfCollection, sgfMapping,
+    sgfColIndex, allowWrapAround, loadColInBack, sgfDefaults, displayOptions,
+    actions, metadata) {
+  // Globally unique ID, at least across all glift instances in the current
+  // page. In theory, the divId should be globally unique, but might as well be
+  // absolutely sure.
+  this.id = divId + '-glift-' + glift.util.idGenerator.next();
+
+  // Register the instance. Maybe should be its own method.
+  glift.global.instanceRegistry[this.id] = this;
+
+  // Set as active, if the active instance hasn't already been set.
+  !glift.global.activeInstanceId && this.setActive();
+
+  // The original div id.
+  this.divId = divId;
+
+  // The fullscreen div id. Only set via the fullscreen button. Necessary to
+  // have for problem collections.
+  this.fullscreenDivId = null;
+  // The fullscreen div will always be at the top. So we jump up to the top
+  // during fullscreen and jump back afterwards.
+  this.prevScrollTop = null;
+  // If we set the window resize (done, for ex. in the case of full-screening),
+  // we track the window-resizing function.
+  this.oldWindowResize = null;
+
+  // Note: At creation time of the manager, The param sgfCollection may either
+  // be an array or a string representing a URL.  If the sgfCollection is a
+  // string, then the JSON is requsted at draw-time and passed to
+  // this.sgfCollection
+  this.sgfCollection = [];
+
+  // Cache of SGFs.  Useful for reducing the number AJAX calls.
+  // Map from SGF name to String contents.
+  this.sgfCache = sgfMapping || {};
+
+  // URL for getting the entire SGF collection.
+  this.sgfCollectionUrl = null;
+
+  // Suppert either explicit arrays or URLs for fetching JSON.
+  if (glift.util.typeOf(sgfCollection) === 'string') {
+    this.sgfCollectionUrl = sgfCollection;
+  } else {
+    this.sgfCollection = sgfCollection;
+  }
+
+  this.sgfColIndex = sgfColIndex;
+  this.allowWrapAround = allowWrapAround
+  this.sgfDefaults = sgfDefaults;
+  this.displayOptions = displayOptions;
+  this.actions = actions;
+
+  // True or false. Whether to load SGFs in the background.
+  this.loadColInBack = loadColInBack;
+  this.initBackgroundLoading = false;
+
+  // Defined on draw
+  this.currentWidget = undefined;
+
+  /**
+   * Global metadata for this manager instance.
+   */
+  this.metadata = metadata || undefined;
+};
+
+glift.widgets.WidgetManager.prototype = {
+  draw: function() {
+    var that = this;
+    var afterCollectionLoad = function() {
+      if (!this.initBackgroundLoading && this.loadColInBack) {
+        // Only start background loading once.
+        this.initBackgroundLoading = true;
+        this.backgroundLoad();
+      }
+      var curObj = this.getCurrentSgfObj();
+      this.getSgfString(curObj, function(sgfObj) {
+        // Prevent flickering by destroying the widget after loading the SGF.
+        this.destroy();
+        this.currentWidget = this.createWidget(sgfObj).draw();
+      }.bind(this));
+    }.bind(this);
+
+    if (this.sgfCollection.length === 0 && this.sgfCollectionUrl) {
+      glift.ajax.get(this.sgfCollectionUrl, function(data) {
+        this.sgfCollection = JSON.parse(data);
+        afterCollectionLoad();
+      }.bind(this));
+    } else {
+      afterCollectionLoad();
+    }
+    return this;
+  },
+
+  /** Redraws the current widget. */
+  redraw: function() {
+    if (this.getCurrentWidget()) {
+      this.getCurrentWidget().redraw();
+    }
+  },
+
+  /** Set as the active widget in the global registry. */
+  setActive: function() { glift.global.activeInstanceId = this.id; },
+
+  /** Gets the current widget object. */
+  getCurrentWidget: function() { 
+    if (this.temporaryWidget) {
+      return this.temporaryWidget;
+    } else {
+      return this.currentWidget; 
+    }
+  },
+
+  /** Gets the current SGF Object from the SGF collection. */
+  getCurrentSgfObj: function() { return this.getSgfObj(this.sgfColIndex); },
+
+  /** Modifies the SgfOptions by resetting the icons settings. */
+  _resetIcons: function(processedObj) {
+    if (this.sgfCollection.length > 1) {
+      if (this.allowWrapAround) {
+        processedObj.icons.push(this.displayOptions.nextSgfIcon);
+        processedObj.icons.splice(0, 0, this.displayOptions.previousSgfIcon);
+      } else {
+        if (this.sgfColIndex === 0) {
+          processedObj.icons.push(this.displayOptions.nextSgfIcon);
+        } else if (this.sgfColIndex === this.sgfCollection.length - 1) {
+          processedObj.icons.splice(0, 0, this.displayOptions.previousSgfIcon);
+        } else {
+          processedObj.icons.push(this.displayOptions.nextSgfIcon);
+          processedObj.icons.splice(0, 0, this.displayOptions.previousSgfIcon);
+        }
+      }
+    }
+    return processedObj;
+  },
+
+  /**
+   * Get the current SGF Object from the sgfCollection. Note: If the item in the
+   * array is a string, then we try to figure out whether we're looking at an
+   * SGF or a URL and then we manufacture a simple sgf object.
+   */
+  getSgfObj: function(index) {
+    if (index < 0 || index > this.sgfCollection.length) {
+      throw new Error("Index [" + index +  " ] out of bounds."
+          + " List size was " + this.sgfCollection.length);
+    }
+    var curSgfObj = this.sgfCollection[index];
+    if (glift.util.typeOf(curSgfObj) === 'string') {
+      var out = {};
+      if (/^\s*\(;/.test(curSgfObj)) {
+        // This is a standard SGF String.
+        out.sgfString = curSgfObj;
+      } else {
+        // assume a URL.
+        out.url = curSgfObj
+      }
+      curSgfObj = out;
+    }
+    var proc = glift.widgets.options.setSgfOptions(curSgfObj, this.sgfDefaults);
+    return this._resetIcons(proc);
+  },
+
+  /**
+   * Get the SGF string.  Since these can be loaded with ajax, the data needs to
+   * be returned with a callback.
+   *
+   * sgfObj: A standard SGF Object.
+   */
+  // TODO(kashomon): Rename this or change it to actually return a string rather
+  // than an SGF object.
+  getSgfString: function(sgfObj, callback) {
+    var alias = sgfObj.alias;
+    var url = sgfObj.url;
+    if (alias && this.sgfCache[alias]) {
+      // First, check the cache for aliases.
+      sgfObj.sgfString = this.sgfCache[alias];
+      callback(sgfObj);
+    } else if (url && this.sgfCache[url]) {
+      // Next, check the cache for urls.
+      sgfObj.sgfString = this.sgfCache[url];
+      callback(sgfObj);
+    } else if (sgfObj.url) {
+      // Check if we need to do an AJAX request.
+      this.loadSgfWithAjax(sgfObj.url, sgfObj, callback);
+    } else {
+      // Lastly: Just send the SGF object back.  Typically, this will be because
+      // either:
+      //  1. The SGF has been aliased.
+      //  2. We want to start with a blank state (i.e., in the case of the
+      //     editor).
+      if (sgfObj.alias && sgfObj.sgfString) {
+        // Create a new cache entry.
+        this.sgfCache[sgfObj.alias] = sgfObj.sgfString;
+      }
+      callback(sgfObj);
+    }
+  },
+
+  /** Get the currentDivId */
+  getDivId: function() {
+    if (this.fullscreenDivId) {
+      return this.fullscreenDivId;
+    } else {
+      return this.divId;
+    }
+  },
+
+  /** Create a Sgf Widget. */
+  createWidget: function(sgfObj) {
+    return new glift.widgets.BaseWidget(
+        this.getDivId(), sgfObj, this.displayOptions, this.actions, this);
+  },
+
+  /**
+   * Temporarily replace the current widget with another widget.  Used in the
+   * case of the PROBLEM_SOLUTION_VIEWER.
+   */
+  createTemporaryWidget: function(sgfObj) {
+    this.currentWidget && this.currentWidget.destroy();
+    sgfObj = glift.widgets.options.setSgfOptions(sgfObj, this.sgfDefaults);
+    this.temporaryWidget = this.createWidget(sgfObj).draw();
+  },
+
+  returnToOriginalWidget: function() {
+    this.temporaryWidget && this.temporaryWidget.destroy();
+    this.temporaryWidget = undefined;
+    this.currentWidget.draw();
+  },
+
+  /** Internal implementation of nextSgf/previous sgf. */
+  _nextSgfInternal: function(indexChange) {
+    if (!this.sgfCollection.length > 1) {
+      return; // Nothing to do
+    }
+    if (this.allowWrapAround) {
+      this.sgfColIndex = (this.sgfColIndex + indexChange + this.sgfCollection.length)
+          % this.sgfCollection.length;
+    } else {
+      this.sgfColIndex = this.sgfColIndex + indexChange;
+      if (this.sgfColIndex < 0) {
+        this.sgfColIndex = 0;
+      } else if (this.sgfColIndex >= this.sgfCollection.length) {
+        this.sgfColIndex = this.sgfCollection.length - 1;
+      }
+    }
+    this.draw();
+  },
+
+  /** Get the next SGF.  Requires that the list be non-empty. */
+  nextSgf: function() { this._nextSgfInternal(1); },
+
+  /** Get the next SGF.  Requires that the list be non-empty. */
+  prevSgf: function() { this._nextSgfInternal(-1); },
+
+  /**
+   * Load a urlOrObject with AJAX.  If the urlOrObject is an object, then we
+   * assume that the caller is trying to set some objects in the widget.
+   */
+  loadSgfWithAjax: function(url, sgfObj, callback) {
+    glift.ajax.get(url, function(data) {
+      this.sgfCache[url] = data;
+      sgfObj.sgfString = data;
+      callback(sgfObj);
+    }.bind(this));
+  },
+
+  /**
+   * Load the SGFs in the background.  Try once every 250ms until we get to the
+   * end of the SGF collection.
+   */
+  backgroundLoad: function() {
+    var loader = function(idx) {
+      if (idx < this.sgfCollection.length) {
+        var curObj = this.getSgfObj(idx);
+        this.getSgfString(curObj, function() {
+          setTimeout(function() {
+            loader(idx + 1);
+          }.bind(this), 250); // 250ms
+        });
+      }
+    }.bind(this);
+    loader(this.sgfColIndex + 1);
+  },
+
+  /** Enable auto-resizing of the glift instance. */
+  enableFullscreenAutoResize: function() {
+    if (window.onresize) { this.oldWindowResize = window.onresize; }
+    window.onresize = function() { this.redraw(); }.bind(this);
+  },
+
+  /** Disable auto-resizing of the glift instance. */
+  disableFullscreenAutoResize: function() {
+    window.onresize = this.oldWindowResize;
+    this.oldWindowResize = null;
+  },
+
+  /** Undraw the most recent widget and remove references to it. */
+  destroy: function() {
+    this.currentWidget && this.currentWidget.destroy();
+    this.currentWidget = undefined;
+    this.temporaryWidget && this.temporaryWidget.destroy();
+    this.temporaryWidget = undefined;
+    return this;
   }
 };
 glift.widgets.options = {
@@ -10585,6 +10583,7 @@ glift.widgets.options = {
     var topLevelOptions = [
         'divId',
         'sgfCollection',
+        'sgfMapping',
         'initialIndex',
         'allowWrapAround',
         'loadCollectionInBackground',
@@ -10753,7 +10752,9 @@ glift.widgets.options.baseOptions = {
     /**
      * A name to by which an SGF String can be referred to later.  This is only
      * necessary for SGF Strings -- URLs are their own aliases.
-     * @api(beta)
+     *
+     * Note: If this feature is used, the SGF should be supplied in a SGF Mapping.
+     * @api(experimental)
      */
     alias: undefined,
 
@@ -10765,13 +10766,13 @@ glift.widgets.options.baseOptions = {
 
     /**
      * Defines where to start on the go board. An empty string implies the very
-     * beginning. Rather than describe how you can detail the paths, here are
-     * some examples of ways to specify an initial position.
+     * beginning, which is equally equivalent to 0 or [0].
+     *
+     * Rather than describe how you can detail the paths, here are some examples
+     * of ways to specify an initial position.
      * 0         - Start at the 0th move (the root node)
-     * 1         - Start at the 1st move. This is often used in combination with
-     *             a black pass to specify that white should play in a
-     *             particular problem.
-     * 53        - Start at the 53rd move, taking the primary path
+     * 1         - Start at the 1st move.
+     * 53        - Start at the 53rd move, taking the primary (main-line) path
      * 2.3       - Start at the 3rd variation on move 2 (actually move 3)
      * 3         - Start at the 3rd move, going through all the top variations
      * 2.0       - Start at the 3rd move, going through all the top variations
@@ -10953,6 +10954,19 @@ glift.widgets.options.baseOptions = {
   sgfCollection: undefined,
 
   /**
+   * An experimental feature. Create an association between.  This defines the
+   * basis of the manager SGF cache.
+   *
+   * Expects the structure:
+   *  {
+   *    [name/alias]: <sgf string>
+   *  }
+   *
+   * @api(experimental)
+   */
+  sgfMapping: undefined,
+
+  /**
    * Index into the above collection.  This is mostly useful for remembering
    * someone's position in the sgf collection.
    * @api(1.0)
@@ -10962,6 +10976,7 @@ glift.widgets.options.baseOptions = {
   /**
    * If there are multiple SGFs in the SGF list, this flag indicates whether or
    * not to allow the user to go back to the beginnig (or conversely, the end).
+   * @api(experimental)
    */
   allowWrapAround: false,
 
@@ -11245,7 +11260,7 @@ glift.widgets.options.baseOptions = {
     multiopen: {
       click: function(event, widget, icon, iconBar) {
         var ic = glift.displays.icons.iconSelector(
-            widget.wrapperDiv,
+            widget.wrapperDivId,
             iconBar.divId,
             icon);
         ic.setIconEvents('click', function(event, wrappedIcon) {

@@ -22,6 +22,7 @@ FILES_TO_AUTOGEN = {
 DIR_ORDER = [
   '.',
   'book',
+  'gen',
   'diagrams',
   'diagrams/gooe',
   'diagrams/pdf',
