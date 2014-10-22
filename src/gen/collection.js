@@ -114,12 +114,13 @@ gpub.gen.collection = {
     if (!glift.enums.boardRegions[region]) {
       throw new Error('Unknown board region: ' + region);
     }
-    var treepathToString = glift.rules.treepath.toString;
+    var ipString = glift.rules.treepath.toInitPathString;
+    var fragString = glift.rules.treepath.toFragmentString;
     var base = {
       widgetType: 'EXAMPLE',
       alias: alias,
-      initialPosition: treepathToString(initPos),
-      nextMovesPath: treepathToString(nextMoves),
+      initialPosition: ipString(initPos),
+      nextMovesPath: fragString(nextMoves),
       boardRegion: region
     };
     return base;

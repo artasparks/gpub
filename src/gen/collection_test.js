@@ -10,11 +10,10 @@ gpub.gen.collectionTest = function() {
   });
 
   test('createExample', function() {
-    var out = coll.createExample(
-        'zed', [0,0,0], [0,1]);
+    var out = coll.createExample('zed', [0,0,0], [0,1]);
     deepEqual(out.widgetType, 'EXAMPLE');
     deepEqual(out.alias, 'zed');
-    deepEqual(out.initialPosition, '0.0.0');
+    deepEqual(out.initialPosition, '3');
     deepEqual(out.nextMovesPath, '0.1');
     deepEqual(out.boardRegion, 'ALL');
   });
@@ -34,7 +33,7 @@ gpub.gen.collectionTest = function() {
     ]);
     var outcol = out.sgfCollection;
     deepEqual(outcol.length, 2);
-    deepEqual(outcol[0], coll.createExample('sgf:0', '', '0.0'));
-    deepEqual(outcol[1], coll.createExample('sgf:0', '0', '1'));
+    deepEqual(outcol[0], coll.createExample('sgf:0', [], '0.0'));
+    deepEqual(outcol[1], coll.createExample('sgf:0', [0], '1'));
   });
 };
