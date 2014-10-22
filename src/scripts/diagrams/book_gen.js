@@ -10,7 +10,9 @@ var path = require('path')
 var flags = flagz.init(
   'A script for generating single go diagrams.',
   ['<sgf-filenames>'],
-  {}).process();
+  {
+    'outputType': ['gpub.book.outputType', ''],
+  }).process();
 
 var files = [];
 for (var i = 0; i < flags.args.length; i++) {
@@ -19,4 +21,6 @@ for (var i = 0; i < flags.args.length; i++) {
 
 var out = gpub.gen.collection.fromGames(files);
 
-console.log(JSON.stringify(gpub.gen.collection.fromGames(files)));
+// TODO(kashomon): Add support for book generation
+
+console.log(out);
