@@ -8,19 +8,16 @@ var fs = require('fs');
 var path = require('path')
 
 var flags = flagz.init(
-  'A script for generating single go diagrams.',
-  ['<sgf-filenames>'],
+  'A script for generating books!  Note: A lot of tertiary stuff gets created! ' +
+  'Thus, you may want to manually set the --outputDir flag.'
+  ['<json-book-definition>'],
   {
-    'outputType': ['gpub.book.outputType', ''],
+    book_title: ['string', 'My Book'],
+    output_dir: ['string', 'gpub-book'],
+    book_type: ['string', 'HTML'],
+    template: ['string', 'templates/html_book_templates.html'],
   }).process();
 
-var files = [];
-for (var i = 0; i < flags.args.length; i++) {
-  files.push(fs.readFileSync(flags.args[i], {encoding: 'utf8'}));
-}
+var bookDef = fs.readFileSync(flags.args[0], {encoding: 'utf8'});
 
-var out = gpub.gen.collection.fromGames(files);
-
-// TODO(kashomon): Add support for book generation
-
-console.log(out);
+console.log(JSON.parse(out));

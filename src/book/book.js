@@ -1,5 +1,5 @@
 gpub.book = {
-  outputType: {
+  bookType: {
     /** Standard GLift web display */
     HTML: 'HTML',
 

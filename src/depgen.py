@@ -27,6 +27,7 @@ DIR_ORDER = [
   'diagrams/gooe',
   'diagrams/pdf',
   'latex',
+  'templates',
   # Glift isn't technically part of gpub, but gpub depends on glift, so for the
   # purpose of scripts, it's convenient to append it
   # 'glift',
