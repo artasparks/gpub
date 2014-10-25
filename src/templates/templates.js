@@ -1,7 +1,8 @@
 gpub.templates = {};
 
 /**
- * A representation of a template.
+ * A representation of a GPub template. Like normal HTML templating, but quite
+ * a bit simpler.
  */
 gpub.templates._Template = function(sections, paramMap) {
   this._sections = sections;
@@ -10,9 +11,7 @@ gpub.templates._Template = function(sections, paramMap) {
 };
 
 gpub.templates._Template.prototype = {
-  /**
-   * Compiles the template with the new template variables.
-   */
+  /** Compiles the template with the new template variables. */
   compile: function() {
     var sectionsCopy = this._sections.slice(0);
     for (var key in this._paramMap) {
@@ -23,9 +22,12 @@ gpub.templates._Template.prototype = {
     return sectionsCopy.join('');
   },
 
-  /**
-   * Sets a template parameter.
-   */
+  /** Returns true if the template has parameter given by 'key' */
+  hasParam: function(key) {
+    return !!this._paramMap[key];
+  },
+
+  /** Sets a template parameter. */
   setParam: function(key, value) {
     if (!this._paramMap[key]) {
       throw new Error('Unknown key: ' + key);

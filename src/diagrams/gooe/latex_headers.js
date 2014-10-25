@@ -1,4 +1,8 @@
 gpub.diagrams.gooe.headers = {
+  packageDef: function() {
+    return '\\usepackage{gooemacs}';
+  },
+
   /**
    * Some built in defs that are useful for generating LaTeX books using Gooe
    * fonts.
@@ -34,7 +38,7 @@ gpub.diagrams.gooe.headers = {
    *
    * Takes a base font family. Defaults to cmss (computer modern sans serif).
    */
-  get: function(baseFont) {
+  getExtraDefs: function(baseFont) {
     var defs = gpub.diagrams.gooe.headers.defs;
     var baseFont = baseFont || 'cmss';
     var fontDefsBase = [

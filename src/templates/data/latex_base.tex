@@ -1,0 +1,51 @@
+\documentclass[letterpaper,12pt]{memoir}
+\usepackage{gooemacs}
+\usepackage{color}
+\usepackage{wrapfig}
+\usepackage{setspace}
+\usepackage{unicode}
+\usepackage[margin=1in]{geometry}
+%%% Define any extra packages %%%
+{{ extraPackages }}
+
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+%%% Extra setup. %%%
+{{ extraDefs }}
+
+% Mainline Diagrams. reset at parts
+\newcounter{GoFigure}[part]
+\newcommand{\gofigure}{%
+ \stepcounter{GoFigure}
+ \centerline{\textit{Figure.\thinspace\arabic{GoFigure}}}
+}
+% Variation Diagrams. reset at parts.
+\newcounter{GoDiagram}[part]
+\newcommand{\godiagram}{%
+ \stepcounter{GoDiagram}
+ \centerline{\textit{Diagram.\thinspace\arabic{GoDiagram}}}
+}
+\newcommand{\subtext}[1]{\centerline{\textit{#1}}}
+
+%%% Define the main title %%%
+{{ mainBookTitleDef }}
+
+\begin{document}
+
+\pagestyle{empty}
+\mainBookTitle
+\newpage
+\tableofcontents
+
+\chapterstyle{section}
+\pagestyle{companion}
+\makepagestyle{headings}
+\renewcommand{\printchapternum}{\space}
+\makeevenhead{headings}{\thepage}{}{\slshape\leftmark}
+\makeoddhead{headings}{\slshape\rightmark}{}{\thepage}
+
+%%% The content. %%%
+{{ content }}
+
+\end{document}
