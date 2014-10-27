@@ -47,15 +47,20 @@
 <script type="text/javascript" src="../diagrams/gooe/gooe.js"></script>
 <script type="text/javascript" src="../diagrams/gooe/latex_headers.js"></script>
 <script type="text/javascript" src="../diagrams/gooe/symbol_map.js"></script>
+<!-- Diagrams igo -->
+<script type="text/javascript" src="../diagrams/igo/igo.js"></script>
 <!-- Diagrams pdf -->
 <script type="text/javascript" src="../diagrams/pdf/pdf.js"></script>
-<!-- Latex -->
-<script type="text/javascript" src="../latex/latex.js"></script>
+<!-- Diagrams latex -->
+<script type="text/javascript" src="../diagrams/latex/latex.js"></script>
+<script type="text/javascript" src="../diagrams/latex/defs.js"></script>
 <!-- Templates -->
 <script type="text/javascript" src="../templates/templates.js"></script>
+<script type="text/javascript" src="../templates/latex_base.js"></script>
 <script type="text/javascript" src="../templates/latex_template.js"></script>
 <script type="text/javascript" src="../templates/parser.js"></script>
 <!-- Book Tests -->
+<script type="text/javascript" src="../book/latex_book_test.js"></script>
 <script type="text/javascript" src="../book/manager_test.js"></script>
 <!-- Gen Tests -->
 <script type="text/javascript" src="../gen/collection_test.js"></script>
@@ -63,6 +68,8 @@
 <script type="text/javascript" src="../diagrams/diagrams_test.js"></script>
 <!-- Diagrams gooe Tests -->
 <script type="text/javascript" src="../diagrams/gooe/gooe_test.js"></script>
+<!-- Diagrams latex Tests -->
+<script type="text/javascript" src="../diagrams/latex/latex_test.js"></script>
 <!-- Templates Tests -->
 <script type="text/javascript" src="../templates/latex_template_test.js"></script>
 <script type="text/javascript" src="../templates/parser_test.js"></script>
@@ -79,7 +86,11 @@
 
   gpub.diagrams.gooe.gooeTest();
 
+  gpub.diagrams.latex.latexTest();
+
   gpub.gen.collectionTest();
+
+  gpub.book.latexBookTest();
 </script>
 
 </head>

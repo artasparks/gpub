@@ -6,7 +6,7 @@ gpub.templates.parse = function(template) {
   var paramMap = {}; // key to position
   var states = {
     DEFAULT: 'DEFAULT',
-    IN_PARAM: 'IN_PARAM',
+    IN_PARAM: 'IN_PARAM'
   };
   var curstate = states.DEFAULT;
   var buffer = [];
@@ -25,7 +25,7 @@ gpub.templates.parse = function(template) {
           }
           // Else move on
         } else {
-          if (prev === '{') buffer.push(c);
+          if (prev === '{') buffer.push(prev);
           buffer.push(c);
         }
         break;

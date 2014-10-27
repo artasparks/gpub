@@ -8,8 +8,7 @@ var fs = require('fs');
 var path = require('path')
 
 var flags = flagz.init(
-  'A script for generating books!  Note: A lot of tertiary stuff gets created! ' +
-  'Thus, you may want to manually set the --outputDir flag.'
+  'A script for generating books from book specs!',
   ['<json-book-definition>'],
   {
     book_title: ['string', 'My Book'],
@@ -18,6 +17,6 @@ var flags = flagz.init(
     template: ['string', 'templates/html_book_templates.html'],
   }).process();
 
-var bookDef = fs.readFileSync(flags.args[0], {encoding: 'utf8'});
+var bookDef = JSON.parse(fs.readFileSync(flags.args[0], {encoding: 'utf8'}));
 
-console.log(JSON.parse(out));
+console.log(gpub.book.latex.generate(bookDef))

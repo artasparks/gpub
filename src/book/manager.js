@@ -92,29 +92,5 @@ gpub.book.manager = {
     var gooeArray = gooe.diagramArray(flattened, size);
     var diagram = gooe.diagramArrToString(gooeArray);
     return diagram;
-  },
-
-  /**
-   * Typeset the diagram into LaTeX
-   */
-  typesetDiagram: function(str, comment, bookData, collisions, isMainline) {
-    var diagramTypes = gpub.diagrams.diagramTypes;
-    var latex = gpub.diagrams.latex;
-    var label = '';
-    if (bookData.diagramType === diagramTypes.GAME_REVIEW) {
-      if (bookData.showDiagram) {
-        var label = isMainline ? '\\gofigure' : '\\godiagram';
-        var collisionLabel = latex.labelForCollisions(collisions);
-        if (collisionLabel.length > 0) {
-          label += '\n\n' + ' \\subtext{' + collisionLabel + '}';
-        }
-      }
-      if (bookData.chapterTitle) {
-        return latex.gameReviewChapterDiagram(
-            str, comment, bookData.chapterTitle, label);
-      } else {
-        return latex.gameReviewDiagram(str, comment, label);
-      }
-    }
   }
 };

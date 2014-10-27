@@ -1,4 +1,4 @@
-gpub.diagrams.gooe.headers = {
+gpub.diagrams.gooe.latexHeaders = {
   packageDef: function() {
     return '\\usepackage{gooemacs}';
   },
@@ -38,8 +38,8 @@ gpub.diagrams.gooe.headers = {
    *
    * Takes a base font family. Defaults to cmss (computer modern sans serif).
    */
-  getExtraDefs: function(baseFont) {
-    var defs = gpub.diagrams.gooe.headers.defs;
+  extraDefs: function(baseFont) {
+    var defs = gpub.diagrams.gooe.latexHeaders.defs;
     var baseFont = baseFont || 'cmss';
     var fontDefsBase = [
       '% Gooe font definitions',

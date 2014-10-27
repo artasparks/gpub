@@ -1,5 +1,4 @@
 \documentclass[letterpaper,12pt]{memoir}
-\usepackage{gooemacs}
 \usepackage{color}
 \usepackage{wrapfig}
 \usepackage{setspace}
@@ -11,22 +10,15 @@
 \setlength{\parskip}{0.5em}
 \setlength{\parindent}{0pt}
 
-%%% Extra setup. %%%
-{{ extraDefs }}
+%%% Extra defs
+% Necessary for the particular digaram type.
+{{ diagramTypeDefs }}
 
-% Mainline Diagrams. reset at parts
-\newcounter{GoFigure}[part]
-\newcommand{\gofigure}{%
- \stepcounter{GoFigure}
- \centerline{\textit{Figure.\thinspace\arabic{GoFigure}}}
-}
-% Variation Diagrams. reset at parts.
-\newcounter{GoDiagram}[part]
-\newcommand{\godiagram}{%
- \stepcounter{GoDiagram}
- \centerline{\textit{Diagram.\thinspace\arabic{GoDiagram}}}
-}
-\newcommand{\subtext}[1]{\centerline{\textit{#1}}}
+%%% Diagram Figure defs.
+% Must expose two commands
+%  \gofigure  (mainline diagrams)
+%  \godiagram (variation diagrams)
+{{ diagramWrapperDefs }}
 
 %%% Define the main title %%%
 {{ mainBookTitleDef }}

@@ -25,12 +25,10 @@ DIR_ORDER = [
   'gen',
   'diagrams',
   'diagrams/gooe',
+  'diagrams/igo',
   'diagrams/pdf',
-  'latex',
+  'diagrams/latex',
   'templates',
-  # Glift isn't technically part of gpub, but gpub depends on glift, so for the
-  # purpose of scripts, it's convenient to append it
-  # 'glift',
 ]
 
 COMBINED_LOC = 'compiled/gpub_combined.js'

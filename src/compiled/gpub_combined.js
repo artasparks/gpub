@@ -20,7 +20,156 @@ gpub.global = {
    */
   version: '0.1.0'
 };
-gpub.book = {};
+/**
+ * Package for creating the books!
+ */
+gpub.book = {
+  /**
+   * Available book formats.
+   */
+  // TODO(kashomon): Move into diagram package.
+  bookFormat: {
+    /** Standard GLift web display */
+    HTML: 'HTML',
+
+    /** LaTeX output */
+    LATEX: 'LATEX'
+  }
+};
+/**
+ * An html 'book' creator
+ */
+gpub.book.htmlBook = {
+  /**
+   * Expects a book definition, like the kind specified from gen.collection
+   */
+  create: function(options, template) {
+
+  }
+}
+gpub.book.latex = {
+  /**
+   * Generate a LaTeX book!
+   *
+   * We assume that the options have already been generated.
+   */
+  generate: function(bookDefinition, templateString, diagramType) {
+    if (!bookDefinition) {
+      throw new Error('Options must be defined. Was: ' + bookDefinition);
+    }
+    var diagramsPerPage = 2;
+
+    var templateString = templateString || gpub.templates.latexBase;
+    var diagramType = diagramType || gpub.diagrams.diagramType.GOOE
+
+    var mgr = glift.widgets.createNoDraw(bookDefinition);
+    var template = gpub.templates.parseLatexTemplate(templateString);
+    var diagramTypePkg = gpub.diagrams[glift.enums.toCamelCase(diagramType)];
+    var diagramTypeHeaders = diagramTypePkg.latexHeaders;
+
+    var latexDefs = gpub.diagrams.latex;
+
+    template.setExtraPackages(diagramTypeHeaders.packageDef())
+        .setDiagramTypeDefs(diagramTypeHeaders.extraDefs())
+        .setDiagramWrapperDefs(latexDefs.diagramDefs())
+        .setTitleDef(this.basicTitleDef(
+            'Relentless',
+            'Gu Li vs Lee Sedol',
+            ['Younggil An', 'David Ormerod', 'Josh Hoak'],
+            'Go Game Guru'));
+
+    var content = [];
+    var diagramBuffer = []
+    for (var i = 0; i < mgr.sgfCollection.length; i++) {
+      var sgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(i));
+      var mt = glift.rules.movetree.getFromSgf(
+          sgfObj.sgfString, sgfObj.initialPosition);
+      var flattened = glift.flattener.flatten(mt, {
+          nextMovesTreepath: sgfObj.nextMovesPath,
+          boardRegion: sgfObj.boardRegion
+      });
+      var purpose = gpub.diagrams.diagramPurpose.GAME_REVIEW;
+
+      if (mt.node().getNodeNum() == 0 &&
+          sgfObj.nextMovesPath.length == 0) {
+        // We're at the beginning of the game.
+        purpose = gpub.diagrams.diagramPurpose.SECTION_INTRO;
+      }
+
+      // TODO(kashomon): Fix this up
+      var nodeData = {
+        chapterTitle: 'Chapter ' + i
+      };
+
+      var diagram = gpub.diagrams.forPurpose(
+          flattened,
+          gpub.diagrams.diagramType.GOOE,
+          gpub.book.bookFormat.LATEX,
+          purpose,
+          nodeData);
+
+      content.push(diagram);
+      content.push('\\newpage');
+
+      // TODO(kashomon): Clean up this hackiness.
+      // if (purpose === gpub.diagrams.diagramPurpose.SECTION_INTRO) {
+        // content.push(gpub.book.latex.renderPage(diagramBuffer));
+        // diagramBuffer = [];
+        // diagramBuffer.push(diagram);
+        // content.push(gpub.book.latex.renderPage(diagramBuffer));
+      // } else {
+        // diagramBuffer.push(diagram);
+        // if (diagramBuffer.length === diagramsPerPage) {
+          // content.push(gpub.book.latex.renderPage(diagramBuffer));
+          // diagramBuffer = [];
+        // }
+      // }
+    }
+    return template.setContent(content.join('\n')).compile();
+  },
+
+  /**
+   * Generates a basic title.
+   *
+   * title: title of the book as string
+   * author: array of one or several authors as array af string
+   * subtitle: the subtitle as string
+   * publisher: the publisher as string
+   *
+   * Note: The LaTeX template expects the command \mainBookTitle.
+   *
+   * returns: filled in string.
+   */
+  // TODO(kashomon): Perhaps there should be a 'titles' package. Or perhaps each
+  // booktype should get its own sub-package?
+  basicTitleDef: function(title, subtitle, authors, publisher) {
+    var strbuff = [
+      '\\definecolor{light-gray}{gray}{0.55}',
+      '\\newcommand*{\\mainBookTitle}{\\begingroup',
+      '  \\raggedleft'];
+    for (var i = 0; i < authors.length; i++) {
+      strbuff.push('  {\\Large ' + authors[i] + '} \\\\')
+      if (i === 0) {
+        strbuff.push('  \\vspace*{0.5 em}');
+      } else if (i < authors.length - 1) {
+        strbuff.push('  \\vspace*{0.5 em}');
+      }
+    }
+    return strbuff.concat(['  \\vspace*{5 em}',
+      '  {\\textcolor{light-gray}{\\Huge ' + title + '}}\\\\',
+      '  \\vspace*{\\baselineskip}',
+      '  {\\small \\bfseries ' + subtitle + '}\\par',
+      '  \\vfill',
+      '  {\\Large ' + publisher + '}\\par',
+      '  \\vspace*{2\\baselineskip}',
+      '\\endgroup}']).join('\n');
+  },
+
+  renderPage: function(buffer) {
+    buffer.push('\\newpage');
+    return buffer.join('\n');
+  }
+};
 /**
  * Conversion related to managers
  */
@@ -115,30 +264,6 @@ gpub.book.manager = {
     var gooeArray = gooe.diagramArray(flattened, size);
     var diagram = gooe.diagramArrToString(gooeArray);
     return diagram;
-  },
-
-  /**
-   * Typeset the diagram into LaTeX
-   */
-  typesetDiagram: function(str, comment, bookData, collisions, isMainline) {
-    var diagramTypes = gpub.diagrams.diagramTypes;
-    var latex = gpub.diagrams.latex;
-    var label = '';
-    if (bookData.diagramType === diagramTypes.GAME_REVIEW) {
-      if (bookData.showDiagram) {
-        var label = isMainline ? '\\gofigure' : '\\godiagram';
-        var collisionLabel = latex.labelForCollisions(collisions);
-        if (collisionLabel.length > 0) {
-          label += '\n\n' + ' \\subtext{' + collisionLabel + '}';
-        }
-      }
-      if (bookData.chapterTitle) {
-        return latex.gameReviewChapterDiagram(
-            str, comment, bookData.chapterTitle, label);
-      } else {
-        return latex.gameReviewDiagram(str, comment, label);
-      }
-    }
   }
 };
 gpub.gen = {};
@@ -258,12 +383,13 @@ gpub.gen.collection = {
     if (!glift.enums.boardRegions[region]) {
       throw new Error('Unknown board region: ' + region);
     }
-    var treepathToString = glift.rules.treepath.toString;
+    var ipString = glift.rules.treepath.toInitPathString;
+    var fragString = glift.rules.treepath.toFragmentString;
     var base = {
       widgetType: 'EXAMPLE',
       alias: alias,
-      initialPosition: treepathToString(initPos),
-      nextMovesPath: treepathToString(nextMoves),
+      initialPosition: ipString(initPos),
+      nextMovesPath: fragString(nextMoves),
       boardRegion: region
     };
     return base;
@@ -271,9 +397,9 @@ gpub.gen.collection = {
 };
 gpub.diagrams = {
   /**
-   * Types of diagram generation.
+   * Types of diagram output.
    */
-  types: {
+  diagramType: {
     /**
      * Dan Bump's LaTeX font. Part of the Sgf2Dg script.
      */
@@ -292,26 +418,89 @@ gpub.diagrams = {
     PDF: 'PDF'
   },
 
+  /**
+   * Types of diagram purposes.
+   */
+  diagramPurpose: {
+    SECTION_INTRO: 'SECTION_INTRO',
+
+    GAME_REVIEW: 'GAME_REVIEW',
+    GAME_REVIEW_CHAPTER: 'GAME_REVIEW_CHAPTER',
+
+    PROBLEM: 'PROBLEM',
+    PROBLEM_SOLUTION: 'PROBLEM_SOLUTION'
+  },
+
   sizes: {
     NORMAL: 'NORMAL',
     LARGE: 'LARGE'
   },
 
   /**
-   * Creates a diagram-for-print!
+   * Generates a diagram for a specific purpose and a given format
    */
-  create: function(sgf, type, initPos, nextMovesPath, boardRegion) {
-    var flattened = this.flatten(sgf, initPos, nextMovesPath, boardRegion);
-    switch(type) {
-      case 'GOOE':
-        return gpub.diagrams.gooe.create(flattened);
-      default:
-        throw new Error('Not currently supported: ' + type);
+  forPurpose: function(
+      flattened,
+      diagramType,
+      bookFormat,
+      diagramPurpose,
+      bookData) {
+    if (!diagramType || !gpub.diagrams.diagramType[diagramType]) {
+      throw new Error('Unknown diagram type: ' + diagramType);
     }
+    if (!bookFormat || !gpub.book.bookFormat[bookFormat]) {
+      throw new Error('Unknown diagram type: ' + bookFormat);
+    }
+    if (!diagramPurpose || !gpub.diagrams.diagramPurpose[diagramPurpose]) {
+      throw new Error('Unknown diagram type: ' + diagramPurpose);
+    }
+
+    var bookData = bookData || {};
+    var diagramString = gpub.diagrams.fromFlattened(flattened, diagramType);
+
+    var pkg = null;
+    switch(bookFormat) {
+      case 'LATEX':
+        pkg = gpub.diagrams.latex
+        break;
+      default:
+        throw new Error('Unsupported book format: ' + bookFormat);
+    }
+
+    var label = null;
+    switch(diagramPurpose) {
+      case 'GAME_REVIEW':
+        // Fallthrough
+      case 'GAME_REVIEW_CHAPTER':
+        // Fallthrough
+      case 'SECTION_INTRO':
+        label  = gpub.diagrams.labelForCollisions(flattened.collisions());
+        break;
+      default:
+        label = '';
+    }
+
+    return pkg.typeset(
+        diagramString,
+        diagramPurpose,
+        flattened.comment(),
+        label,
+        flattened.isOnMainPath(),
+        bookData);
   },
 
   /**
-   * Return a Flattened object, which is key for generating diagrams.
+   * Creates a diagram-for-print! This is largely a convenience method.  Most
+   * users will want
+   */
+  create: function(sgf, diagramType, initPos, nextMovesPath, boardRegion) {
+    var flattened = this.flatten(sgf, initPos, nextMovesPath, boardRegion);
+    return this.fromFlattened(flattened, diagramType);
+  },
+
+  /**
+   * A flattener helper.  Returns a Flattened object, which is key for
+   * generating diagrams.
    */
   flatten: function(sgf, initPos, nextMovesPath, boardRegion) {
     initPos = initPos || [];
@@ -321,6 +510,39 @@ gpub.diagrams = {
       nextMovesTreepath: nextMovesPath,
       boardRegion: boardRegion
     });
+  },
+
+  /**
+   * Return a diagram from a glift Flattened object.
+   */
+  fromFlattened: function(flattened, diagramType) {
+    switch(diagramType) {
+      case 'GOOE':
+        return gpub.diagrams.gooe.create(flattened);
+      default:
+        throw new Error('Not currently supported: ' + diagramType);
+    }
+  },
+
+  /**
+   * Collisions is an array of collisions objects, having the form:
+   *    {color: <color>, mvnum: <number>, label: <str label>}
+   *
+   * returns: stringified label format.
+   */
+  labelForCollisions: function(collisions) {
+    if (!collisions ||
+        glift.util.typeOf(collisions) !== 'array' ||
+        collisions.length === 0) {
+      return '';
+    }
+    var buffer = [];
+    for (var i = 0; i < collisions.length; i++) {
+      var c = collisions[i];
+      var col = c.color === glift.enums.states.BLACK ? 'Black' : 'White';
+      buffer.push(col + ' ' + c.mvnum + ' at ' + c.label);
+    }
+    return buffer.join(', ') + '.'
   }
 };
 /**
@@ -387,7 +609,11 @@ gpub.diagrams.gooe = {
     return newBoard;
   }
 };
-gpub.diagrams.gooe.headers = {
+gpub.diagrams.gooe.latexHeaders = {
+  packageDef: function() {
+    return '\\usepackage{gooemacs}';
+  },
+
   /**
    * Some built in defs that are useful for generating LaTeX books using Gooe
    * fonts.
@@ -423,8 +649,8 @@ gpub.diagrams.gooe.headers = {
    *
    * Takes a base font family. Defaults to cmss (computer modern sans serif).
    */
-  get: function(baseFont) {
-    var defs = gpub.diagrams.gooe.headers.defs;
+  extraDefs: function(baseFont) {
+    var defs = gpub.diagrams.gooe.latexHeaders.defs;
     var baseFont = baseFont || 'cmss';
     var fontDefsBase = [
       '% Gooe font definitions',
@@ -501,6 +727,11 @@ gpub.diagrams.gooe.symbolMap = {
   // WSTONE_INLINE: '\goinWsLbl{%s}',
   // MISC_STONE_INLINE: '\goinChar{%s}',
 };
+gpub.diagrams.igo = {
+  create: function(flattened) {
+
+  }
+};
 /**
  * Create a PDF diagram.
  */
@@ -509,102 +740,54 @@ gpub.diagrams.pdf = {
 
   }
 };
+/**
+ * Some basic LaTeX definitions. This should perhaps be its own directory, once
+ * more styles are added.
+ */
 gpub.diagrams.latex = {
-  basicHeader_: [
-    '\\documentclass[letterpaper,12pt]{memoir}',
-    '\\usepackage{gooemacs}',
-    '\\usepackage{color}',
-    '\\usepackage{wrapfig}',
-    '\\usepackage{setspace}',
-    '\\usepackage{unicode}',
-    '\\usepackage[margin=1in]{geometry}',
-    '',
-    '\\setlength{\\parskip}{0.5em}',
-    '\\setlength{\\parindent}{0pt}'
-  ],
 
-  /** Basic latex header. Uses memoir class. */
-  basicHeader: function() {
-    return gpub.diagrams.latex.basicHeader_.join('\n');
+  // TODO(kashomon): Make this smarter. better. faster. stronger.
+  sanitize: function(text) {
+    text = text.replace('$', '\\$');
+    text = text.replace('#', '\\#');
+    return text
   },
-
-  /** Diagram label macros. For making Figure.1, Dia.1, etc. */
-  diagramLabelMacros: function() {
-    return [
-      '% Mainline Diagrams. reset at parts',
-      '\\newcounter{GoFigure}[part]',
-      '\\newcommand{\\gofigure}{%',
-      ' \\stepcounter{GoFigure}',
-      ' \\centerline{\\textit{Figure.\\thinspace\\arabic{GoFigure}}}',
-      '}',
-      '% Variation Diagrams. reset at parts.',
-      '\\newcounter{GoDiagram}[part]',
-      '\\newcommand{\\godiagram}{%',
-      ' \\stepcounter{GoDiagram}',
-      ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoDiagram}}}',
-      '}',
-      '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
-      ''].join('\n');
-  },
-
-  /** Basic latex footer */
-  basicFooter: '\\end{document}',
 
   /**
-   * title: title of the book as string
-   * author: array of one or several authors as array af string
-   * subtitle: the subtitle as string
-   * publisher: the publisher as string
-   *
-   * returns: filled in string.
+   * Typeset the diagram into LaTeX
    */
-  generateTitleDef: function(title, subtitle, authors, publisher) {
-    var strbuff = [
-      '\\definecolor{light-gray}{gray}{0.55}',
-      '\\newcommand*{\\mainBookTitle}{\\begingroup',
-      '  \\raggedleft'];
-    for (var i = 0; i < authors.length; i++) {
-      strbuff.push('  {\\Large ' + authors[i] + '} \\\\')
-      if (i === 0) {
-        strbuff.push('  \\vspace*{0.5 em}');
-      } else if (i < authors.length - 1) {
-        strbuff.push('  \\vspace*{0.5 em}');
-      }
+  typeset: function(str, purpose, comment, label, isMainLine, bookData) {
+    comment = this.sanitize(comment);
+
+    var camelCaseName = glift.enums.toCamelCase(purpose)
+    var func = gpub.diagrams.latex[camelCaseName];
+    switch(purpose) {
+      case 'GAME_REVIEW':
+        var baseLabel = isMainLine ? '\\gofigure' : '\\godiagram';
+        if (label) {
+          baseLabel += '\n\n \\subtext{' + label + '}';
+        }
+        var label = baseLabel;
+        break;
+      default:
+        // Do nothing.  This switch is for processing the incoming label.
     }
-    return strbuff.concat(['  \\vspace*{5 em}',
-      '  {\\textcolor{light-gray}{\\Huge ' + title + '}}\\\\',
-      '  \\vspace*{\\baselineskip}',
-      '  {\\small \\bfseries ' + subtitle + '}\\par',
-      '  \\vfill',
-      '  {\\Large ' + publisher + '}\\par',
-      '  \\vspace*{2\\baselineskip}',
-      '\\endgroup}']).join('\n');
+    return func(str, comment, label, bookData);
   },
 
   /**
-   * Start the latex document by doing \begin{document} and rendering some basic
-   * frontmatter.
+   * Return a section intro.
    */
-  startDocument: function() {
+  sectionIntro: function(diagramString, comment, label, bookData) {
+    var chapter = bookData.chapterTitle || 'Chapter';
     return [
-      '\\begin{document}',
-      '',
-      '\\pagestyle{empty}',
-      '\\mainBookTitle',
-      '\\newpage',
-      '\\tableofcontents',
-      '',
-      '\\chapterstyle{section}',
-      '\\pagestyle{companion}',
-      '\\makepagestyle{headings}',
-      '\\renewcommand{\\printchapternum}{\\space}',
-      '\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
-      '\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}'
-      ].join('\n');
+      '\\chapter{' + chapter + '}',
+      comment
+    ].join('\n');
   },
 
   /**
-   * Generate a GameReview diagram.
+   * Generate a GAME_REVIEW diagram.
    *
    * diagramString: Literal string for the diagram
    * comment: Comment for diagram
@@ -612,7 +795,7 @@ gpub.diagrams.latex = {
    *
    * returns: filled-in latex string.
    */
-  gameReviewDiagram: function(diagramString, comment, label) {
+  gameReview: function(diagramString, comment, label) {
     return [
       '',
       '\\rule{\\textwidth}{0.5pt}',
@@ -631,36 +814,233 @@ gpub.diagrams.latex = {
   /**
    * Generate a Game Review Chapter Diagram.
    */
-  gameReviewChapterDiagram: function(diagStr, comment, title, label) {
+  gameReviewChapter: function(diagramString, comment, label, title) {
     return [
       '\\chapter{' + title + '}',
       '{\\centering',
-      diagStr,
+      diagramString,
       '}',
       label,
       '',
       comment,
       '\\vfill'].join('\n');
+  }
+};
+/**
+ * Diagram label macros. For making Figure.1, Dia.1, etc.
+ *
+ * This is the basic style.  Used for games, primarily.
+ * Defines:
+ *  \gofigure: mainline variations.
+ *  \godiagram: variation diagrams.
+ */
+gpub.diagrams.latex.diagramDefs = function(diagramPurpose) {
+  // TODO(kashomon): Switch off of diagramPurpose.
+  return [
+    '% Mainline Diagrams. reset at parts',
+    '\\newcounter{GoFigure}[part]',
+    '\\newcommand{\\gofigure}{%',
+    ' \\stepcounter{GoFigure}',
+    ' \\centerline{\\textit{Figure.\\thinspace\\arabic{GoFigure}}}',
+    '}',
+    '% Variation Diagrams. reset at parts.',
+    '\\newcounter{GoDiagram}[part]',
+    '\\newcommand{\\godiagram}{%',
+    ' \\stepcounter{GoDiagram}',
+    ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoDiagram}}}',
+    '}',
+    '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
+    ''].join('\n');
+};
+gpub.templates = {};
+
+/**
+ * A representation of a GPub template. Like normal HTML templating, but quite
+ * a bit simpler.
+ */
+gpub.templates._Template = function(sections, paramMap) {
+  this._sections = sections;
+  this._paramMap = paramMap;
+  this._paramContent = {};
+};
+
+gpub.templates._Template.prototype = {
+  /** Compiles the template with the new template variables. */
+  compile: function() {
+    var sectionsCopy = this._sections.slice(0);
+    for (var key in this._paramMap) {
+      var idx = this._paramMap[key];
+      var content = this._paramContent[key] || '';
+      sectionsCopy[idx] = content;
+    }
+    return sectionsCopy.join('');
   },
 
-  /**
-   * Collisions is an array of collisions objects, having the form:
-   *    {color: <color>, mvnum: <number>, label: <str label>}
-   *
-   * returns: stringified label format.
-   */
-  labelForCollisions: function(collisions) {
-    if (!collisions ||
-        glift.util.typeOf(collisions) !== 'array' ||
-        collisions.length === 0) {
-      return '';
+  /** Returns true if the template has parameter given by 'key' */
+  hasParam: function(key) {
+    return !!this._paramMap[key];
+  },
+
+  /** Sets a template parameter. */
+  setParam: function(key, value) {
+    if (!this._paramMap[key]) {
+      throw new Error('Unknown key: ' + key);
     }
-    var buffer = [];
-    for (var i = 0; i < collisions.length; i++) {
-      var c = collisions[i];
-      var col = c.color === glift.enums.states.BLACK ? 'Black' : 'White';
-      buffer.push(col + ' ' + c.mvnum + ' at ' + c.label);
-    }
-    return buffer.join(', ') + '.'
+    this._paramContent[key] = value.toString();
   }
+};
+/**
+ * Basic latex template. Generally, these should be defined as the relevant
+ * filetype (e.g., .tex).  However, this is defined within javascript for
+ * convenience.
+ */
+gpub.templates.latexBase = [
+'\\documentclass[letterpaper,12pt]{memoir}',
+'\\usepackage{color}',
+'\\usepackage{wrapfig}',
+'\\usepackage{setspace}',
+'\\usepackage{unicode}',
+'\\usepackage[margin=1in]{geometry}',
+'%%% Define any extra packages %%%',
+'{{ extraPackages }}',
+'',
+'\\setlength{\\parskip}{0.5em}',
+'\\setlength{\\parindent}{0pt}',
+'',
+'%%% Extra defs',
+'% Necessary for the particular digaram type.',
+'{{ diagramTypeDefs }}',
+'',
+'%%% Diagram Figure defs.',
+'% Must expose two commands',
+'%  \\gofigure  (mainline diagrams)',
+'%  \\godiagram (variation diagrams)',
+'{{ diagramWrapperDefs }}',
+'',
+'%%% Define the main title %%%',
+'{{ mainBookTitleDef }}',
+'',
+'\\begin{document}',
+'',
+'\\pagestyle{empty}',
+'\\mainBookTitle',
+'\\newpage',
+'\\tableofcontents',
+'',
+'\\chapterstyle{section}',
+'\\pagestyle{companion}',
+'\\makepagestyle{headings}',
+'\\renewcommand{\\printchapternum}{\\space}',
+'\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
+'\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}',
+'',
+'%%% The content. %%%',
+'{{ content }}',
+'',
+'\\end{document}'].join('\n');
+/**
+ * Parse a latexTemplate.  LaTeX templates are only special in that they require
+ * several specific parameters.  The parse step validates that these parameters
+ * exist.
+ */
+gpub.templates.parseLatexTemplate = function(str) {
+  var expectedParams = [
+    'extraPackages',
+    'diagramTypeDefs',
+    'diagramWrapperDefs',
+    'mainBookTitleDef',
+    'content'
+  ]
+  var template = gpub.templates.parse(str);
+  expectedParams.forEach(function(key) {
+    if (!template.hasParam(key)) {
+      throw new Error('Expected template to have key: ' + key);
+    }
+  });
+  return new gpub.templates.LatexTemplate(template);
+};
+
+gpub.templates.LatexTemplate = function(template) {
+  /** A parsed GPub template. */
+  this._template = template;
+};
+
+gpub.templates.LatexTemplate.prototype = {
+  setExtraPackages: function(str) {
+    this._template.setParam('extraPackages', str);
+    return this;
+  },
+  setDiagramTypeDefs: function(str) {
+    this._template.setParam('diagramTypeDefs', str);
+    return this;
+  },
+  setDiagramWrapperDefs: function(str) {
+    this._template.setParam('diagramWrapperDefs', str);
+    return this;
+  },
+  setTitleDef: function(str) {
+    this._template.setParam('mainBookTitleDef', str);
+    return this;
+  },
+  setContent: function(str) {
+    this._template.setParam('content', str);
+    return this;
+  },
+  compile: function() {
+    return this._template.compile();
+  }
+};
+/**
+ * A simplistic template parser.
+ */
+gpub.templates.parse = function(template) {
+  var sections = [];
+  var paramMap = {}; // key to position
+  var states = {
+    DEFAULT: 'DEFAULT',
+    IN_PARAM: 'IN_PARAM'
+  };
+  var curstate = states.DEFAULT;
+  var buffer = [];
+  var prev = null;
+  var position = 0;
+  for (var i = 0; i < template.length; i++) {
+    var c = template.charAt(i);
+    switch(curstate) {
+      case 'DEFAULT':
+        if (c === '{') {
+          if (prev === '{') {
+            sections.push(buffer.join(''));
+            curstate = states.IN_PARAM;
+            position++;
+            buffer = [];
+          }
+          // Else move on
+        } else {
+          if (prev === '{') buffer.push(prev);
+          buffer.push(c);
+        }
+        break;
+      case 'IN_PARAM':
+        if (c === '}') {
+          if (prev === '}') {
+            sections.push(null);
+            var param = buffer.join('').replace(/^\s*|\s*$/g, '');
+            paramMap[param] = position;
+            position++;
+            curstate = states.DEFAULT;
+            buffer = [];
+          }
+          // else ignore and move on
+        } else {
+          buffer.push(c)
+        }
+        break
+      default: 
+        throw new Error('Unknown state: ' + curstate);
+    }
+    prev = c;
+  }
+  sections.push(buffer.join(''));
+  return new gpub.templates._Template(sections, paramMap);
 };

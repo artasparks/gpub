@@ -18,5 +18,7 @@ for (var i = 0; i < flags.args.length; i++) {
 }
 
 var out = gpub.gen.collection.fromGames(files);
+var outstr = JSON.stringify(out);
+console.log(outstr);
 
-console.log(JSON.stringify(gpub.gen.collection.fromGames(files)));
+// console.log(gpub.gen.collection.fromGames(files));

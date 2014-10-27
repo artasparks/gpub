@@ -1,8 +1,8 @@
 gpub.diagrams = {
   /**
-   * Types of diagram generation.
+   * Types of diagram output.
    */
-  types: {
+  diagramType: {
     /**
      * Dan Bump's LaTeX font. Part of the Sgf2Dg script.
      */
@@ -21,26 +21,89 @@ gpub.diagrams = {
     PDF: 'PDF'
   },
 
+  /**
+   * Types of diagram purposes.
+   */
+  diagramPurpose: {
+    SECTION_INTRO: 'SECTION_INTRO',
+
+    GAME_REVIEW: 'GAME_REVIEW',
+    GAME_REVIEW_CHAPTER: 'GAME_REVIEW_CHAPTER',
+
+    PROBLEM: 'PROBLEM',
+    PROBLEM_SOLUTION: 'PROBLEM_SOLUTION'
+  },
+
   sizes: {
     NORMAL: 'NORMAL',
     LARGE: 'LARGE'
   },
 
   /**
-   * Creates a diagram-for-print!
+   * Generates a diagram for a specific purpose and a given format
    */
-  create: function(sgf, type, initPos, nextMovesPath, boardRegion) {
-    var flattened = this.flatten(sgf, initPos, nextMovesPath, boardRegion);
-    switch(type) {
-      case 'GOOE':
-        return gpub.diagrams.gooe.create(flattened);
-      default:
-        throw new Error('Not currently supported: ' + type);
+  forPurpose: function(
+      flattened,
+      diagramType,
+      bookFormat,
+      diagramPurpose,
+      bookData) {
+    if (!diagramType || !gpub.diagrams.diagramType[diagramType]) {
+      throw new Error('Unknown diagram type: ' + diagramType);
     }
+    if (!bookFormat || !gpub.book.bookFormat[bookFormat]) {
+      throw new Error('Unknown diagram type: ' + bookFormat);
+    }
+    if (!diagramPurpose || !gpub.diagrams.diagramPurpose[diagramPurpose]) {
+      throw new Error('Unknown diagram type: ' + diagramPurpose);
+    }
+
+    var bookData = bookData || {};
+    var diagramString = gpub.diagrams.fromFlattened(flattened, diagramType);
+
+    var pkg = null;
+    switch(bookFormat) {
+      case 'LATEX':
+        pkg = gpub.diagrams.latex
+        break;
+      default:
+        throw new Error('Unsupported book format: ' + bookFormat);
+    }
+
+    var label = null;
+    switch(diagramPurpose) {
+      case 'GAME_REVIEW':
+        // Fallthrough
+      case 'GAME_REVIEW_CHAPTER':
+        // Fallthrough
+      case 'SECTION_INTRO':
+        label  = gpub.diagrams.labelForCollisions(flattened.collisions());
+        break;
+      default:
+        label = '';
+    }
+
+    return pkg.typeset(
+        diagramString,
+        diagramPurpose,
+        flattened.comment(),
+        label,
+        flattened.isOnMainPath(),
+        bookData);
   },
 
   /**
-   * Return a Flattened object, which is key for generating diagrams.
+   * Creates a diagram-for-print! This is largely a convenience method.  Most
+   * users will want
+   */
+  create: function(sgf, diagramType, initPos, nextMovesPath, boardRegion) {
+    var flattened = this.flatten(sgf, initPos, nextMovesPath, boardRegion);
+    return this.fromFlattened(flattened, diagramType);
+  },
+
+  /**
+   * A flattener helper.  Returns a Flattened object, which is key for
+   * generating diagrams.
    */
   flatten: function(sgf, initPos, nextMovesPath, boardRegion) {
     initPos = initPos || [];
@@ -50,5 +113,38 @@ gpub.diagrams = {
       nextMovesTreepath: nextMovesPath,
       boardRegion: boardRegion
     });
+  },
+
+  /**
+   * Return a diagram from a glift Flattened object.
+   */
+  fromFlattened: function(flattened, diagramType) {
+    switch(diagramType) {
+      case 'GOOE':
+        return gpub.diagrams.gooe.create(flattened);
+      default:
+        throw new Error('Not currently supported: ' + diagramType);
+    }
+  },
+
+  /**
+   * Collisions is an array of collisions objects, having the form:
+   *    {color: <color>, mvnum: <number>, label: <str label>}
+   *
+   * returns: stringified label format.
+   */
+  labelForCollisions: function(collisions) {
+    if (!collisions ||
+        glift.util.typeOf(collisions) !== 'array' ||
+        collisions.length === 0) {
+      return '';
+    }
+    var buffer = [];
+    for (var i = 0; i < collisions.length; i++) {
+      var c = collisions[i];
+      var col = c.color === glift.enums.states.BLACK ? 'Black' : 'White';
+      buffer.push(col + ' ' + c.mvnum + ' at ' + c.label);
+    }
+    return buffer.join(', ') + '.'
   }
 };

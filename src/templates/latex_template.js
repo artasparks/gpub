@@ -6,7 +6,8 @@
 gpub.templates.parseLatexTemplate = function(str) {
   var expectedParams = [
     'extraPackages',
-    'extraDefs',
+    'diagramTypeDefs',
+    'diagramWrapperDefs',
     'mainBookTitleDef',
     'content'
   ]
@@ -29,8 +30,12 @@ gpub.templates.LatexTemplate.prototype = {
     this._template.setParam('extraPackages', str);
     return this;
   },
-  setExtraDefs: function(str) {
-    this._template.setParam('extraDefs', str);
+  setDiagramTypeDefs: function(str) {
+    this._template.setParam('diagramTypeDefs', str);
+    return this;
+  },
+  setDiagramWrapperDefs: function(str) {
+    this._template.setParam('diagramWrapperDefs', str);
     return this;
   },
   setTitleDef: function(str) {

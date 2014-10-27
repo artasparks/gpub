@@ -1,5 +1,12 @@
+/**
+ * Package for creating the books!
+ */
 gpub.book = {
-  bookType: {
+  /**
+   * Available book formats.
+   */
+  // TODO(kashomon): Move into diagram package.
+  bookFormat: {
     /** Standard GLift web display */
     HTML: 'HTML',
 

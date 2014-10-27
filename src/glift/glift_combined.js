@@ -294,6 +294,16 @@ glift.util.colors = {
  * Various constants used throughout glift.
  */
 glift.enums = {
+  /**
+   * Camel cases an enum. Can be useful for things that have functions or
+   * packages named from enum names.
+   */
+  toCamelCase: function(input) {
+    return input.toLowerCase().replace(/_(.)?/g, function(match, group1) {
+      return group1 ? group1.toUpperCase() : '';
+    });
+  },
+
   // Also sometimes referred to as colors. Might be good to change back
   states: {
     BLACK: 'BLACK',
@@ -6718,6 +6728,7 @@ glift.rules._MoveTree.prototype = {
 
   /** Returns true if the tree is currently on a mainline variation. */
   onMainline: function() {
+    // TODO(kashomon): Make this simpler
     if (!this._markedMainline) {
       var mt = this.getTreeFromRoot();
       mt.node()._mainline = true;
@@ -7348,7 +7359,8 @@ Properties.prototype = {
 })();
 /**
  * The treepath is specified by a String, which tells how to get to particular
- * position in a game / problem.
+ * position in a game / problem. This implies that the treeptahs discussed below
+ * are initial treepaths.
  *
  * Note: Both moves and and variations are 0 indexed.
  *
@@ -7363,7 +7375,8 @@ Properties.prototype = {
  *             through the 3rd varition of the 2nd move
  *
  * Note: '+' is a special symbol which means "go to the end via the first
- * variation."
+ * variation." This is implemented with a by appending 500 0s to the path array.
+ * This is a hack, but in practice games don't go over 500 moves.
  *
  * The init position returned is an array of variation numbers traversed through.
  * The move number is precisely the length of the array.
@@ -7379,6 +7392,20 @@ Properties.prototype = {
  * 1+      becomes [0,0,...(500 times)]
  * 0.1+    becomes [1,0,...(500 times)]
  * 0.2.6+  becomes [2,6,0,...(500 times)]
+ *
+ * Treepath Fragments
+ *
+ * In contrast to initial treepaths, treepaths can also be fragments that say
+ * how to get from position n to position m.  Thus treepath fragments only
+ * allow variation numbers and disallow the 3-10 syntax.
+ *
+ * This is how fragment strings are parsed:
+ * 0       becomes [0]
+ * 1       becomes [1]
+ * 53      becomes [53]
+ * 2.3     becomes [2,3]
+ * 0.0.0.0 becomes [0,0,0]
+ * 1+      becomes [1,0...(500 times)]
  */
 glift.rules.treepath = {
   /**
@@ -7437,11 +7464,14 @@ glift.rules.treepath = {
   /**
    * Path fragments are like path strings except that path fragments only allow
    * the 0.0.1.0 or [0,0,1,0] syntax. Also, paths like 3.2.1 are transformed
-   * into [3,2,1] rather than [0,0,0,2,1]
+   * into [3,2,1] rather than [0,0,0,2,1].
    *
    * path: an initial path. Should be an array
    */
   parseFragment: function(pathStr) {
+    if (!pathStr) {
+      pathStr = [];
+    }
     var vartype = glift.util.typeOf(pathStr);
     if (vartype === 'array') {
       return pathStr; // assume the array is in the correct format
@@ -7453,16 +7483,21 @@ glift.rules.treepath = {
     var splat = pathStr.split('.');
     var out = [];
     for (var i = 0; i < splat.length; i++) {
-      out.push(parseInt(splat[i]));
+      var num = splat[i];
+      if (num.charAt(num.length - 1) === '+') {
+        num = num.slice(0, num.length - 1);
+        out.push(parseInt(num))
+        out = out.concat(glift.rules.treepath.toEnd());
+      } else {
+        out.push(parseInt(num));
+      }
     }
     return out;
   },
 
   /**
-   * Converts a treepath back to a string.  In other words, transform
-   *    [2,0,1,2,6]
-   * to 
-   *    2.0.1.2.6
+   * Converts a treepath fragement back to a string.  In other words:
+   *    [2,0,1,2,6] => 2.0.1.2.6
    */
   toFragmentString: function(path) {
     if (glift.util.typeOf(path) !== 'array') {
@@ -7621,6 +7656,7 @@ glift.rules.treepath = {
    */
   flattenMoveTree: function(movetree) {
     var out = [];
+    movetree = movetree.newTreeRef();
     for (var i = 0; i < movetree.node().numChildren(); i++) {
       movetree.moveDown(i);
       var result = glift.rules.treepath._flattenMoveTree(movetree, []);
@@ -8062,6 +8098,12 @@ var BaseController = function() {
   // lifetime of the controller.
   this.sgfString = '';
   this.initialPosition = [];
+
+  // These next two are widget specific, but are here, for convenience.
+
+  // Used only for examples.
+  this.nextMovesPath = [];
+  // Used only for problem-types
   this.problemConditions = {};
 
   // State variables that are defined on initialize and that could are
@@ -8086,6 +8128,7 @@ BaseController.prototype = {
     this.sgfString = sgfOptions.sgfString || '';
     this.initialPosition = sgfOptions.initialPosition || [];
     this.problemConditions = sgfOptions.problemConditions || undefined;
+    this.nextMovesPath = sgfOptions.nextMovesPath || [];
     this.initialize();
     return this;
   },
@@ -8108,6 +8151,14 @@ BaseController.prototype = {
     var rules = glift.rules;
     var initTreepath = treepath || this.initialPosition;
     this.treepath = rules.treepath.parsePath(initTreepath);
+
+    // TODO(kashomon): Appending the nextmoves path is hack until the UI
+    // supports passing using true flattened data representation.
+    if (this.nextMovesPath) {
+      this.treepath = this.treepath.concat(
+          rules.treepath.parseFragment(this.nextMovesPath));
+    }
+
     this.movetree = rules.movetree.getFromSgf(this.sgfString, this.treepath);
     var gobanData = rules.goban.getFromMoveTree(this.movetree, this.treepath);
     this.goban = gobanData.goban;
@@ -9256,7 +9307,7 @@ glift.flattener = {
    *    variations.
    */
   flatten: function(movetreeInitial, options) {
-    // create a new ref to avoid changing original tree ref.
+    // Create a new ref to avoid changing original tree ref.
     var mt = movetreeInitial.newTreeRef();
     options = options || {};
 
@@ -9268,10 +9319,7 @@ glift.flattener = {
         options.boardRegion || glift.enums.boardRegions.ALL;
     var showVars =
         options.showNextVariationsType  || glift.enums.showVariations.NEVER;
-    var nmtp = options.nextMovesTreepath || [];
-    if (glift.util.typeOf(nmtp) === 'string') {
-      nmtp = glift.rules.treepath.parsePath(nmtp);
-    }
+    var nmtp = glift.rules.treepath.parseFragment(options.nextMovesTreepath);
     var startingMoveNum = options.startingMoveNum || 1;
 
     // Calculate the board region.
@@ -9286,7 +9334,9 @@ glift.flattener = {
     // Map of ptString to stone obj.
     var stoneMap = glift.flattener._stoneMap(goban, applied.stones);
 
-    // Replace the movetree reference with the new position
+    // Replace the movetree reference with the new position.  This movetree
+    // should be equivalent to applying the initial treepath and then applying
+    // the nextmoves treepath.
     mt = applied.movetree;
 
     // Get the marks at the current position
@@ -9310,7 +9360,8 @@ glift.flattener = {
     var board = glift.flattener.board.create(cropping, stoneMap, marks, labels);
 
     var comment = mt.properties().getComment() || '';
-    return new glift.flattener.Flattened(board, collisions, comment, boardRegion);
+    return new glift.flattener.Flattened(
+        board, collisions, comment, boardRegion, cropping, mt.onMainline());
   },
 
   /**
@@ -9617,7 +9668,7 @@ glift.flattener._Board.prototype = {
  * Data used to populate either a display or diagram.
  */
 glift.flattener.Flattened = function(
-    board, collisions, comment, boardRegion, cropping) {
+    board, collisions, comment, boardRegion, cropping, isOnMainPath) {
   /**
    * Board wrapper. Essentially a double array of intersection objects.
    */
@@ -9638,10 +9689,11 @@ glift.flattener.Flattened = function(
   /** The board region this flattened representation is meant to display. */
   this._boardRegion = boardRegion;
 
-  /**
-   * The cropping object. Probably shouldn't be accessed directly.
-   */
+  /** The cropping object. Probably shouldn't be accessed directly. */
   this._cropping = cropping;
+
+  /** Whether or not the position is on the 'top' (zeroth) variation. */
+  this._isOnMainPath = isOnMainPath;
 };
 
 glift.flattener.Flattened.prototype = {
@@ -9652,7 +9704,14 @@ glift.flattener.Flattened.prototype = {
   comment: function() { return this._comment; },
 
   /** Returns the collisions. */
-  collisions: function() { return this._collisions; }
+  collisions: function() { return this._collisions; },
+
+  /**
+   * Whether or not this position is on the main line or path variation.  For
+   * game review diagrams, it's usually nice to distinguish between diagrams for
+   * the real game and diagrams for exploratory variations.
+   */
+  isOnMainPath: function() { return this._isOnMainPath; }
 };
 glift.flattener.intersection = {
 
@@ -9911,6 +9970,11 @@ glift.widgets = {
   create: function(options) {
     glift.util.perfInit();
     var manager = glift.widgets.createNoDraw(options);
+
+    glift.init(
+        manager.displayOptions.disableZoomForMobile,
+        manager.divId);
+
     glift.util.majorPerfLog('Finish creating manager');
     manager.draw();
     glift.util.majorPerfLog('Finish drawing manager');
@@ -9919,17 +9983,14 @@ glift.widgets = {
   },
 
   /**
-   * Create a widgetManager without performing 'draw'.
+   * Create a widgetManager without performing 'draw'.  This also has the
+   * side effect of avoiding init code.
    */
   createNoDraw: function(inOptions) {
     var options = glift.widgets.options.setOptionDefaults(inOptions);
     var actions = {};
     actions.iconActions = options.iconActions;
     actions.stoneActions = options.stoneActions;
-
-    glift.init(
-        options.display.disableZoomForMobile,
-        options.divId);
 
     return new glift.widgets.WidgetManager(
         options.divId,
@@ -10011,8 +10072,6 @@ glift.widgets.BaseWidget.prototype = {
           ', height: ' + parentDivBbox.height());
     }
 
-    // Recall that positioning returns an object that looks like:
-    // {commentBox: ..., boardbox: ..., iconBarBox: ...)
     var positioning = glift.displays.position.positioner(
         parentDivBbox,
         this.displayOptions.boardRegion,
@@ -10061,7 +10120,7 @@ glift.widgets.BaseWidget.prototype = {
         this, this.actions.iconActions);
 
     if (divIds.STATUS_BAR) {
-      // TODO(kashomon): Move into a helper
+      // TODO(kashomon): Move this logic into a helper.
       var statusBarIcons = glift.util.simpleClone(this.sgfOptions.statusBarIcons);
       if (this.manager.fullscreenDivId) {
         glift.array.replace(statusBarIcons, 'fullscreen', 'unfullscreen');
@@ -10396,7 +10455,7 @@ glift.widgets.WidgetManager.prototype = {
         this.backgroundLoad();
       }
       var curObj = this.getCurrentSgfObj();
-      this.getSgfString(curObj, function(sgfObj) {
+      this.loadSgfString(curObj, function(sgfObj) {
         // Prevent flickering by destroying the widget after loading the SGF.
         this.destroy();
         this.currentWidget = this.createWidget(sgfObj).draw();
@@ -10488,9 +10547,7 @@ glift.widgets.WidgetManager.prototype = {
    *
    * sgfObj: A standard SGF Object.
    */
-  // TODO(kashomon): Rename this or change it to actually return a string rather
-  // than an SGF object.
-  getSgfString: function(sgfObj, callback) {
+  loadSgfString: function(sgfObj, callback) {
     var alias = sgfObj.alias;
     var url = sgfObj.url;
     if (alias && this.sgfCache[alias]) {
@@ -10515,6 +10572,27 @@ glift.widgets.WidgetManager.prototype = {
         this.sgfCache[sgfObj.alias] = sgfObj.sgfString;
       }
       callback(sgfObj);
+    }
+  },
+
+  /**
+   * Like the above function, but doesn't do XHR -- returns the input SGF object
+   * if no SGF exists in the sgf cache. Convenient for contexts where you are
+   * certain that the SGF has already been loaded.
+   */
+  loadSgfStringSync: function(sgfObj) {
+    var alias = sgfObj.alias;
+    var url = sgfObj.url;
+    if (alias && this.sgfCache[alias]) {
+      // First, check the cache for aliases.
+      sgfObj.sgfString = this.sgfCache[alias];
+      return sgfObj;
+    } else if (url && this.sgfCache[url]) {
+      // Next, check the cache for urls.
+      sgfObj.sgfString = this.sgfCache[url];
+      return sgfObj;
+    } else {
+      return sgfObj;
     }
   },
 
@@ -10594,7 +10672,7 @@ glift.widgets.WidgetManager.prototype = {
     var loader = function(idx) {
       if (idx < this.sgfCollection.length) {
         var curObj = this.getSgfObj(idx);
-        this.getSgfString(curObj, function() {
+        this.loadSgfString(curObj, function() {
           setTimeout(function() {
             loader(idx + 1);
           }.bind(this), 250); // 250ms
@@ -10839,9 +10917,34 @@ glift.widgets.options.baseOptions = {
      * 0.0.0.0   - Start at the 3rd move, going through all the top variations
      * 2.3-4.1   - Start at the 1st variation of the 4th move, arrived at by
      *             traveling through the 3rd varition on the 2nd move
+     * 0+        - Go to the end of the game
+     * 2.3+      - Start at the 3rd variation on move 2, and go to the end
      * @api(1.0)
      */
     initialPosition: '',
+
+    /**
+     * The next moves path indicates moves that should be played past the
+     * initial position. This should only be used for 'EXAMPLE' types and is
+     * meant to simulate print diagriams.
+     *
+     * The next moves path is a path similar to the initial position in that it
+     * specifies a path.  However, it's more restricted because we can't specify
+     * move numbers -- only variation numbers -- since a next moves path is a
+     * path fragment. Moreover, the first number is interpreted as a variation
+     * number rather than a move number, as is the case for the initial
+     * position.
+     *
+     * In otherwords, these are allowed:
+     *  1         - Go through the 1st variation
+     *  0.0.0.0   - Go through the 0th varation 4 times
+     *  2.3       - Go through the 2nd variation and the 3rd variation
+     *  2.0+      - Go through the 2nd variation and go to the end.
+     *
+     * These are not:
+     *  2-3
+     */
+    nextMovesPath: '',
 
     /**
      * The board region to display.  The boardRegion will be 'guessed' if it's set
