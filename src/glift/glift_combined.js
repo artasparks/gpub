@@ -9303,8 +9303,9 @@ glift.flattener = {
    *  - boardRegion: indicates what region to crop on.
    *  - nextMovesTreepath.  Defaults to [].  This is typically only used for
    *    printed diagrams.
-   *  - startingMoveNum.  Optionally override the move number. Usually used for
-   *    variations.
+   *  - startingMoveNum.  Optionally override the move number. If not set, it's
+   *    automatically determined based on whether the position is on the
+   *    mainpath or a variation.
    */
   flatten: function(movetreeInitial, options) {
     // Create a new ref to avoid changing original tree ref.
@@ -9320,7 +9321,8 @@ glift.flattener = {
     var showVars =
         options.showNextVariationsType  || glift.enums.showVariations.NEVER;
     var nmtp = glift.rules.treepath.parseFragment(options.nextMovesTreepath);
-    var startingMoveNum = options.startingMoveNum || 1;
+
+    var startingMoveNum = options.startingMoveNum || null;
 
     // Calculate the board region.
     if (boardRegion === glift.enums.boardRegions.AUTO) {
@@ -9328,6 +9330,14 @@ glift.flattener = {
     }
     var cropping = glift.displays.cropbox.getFromRegion(
         boardRegion, mt.getIntersections());
+
+    // Find the starting move number before applying the next move path.
+    if (startingMoveNum === null) {
+      startingMoveNum = glift.flattener._findStartingMoveNum(mt, nmtp);
+    }
+
+    // Initial move number -- used to calculate the ending move number.
+    var initNodeNumber = mt.node().getNodeNum();
 
     // Map of ptString to move.
     var applied = glift.rules.treepath.applyNextMoves(mt, goban, nmtp);
@@ -9339,10 +9349,16 @@ glift.flattener = {
     // the nextmoves treepath.
     mt = applied.movetree;
 
+    // Calculate the ending move number. Since starting move num is only used
+    // in conjunction with next moves paths, we can just look at the next moves
+    // path array.
+    var endingMoveNum = startingMoveNum + nmtp.length - 1;
+
     // Get the marks at the current position
     var mksOut = glift.flattener._markMap(mt);
     var labels = mksOut.labels; // map of ptstr to label str
     var marks = mksOut.marks; // map of ptstr to symbol
+
 
     // Optionally update the labels with labels used to indicate variations.
     var sv = glift.enums.showVariations
@@ -9361,7 +9377,8 @@ glift.flattener = {
 
     var comment = mt.properties().getComment() || '';
     return new glift.flattener.Flattened(
-        board, collisions, comment, boardRegion, cropping, mt.onMainline());
+        board, collisions, comment, boardRegion, cropping, mt.onMainline(),
+        startingMoveNum, endingMoveNum);
   },
 
   /**
@@ -9441,6 +9458,41 @@ glift.flattener = {
   },
 
   /**
+   * Automatically finds the starting move number given a movetree position. This
+   * is meant to be for well-formed variation paths.  That is, if we are
+   * currently on the main path, we expect the next move paths will immediately
+   * start on the variation or stay on the main path.
+   *
+   * Given this, there are three cases to consider:
+   *    1. The movetree is on the mainpath and the next moves path stays on the
+   *    main path:  Return the nodenum + 1 (this is the
+   *    2. The movetere is on the mainpath, but the next move puts us on a
+   *    variation. Return 1 (start over)
+   *    3.  The movetree starts on a variation.  Count the number of moves since
+   *    the mainpath branch.
+   *
+   * Note: The starting move is only interesting in the case where there's a
+   * next-moves-path. If there's no next-moves-path specified, this number is
+   * effectively unused.
+   */
+  _findStartingMoveNum: function(mt, nextMovesPath) {
+    mt = mt.newTreeRef();
+    if (mt.onMainline()) {
+      if (nextMovesPath.length > 0 && nextMovesPath[0] > 0) {
+        return 1;
+      } else {
+        return mt.node().getNodeNum() + 1;
+      }
+    }
+    var mvnum = 1;
+    while (!mt.onMainline()) {
+      mvnum++;
+      mt.moveUp();
+    }
+    return mvnum;
+  },
+
+  /**
    * Create or apply labels to identify collisions that occurred during apply
    *
    * stones: stones
@@ -9471,9 +9523,10 @@ glift.flattener = {
     }
     // Collision labels, for when stone.collision = null.
     var extraLabs = 'abcdefghijklmnopqrstuvwxyz';
-    var labsIdx = 0;
+    var labsIdx = 0; // index into extra labels string above.
     var symb = glift.flattener.symbols;
-    var collisions = []; // {color: <color>, num: <number>, label: <lbl>}
+    // TODO(kashomon): Make the collisions first class.
+    var collisions = []; // {color: <color>, mvnum: <number>, label: <lbl>}
 
     // Remove any number labels currently existing in the marks map.  This
     // method also numbers stones.
@@ -9485,22 +9538,33 @@ glift.flattener = {
       }
     }
 
-    // Create labels for each stone in the 'next-stones'.
+    // Create labels for each stone in the 'next-stones'. Note -- we only add
+    // labels in the case when there's a next moves path.
     for (var i = 0; i < stones.length; i++) {
       var stone = stones[i];
       var ptStr = stone.point.toString();
+      var nextMoveNum = i + startingMoveNum;
+      if (nextMoveNum % 100 !== 0) {
+        // We don't truncate the 100 moves, e.g., 100, 200, etc.,
+        // but otherwise, 3 digit labels are awkward.
+        nextMoveNum = nextMoveNum % 100;
+      }
 
       // This is a collision stone. Perform collision labeling.
       if (stone.hasOwnProperty('collision')) {
         var col = {
           color: stone.color,
-          mvnum: (i + startingMoveNum) + '',
+          mvnum: (nextMoveNum) + '',
           label: undefined
         };
         if (labels[ptStr]) { // First see if there are any available labels.
           col.label = labels[ptStr];
         } else if (glift.util.typeOf(stone.collision) === 'number') {
-          col.label = (stone.collision + startingMoveNum) + ''; // label is idx.
+          var collisionNum = stone.collision + startingMoveNum;
+          if (collisionNum % 100 !== 0) {
+            collisionNum = collisionNum % 100;
+          }
+          col.label = (collisionNum) + ''; // label is idx.
         } else { // should be null
           var lbl = extraLabs.charAt(labsIdx);
           labsIdx++;
@@ -9514,7 +9578,7 @@ glift.flattener = {
       } else {
         // Create new labels for our move number.
         marks[ptStr] = symb.TEXTLABEL; // Override labels.
-        labels[ptStr] = (i + startingMoveNum) + ''
+        labels[ptStr] = (nextMoveNum) + ''
       }
     }
     return collisions;
@@ -9668,7 +9732,8 @@ glift.flattener._Board.prototype = {
  * Data used to populate either a display or diagram.
  */
 glift.flattener.Flattened = function(
-    board, collisions, comment, boardRegion, cropping, isOnMainPath) {
+    board, collisions, comment, boardRegion, cropping, isOnMainPath,
+    startMoveNum, endMoveNum) {
   /**
    * Board wrapper. Essentially a double array of intersection objects.
    */
@@ -9694,6 +9759,13 @@ glift.flattener.Flattened = function(
 
   /** Whether or not the position is on the 'top' (zeroth) variation. */
   this._isOnMainPath = isOnMainPath;
+
+  /**
+   * The starting and ending move numbers. These are typically used for
+   * labeling diagrams.
+   */
+  this._startMoveNum = startMoveNum;
+  this._endMoveNum = endMoveNum;
 };
 
 glift.flattener.Flattened.prototype = {
@@ -9711,7 +9783,13 @@ glift.flattener.Flattened.prototype = {
    * game review diagrams, it's usually nice to distinguish between diagrams for
    * the real game and diagrams for exploratory variations.
    */
-  isOnMainPath: function() { return this._isOnMainPath; }
+  isOnMainPath: function() { return this._isOnMainPath; },
+
+  /** Returns the starting move number. */
+  startingMoveNum: function() { return this._startMoveNum; },
+
+  /** Returns the ending move number. */
+  endingMoveNum: function() { return this._endMoveNum; }
 };
 glift.flattener.intersection = {
 

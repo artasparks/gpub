@@ -77,7 +77,11 @@ gpub.diagrams = {
       case 'GAME_REVIEW_CHAPTER':
         // Fallthrough
       case 'SECTION_INTRO':
-        label  = gpub.diagrams.labelForCollisions(flattened.collisions());
+        label  = gpub.diagrams.constructLabel(
+            flattened.collisions(),
+            flattened.isOnMainPath(),
+            flattened.startingMoveNum(),
+            flattened.endingMoveNum());
         break;
       default:
         label = '';
@@ -128,23 +132,37 @@ gpub.diagrams = {
   },
 
   /**
+   * Construct the label based on the collisions and the move numbers.
+   * 
    * Collisions is an array of collisions objects, having the form:
    *    {color: <color>, mvnum: <number>, label: <str label>}
    *
    * returns: stringified label format.
    */
-  labelForCollisions: function(collisions) {
-    if (!collisions ||
-        glift.util.typeOf(collisions) !== 'array' ||
-        collisions.length === 0) {
-      return '';
+  constructLabel: function(collisions, isOnMainline, startNum, endNum) {
+    var baseLabel = '';
+    if (isOnMainline) {
+      var nums = [startNum];
+      if (startNum !== endNum) {
+        nums.push(endNum);
+      }
+      var moveLabel = nums.length > 1 ? 'Moves: ' : 'Move: ';
+      baseLabel += '(' + moveLabel + nums.join('-') + ')';
     }
-    var buffer = [];
-    for (var i = 0; i < collisions.length; i++) {
-      var c = collisions[i];
-      var col = c.color === glift.enums.states.BLACK ? 'Black' : 'White';
-      buffer.push(col + ' ' + c.mvnum + ' at ' + c.label);
+
+    if (collisions && collisions.length) {
+      var buffer = [];
+      for (var i = 0; i < collisions.length; i++) {
+        var c = collisions[i];
+        var col = c.color === glift.enums.states.BLACK ? 'Black' : 'White';
+        buffer.push(col + ' ' + c.mvnum + ' at ' + c.label);
+      }
+      if (baseLabel) {
+        baseLabel += '\n';
+      }
+      baseLabel += buffer.join(', ') + '.';
     }
-    return buffer.join(', ') + '.'
+
+    return baseLabel;
   }
 };

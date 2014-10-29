@@ -22,9 +22,12 @@ gpub.diagrams.diagramsTest = function() {
       {color: 'WHITE', mvnum: '10', label: 'x'}
     ];
     deepEqual(
-        gpub.diagrams.labelForCollisions(coll),
+        gpub.diagrams.constructLabel(coll),
         'Black 1 at a, White 10 at x.');
   });
+
+  // test('label for mainline variation', function() {
+  // }
 
   test('Full Latex Creation', function() {
     var f = gpub.diagrams.flatten(basicSgf);

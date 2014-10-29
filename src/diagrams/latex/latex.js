@@ -25,7 +25,10 @@ gpub.diagrams.latex = {
       case 'GAME_REVIEW':
         var baseLabel = isMainLine ? '\\gofigure' : '\\godiagram';
         if (label) {
-          baseLabel += '\n\n \\subtext{' + label + '}';
+          var splat = label.split('\n');
+          for (var i = 0; i < splat.length; i++ ) {
+            baseLabel += '\n\n\\subtext{' + splat[i] + '}';
+          }
         }
         var label = baseLabel;
         break;
