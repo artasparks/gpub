@@ -31,6 +31,7 @@ gpub.book.latex = {
 
     var content = [];
     var diagramBuffer = []
+    var chapters = 1;
     for (var i = 0; i < mgr.sgfCollection.length; i++) {
       var sgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(i));
       var mt = glift.rules.movetree.getFromSgf(
@@ -40,17 +41,15 @@ gpub.book.latex = {
           boardRegion: sgfObj.boardRegion
       });
       var purpose = gpub.diagrams.diagramPurpose.GAME_REVIEW;
+      var nodeData = {}
 
       if (mt.node().getNodeNum() == 0 &&
           sgfObj.nextMovesPath.length == 0) {
         // We're at the beginning of the game.
         purpose = gpub.diagrams.diagramPurpose.SECTION_INTRO;
+        nodeData.chapterTitle = 'Chapter ' + chapters;
+        chapters++;
       }
-
-      // TODO(kashomon): Fix this up
-      var nodeData = {
-        chapterTitle: 'Chapter ' + i
-      };
 
       var diagram = gpub.diagrams.forPurpose(
           flattened,
@@ -59,22 +58,22 @@ gpub.book.latex = {
           purpose,
           nodeData);
 
-      content.push(diagram);
-      content.push('\\newpage');
+      // content.push(diagram);
+      // content.push('\\newpage');
 
-      // TODO(kashomon): Clean up this hackiness.
-      // if (purpose === gpub.diagrams.diagramPurpose.SECTION_INTRO) {
-        // content.push(gpub.book.latex.renderPage(diagramBuffer));
-        // diagramBuffer = [];
-        // diagramBuffer.push(diagram);
-        // content.push(gpub.book.latex.renderPage(diagramBuffer));
-      // } else {
-        // diagramBuffer.push(diagram);
-        // if (diagramBuffer.length === diagramsPerPage) {
-          // content.push(gpub.book.latex.renderPage(diagramBuffer));
-          // diagramBuffer = [];
-        // }
-      // }
+      if (purpose === gpub.diagrams.diagramPurpose.SECTION_INTRO) {
+        content.push(gpub.book.latex.renderPage(diagramBuffer));
+        diagramBuffer = [];
+        diagramBuffer.push(diagram);
+        content.push(gpub.book.latex.renderPage(diagramBuffer));
+        diagramBuffer = [];
+      } else {
+        diagramBuffer.push(diagram);
+        if (diagramBuffer.length === diagramsPerPage) {
+          content.push(gpub.book.latex.renderPage(diagramBuffer));
+          diagramBuffer = [];
+        }
+      }
     }
     return template.setContent(content.join('\n')).compile();
   },

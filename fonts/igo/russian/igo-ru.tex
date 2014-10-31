@@ -1,0 +1,445 @@
+\documentclass[fleqn]{article}
+
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+\usepackage[english,russian]{babel}
+
+\usepackage{url}
+\usepackage{igo}
+\usepackage{amstext}
+
+\begin{document}
+
+\title{Набор Го диаграмм в \TeX\ или \LaTeX\ с помощью \textit{igo}\footnote{Перевод на русский язык: \emph{Николай А. Немов} (email: nine@che.nsk.su) 15 марта 2005~г., 
+версия 0.60 пакета \textit{igo} --- 20 апреля 2006~г.%\today
+}
+}
+\author{Этьен Дюпуи\thanks{{\'E}tienne Dupuis (email: lestourtereaux@free.fr)}}
+\date{Апрель 2003; февраль 2006}
+\maketitle
+
+\section{Введение}
+
+Пакет \textit{igo} основан на пакете \textit{go}, написанном в $1991$ г. Ханной Колодзейской\footnote{Ko{\l}odziejska, Hanna, \textit{Go diagrams with \TeX}, November 1991.} (Hanna Ko{\l}odziejska). Хотя \textit{igo} содержит в основном такие же команды что и первоначальный пакет и использует шрифты, созданные Колодзейской, пакет улучшен (надеюсь) за счет
+\begin{enumerate}
+	\item менее вероятного конфликта имен используемых команд со стандартным AMS пакетом,
+	\item возможности использования досок различного размера,
+	\item включения стандартной системы обозначений для координат доски,
+	\item возможности работы с большим числом досок,
+	\item возможности изменения размера камней, включенных в текст\footnote{Эту возможность ввел Н. Немов в версии 0.60 в 2006 г.}.    
+\end{enumerate}
+Кроме этого были переопределены некоторые команды, которые позволяют более удобно задавать позиции или последовательность ходов в игре.
+
+Автор выражает искреннюю благодарность Николаю Немову и Франку Миттельбач (Frank Mittelbach) за улучшения внесенные в данный пакет.
+
+\subsection{Новые возможности}
+
+После начального выпуска пакета в марте 2003 г. появились следующие новые команды и возможности:
+\begin{itemize}
+	\item Можно изменять размер камней в тексте.
+	\item Команда \verb|\cleargobansymbols| убирает надписи с доски и камней.
+	\item Добавлены новые размеры шрифтов для изображения досок. \\
+Размер шрифта задается командой \verb|\igofontsize{n}|.
+	\item Добавлены новые символы для размещения на камнях.
+\end{itemize}
+
+Не сразу могут быть замечены и другие мелкие улучшения.
+
+\medskip
+В версии 0.60 сделаны \textbf{изменения в разрыве строки}. \marginpar{\fbox{\Large!$\,$}} В первоначальных версиях после диаграмм осуществлялся разрыв строки (\verb|\break|). Теперь это действие отменено. К предыдущему варианту можно вернуться если после включения пакета \textit{igo} ввести следующее определение:
+\[\verb|\let\igobreakafterdiagram=\break|.\]
+
+\section{Руководство пользователя}
+
+Начнем с примера, взятого из книги Джеймса Дэвиса \textit{Жизнь и смерть}\footnote{James Davies, \textit{Life and Death}, Elementary Go Series vol. 4 (Kiseido Publishing Company, \copyright 1975, 1996)}~:
+
+\medskip
+\noindent
+\begin{minipage}[c][1.0\height][c]{0.65\textwidth}
+\begin{verbatim}
+	\white{b4,c4,d4,e4,f4,g3,g2,c3}
+	\black{b3,b2,c2,d3,e3,f3,f2}
+	\begin{center}
+		\shortstack{\showgoban\\Черные гибнут}
+	\end{center}
+\end{verbatim}
+\end{minipage}
+%
+\begin{minipage}[c][1.0\height][c]{0.30\textwidth}
+	\white{b4,c4,d4,e4,f4,g3,g2,c3}
+	\black{b3,b2,c2,d3,e3,f3,f2}
+	\begin{center}
+		\shortstack{\showgoban\\Черные гибнут}
+	\end{center}
+\end{minipage}
+\medskip
+
+Пакет использует \textit{стандартную} систему обозначений для координат доски, в которой столбцы маркируются от $a$ (левый) до $t$ (правый) и строки от $1$ (нижняя) до $19$ (верхняя). Буква $i$ в этой системе не используется. Такой метод задания координат годится для досок до размера $25 \times 25$, однако, в данном пакете он расширен до досок размером $50 \times 50$ за счет включения заглавных букв для обозначения столбцов с $26$ по $50$. Команда 
+	\[\verb|\showgoban|, \qquad \text{в отличие от} \qquad \verb|\showfullgoban|,\]
+показывает только часть доски. Или более подробно, пусть $m$ и $M$ --- минимальные и максимальные строки доски на которых расположены камни. Тогда будут изображены строки с $m-1$ до $M+1$, если $m-2$ или $M+2$ приближаются к границе доски, будут добавлены дополнительные строки. Такие же правила действуют и для столбцов. Посмотрите, к примеру, что произойдет, при изменении размера доски: 
+
+\medskip
+\noindent
+\begin{minipage}[c][1.0\height][c]{0.45\textwidth}
+\begin{verbatim}
+	\gobansize{9}
+	\showgoban
+\end{verbatim}
+\end{minipage}
+%
+\begin{minipage}[c][1.0\height][c]{0.50\textwidth}
+\begin{center}
+	\gobansize{9}
+	\showgoban
+\end{center}
+\end{minipage}
+
+Конечно, такой способ не всегда приводит к желаемой диаграмме, но можно задать область доски, которая будет показана:
+
+\medskip
+\noindent
+\begin{minipage}[c][1.0\height][c]{0.45\textwidth}
+\begin{verbatim}
+	\showgoban[a1,h6]
+\end{verbatim}
+\end{minipage}
+%
+\begin{minipage}[c][1.0\height][c]{0.50\textwidth}
+\begin{center}
+	\showgoban[a1,h6]
+\end{center}
+\end{minipage}
+\medskip
+
+Изменим размер доски (командой \verb|\gobansize{19}|) \gobansize{19} и вернемся к задаче \textit{Черные гибнут}. Решение показано камнем \verb|\whitestone[\igotriangle]| \whitestone[\igotriangle] на следующей (увеличенной) диаграмме: 
+
+\medskip
+\noindent
+\begin{minipage}[c][1.0\height][c]{0.45\textwidth}
+\begin{verbatim}
+	\white[\igotriangle]{c1}
+	\gobansymbol{f1}{x}
+	\largegoban\showgoban
+\end{verbatim}
+\end{minipage}
+\hfill
+\begin{minipage}[c][1.0\height][c]{0.51\textwidth}
+\begin{center}
+	\largegoban
+	\white[\igotriangle]{e1}
+	\gobansymbol{f1}{x}
+	\showgoban
+\end{center}
+\end{minipage}
+\medskip
+
+После хода белых \whitestone[\igotriangle] угрожает вторжение в пункт <<x>>. Вторжение убийственно для черных, поскольку после 
+
+\medskip
+\noindent
+\begin{minipage}[c][1.0\height][c]{0.45\textwidth}
+\begin{verbatim}
+	\black[1]{d1,f1,-,d2}
+	\showgoban
+\end{verbatim}
+\end{minipage}
+\hfill
+\begin{minipage}[c][1.0\height][c]{0.51\textwidth}
+\begin{center}
+	\black[1]{d1,f1,-,d2}
+	\showgoban
+\end{center}
+\end{minipage}
+\medskip
+
+\noindent
+черные не могут предотвратить захват правой половины своей группы. Даже если черные сыграют в пункт <<x>>, они все равно гибнут: 
+
+\medskip
+\noindent
+\begin{minipage}[c][1.0\height][c]{0.45\textwidth}
+\begin{verbatim}
+	\clear{d1}
+	\black[1]{f1,d2,c1,g1,a3,a1}
+	\showgoban
+\end{verbatim}
+\end{minipage}
+\hfill
+\begin{minipage}[c][1.0\height][c]{0.51\textwidth}
+\begin{center}
+	\clear{d1}
+	\black[1]{f1,d2,c1,g1,a3,a1}
+	\showgoban
+\end{center}
+\end{minipage}
+
+Наконец, завершим это руководство, проиллюстрировав еще несколько команд на примере джосеки: 
+
+%\medskip
+\noindent
+\begin{minipage}[c][1.0\height][c]{0.55\textwidth}
+\begin{verbatim}
+	\smallgoban
+	\cleargoban
+	\white[1]{c16,e16,e17,f17,d17,f16}
+	\copytogoban{2}
+	\white[7]{c14,k17}
+	\showgoban
+\end{verbatim}
+\end{minipage}
+\hfill
+\begin{minipage}[c][1.0\height][c]{0.40\textwidth}
+\begin{center}
+	\smallgoban
+	\cleargoban
+	\white[1]{c16,e16,e17,f17,d17,f16}
+	\copytogoban{2}
+	\white[7]{c14,k17}
+	\showgoban
+\end{center}
+\end{minipage}
+\medskip
+
+Позиция после шестого хода сохранена на другой доске. Далее с этой доской можно работать, и это демонстрируют следующие команды:
+
+\medskip \noindent
+\begin{minipage}[c][1.0\height][c]{0.55\textwidth}
+\begin{verbatim}
+	\usegoban{2}
+	\cleargobansymbols
+	\white[1]{c14,k17}
+	\showgoban
+\end{verbatim}
+\end{minipage}
+\hfill
+\begin{minipage}[c][1.0\height][c]{0.40\textwidth}
+\begin{center}
+	\usegoban{2}  
+	\cleargobansymbols
+	\white[1]{c14,k17}
+	\showgoban
+\end{center}
+\end{minipage}
+
+\section{Справочник}
+
+\subsection{Синтаксис параметров}
+\label{sec:parameters}
+
+Следующие типы параметров в макро синтаксисе используются как:
+\begin{description}
+	\item [n] --- Положительное целое число, ноль не включен.
+	\item [symbol] --- Цифра (0--9) или буква (A--Z или a--z). Символы могут быть добавлены в будущем. Доброволец отредактирует метафонт?
+	\item [glyph] --- Положительное целое число, \verb|\igonone| или один из символов 
+\[\verb|\igotriangle|, \quad \verb|\igosquare|, \quad \verb|\igocircle|, \quad \verb|\igocross|.\] 
+Эти номера или символы устанавливаются на камни, \verb|\igonone| на камни ничего не устанавливает. В качестве \emph{glyph} можно использовать команду \TeX\, которая выдает число, например \verb|\thepage|.
+	\item [intersection] --- Пункт доски. Столбцы маркируются буквами, слева направо, $a$ --- первый, $b$ --- второй, и т.д. Буква $i$ не используется. Заглавным буквам соответствуют столбцы $26$ и далее. Строки маркируются цифрами, снизу вверх. Пункт доски задается буквой и цифрой, например \textit{c12}.
+	\item [intersection-pair] --- Пара пунктов доски, например \textit{a4,k12}. После запятой не должно быть пробела. Первый пункт должен быть меньшим или равным второму, в том смысле что первый столбец не должен быть справа от второго и первая строка не должна располагаться выше второй, например, \textit{d3,d9} --- правильно, а \textit{s8,q15} --- ошибочно.
+	\item [intersection-list] --- Список пунктов доски, разделенных запятой, например, \textit{c14,g3,t17,f1}. Список может состоять из одного пункта. Нельзя использовать пробелы. Пропуск элемента списка можно осуществить с помощью символа `` - '', как, например, в пятиэлементном списке \mbox{\textit{c14,g3,-,t17,f1}}.
+\end{description}
+Необязательные дополнительные параметры заключаются в квадратные скобки, а обязательные --- в фигурные.
+
+\subsection{Доска}
+
+Размер доски можно изменить командой 
+	\[\verb|\gobansize{n}| , \qquad \text{где} \qquad 2 \leq n \leq 50.\]
+Камни можно устанавливать вне доски; они будут изображены, если выбрать достаточно большую, содержащую их, доску. Камни, оказавшиеся вне доски, не удаляются. Размер доски по умолчанию $19 \times 19$.
+
+\subsection{Установка камней}
+\label{sec:stones}
+
+Командами
+	\[\verb|\white[glyph]{intersection-list}|,\]
+	\[\verb|\black[glyph]{intersection-list}| \]
+камни устанавливаются в перечисленные в списке пункты доски. Результаты команд зависят от дополнительного параметра \emph{glyph}. Если \emph{glyph} положительное число или \verb|\igonone|, то цвета камней будут чередоваться, а номер камней возрастать с увеличением числа пунктов доски в списке. Если \emph{glyph} это символ \verb|\igotriangle|,\ \verb|\igosquare| и т.д.,
+то все камни будут одного цвета с выбранным \emph{glyph}. Например, команда
+	\[\verb|\white[14]{c1,b1,d1}| \qquad \text{эквивалентна последовательности команд}\]
+	\[\verb|\white[14]{c1}| \quad \verb|\black[15]{b1,d1}|.\]
+Вновь установленный камень заменяет предыдущие установки в данном пункте доски.
+
+Еще один пример зависимости от необязательного аргумента \emph{glyph}:
+
+\bigskip 
+\noindent
+\begin{minipage}[c][1.0\height][c]{0.30\textwidth}
+\begin{center}
+	\cleargoban
+	\black[1]{c4,e4,h4,d7,e5,f5}
+	\showgoban[a1,j8]
+	\verb|\black[1]{...}|
+\end{center}
+\end{minipage}
+\hfill
+\begin{minipage}[c][1.0\height][c]{0.35\textwidth}
+\begin{center}
+	\cleargoban
+	\black[\igonone]{c4,e4,h4,d7,e5,f5}
+	\showgoban[a1,j8]
+	\hspace*{1em}\verb|\black[\igonone]{...}|
+\end{center}
+\end{minipage}
+\hfill
+\begin{minipage}[c][1.0\height][c]{0.30\textwidth}
+\begin{center}
+	\cleargoban
+	\black{c4,e4,h4,d7,e5,f5}
+	\showgoban[a1,j8]
+	\verb|\black{...}|
+\end{center}
+\end{minipage}
+\medskip
+
+Для удобства подготовки диаграмм можно воспользоваться командой
+\[\verb|\cleargobansymbols|,\]
+которая убирает все номера с камней и все символы с рабочей доски. Например, если эту команду применить к первой диаграмме предыдущего примера, то получится вторая диаграмма.
+
+\subsection{Удаление камней}
+
+Камни с доски можно убирать командами
+	\[\verb|\clear{intersection-list}|, \qquad \text{или}\]
+	\[\verb|\cleargoban[intersection-pair]|.\]
+При отсутствии необязательного параметра во второй команде очищена будет вся доска. Отметим, что камни, расположенные вне доски (если такие имеются) не удаляются, поэтому после изменения размера доску следует очищать. 
+
+\subsection{Изображение доски}
+
+Для изображения доски предназначена команда
+	\[\verb|\showfullgoban|.\]
+Диаграмма помещена в box, и его можно обрабатывать  средствами \LaTeX, например, центрировать с помощью окружения \verb|center|. Можно также поместить доску внутри рисунка, таблицы или использовать другие пакеты для размещения нескольких досок на одной линии и т.п. Команда 
+	\[\verb|\showgoban[intersection-pair]|\]
+предназначена для изображения части доски. Если необязательный дополнительный параметр опущен, пакет \textit{igo} сам найдет часть доски, которую следует изобразить. Область для показа вычисляется так:
+\begin{enumerate}
+	\item	Изображается минимальная область, включающая все имеющиеся на доске камни. Если ширина или высота этой области меньше двух, то областью считается вся доска.
+	\item	Если возможно, то граница из одной строки (или столбца) добавляется к области, определенной выше. Границы области расширяются на две строки (или столбца) с тех сторон, которые приближаются к границам доски. 
+\end{enumerate}
+
+Форовые пункты отмечаются только для досок $9\times9$, $13\times13$ и $19\times19$. 
+
+После бокса, в который помещена изображаемая диаграмма, сразу следует команда \verb|\igobreakafterdiagram|. В текущей версии пакета она ничего не выполняет. В предыдущих версиях команда была установлена как 
+\[\verb|\let\igobreakafterdiagram=\break|\]
+и производила разрыв строки.
+
+Изображенные диаграммы можно масштабировать командами
+\[\verb|\igofontsize{n}|, \qquad \text{где} \qquad n \in \{5, 6, 7, 8, 9, 10, 11, 12, 15, 20\}.\]
+Для удобства и сохранения совместимости с предыдущими версиями можно также применять следующие команды:
+\[\begin{array}{lll}
+	\verb|\smallgoban|  & \longmapsto & \verb|\igofontsize{10}| \quad\text{(размер по умолчанию)} \\
+	\verb|\normalgoban| & \longmapsto & \verb|\igofontsize{15}| \\
+	\verb|\largegoban|  & \longmapsto & \verb|\igofontsize{20}|.
+\end{array}\]
+Размеры всех последующих диаграмм также будут изменены. 
+
+\subsection{Установка символов}
+
+На свободные пункты доски можно установить символы командой 
+	\[\verb|\gobansymbol{intersection}{symbol}|.\]
+Список возможных символов \emph{symbol} приведен в Разделе~\ref{sec:parameters}.
+
+Все символы, расположенные на доске, можно удалить одной командой
+\[\verb|\cleargobansymbols|.\]
+Данная команда убирает также и номера с камней, как подробно описано в Разделе~\ref{sec:stones}.
+
+\subsection{Камни в тексте}
+
+Камни можно поместить в текст с помощью команд
+	\[\verb|\whitestone[glyph]|, \qquad \text{и} \qquad \verb|\blackstone[glyph]|.\]
+Размер камней в тексте масштабируется в соответствии с обычными \TeX\ командами изменения размеров шрифтов (см. Таблицу~\ref{tab:fonts}): \par
+\medskip
+\noindent
+\begin{tabular}{l@{ $\longmapsto \quad$}l}
+\verb|\tiny \blackstone[5] and...| 
+	& {\tiny \blackstone[5] and tiny text \whitestone[\igotriangle]} \\
+\verb|\scriptsize \blackstone[6] and...| 
+	& {\scriptsize \blackstone[6] and scriptsize text \whitestone[\igosquare]} \\
+\verb|\footnotesize \blackstone[7] and...| 
+	& {\footnotesize \blackstone[7] and footnotesize text \whitestone[\igocircle]} \\
+\verb|\small \blackstone[8] and...| 
+	& {\small \blackstone[8] and small text \whitestone[\igocross]} \\
+\verb|\normalsize \blackstone[10] and...| 
+	& {\normalsize \blackstone[10] and normalsize text \whitestone[\igotriangle]} \\
+\ldots & \ldots
+\end{tabular}\par
+\noindent
+Камни большего размера, помещенные в нормальный текст размера 10pt выглядят как\par
+\medskip
+\noindent
+\begin{tabular}{@{some text }l@{ $\longmapsto$ \ some text}l}
+\verb|{\large \blackstone[10]}...|& {\large \blackstone[10]} and {\large \whitestone[-1]}\\
+\verb|{\Large \blackstone[11]}...|& {\Large \blackstone[11]} and {\Large \whitestone[-2]}\\
+\verb|{\LARGE \blackstone[12]}...|& {\LARGE \blackstone[12]} and {\LARGE \whitestone[-3]}\\
+\verb|{\huge \blackstone[15]}...| & {\huge \blackstone[15]} and {\huge \whitestone[-4]}\\
+\verb|{\Huge \blackstone[20]}...| & {\Huge \blackstone[20]} and {\Huge \whitestone[-1]}
+\end{tabular}
+
+\medskip
+Соотношения размеров между текстом и камнями могут слегка измениться, если изначально для нормального текста установлены другие размеры, например, 11pt или 12pt.
+
+\subsection{Набор досок}
+
+Удобно работать не с одной, а с целым набором досок, например, для сохранения промежуточных позиций игры и использования их позже при рассмотрении вариантов. Команда для выбора доски под номером \#$n$
+	\[\verb|\usegoban{n}|, \qquad \text{\#$1$ доска по умолчанию}.\]
+Команда
+\[\verb|\copyfromgoban{n}|\]
+копирует содержание доски \#$n$ в текущую рабочую доску. \\
+Действие в обратном направлении выполняет команда 
+	\[\verb|\copytogoban{n}|,\]
+копирующая содержание текущей рабочей доски в доску \#$n$. \\ 
+Обратите внимание, все эти доски одного размера. 
+
+Для совместимости с более ранними версиями пакета можно использовать альтернативное имя \verb|\copygoban| вместо \verb|\copyfromgoban|.
+
+\subsection{Геометрические преобразования}
+
+Следующие команды используются для преобразования позиций доски:\\[1em]
+\hspace*{2.0em}
+\begin{tabular}{@{}l@{ \ }l@{}}
+\verb|\rotategoban| & вращение на $180^\circ$ \\
+\verb|\rotategobanleft| & вращение против часовой стрелки на $90^\circ$ \\
+\verb|\rotategobanright| & вращение по часовой стрелке на  $90^\circ$ \\
+\verb|\hflipgoban| & отражение относительно вертикальной линии \\
+\verb|\vflipgoban| & отражение относительно горизонтальной линии \\
+\verb|\mirrorgoban| & отражение относительно диагональной линии
+\end{tabular}
+
+
+\subsection{Шрифты}
+
+Пакет \textit{igo} использует следующие файлы шрифтов:
+\begin{description}
+	\item [igo$<$size$>$] содержат символы для изображения элементов доски и камней. Эти шрифты включают Computer Modern Roman шрифт, который используется для отображения букв и цифр на доске. Шрифты и их размеры, используемые в пакете \textit{igo}, приведены в Таблице~\ref{tab:fonts}. Здесь\\
+$<$\textit{size}$>$ --- один из размеров \textit{5, 6, 7, 8, 9, 10, 11, 12, 15, 20}.
+	\item [igo$<$color$>$$<$n$>$$<$size$>$] содержат надписи для камней, цифры и символы,\\ 
+$<$\textit{color}$>$ --- \textit{black} или \textit{white}, \\
+$<$\textit{n}$>$ --- римский номер (\textit{i, ii, iii}), поскольку нужно три шрифтовых файла для цифр вплоть до 361, по числу пунктов доски $19 \times 19$. Этого должно быть достаточно для изображения почти всех игр го.
+\end{description}
+Эти шрифты были созданы Ханной Колодзейской и (только слегка) модифицированы мною и Н. Немовым.
+
+\vspace{-6pt}
+\begin{table}[htb] 
+	\caption{Шрифты и их размеры, используемые в пакете \textit{igo}}
+	\label{tab:fonts}
+	\begin{center}
+		\begin{tabular}{llrl}
+			\hline
+			\multicolumn{1}{c}{Команда \TeX} & \multicolumn{2}{c}{Шрифты} & \multicolumn{1}{c}{Размер доски Го} \\
+			\hline \hline
+			\verb|\tiny|         & igo5  &  (cmr5) & \verb|\igofontsize{5}|  \\
+			\verb|\scriptsize|   & igo6  &  (cmr6) & \verb|\igofontsize{6}|  \\
+			\verb|\footnotesize| & igo7  &  (cmr7) & \verb|\igofontsize{7}|  \\
+			\verb|\small|        & igo8  &  (cmr8) & \verb|\igofontsize{8}|  \\
+			\verb|\normalsize|   & igo9  &  (cmr9) & \verb|\igofontsize{9}|  \\
+			\verb|\large|        & igo10 & (cmr10) & \verb|\smallgoban| \\
+			\verb|\Large|        & igo11 & (cmr10) & \verb|\igofontsize{11}| \\
+			\verb|\LARGE|        & igo12 & (cmr10) & \verb|\igofontsize{12}| \\
+			\verb|\huge|         & igo15 & (cmr12) & \verb|\normalgoban|     \\
+			\verb|\Huge|         & igo20 & (cmr17) & \verb|\largegoban|      \\
+			\hline \hline 
+		\end{tabular}
+	\end{center}
+\end{table}
+
+\vspace{-12pt}
+\section{О документе}
+
+Настоящий документ является официальным руководством и справочником для пакета \textit{igo} версии 0.60, написанным Этьеном Дюпуи в апреле 2003, расширенным Николаем Немовым в декабре 2005 и улучшенным двумя месяцами позже после ценного взаимодействия (и помощи) с Франком Миттельбач. Автор хотел бы выразить свою благодарность Виктору Эйхоут, автору \textit{\TeX\ by Topic}\footnote{Eijkhout, Victor, \textit{\TeX\ by Topic, A \TeX nicians's Reference}, Electronic Version 1.0, December 2001, \copyright 1991, 2001. Расположен на \url{http://www.eijkhout.net/}.} и \textit{The ultimate loop macro}\footnote{Eijkhout, Victor, \textit{The ultimate loop macro}, in MAPS 24, Neder\-landstalige \TeX\ Gebruik\-ersgroep, pages 49--51. Расположен на \url{http://www.ntg.nl/}. Файл \texttt{repeat.tex} можно загрузить с \url{http://www.ctan.org/}. Для пакета \textit{igo} нужна версия 0.93 или выше.} и участникам \verb|fr.comp.text.tex| за помощь в улучшении понимания языка \TeX.
+
+\end{document}
