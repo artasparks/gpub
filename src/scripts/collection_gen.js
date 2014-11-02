@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-var glift = require('../glift.js');
-var gpub = require('../gpub.js');
-var flagz = require('../flagz.js')
+var glift = require('./defs/glift.js');
+var gpub = require('./defs/gpub.js');
+var flagz = require('./defs/flagz.js')
 
 var fs = require('fs');
 var path = require('path')

@@ -2,7 +2,7 @@
 
 window = {}; // So it doesn't bomb out
 gpub = {};
-require('../compiled/gpub_combined.js');
+require('../../compiled/gpub_combined.js');
 for (var key in gpub) {
   exports[key] = gpub[key]
 }
