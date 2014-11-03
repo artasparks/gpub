@@ -107,7 +107,6 @@ FlagzDef.prototype = {
         if (flagtype !== 'boolean' &&
             i + 1 < process.argv.length &&
             value === null) {
-          console.log('zed');
           value = process.argv[i + 1];
           if (flagregex.test(value)) {
             // The next value is a flag value. This is an error.

@@ -12,7 +12,6 @@ var flags = flagz.init(
   [],
   {
     directory: ['string', './'],
-    ordering: ['string', null],
     namespace: ['string', null]
   }).process();
 
@@ -22,9 +21,27 @@ if (flags.processed.ordering && flags.processed.directory) {
 }
 
 var sgfs = [];
+var fnames = [];
+var sgfregex = /.*\.sgf$/;
+
 if (flags.processed.directory) {
-  var fnames = fs.readdirSync(flags.processed.directory);
-  console.log(fnames);
+  var dir = flags.processed.directory;
+  var tmpfnames = fs.readdirSync(flags.processed.directory);
+  for (var i = 0; i < tmpfnames.length; i++) {
+    if (sgfregex.test(tmpfnames[i])) {
+      fnames.push(path.join(dir, tmpfnames[i]));
+    }
+  }
 }
 
-// var sgf = fs.readFileSync(flags.args[0], {encoding: 'utf8'});
+for (var i = 0; i < flags.args.length; i++) {
+  if (sgfregex.test(flags.args[i])) {
+    fnames.push(frags.args[i]);
+  }
+}
+
+for (var i = 0; i < fnames.length; i++) {
+  sgfs.push(fs.readFileSync(fnames[i], {encoding: 'utf8'}));
+}
+
+console.log(sgfs);

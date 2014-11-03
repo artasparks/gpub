@@ -14,7 +14,7 @@ gpub.book.latexBookTest = function() {
 
   test('Test round trip', function() {
     var sgf = testdata.sgfs.complexproblem;
-    var spec = gpub.gen.collection.fromGames([sgf]);
+    var spec = gpub.spec.fromSgfs([sgf]);
     var latexBook = gpub.book.latex.generate(spec);
     ok(latexBook, 'must be defined');
   });

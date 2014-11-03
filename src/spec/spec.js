@@ -1,4 +1,61 @@
-gpub.gen.collection = {
+gpub.spec  = {
+  /**
+   * Types of specs to generate
+   */
+  specType: {
+    PROBLEM_SET: 'PROBLEM_SET',
+    GAME_BOOK: 'GAME_BOOK'
+  },
+
+  /**
+   * Creates a Glift collection from sgfs.
+   *
+   * sgfs: Array of SGFs.
+   * stype: The spec type to generate
+   *
+   * returns: a full options specification.
+   */
+  fromSgfs: function(sgfs, stype) {
+    var specType = gpub.spec.specType;
+    var spec = {
+      // Since this is for a book definition, we don't need a divId. Clients
+      // can add in a relevant ID later.
+      divId: null,
+      sgfCollection: [],
+      // We must rely on SGF aliases to generate the collection to ensure the
+      // collection is self contained.
+      sgfMapping: {},
+      sgfDefaults: {}
+    };
+    stype = stype || specType.GAME_BOOK;
+
+    var processingFn = null;
+    switch(stype) {
+      case 'GAME_BOOK':
+        spec.sgfDefaults.widgetType = 'EXAMPLE';
+        processingFn = gpub.spec.allMovetreeVariations;
+        break;
+
+      case 'PROBLEM_SET':
+        spec.sgfDefaults.widgetType = 'STANDARD_PROBLEM';
+        processingFn = gpub.spec.problemSpec;
+        break;
+
+      default:
+        throw new Error('Unknown spec type: ' + stype);
+    }
+
+    for (var i = 0; sgfs && i < sgfs.length; i++) {
+      var sgf = sgfs[i];
+      var mt = glift.sgf.parse(sgf);
+      var sgfName = mt.properties().getOneValue('GN') || 'sgf:' + i;
+      spec.sgfCollection = spec.sgfCollection.concat(processingFn(mt, sgfName));
+      spec.sgfMapping[sgfName] = sgf;
+    }
+
+    return spec;
+  },
+
   /**
    * Creates a Glift collection from
    *
@@ -6,16 +63,9 @@ gpub.gen.collection = {
    *
    * returns: a full options specification.
    */
-  fromGames: function(sgfs) {
+  _fromGames: function(sgfs) {
     // Array of SGF declarations.
     // Note: We must rely on SGF aliases to generate the collection.
-    var spec = {
-      // Since this is for a book definition, we don't need a divId. Clients
-      // can add in a relevant ID later.
-      divId: null,
-      sgfCollection: [],
-      sgfMapping: {}
-    };
     var collection = [];
     for (var i = 0; sgfs && i < sgfs.length; i++) {
       var sgf = sgfs[i];
@@ -39,7 +89,7 @@ gpub.gen.collection = {
    * alias: The name of this movetree / SGF instance. This is used to create the
    *    alias.
    */
-  fromMovetree: function(mt, alias) {
+  allMovetreeVariations: function(mt, alias) {
     var boardRegions = glift.enums.boardRegions;
     var out = [];
     var varPathBuffer = [];
@@ -50,20 +100,20 @@ gpub.gen.collection = {
         // We ignore the current position, but if there are variations, we note
         // them so we can process them after we record the next comment.
         var node = mt.node();
-        varPathBuffer = varPathBuffer.concat(this.getVariationPaths(mt));
+        varPathBuffer = varPathBuffer.concat(gpub.spec.getVariationPaths(mt));
       } else {
         // This node has a comment or is terminal.  Process this node and all
         // the variations.
         var pathSpec = glift.rules.treepath.findNextMovesPath(mt);
-        out.push(this.createExample(
+        out.push(gpub.spec.createExample(
             alias, pathSpec.treepath, pathSpec.nextMoves));
 
-        varPathBuffer = varPathBuffer.concat(this.getVariationPaths(mt));
+        varPathBuffer = varPathBuffer.concat(gpub.spec.getVariationPaths(mt));
         for (var i = 0; i < varPathBuffer.length; i++) {
           var path = varPathBuffer[i];
           var mtz = mt.getTreeFromRoot(path);
           var varPathSpec = glift.rules.treepath.findNextMovesPath(mtz);
-          out.push(this.createExample(
+          out.push(gpub.spec.createExample(
               alias, varPathSpec.treepath, varPathSpec.nextMoves));
         }
         varPathBuffer = [];

@@ -1,8 +1,6 @@
 #! /usr/bin/python
 
-# I (kashomon) hacked together this script to concatenate and compile the
-# relevant parts of Glift. To get it working for yourself, you'll need the
-# following:
+# To get this script working for yourself, you'll need the following:
 #
 # export a CLOSURE var pointing to the closure jar
 #
@@ -22,7 +20,7 @@ FILES_TO_AUTOGEN = {
 DIR_ORDER = [
   '.',
   'book',
-  'gen',
+  'spec',
   'diagrams',
   'diagrams/gooe',
   'diagrams/igo',

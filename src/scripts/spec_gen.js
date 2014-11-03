@@ -17,7 +17,7 @@ for (var i = 0; i < flags.args.length; i++) {
   files.push(fs.readFileSync(flags.args[i], {encoding: 'utf8'}));
 }
 
-var out = gpub.gen.collection.fromGames(files);
+var out = gpub.spec.fromSgfs(files);
 var outstr = JSON.stringify(out);
 console.log(outstr);
 
