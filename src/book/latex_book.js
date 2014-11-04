@@ -31,7 +31,8 @@ gpub.book.latex = {
 
     var content = [];
     var diagramBuffer = []
-    var chapters = 1;
+    var chapter = 1;
+    var part = 1;
     for (var i = 0; i < mgr.sgfCollection.length; i++) {
       var sgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(i));
       var mt = glift.rules.movetree.getFromSgf(
@@ -41,14 +42,30 @@ gpub.book.latex = {
           boardRegion: sgfObj.boardRegion
       });
       var purpose = gpub.diagrams.diagramPurpose.GAME_REVIEW;
-      var nodeData = {}
+
+      // // Try out the chapter-title stuff.
+      if (flattened.isOnMainPath()) {
+        purpose = gpub.diagrams.diagramPurpose.GAME_REVIEW_CHAPTER;
+      }
 
       if (mt.node().getNodeNum() == 0 &&
           sgfObj.nextMovesPath.length == 0) {
-        // We're at the beginning of the game.
         purpose = gpub.diagrams.diagramPurpose.SECTION_INTRO;
-        nodeData.chapterTitle = 'Chapter ' + chapters;
-        chapters++;
+      }
+
+      // Hack the node-data until we get markdown parsing.
+      var nodeData = {};
+      if (purpose === gpub.diagrams.diagramPurpose.SECTION_INTRO) {
+        // We're at the beginning of the game. Create a new section
+        nodeData.sectionTitle =
+            mt.getTreeFromRoot().properties().getOneValue('GN') || '';
+        nodeData.chapterTitle = 'Chapter: ' + chapter;
+        part++;
+        chapter++;
+      }
+      if (purpose === gpub.diagrams.diagramPurpose.GAME_REVIEW_CHAPTER) {
+        nodeData.chapterTitle = 'Chapter: ' + chapter;
+        chapter++;
       }
 
       var diagram = gpub.diagrams.forPurpose(
@@ -58,11 +75,11 @@ gpub.book.latex = {
           purpose,
           nodeData);
 
-      // content.push(diagram);
-      // content.push('\\newpage');
-
-      if (purpose === gpub.diagrams.diagramPurpose.SECTION_INTRO) {
+      if (purpose === gpub.diagrams.diagramPurpose.SECTION_INTRO ||
+          purpose === gpub.diagrams.diagramPurpose.GAME_REVIEW_CHAPTER) {
+        // Flush the previous buffer centent to the page.
         content.push(gpub.book.latex.renderPage(diagramBuffer));
+
         diagramBuffer = [];
         diagramBuffer.push(diagram);
         content.push(gpub.book.latex.renderPage(diagramBuffer));

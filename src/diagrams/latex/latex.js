@@ -23,6 +23,7 @@ gpub.diagrams.latex = {
     var func = gpub.diagrams.latex[camelCaseName];
     switch(purpose) {
       case 'GAME_REVIEW':
+      case 'GAME_REVIEW_CHAPTER':
         var baseLabel = isMainLine ? '\\gofigure' : '\\godiagram';
         if (label) {
           var splat = label.split('\n');
@@ -42,8 +43,10 @@ gpub.diagrams.latex = {
    * Return a section intro.
    */
   sectionIntro: function(diagramString, comment, label, bookData) {
-    var chapter = bookData.chapterTitle || 'Chapter';
+    var part = bookData.sectionTitle || '';
+    var chapter = bookData.chapterTitle || '';
     return [
+      '\\part{' + part + '}',
       '\\chapter{' + chapter + '}',
       comment
     ].join('\n');
@@ -77,9 +80,9 @@ gpub.diagrams.latex = {
   /**
    * Generate a Game Review Chapter Diagram.
    */
-  gameReviewChapter: function(diagramString, comment, label, title) {
+  gameReviewChapter: function(diagramString, comment, label, bookdata) {
     return [
-      '\\chapter{' + title + '}',
+      '\\chapter{' + bookdata.chapterTitle + '}',
       '{\\centering',
       diagramString,
       '}',
