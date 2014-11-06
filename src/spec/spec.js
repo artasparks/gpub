@@ -12,11 +12,16 @@ gpub.spec  = {
    *
    * sgfs: Array of SGFs.
    * stype: The spec type to generate
+   * options: Has the following structure:
+   *    {
+   *      boardRegion: <boardRegion>
+   *    }
    *
-   * returns: a full options specification.
+   * returns: A full glift options specification.
    */
-  fromSgfs: function(sgfs, stype) {
+  fromSgfs: function(sgfs, stype, options) {
     var specType = gpub.spec.specType;
+    var opts = options || {};
     var spec = {
       // Since this is for a book definition, we don't need a divId. Clients
       // can add in a relevant ID later.
@@ -33,7 +38,7 @@ gpub.spec  = {
     switch(stype) {
       case 'GAME_BOOK':
         spec.sgfDefaults.widgetType = 'EXAMPLE';
-        processingFn = gpub.spec.allMovetreeVariations;
+        processingFn = gpub.spec.gameBookSpec;
         break;
 
       case 'PROBLEM_SET':
@@ -49,36 +54,10 @@ gpub.spec  = {
       var sgf = sgfs[i];
       var mt = glift.sgf.parse(sgf);
       var sgfName = mt.properties().getOneValue('GN') || 'sgf:' + i;
-      spec.sgfCollection = spec.sgfCollection.concat(processingFn(mt, sgfName));
+      spec.sgfCollection = spec.sgfCollection.concat(processingFn(mt, sgfName, opts));
       spec.sgfMapping[sgfName] = sgf;
     }
 
-    return spec;
-  },
-
-  /**
-   * Creates a Glift collection from
-   *
-   * sgfs: Array of SGFs.
-   *
-   * returns: a full options specification.
-   */
-  _fromGames: function(sgfs) {
-    // Array of SGF declarations.
-    // Note: We must rely on SGF aliases to generate the collection.
-    var collection = [];
-    for (var i = 0; sgfs && i < sgfs.length; i++) {
-      var sgf = sgfs[i];
-      var mt = glift.sgf.parse(sgf);
-      var sgfName = mt.properties().getOneValue('GN') || 'sgf:' + i;
-
-      // Create a cache entry.
-      spec.sgfMapping[sgfName] = sgf;
-
-      // Finally, process the sgf collection.
-      spec.sgfCollection = spec.sgfCollection.concat(
-          this.fromMovetree(mt, sgfName));
-    }
     return spec;
   },
 
@@ -88,8 +67,9 @@ gpub.spec  = {
    * mt: A movetree from which we want to generate our SGF Collection.
    * alias: The name of this movetree / SGF instance. This is used to create the
    *    alias.
+   * options: options object. See above for the structure
    */
-  allMovetreeVariations: function(mt, alias) {
+  gameBookSpec: function(mt, alias, options) {
     var boardRegions = glift.enums.boardRegions;
     var out = [];
     var varPathBuffer = [];
@@ -157,7 +137,8 @@ gpub.spec  = {
    * alias: Required. The cache alias.
    * initPos: Required. The init position
    * nextMoves: Required. Next m
-   * region: not required. Defaults to ALL, but must be part of kkkkkkj
+   * region: not required. Defaults to ALL, but must be part of
+   *    glift.enums.boardRegions.
    */
   createExample: function(alias, initPos, nextMoves, region) {
     region = region || glift.enums.boardRegions.ALL;
