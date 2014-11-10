@@ -43,7 +43,7 @@ gpub.book.latex = {
       });
       var purpose = gpub.diagrams.diagramPurpose.GAME_REVIEW;
 
-      // // Try out the chapter-title stuff.
+      // Try out the chapter-title stuff.
       if (flattened.isOnMainPath()) {
         purpose = gpub.diagrams.diagramPurpose.GAME_REVIEW_CHAPTER;
       }

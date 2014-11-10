@@ -44,4 +44,5 @@ for (var i = 0; i < fnames.length; i++) {
   sgfs.push(fs.readFileSync(fnames[i], {encoding: 'utf8'}));
 }
 
+var problemSet  = gpub.spec.rfo
 console.log(sgfs);

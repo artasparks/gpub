@@ -33,6 +33,9 @@
 <!-- Otre -->
 <script type="text/javascript" src=".././gpub.js"></script>
 <script type="text/javascript" src=".././gpub_global.js"></script>
+<!-- Util -->
+<script type="text/javascript" src="../util/util.js"></script>
+<script type="text/javascript" src="../util/buffer.js"></script>
 <!-- Book -->
 <script type="text/javascript" src="../book/book.js"></script>
 <script type="text/javascript" src="../book/html_book.js"></script>
@@ -40,7 +43,9 @@
 <script type="text/javascript" src="../book/manager.js"></script>
 <!-- Spec -->
 <script type="text/javascript" src="../spec/spec.js"></script>
-<script type="text/javascript" src="../spec/problem_set_spec.js"></script>
+<script type="text/javascript" src="../spec/game_book.js"></script>
+<script type="text/javascript" src="../spec/problem_book.js"></script>
+<script type="text/javascript" src="../spec/problem_set.js"></script>
 <!-- Diagrams -->
 <script type="text/javascript" src="../diagrams/diagrams.js"></script>
 <!-- Diagrams gooe -->
@@ -59,11 +64,14 @@
 <script type="text/javascript" src="../templates/latex_base.js"></script>
 <script type="text/javascript" src="../templates/latex_template.js"></script>
 <script type="text/javascript" src="../templates/parser.js"></script>
+<!-- Util Tests -->
+<script type="text/javascript" src="../util/buffer_test.js"></script>
 <!-- Book Tests -->
 <script type="text/javascript" src="../book/latex_book_test.js"></script>
 <script type="text/javascript" src="../book/manager_test.js"></script>
 <!-- Spec Tests -->
-<script type="text/javascript" src="../spec/problem_set_spec_test.js"></script>
+<script type="text/javascript" src="../spec/problem_book_test.js"></script>
+<script type="text/javascript" src="../spec/problem_set_test.js"></script>
 <script type="text/javascript" src="../spec/spec_test.js"></script>
 <!-- Diagrams Tests -->
 <script type="text/javascript" src="../diagrams/diagrams_test.js"></script>
@@ -79,6 +87,8 @@
 <!-- END-AUTO-GEN-DEPS -->
 
 <script>
+  gpub.util.bufferTest();
+
   gpub.templates.parserTest();
   gpub.templates.templatesTest();
   gpub.templates.latexTemplateTest();
@@ -90,7 +100,8 @@
   gpub.diagrams.latex.latexTest();
 
   gpub.spec.specTest();
-  gpub.spec.problemSetSpecTest();
+  gpub.spec.problemSetTest();
+  gpub.spec.problemBookTest();
 
   gpub.book.latexBookTest();
 </script>

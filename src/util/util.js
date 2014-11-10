@@ -1,0 +1,4 @@
+/**
+ * GPub utilities.
+ */
+gpub.util = {};

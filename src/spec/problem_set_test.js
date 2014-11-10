@@ -1,11 +1,11 @@
-gpub.spec.problemSetSpecTest = function() {
-  module('gpub.spec.problemSetSpecTest');
+gpub.spec.problemSetTest = function() {
+  module('gpub.spec.problemSetTest');
 
   test('Ensure problem generation', function() {
     var sgf = '(;GM[1]C[foo]AB[aa])';
     var mt = glift.sgf.parse(sgf);
     deepEqual(
-        gpub.spec.problemSetSpec(mt, 'zed', {region: 'TOP'}),
+        gpub.spec.problemSet.one(mt, 'zed', {region: 'TOP'}),
         {
           alias: 'zed',
           widgetType: 'STANDARD_PROBLEM',
@@ -13,11 +13,11 @@ gpub.spec.problemSetSpecTest = function() {
         });
 
     deepEqual(
-        gpub.spec.problemSetSpec(mt, 'zed', {}),
+        gpub.spec.problemSet.one(mt, 'zed', {}),
         {
           alias: 'zed',
           widgetType: 'STANDARD_PROBLEM',
-          boardRegion: 'ALL'
+          boardRegion: 'AUTO'
         });
   });
 };

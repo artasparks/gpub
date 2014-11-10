@@ -21,6 +21,50 @@ gpub.global = {
   version: '0.1.0'
 };
 /**
+ * GPub utilities.
+ */
+gpub.util = {};
+/**
+ * Buffer Helper. Used to manage groupings items. This implementation allows
+ * users to fill up the buffer past the maximum capacity -- it us up to the user
+ * to check whether the buffer should be flushed via the atCapacity method.
+ */
+gpub.util.Buffer = function(maxSize) {
+  this._maxSize = maxSize || 1;
+
+  /** Array of arbitrary (non-null/non-undefined) items */
+  this._buffer = [];
+};
+
+gpub.util.Buffer.prototype = {
+  /**
+   * Adds an item to the buffer.  The item must be defined.
+   */
+  add: function(item) {
+    if (item != null) {
+      this._buffer.push(item);
+    }
+    return this;
+  },
+
+  /**
+   * Checks whether or not the internal buffer size is larger than the specified
+   * max size.
+   */
+  atCapacity: function() {
+    return this._buffer.length >= this._maxSize;
+  },
+
+  /**
+   * Returns a copy of the items array and reset the underlying array.
+   */
+  flush: function() {
+    var copy = this._buffer.slice(0);
+    this._buffer = [];
+    return copy;
+  }
+};
+/**
  * Package for creating the books!
  */
 gpub.book = {
@@ -92,7 +136,7 @@ gpub.book.latex = {
       });
       var purpose = gpub.diagrams.diagramPurpose.GAME_REVIEW;
 
-      // // Try out the chapter-title stuff.
+      // Try out the chapter-title stuff.
       if (flattened.isOnMainPath()) {
         purpose = gpub.diagrams.diagramPurpose.GAME_REVIEW_CHAPTER;
       }
@@ -287,7 +331,16 @@ gpub.spec  = {
    * Types of specs to generate
    */
   specType: {
+    /** Standard problem SGF Collection. */
     PROBLEM_SET: 'PROBLEM_SET',
+
+    /**
+     * Problems that have been converted into a book format. In other words,
+     * we've flattened all the problems into EXAMPLEs.
+     */
+    PROBLEM_BOOK: 'PROBLEM_BOOK',
+
+    /** Game that's been flattened into examples. */
     GAME_BOOK: 'GAME_BOOK'
   },
 
@@ -296,11 +349,18 @@ gpub.spec  = {
    *
    * sgfs: Array of SGFs.
    * stype: The spec type to generate
+   * options: Has the following structure:
+   *    {
+   *      boardRegion: <boardRegion> -- The board region to display
+   *      bufferSize: Usually 1. For problems, sometimes more.
+   *    }
    *
-   * returns: a full options specification.
+   * returns: A full glift options specification.
    */
-  fromSgfs: function(sgfs, stype) {
+  fromSgfs: function(sgfs, specTypeIn, options) {
     var specType = gpub.spec.specType;
+    var opts = options || {};
+    var stype = specTypeIn || specType.GAME_BOOK;
     var spec = {
       // Since this is for a book definition, we don't need a divId. Clients
       // can add in a relevant ID later.
@@ -309,31 +369,60 @@ gpub.spec  = {
       // We must rely on SGF aliases to generate the collection to ensure the
       // collection is self contained.
       sgfMapping: {},
-      sgfDefaults: {}
+      sgfDefaults: {},
+      metadata: {
+        specType: stype
+      }
     };
-    stype = stype || specType.GAME_BOOK;
+
+    var maxBufferSize = 1;
 
     var processingFn = null;
     switch(stype) {
       case 'GAME_BOOK':
         spec.sgfDefaults.widgetType = 'EXAMPLE';
-        processingFn = gpub.spec.allMovetreeVariations;
+        maxBufferSize = 1;
+        processingFn = function(buf, optz) {
+          return gpub.spec.gameBook.one(buf[0].movetree, buf[0].name, optz);
+        };
         break;
 
       case 'PROBLEM_SET':
         spec.sgfDefaults.widgetType = 'STANDARD_PROBLEM';
-        processingFn = gpub.spec.problemSpec;
+        maxBufferSize = 1;
+        processingFn = function(buf, optz) {
+          return gpub.spec.problemSet.one(buf[0].movetree, buf[0].name, optz);
+        };
+        break;
+
+      case 'PROBLEM_BOOK':
+        spec.sgfDefaults.widgetType = 'EXAMPLE';
+        processingFn = gpub.spec.problemBook.multi;
+        var answerStyle = gpub.spec.problemBook.answerStyle;
+        opts.answerStyle = opts.answerStyle || answerStyle.END_OF_SECTION;
+        if (opts.answerStyle === answerStyle.END_OF_SECTION) {
+          maxBufferSize = sgfs.length;
+        } else if (opts.answerStyle === answerStyle.AFTER_PAGE) {
+          maxBufferSize = opts.bufferSize || 4;
+        } else {
+          maxBufferSize = 1;
+        }
         break;
 
       default:
         throw new Error('Unknown spec type: ' + stype);
     }
 
+    var buffer = new gpub.util.Buffer(maxBufferSize);
     for (var i = 0; sgfs && i < sgfs.length; i++) {
       var sgf = sgfs[i];
       var mt = glift.sgf.parse(sgf);
       var sgfName = mt.properties().getOneValue('GN') || 'sgf:' + i;
-      spec.sgfCollection = spec.sgfCollection.concat(processingFn(mt, sgfName));
+      buffer.add({ movetree: mt, name: sgfName });
+      if (buffer.atCapacity() || i === sgfs.length - 1) {
+        spec.sgfCollection = spec.sgfCollection.concat(
+            processingFn(buffer.flush(), opts));
+      }
       spec.sgfMapping[sgfName] = sgf;
     }
 
@@ -341,39 +430,41 @@ gpub.spec  = {
   },
 
   /**
-   * Creates a Glift collection from
-   *
-   * sgfs: Array of SGFs.
-   *
-   * returns: a full options specification.
+   * Convert a movetree and a couple of options to an entry in the SGF
+   * collection.
+   * alias: Required. The cache alias.
+   * initPos: Required. The init position
+   * nextMoves: Required. Next moves path
+   * region: not required. Defaults to ALL, but must be part of
+   *    glift.enums.boardRegions.
    */
-  _fromGames: function(sgfs) {
-    // Array of SGF declarations.
-    // Note: We must rely on SGF aliases to generate the collection.
-    var collection = [];
-    for (var i = 0; sgfs && i < sgfs.length; i++) {
-      var sgf = sgfs[i];
-      var mt = glift.sgf.parse(sgf);
-      var sgfName = mt.properties().getOneValue('GN') || 'sgf:' + i;
-
-      // Create a cache entry.
-      spec.sgfMapping[sgfName] = sgf;
-
-      // Finally, process the sgf collection.
-      spec.sgfCollection = spec.sgfCollection.concat(
-          this.fromMovetree(mt, sgfName));
+  createExample: function(alias, initPos, nextMoves, region) {
+    region = region || glift.enums.boardRegions.ALL;
+    if (!glift.enums.boardRegions[region]) {
+      throw new Error('Unknown board region: ' + region);
     }
-    return spec;
-  },
-
+    var ipString = glift.rules.treepath.toInitPathString;
+    var fragString = glift.rules.treepath.toFragmentString;
+    var base = {
+      widgetType: 'EXAMPLE',
+      alias: alias,
+      initialPosition: ipString(initPos),
+      nextMovesPath: fragString(nextMoves),
+      boardRegion: region
+    };
+    return base;
+  }
+};
+gpub.spec.gameBook = {
   /**
-   * Convert a movetree to a SGF Collection.
+   * Convert a single movetree to a SGF Collection.
    *
    * mt: A movetree from which we want to generate our SGF Collection.
    * alias: The name of this movetree / SGF instance. This is used to create the
    *    alias.
+   * options: options object. See above for the structure
    */
-  allMovetreeVariations: function(mt, alias) {
+  one: function(mt, alias, options) {
     var boardRegions = glift.enums.boardRegions;
     var out = [];
     var varPathBuffer = [];
@@ -384,7 +475,8 @@ gpub.spec  = {
         // We ignore the current position, but if there are variations, we note
         // them so we can process them after we record the next comment.
         var node = mt.node();
-        varPathBuffer = varPathBuffer.concat(gpub.spec.getVariationPaths(mt));
+        varPathBuffer = varPathBuffer.concat(
+            gpub.spec.gameBook.variationPaths(mt));
       } else {
         // This node has a comment or is terminal.  Process this node and all
         // the variations.
@@ -392,7 +484,8 @@ gpub.spec  = {
         out.push(gpub.spec.createExample(
             alias, pathSpec.treepath, pathSpec.nextMoves));
 
-        varPathBuffer = varPathBuffer.concat(gpub.spec.getVariationPaths(mt));
+        varPathBuffer = varPathBuffer.concat(
+            gpub.spec.gameBook.variationPaths(mt));
         for (var i = 0; i < varPathBuffer.length; i++) {
           var path = varPathBuffer[i];
           var mtz = mt.getTreeFromRoot(path);
@@ -411,8 +504,10 @@ gpub.spec  = {
   /**
    * Get an initial treepath to the point where we want to create a next-moves
    * path.
+   *
+   * mt: The movetree
    */
-  getVariationPaths: function(mt) {
+  variationPaths: function(mt) {
     mt = mt.newTreeRef();
     var out = [];
     var node = mt.node();
@@ -421,7 +516,7 @@ gpub.spec  = {
       return out;
     }
 
-    mt.moveUp();
+    mt.moveUp(); 
     for (var i = 1; i < mt.node().numChildren(); i++) {
       var mtz = mt.newTreeRef();
       mtz.moveDown(i);
@@ -433,31 +528,92 @@ gpub.spec  = {
       });
     }
     return out;
+  }
+};
+gpub.spec.problemBook = {
+  answerStyle: {
+    /** No answers. */
+    NONE: 'NONE',
+
+    /** The answers go at the end of section */
+    END_OF_SECTION: 'END_OF_SECTION',
+
+    /** The answers go immediately after the page. */
+    AFTER_PAGE : 'END_OF_SECTION'
+  },
+
+  /** Converts a problem set into a problem book. */
+  fromProblemSet: function(spec) {
+    // TODO(kashomon): Implement.
   },
 
   /**
-   * Convert a movetree and a couple of options to an entry in the SGF
-   * collection.
-   * alias: Required. The cache alias.
-   * initPos: Required. The init position
-   * nextMoves: Required. Next m
-   * region: not required. Defaults to ALL, but must be part of kkkkkkj
+   * buffer: gpub.util.Buffer, with an SGF obj.
+   *
+   * options:
+   *  region: default region.
+   *  answerStyle: See above.
+   *  numAnswerVars : Defaults to 3. -1 means all variations. set to 0 if the
+   *      answer style is NONE.
    */
-  createExample: function(alias, initPos, nextMoves, region) {
-    region = region || glift.enums.boardRegions.ALL;
-    if (!glift.enums.boardRegions[region]) {
-      throw new Error('Unknown board region: ' + region);
+  multi: function(buffer, opts) {
+    var answerStyle = opts.answerStyle ||
+        gpub.spec.problemBook.answerStylea.END_OF_SECTION;
+    var numAnswerVars = opts.numAnswerVars || 3;
+    var problems = [];
+    var answers = [];
+    var region  = opts.region || glift.enums.boardRegions.AUTO;
+    for (var i = 0; i < buffer.length; i++) {
+      // We assume the problem begins at the beginning.
+      var mt = buffer[i].movetree;
+      var name = buffer[i].name;
+      problems.push(gpub.spec.createExample(name, [], [], region));
+      var answerVars = gpub.spec.problemBook.variationPaths(mt, numAnswerVars);
+      for (var i = 0; i < answerVars.length; i++) {
+        answers.push(
+            gpub.spec.createExample(name, '', anwserVars[i], region));
+      }
     }
-    var ipString = glift.rules.treepath.toInitPathString;
-    var fragString = glift.rules.treepath.toFragmentString;
-    var base = {
-      widgetType: 'EXAMPLE',
+  },
+
+  /** Create the answer-variation paths for a problem */
+  variationPaths: function(mt, maxVars) {
+    var out = [];
+    if (maxVars === 0) {
+      return out;
+    }
+
+    mt.recurseFromRoot(function(mtz) { 
+      // TODO(kashomon): Support partial continuations
+      // if (mtz.properties().getOneValue('C')) {
+        // out.push(mtz.treepathToHere());
+        // return;
+      // }
+      if (mtz.node().numChildren() === 0) {
+        out.push(mtz.treepathToHere());
+      }
+    });
+    if (maxVars < 0) {
+      return out;
+    } else {
+      return out.slice(0, maxVars);
+    }
+  }
+};
+/**
+ * Generates a problem set spec.
+ */
+gpub.spec.problemSet = {
+  /**
+   * Process one movetree.
+   */
+  one: function(mt, alias, options) {
+    region = options.region || glift.enums.boardRegions.AUTO;
+    return {
       alias: alias,
-      initialPosition: ipString(initPos),
-      nextMovesPath: fragString(nextMoves),
+      widgetType: 'STANDARD_PROBLEM',
       boardRegion: region
-    };
-    return base;
+    }
   }
 };
 gpub.diagrams = {
