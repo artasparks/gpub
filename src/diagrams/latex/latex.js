@@ -90,5 +90,21 @@ gpub.diagrams.latex = {
       '',
       comment,
       '\\vfill'].join('\n');
+  },
+
+  problem: function(diagramString, comment, label, bookdata) {
+    return [
+      diagramString,
+      label,
+      '',
+      comment].join('\n');
+  },
+
+  answer: function(diagramString, comment, label, bookdata) {
+    return [
+      diagramString,
+      label,
+      '',
+      comment].join('\n');
   }
 };

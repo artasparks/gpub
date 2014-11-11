@@ -71,7 +71,7 @@ gpub.book = {
   /**
    * Available book formats.
    */
-  // TODO(kashomon): Move into diagram package.
+  // TODO(kashomon): Move into diagram package?
   bookFormat: {
     /** Standard GLift web display */
     HTML: 'HTML',
@@ -125,7 +125,9 @@ gpub.book.latex = {
     var content = [];
     var diagramBuffer = []
     var chapter = 1;
-    var part = 1;
+    var section = 1;
+    var lastPurpose = null;
+    var diagramPurpose = gpub.diagrams.diagramPurpose;
     for (var i = 0; i < mgr.sgfCollection.length; i++) {
       var sgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(i));
       var mt = glift.rules.movetree.getFromSgf(
@@ -134,42 +136,22 @@ gpub.book.latex = {
           nextMovesTreepath: sgfObj.nextMovesPath,
           boardRegion: sgfObj.boardRegion
       });
-      var purpose = gpub.diagrams.diagramPurpose.GAME_REVIEW;
 
-      // Try out the chapter-title stuff.
-      if (flattened.isOnMainPath()) {
-        purpose = gpub.diagrams.diagramPurpose.GAME_REVIEW_CHAPTER;
-      }
-
-      if (mt.node().getNodeNum() == 0 &&
-          sgfObj.nextMovesPath.length == 0) {
-        purpose = gpub.diagrams.diagramPurpose.SECTION_INTRO;
-      }
-
-      // Hack the node-data until we get markdown parsing.
-      var nodeData = {};
-      if (purpose === gpub.diagrams.diagramPurpose.SECTION_INTRO) {
-        // We're at the beginning of the game. Create a new section
-        nodeData.sectionTitle =
-            mt.getTreeFromRoot().properties().getOneValue('GN') || '';
-        nodeData.chapterTitle = 'Chapter: ' + chapter;
-        part++;
-        chapter++;
-      }
-      if (purpose === gpub.diagrams.diagramPurpose.GAME_REVIEW_CHAPTER) {
-        nodeData.chapterTitle = 'Chapter: ' + chapter;
-        chapter++;
-      }
+      var nodeData = gpub.book.NodeData.fromContext(
+          mt, flattened, sgfObj.metadata, sgfObj.nextMovesPath || []);
+      chapter = nodeData.setSectionFromCtx(mt, lastPurpose, section);
+      chapter = nodeData.setChapterFromCtx(mt, lastPurpose, chapter);
 
       var diagram = gpub.diagrams.forPurpose(
           flattened,
           gpub.diagrams.diagramType.GOOE,
           gpub.book.bookFormat.LATEX,
-          purpose,
+          nodeData.purpose,
           nodeData);
 
-      if (purpose === gpub.diagrams.diagramPurpose.SECTION_INTRO ||
-          purpose === gpub.diagrams.diagramPurpose.GAME_REVIEW_CHAPTER) {
+      if (nodeData.purpose === diagramPurpose.SECTION_INTRO ||
+          nodeData.purpose === diagramPurpose.GAME_REVIEW_CHAPTER ||
+          nodeData.purpose !== lastPurpose) {
         // Flush the previous buffer centent to the page.
         content.push(gpub.book.latex.renderPage(diagramBuffer));
 
@@ -184,6 +166,7 @@ gpub.book.latex = {
           diagramBuffer = [];
         }
       }
+      lastPurpose = nodeData.purpose;
     }
     return template.setContent(content.join('\n')).compile();
   },
@@ -326,6 +309,88 @@ gpub.book.manager = {
     return diagram;
   }
 };
+/**
+ * NodeData object.
+ */
+gpub.book.NodeData = function(purpose) {
+  if (!gpub.diagrams.diagramPurpose[purpose]) {
+    throw new Error(
+        'Purpose not defined in gpub.diagrams.diagramPurpose: ' + purpose)
+  }
+  this.purpose = purpose;
+
+  this.sectionTitle = null;
+  this.sectionNumber = -1;
+
+  this.chapterTitle = null;
+  this.chapterNumber = -1;
+};
+
+/** Methods */
+gpub.book.NodeData.prototype = {
+  /** Sets the section title from the context. */
+  setSectionFromCtx: function(mt, previousPurpose, idx) {
+    var diagramPurpose = gpub.diagrams.diagramPurpose;
+    if (this.purpose === diagramPurpose.SECTION_INTRO) {
+      // We're at the beginning of the game. Create a new section
+      this.sectionTitle =
+          mt.getTreeFromRoot().properties().getOneValue('GN') || '';
+      this.sectionNumber = idx;
+      return idx + 1;
+    }
+    return idx;
+  },
+
+  /** Sets the chapter title from the context. */
+  setChapterFromCtx : function(mt, previousPurpose, idx) {
+    var diagramPurpose = gpub.diagrams.diagramPurpose;
+    if (this.purpose === diagramPurpose.GAME_REVIEW_CHAPTER) {
+      this.chapterTitle = 'Chapter: ' + idx;
+      this.chapterNumber = idx;
+      return idx + 1;
+    } else if ((this.purpose === diagramPurpose.PROBLEM || 
+        this.purpose === diagramPurpose.ANSWER) &&
+        this.purpose !== previousPurpose) {
+      this.chapterTitle = 'Chapter: ' + idx;
+      this.chapterNumber = idx;
+      return idx + 1;
+    }
+    return idx;
+  }
+};
+
+/**
+ * Staticly creates NodeData based on some context.  Basically, this uses
+ * hueristics
+ *
+ * This method is pretty hacky and may need to be rethought.
+ */
+gpub.book.NodeData.fromContext = function(
+    mt, flattened, sgfMetadata, nextMovesPath) {
+  var diagramPurpose = gpub.diagrams.diagramPurpose;
+  var exampleType = gpub.spec.exampleType;
+  var purpose = diagramPurpose.GAME_REVIEW;
+  sgfMetadata = sgfMetadata || {};
+
+  if (diagramPurpose[sgfMetadata.exampleType]) {
+    purpose = sgfMetadata.exampleType;
+  }
+
+  // We're at the beginning of a game. Don't display a board, but display the
+  // comment (assuming there is one).
+  if (mt.node().getNodeNum() === 0 &&
+      nextMovesPath.length === 0 &&
+      purpose === diagramPurpose.GAME_REVIEW) {
+    purpose = gpub.diagrams.diagramPurpose.SECTION_INTRO;
+  }
+
+  // Try out the chapter-title stuff.
+  if (flattened.isOnMainPath() && purpose === diagramPurpose.GAME_REVIEW) {
+    purpose = gpub.diagrams.diagramPurpose.GAME_REVIEW_CHAPTER;
+  }
+
+  return new gpub.book.NodeData(purpose);
+};
 gpub.spec  = {
   /**
    * Types of specs to generate
@@ -342,6 +407,13 @@ gpub.spec  = {
 
     /** Game that's been flattened into examples. */
     GAME_BOOK: 'GAME_BOOK'
+  },
+
+  /** The type of information the problem is intending to display */
+  exampleType: {
+    PROBLEM: 'PROBLEM',
+    ANSWER: 'ANSWER',
+    GAME_REVIEW: 'GAME_REVIEW'
   },
 
   /**
@@ -429,14 +501,6 @@ gpub.spec  = {
     return spec;
   },
 
-  /** Metadata descriptions of the example type. Used for creating books. */
-  exampleType: {
-    PROBLEM: 'PROBLEM',
-    ANSWER: 'ANSWER',
-    GAME_MAINLINE: 'GAME_MAINLINE',
-    GAME_VARIATION: 'GAME_VARIATION'
-  },
-
   /**
    * Convert a movetree and a couple of options to an entry in the SGF
    * collection.
@@ -445,8 +509,8 @@ gpub.spec  = {
    * nextMoves: Required. Next moves path
    * region: not required. Defaults to ALL, but must be part of
    *    glift.enums.boardRegions.
-   * exampleType: See above definition. Information to put into the metadata
-   *    about what type of example this is. Used for rendering.
+   * exampleType: What the diagram is intended for.
+   *    From gpub.spec.examplePurpose;
    */
   createExample: function(
       alias, initPos, nextMoves, region, exampleType) {
@@ -670,7 +734,7 @@ gpub.diagrams = {
     GAME_REVIEW_CHAPTER: 'GAME_REVIEW_CHAPTER',
 
     PROBLEM: 'PROBLEM',
-    PROBLEM_SOLUTION: 'PROBLEM_SOLUTION'
+    ANSWER: 'ANSWER'
   },
 
   sizes: {
@@ -1092,6 +1156,22 @@ gpub.diagrams.latex = {
       '',
       comment,
       '\\vfill'].join('\n');
+  },
+
+  problem: function(diagramString, comment, label, bookdata) {
+    return [
+      diagramString,
+      label,
+      '',
+      comment].join('\n');
+  },
+
+  answer: function(diagramString, comment, label, bookdata) {
+    return [
+      diagramString,
+      label,
+      '',
+      comment].join('\n');
   }
 };
 /**

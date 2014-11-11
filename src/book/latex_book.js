@@ -32,7 +32,7 @@ gpub.book.latex = {
     var content = [];
     var diagramBuffer = []
     var chapter = 1;
-    var part = 1;
+    var section = 1;
     var lastPurpose = null;
     var diagramPurpose = gpub.diagrams.diagramPurpose;
     for (var i = 0; i < mgr.sgfCollection.length; i++) {
@@ -45,9 +45,10 @@ gpub.book.latex = {
       });
 
       var nodeData = gpub.book.NodeData.fromContext(
-          mt, flattened, sgfObj.metadata, i);
+          mt, flattened, sgfObj.metadata, sgfObj.nextMovesPath || []);
+      chapter = nodeData.setSectionFromCtx(mt, lastPurpose, section);
+      chapter = nodeData.setChapterFromCtx(mt, lastPurpose, chapter);
 
-      // Hack the node-data until we get markdown parsing.
       var diagram = gpub.diagrams.forPurpose(
           flattened,
           gpub.diagrams.diagramType.GOOE,
@@ -55,9 +56,9 @@ gpub.book.latex = {
           nodeData.purpose,
           nodeData);
 
-      if (purpose === diagramPurpose.SECTION_INTRO ||
-          purpose === diagramPurpose.GAME_REVIEW_CHAPTER ||
-          purpose !== lastPurpose) {
+      if (nodeData.purpose === diagramPurpose.SECTION_INTRO ||
+          nodeData.purpose === diagramPurpose.GAME_REVIEW_CHAPTER ||
+          nodeData.purpose !== lastPurpose) {
         // Flush the previous buffer centent to the page.
         content.push(gpub.book.latex.renderPage(diagramBuffer));
 
@@ -72,7 +73,7 @@ gpub.book.latex = {
           diagramBuffer = [];
         }
       }
-      lastPurpose = purpose;
+      lastPurpose = nodeData.purpose;
     }
     return template.setContent(content.join('\n')).compile();
   },
