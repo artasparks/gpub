@@ -16,6 +16,13 @@ gpub.spec  = {
     GAME_BOOK: 'GAME_BOOK'
   },
 
+  /** The type of information the problem is intending to display */
+  exampleType: {
+    PROBLEM: 'PROBLEM',
+    ANSWER: 'ANSWER',
+    GAME_REVIEW: 'GAME_REVIEW'
+  },
+
   /**
    * Creates a Glift collection from sgfs.
    *
@@ -101,14 +108,6 @@ gpub.spec  = {
     return spec;
   },
 
-  /** Metadata descriptions of the example type. Used for creating books. */
-  exampleType: {
-    PROBLEM: 'PROBLEM',
-    ANSWER: 'ANSWER',
-    GAME_MAINLINE: 'GAME_MAINLINE',
-    GAME_VARIATION: 'GAME_VARIATION'
-  },
-
   /**
    * Convert a movetree and a couple of options to an entry in the SGF
    * collection.
@@ -117,8 +116,8 @@ gpub.spec  = {
    * nextMoves: Required. Next moves path
    * region: not required. Defaults to ALL, but must be part of
    *    glift.enums.boardRegions.
-   * exampleType: See above definition. Information to put into the metadata
-   *    about what type of example this is. Used for rendering.
+   * exampleType: What the diagram is intended for.
+   *    From gpub.spec.examplePurpose;
    */
   createExample: function(
       alias, initPos, nextMoves, region, exampleType) {

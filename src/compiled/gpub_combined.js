@@ -429,6 +429,14 @@ gpub.spec  = {
     return spec;
   },
 
+  /** Metadata descriptions of the example type. Used for creating books. */
+  exampleType: {
+    PROBLEM: 'PROBLEM',
+    ANSWER: 'ANSWER',
+    GAME_MAINLINE: 'GAME_MAINLINE',
+    GAME_VARIATION: 'GAME_VARIATION'
+  },
+
   /**
    * Convert a movetree and a couple of options to an entry in the SGF
    * collection.
@@ -437,12 +445,16 @@ gpub.spec  = {
    * nextMoves: Required. Next moves path
    * region: not required. Defaults to ALL, but must be part of
    *    glift.enums.boardRegions.
+   * exampleType: See above definition. Information to put into the metadata
+   *    about what type of example this is. Used for rendering.
    */
-  createExample: function(alias, initPos, nextMoves, region) {
+  createExample: function(
+      alias, initPos, nextMoves, region, exampleType) {
     region = region || glift.enums.boardRegions.ALL;
     if (!glift.enums.boardRegions[region]) {
       throw new Error('Unknown board region: ' + region);
     }
+    var exType = gpub.spec.exampleType;
     var ipString = glift.rules.treepath.toInitPathString;
     var fragString = glift.rules.treepath.toFragmentString;
     var base = {
@@ -452,6 +464,11 @@ gpub.spec  = {
       nextMovesPath: fragString(nextMoves),
       boardRegion: region
     };
+    if (exampleType && exType[exampleType]) {
+      base.metadata = {
+        exampleType: exampleType
+      }
+    }
     return base;
   }
 };
@@ -557,23 +574,27 @@ gpub.spec.problemBook = {
    *      answer style is NONE.
    */
   multi: function(buffer, opts) {
+    var opts = opts || {};
     var answerStyle = opts.answerStyle ||
-        gpub.spec.problemBook.answerStylea.END_OF_SECTION;
+        gpub.spec.problemBook.answerStyle.END_OF_SECTION;
     var numAnswerVars = opts.numAnswerVars || 3;
     var problems = [];
     var answers = [];
     var region  = opts.region || glift.enums.boardRegions.AUTO;
     for (var i = 0; i < buffer.length; i++) {
       // We assume the problem begins at the beginning.
-      var mt = buffer[i].movetree;
+      var mt = buffer[i].movetree.newTreeRef();
       var name = buffer[i].name;
-      problems.push(gpub.spec.createExample(name, [], [], region));
+      var ex = gpub.spec.createExample(name, [], [], region, 'PROBLEM');
+      problems.push(ex);
+
       var answerVars = gpub.spec.problemBook.variationPaths(mt, numAnswerVars);
-      for (var i = 0; i < answerVars.length; i++) {
-        answers.push(
-            gpub.spec.createExample(name, '', anwserVars[i], region));
+      for (var j = 0; j < answerVars.length; j++) {
+        var ans = gpub.spec.createExample(name, '', answerVars[j], region, 'ANSWER');
+        answers.push(ans);
       }
     }
+    return problems.concat(answers);
   },
 
   /** Create the answer-variation paths for a problem */

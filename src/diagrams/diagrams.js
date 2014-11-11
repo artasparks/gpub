@@ -31,7 +31,7 @@ gpub.diagrams = {
     GAME_REVIEW_CHAPTER: 'GAME_REVIEW_CHAPTER',
 
     PROBLEM: 'PROBLEM',
-    PROBLEM_SOLUTION: 'PROBLEM_SOLUTION'
+    ANSWER: 'ANSWER'
   },
 
   sizes: {

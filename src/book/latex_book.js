@@ -33,6 +33,8 @@ gpub.book.latex = {
     var diagramBuffer = []
     var chapter = 1;
     var part = 1;
+    var lastPurpose = null;
+    var diagramPurpose = gpub.diagrams.diagramPurpose;
     for (var i = 0; i < mgr.sgfCollection.length; i++) {
       var sgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(i));
       var mt = glift.rules.movetree.getFromSgf(
@@ -41,42 +43,21 @@ gpub.book.latex = {
           nextMovesTreepath: sgfObj.nextMovesPath,
           boardRegion: sgfObj.boardRegion
       });
-      var purpose = gpub.diagrams.diagramPurpose.GAME_REVIEW;
 
-      // Try out the chapter-title stuff.
-      if (flattened.isOnMainPath()) {
-        purpose = gpub.diagrams.diagramPurpose.GAME_REVIEW_CHAPTER;
-      }
-
-      if (mt.node().getNodeNum() == 0 &&
-          sgfObj.nextMovesPath.length == 0) {
-        purpose = gpub.diagrams.diagramPurpose.SECTION_INTRO;
-      }
+      var nodeData = gpub.book.NodeData.fromContext(
+          mt, flattened, sgfObj.metadata, i);
 
       // Hack the node-data until we get markdown parsing.
-      var nodeData = {};
-      if (purpose === gpub.diagrams.diagramPurpose.SECTION_INTRO) {
-        // We're at the beginning of the game. Create a new section
-        nodeData.sectionTitle =
-            mt.getTreeFromRoot().properties().getOneValue('GN') || '';
-        nodeData.chapterTitle = 'Chapter: ' + chapter;
-        part++;
-        chapter++;
-      }
-      if (purpose === gpub.diagrams.diagramPurpose.GAME_REVIEW_CHAPTER) {
-        nodeData.chapterTitle = 'Chapter: ' + chapter;
-        chapter++;
-      }
-
       var diagram = gpub.diagrams.forPurpose(
           flattened,
           gpub.diagrams.diagramType.GOOE,
           gpub.book.bookFormat.LATEX,
-          purpose,
+          nodeData.purpose,
           nodeData);
 
-      if (purpose === gpub.diagrams.diagramPurpose.SECTION_INTRO ||
-          purpose === gpub.diagrams.diagramPurpose.GAME_REVIEW_CHAPTER) {
+      if (purpose === diagramPurpose.SECTION_INTRO ||
+          purpose === diagramPurpose.GAME_REVIEW_CHAPTER ||
+          purpose !== lastPurpose) {
         // Flush the previous buffer centent to the page.
         content.push(gpub.book.latex.renderPage(diagramBuffer));
 
@@ -91,6 +72,7 @@ gpub.book.latex = {
           diagramBuffer = [];
         }
       }
+      lastPurpose = purpose;
     }
     return template.setContent(content.join('\n')).compile();
   },
