@@ -3,17 +3,19 @@ gpub.book.latex = {
    * Generate a LaTeX book!
    *
    * We assume that the options have already been generated.
+   *
+   * spec: A bookSpec -- i.e., a set of glift options.
    */
-  generate: function(bookDefinition, templateString, diagramType) {
-    if (!bookDefinition) {
-      throw new Error('Options must be defined. Was: ' + bookDefinition);
+  generate: function(spec, templateString, diagramType, options) {
+    if (!spec) {
+      throw new Error('Options must be defined. Was: ' + spec);
     }
     var diagramsPerPage = 2;
 
     var templateString = templateString || gpub.templates.latexBase;
     var diagramType = diagramType || gpub.diagrams.diagramType.GOOE
 
-    var mgr = glift.widgets.createNoDraw(bookDefinition);
+    var mgr = glift.widgets.createNoDraw(spec);
     var template = gpub.templates.parseLatexTemplate(templateString);
     var diagramTypePkg = gpub.diagrams[glift.enums.toCamelCase(diagramType)];
     var diagramTypeHeaders = diagramTypePkg.latexHeaders;
