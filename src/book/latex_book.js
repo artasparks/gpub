@@ -5,6 +5,15 @@ gpub.book.latex = {
    * We assume that the options have already been generated.
    *
    * spec: A bookSpec -- i.e., a set of glift options.
+   * templateString: the book template to use for the book
+   * diagramType: The diagram format.
+   * options: optional parameters. Including:
+   *    Title: The title of the book
+   *    Subtitle: Optional Subtitle
+   *    Authors: Array of author names
+   *    Publisher: Publisher Name
+   *
+   * Note: these parameters can also be specified in the spec metadata.
    */
   generate: function(spec, templateString, diagramType, options) {
     if (!spec) {
