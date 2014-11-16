@@ -2,4 +2,4 @@
 *.swp
 *.swo
 *.log
-
+*sandbox/*

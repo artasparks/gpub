@@ -3,6 +3,7 @@
 var glift = require('./defs/glift.js');
 var gpub = require('./defs/gpub.js');
 var flagz = require('./defs/flagz.js')
+var filez = require('./defs/filez.js')
 
 var fs = require('fs');
 var path = require('path')
@@ -18,31 +19,8 @@ var flags = flagz.init(
     as_javascript: ['boolean', false]
   }).process();
 
-var sgfregex = /.*\.sgf$/;
-var sgfs = [];
-var fnames = [];
-
-// It's not clear if we should process files from both the command line and from
-// a directory argument.
-for (var i = 0; i < flags.args.length; i++) {
-  if (sgfregex.test(flags.args[i])) {
-    fnames.push(frags.args[i]);
-  }
-}
-
-if (flags.processed.directory) {
-  var dir = flags.processed.directory;
-  var tmpfnames = fs.readdirSync(flags.processed.directory);
-  for (var i = 0; i < tmpfnames.length; i++) {
-    if (sgfregex.test(tmpfnames[i])) {
-      fnames.push(path.join(dir, tmpfnames[i]));
-    }
-  }
-}
-
-for (var i = 0; i < fnames.length; i++) {
-  sgfs.push(fs.readFileSync(fnames[i], {encoding: 'utf8'}));
-}
+var fileDef = filez.readFromDirAndArgs(
+    flags.processed.directory, flags.args, '\\.sgf');
 
 var options = {};
 if (flags.processed.region) {
@@ -50,7 +28,7 @@ if (flags.processed.region) {
 }
 
 var out = gpub.spec.fromSgfs(
-    sgfs,
+    fileDef.contents,
     flags.processed.spec_type,
     flags.processed.region);
 
