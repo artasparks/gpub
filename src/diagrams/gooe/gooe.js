@@ -33,7 +33,6 @@ gpub.diagrams.gooe = {
    * Returns a flattener-symbol-board that's transformed into a gooe-board.
    */
   gooeBoard: function(flattened, size) {
-    var symbols = glift.flattener.symbols;
     var toStr = glift.flattener.symbolStr;
     var symbolMap = gpub.diagrams.gooe.symbolMap;
     var newBoard = flattened.board().transform(function(i, x, y) {

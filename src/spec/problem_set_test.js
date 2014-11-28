@@ -3,7 +3,7 @@ gpub.spec.problemSetTest = function() {
 
   test('Ensure problem generation', function() {
     var sgf = '(;GM[1]C[foo]AB[aa])';
-    var mt = glift.sgf.parse(sgf);
+    var mt = glift.parse.fromString(sgf);
     deepEqual(
         gpub.spec.problemSet.one(mt, 'zed', {region: 'TOP'}),
         {

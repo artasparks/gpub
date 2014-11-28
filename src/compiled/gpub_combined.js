@@ -96,17 +96,28 @@ gpub.book.latex = {
    * Generate a LaTeX book!
    *
    * We assume that the options have already been generated.
+   *
+   * spec: A bookSpec -- i.e., a set of glift options.
+   * templateString: the book template to use for the book
+   * diagramType: The diagram format.
+   * options: optional parameters. Including:
+   *    Title: The title of the book
+   *    Subtitle: Optional Subtitle
+   *    Authors: Array of author names
+   *    Publisher: Publisher Name
+   *
+   * Note: these parameters can also be specified in the spec metadata.
    */
-  generate: function(bookDefinition, templateString, diagramType) {
-    if (!bookDefinition) {
-      throw new Error('Options must be defined. Was: ' + bookDefinition);
+  generate: function(spec, templateString, diagramType, options) {
+    if (!spec) {
+      throw new Error('Options must be defined. Was: ' + spec);
     }
     var diagramsPerPage = 2;
 
     var templateString = templateString || gpub.templates.latexBase;
     var diagramType = diagramType || gpub.diagrams.diagramType.GOOE
 
-    var mgr = glift.widgets.createNoDraw(bookDefinition);
+    var mgr = glift.widgets.createNoDraw(spec);
     var template = gpub.templates.parseLatexTemplate(templateString);
     var diagramTypePkg = gpub.diagrams[glift.enums.toCamelCase(diagramType)];
     var diagramTypeHeaders = diagramTypePkg.latexHeaders;
@@ -488,7 +499,7 @@ gpub.spec  = {
     var buffer = new gpub.util.Buffer(maxBufferSize);
     for (var i = 0; sgfs && i < sgfs.length; i++) {
       var sgf = sgfs[i];
-      var mt = glift.sgf.parse(sgf);
+      var mt = glift.parse.fromString(sgf);
       var sgfName = mt.properties().getOneValue('GN') || 'sgf:' + i;
       buffer.add({ movetree: mt, name: sgfName });
       if (buffer.atCapacity() || i === sgfs.length - 1) {

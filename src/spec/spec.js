@@ -95,7 +95,7 @@ gpub.spec  = {
     var buffer = new gpub.util.Buffer(maxBufferSize);
     for (var i = 0; sgfs && i < sgfs.length; i++) {
       var sgf = sgfs[i];
-      var mt = glift.sgf.parse(sgf);
+      var mt = glift.parse.fromString(sgf);
       var sgfName = mt.properties().getOneValue('GN') || 'sgf:' + i;
       buffer.add({ movetree: mt, name: sgfName });
       if (buffer.atCapacity() || i === sgfs.length - 1) {
