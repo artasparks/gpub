@@ -11,11 +11,11 @@ gpub.diagrams.gnos.symbolMap = {
   BL_CORNER: ',',
   BR_CORNER: '.',
   TOP_EDGE: '(',
+  BOT_EDGE: ')',
   LEFT_EDGE: '\\char91',
   RIGHT_EDGE: ']',
-  RIGHT_EDGE: ')',
   CENTER: '+',
-  CENTER: '*',
+  CENTER_STARPOINT: '*',
 
   /**
    * Stone layer. We don't display the base layer if a stone layer exists.
@@ -42,5 +42,15 @@ gpub.diagrams.gnos.symbolMap = {
   XMARK: '4',
   BSTONE_TEXTLABEL: '\\gnosOverlap{@}{\\color{white}%s}',
   WSTONE_TEXTLABEL: '\\gnosOverlap{!}{%s}',
-  TEXTLABEL: '\\gnosEmptyLabel{%s}'
+  TEXTLABEL: '\\gnosEmptyLbl{%s}',
+
+  BSTONE_NUMLABEL_1_99: '{\\gnosb\\char%s}',
+  BSTONE_NUMLABEL_100_199: '{\\gnosbi\\char%s}',
+  BSTONE_NUMLABEL_200_299: '{\\gnosbii\\char%s}',
+  BSTONE_NUMLABEL_300_399: '{\\gnosbiii\\char%s}',
+
+  WSTONE_NUMLABEL_1_99: '{\\gnosw\\char%s}',
+  WSTONE_NUMLABEL_100_199: '{\\gnoswi\\char%s}',
+  WSTONE_NUMLABEL_200_299: '{\\gnoswii\\char%s}',
+  WSTONE_NUMLABEL_300_399: '{\\gnoswiii\\char%s}'
 };

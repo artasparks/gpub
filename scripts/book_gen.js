@@ -11,12 +11,22 @@ var flags = flagz.init(
   'A script for generating books from book specs!',
   ['<json-book-definition>'],
   {
+    diagram_type: ['string', 'GNOS'],
+
+    // These are currently unused
     book_title: ['string', 'My Book'],
     output_dir: ['string', 'gpub-book'],
-    book_type: ['string', 'HTML'],
+    book_type: ['string', 'LATEX'],
     template: ['string', 'templates/html_book_templates.html'],
   }).process();
 
 var bookDef = JSON.parse(fs.readFileSync(flags.args[0], {encoding: 'utf8'}));
 
-console.log(gpub.book.latex.generate(bookDef))
+var def = gpub.book.latex.generate(
+    bookDef,
+    null, // template string
+    flags.processed.diagram_type,
+    null  // optionsb
+);
+
+console.log(def);

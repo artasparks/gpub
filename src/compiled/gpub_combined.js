@@ -150,12 +150,12 @@ gpub.book.latex = {
 
       var nodeData = gpub.book.NodeData.fromContext(
           mt, flattened, sgfObj.metadata, sgfObj.nextMovesPath || []);
-      chapter = nodeData.setSectionFromCtx(mt, lastPurpose, section);
+      section = nodeData.setSectionFromCtx(mt, lastPurpose, section);
       chapter = nodeData.setChapterFromCtx(mt, lastPurpose, chapter);
 
       var diagram = gpub.diagrams.forPurpose(
           flattened,
-          gpub.diagrams.diagramType.GOOE,
+          diagramType,
           gpub.book.bookFormat.LATEX,
           nodeData.purpose,
           nodeData);
@@ -723,6 +723,11 @@ gpub.diagrams = {
     GOOE: 'GOOE',
 
     /**
+     * Josh Hoak's variant of Gooe
+     */
+    GNOS: 'GNOS',
+
+    /**
      * Another LaTeX font / LaTeX style package
      * >> Not Currently Supported
      */
@@ -748,6 +753,8 @@ gpub.diagrams = {
     ANSWER: 'ANSWER'
   },
 
+  // TODO(kashomon): Remove this. Sizes are a property of the fonts, at least
+  // for latex. Gooe only supports 2 sizes.  Gnos supports 8.
   sizes: {
     NORMAL: 'NORMAL',
     LARGE: 'LARGE'
@@ -786,10 +793,8 @@ gpub.diagrams = {
 
     var label = null;
     switch(diagramPurpose) {
-      case 'GAME_REVIEW':
-        // Fallthrough
-      case 'GAME_REVIEW_CHAPTER':
-        // Fallthrough
+      case 'GAME_REVIEW': // fallthrough
+      case 'GAME_REVIEW_CHAPTER': // fallthrough
       case 'SECTION_INTRO':
         label  = gpub.diagrams.constructLabel(
             flattened.collisions(),
@@ -840,6 +845,8 @@ gpub.diagrams = {
     switch(diagramType) {
       case 'GOOE':
         return gpub.diagrams.gooe.create(flattened);
+      case 'GNOS':
+        return gpub.diagrams.gnos.create(flattened);
       default:
         throw new Error('Not currently supported: ' + diagramType);
     }
@@ -915,11 +922,10 @@ gpub.diagrams.gooe = {
    * Returns a flattener-symbol-board that's transformed into a gooe-board.
    */
   gooeBoard: function(flattened, size) {
-    var symbols = glift.flattener.symbols;
     var toStr = glift.flattener.symbolStr;
     var symbolMap = gpub.diagrams.gooe.symbolMap;
     var newBoard = flattened.board().transform(function(i, x, y) {
-      var symbol = toStr(i.base());
+      var symbol = toStr(i.base()); // By default: Show the base symbol
       if (i.mark() && i.stone()) {
         symbol = toStr(i.stone()) + '_' + toStr(i.mark());
       } else if (i.stone()) {
@@ -1061,6 +1067,203 @@ gpub.diagrams.gooe.symbolMap = {
   // BSTONE_INLINE: '\goinBsLbl{%s}',
   // WSTONE_INLINE: '\goinWsLbl{%s}',
   // MISC_STONE_INLINE: '\goinChar{%s}',
+};
+gpub.diagrams.gnos = {
+  /** Available sizes. In pt. */
+  sizes: {
+    8: '8',
+    9: '9',
+    10: '10',
+    11: '11',
+    12: '12',
+    14: '14',
+    16: '16',
+    20: '20'
+  },
+
+  /** Mapping from size to label size. Keys in pt. */
+  sizeToModAtTen: {
+    8: 'tiny',
+    9: 'scriptsize',
+    10: 'scriptsize',
+    11: 'footnotesize',
+    12: 'footnotesize',
+    14: 'small',
+    16: 'normalsize',
+    20: 'Large'
+  },
+
+  sizeToModAtTwelve: {
+    8: 'tiny',
+    9: 'scriptsize',
+    10: 'scriptsize',
+    11: 'footnotesize',
+    12: 'footnotesize',
+    14: 'small',
+    16: 'normalsize',
+    20: 'Large'
+  },
+
+  create: function(flattened, size) {
+    var size = size || gpub.diagrams.gnos.sizes['12'];
+    return gpub.diagrams.gnos.gnosStringArr(flattened, size).join('\n');
+  },
+
+  createSimple: function(flattened, size) {
+    var size = size || gpub.diagrams.gnos.sizes['12'];
+    return gpub.diagrams.gnos.gnosStringArrSimple(flattened, size).join('\n');
+  },
+
+  gnosStringArrSimple: function(flattened, size) {
+    var base = [
+      '\\gnosfontsize{' + size + '}',
+      '\\gnos'];
+    var latexNewLine = '\\\\';
+    var board = gpub.diagrams.gnos.gnosBoard(flattened, size);
+    for (var i = 0, arr = board.boardArray(); i < arr.length; i++) {
+      base.push(arr[i].join('') + latexNewLine);
+    }
+    return base;
+  },
+
+  gnosStringArr: function(flattened, size) {
+    var latexNewLine = '\\\\';
+    var header = [
+        '\\gnosfontsize{' + size + '}',
+        '{\\gnos'];
+    var footer = '}';
+    var board = gpub.diagrams.gnos.gnosBoard(flattened, size);
+    for (var i = 0, arr = board.boardArray(); i < arr.length; i++) {
+      header.push(arr[i].join('') + latexNewLine);
+    }
+    header.push(footer);
+    return header;
+  },
+
+  /** Returns a flattener-symbol-board. */
+  gnosBoard: function(flattened, size) {
+    var toStr = glift.flattener.symbolStr;
+    var symbolMap = gpub.diagrams.gnos.symbolMap;
+    var newBoard = flattened.board().transform(function(i, x, y) {
+      var symbol = toStr(i.base()); // By default: Show the base symbol
+      if (i.textLabel() && i.mark() &&
+          i.mark() === glift.flattener.symbols.TEXTLABEL) {
+        symbol = gpub.diagrams.gnos.getLabelDef(i.textLabel(), i.stone(), size);
+      } else if (i.mark() && i.stone()) {
+        symbol = toStr(i.stone()) + '_' + toStr(i.mark());
+      } else if (i.stone()) {
+        symbol = toStr(i.stone());
+      } else if (i.mark()) {
+        symbol = toStr(i.mark());
+      }
+
+      if (symbolMap[symbol]) {
+        out = symbolMap[symbol];
+      } else {
+        out = symbolMap.EMPTY;
+      }
+      var lbl = i.textLabel();
+      if (lbl) {
+        if (/^\d+$/.test(lbl) && /NUMLABEL/.test(symbol)) {
+          lbl = parseInt(lbl) % 100;
+        }
+        out = out.replace('%s', lbl);
+      }
+      return out;
+    });
+    return newBoard;
+  },
+
+  /**
+   * label: string or null
+   * stone: number symbol or null
+   * size: string
+   */
+  getLabelDef: function(label, stone, size) {
+    var toStr = glift.flattener.symbolStr;
+    if (/^\d+$/.test(label) && stone) {
+      var num = parseInt(label);
+      var stoneStr = toStr(stone)
+      if (num > 0 && num < 100) {
+        return stoneStr + '_' + 'NUMLABEL_1_99';
+      } else if (num >= 100 && num < 200) {
+        return stoneStr + '_' + 'NUMLABEL_100_199';
+      } else if (num >= 200 && num < 299) {
+        return stoneStr + '_' + 'NUMLABEL_200_299';
+      } else if (num >= 300 && num < 399) {
+        return stoneStr + '_' + 'NUMLABEL_300_399';
+      }
+    } else if (stone && label) {
+      return toStr(stone) + '_' + 'TEXTLABEL';
+    } else {
+      return 'TEXTLABEL';
+    }
+  }
+};
+gpub.diagrams.gnos.latexHeaders = {
+  packageDef: function(){ 
+    return '\\usepackage{gnos}';
+  },
+
+  extraDefs: function(baseFont) {
+    return '';
+  }
+};
+/**
+ * Symbol map.
+ */
+gpub.diagrams.gnos.symbolMap = {
+  /** Placeholder symbol. */
+  EMPTY: '\\gnosEmptyLbl{_}',
+
+  /** Base layer. */
+  TL_CORNER: '<',
+  TR_CORNER: '>',
+  BL_CORNER: ',',
+  BR_CORNER: '.',
+  TOP_EDGE: '(',
+  BOT_EDGE: ')',
+  LEFT_EDGE: '\\char91',
+  RIGHT_EDGE: ']',
+  CENTER: '+',
+  CENTER_STARPOINT: '*',
+
+  /**
+   * Stone layer. We don't display the base layer if a stone layer exists.
+   */
+  BSTONE: '@',
+  WSTONE: '!',
+
+  /**
+   * Marks and StoneMarks layer. Gooe combines squashes marks and stones into a
+   * single symbol. Also, if we display a symbol or stone, we don't display the
+   * base layer.
+   */
+  BSTONE_TRIANGLE: 'S',
+  WSTONE_TRIANGLE: 's',
+  TRIANGLE: '3',
+  BSTONE_SQUARE: 'S',
+  WSTONE_SQUARE: 's',
+  SQUARE: '2',
+  BSTONE_CIRCLE: 'C',
+  WSTONE_CIRCLE: 'c',
+  CIRCLE: '1',
+  BSTONE_XMARK: 'X',
+  WSTONE_XMARK: 'x',
+  XMARK: '4',
+  BSTONE_TEXTLABEL: '\\gnosOverlap{@}{\\color{white}%s}',
+  WSTONE_TEXTLABEL: '\\gnosOverlap{!}{%s}',
+  TEXTLABEL: '\\gnosEmptyLbl{%s}',
+
+  BSTONE_NUMLABEL_1_99: '{\\gnosb\\char%s}',
+  BSTONE_NUMLABEL_100_199: '{\\gnosbi\\char%s}',
+  BSTONE_NUMLABEL_200_299: '{\\gnosbii\\char%s}',
+  BSTONE_NUMLABEL_300_399: '{\\gnosbiii\\char%s}',
+
+  WSTONE_NUMLABEL_1_99: '{\\gnosw\\char%s}',
+  WSTONE_NUMLABEL_100_199: '{\\gnoswi\\char%s}',
+  WSTONE_NUMLABEL_200_299: '{\\gnoswii\\char%s}',
+  WSTONE_NUMLABEL_300_399: '{\\gnoswiii\\char%s}'
 };
 gpub.diagrams.igo = {
   create: function(flattened) {

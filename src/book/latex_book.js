@@ -57,12 +57,12 @@ gpub.book.latex = {
 
       var nodeData = gpub.book.NodeData.fromContext(
           mt, flattened, sgfObj.metadata, sgfObj.nextMovesPath || []);
-      chapter = nodeData.setSectionFromCtx(mt, lastPurpose, section);
+      section = nodeData.setSectionFromCtx(mt, lastPurpose, section);
       chapter = nodeData.setChapterFromCtx(mt, lastPurpose, chapter);
 
       var diagram = gpub.diagrams.forPurpose(
           flattened,
-          gpub.diagrams.diagramType.GOOE,
+          diagramType,
           gpub.book.bookFormat.LATEX,
           nodeData.purpose,
           nodeData);

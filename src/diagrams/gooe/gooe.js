@@ -36,7 +36,7 @@ gpub.diagrams.gooe = {
     var toStr = glift.flattener.symbolStr;
     var symbolMap = gpub.diagrams.gooe.symbolMap;
     var newBoard = flattened.board().transform(function(i, x, y) {
-      var symbol = toStr(i.base());
+      var symbol = toStr(i.base()); // By default: Show the base symbol
       if (i.mark() && i.stone()) {
         symbol = toStr(i.stone()) + '_' + toStr(i.mark());
       } else if (i.stone()) {

@@ -1,8 +1,8 @@
 gpub.book.latexBookTest = function() {
   module('gpub.book.latexBookTest');
+  var sgf = testdata.sgfs.complexproblem;
 
   test('Test no exceptions', function() {
-    var sgf = testdata.sgfs.complexproblem;
     var options = {
       sgfCollection: [{
         sgfString: sgf
@@ -13,9 +13,19 @@ gpub.book.latexBookTest = function() {
   });
 
   test('Test round trip', function() {
-    var sgf = testdata.sgfs.complexproblem;
     var spec = gpub.spec.fromSgfs([sgf]);
     var latexBook = gpub.book.latex.generate(spec);
+    ok(latexBook, 'must be defined');
+  });
+
+  test('Test round trip: GNOS', function() {
+    var spec = gpub.spec.fromSgfs([sgf]);
+    var latexBook = gpub.book.latex.generate(
+        spec, 
+        null, /* template */
+        gpub.diagrams.diagramType.GNOS,
+        null /* options */
+        );
     ok(latexBook, 'must be defined');
   });
 };

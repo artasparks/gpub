@@ -24,6 +24,7 @@ DIR_ORDER = [
   'spec',
   'diagrams',
   'diagrams/gooe',
+  'diagrams/gnos',
   'diagrams/igo',
   'diagrams/pdf',
   'diagrams/latex',

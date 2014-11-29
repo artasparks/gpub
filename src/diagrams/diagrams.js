@@ -9,6 +9,11 @@ gpub.diagrams = {
     GOOE: 'GOOE',
 
     /**
+     * Josh Hoak's variant of Gooe
+     */
+    GNOS: 'GNOS',
+
+    /**
      * Another LaTeX font / LaTeX style package
      * >> Not Currently Supported
      */
@@ -34,6 +39,8 @@ gpub.diagrams = {
     ANSWER: 'ANSWER'
   },
 
+  // TODO(kashomon): Remove this. Sizes are a property of the fonts, at least
+  // for latex. Gooe only supports 2 sizes.  Gnos supports 8.
   sizes: {
     NORMAL: 'NORMAL',
     LARGE: 'LARGE'
@@ -72,10 +79,8 @@ gpub.diagrams = {
 
     var label = null;
     switch(diagramPurpose) {
-      case 'GAME_REVIEW':
-        // Fallthrough
-      case 'GAME_REVIEW_CHAPTER':
-        // Fallthrough
+      case 'GAME_REVIEW': // fallthrough
+      case 'GAME_REVIEW_CHAPTER': // fallthrough
       case 'SECTION_INTRO':
         label  = gpub.diagrams.constructLabel(
             flattened.collisions(),
@@ -126,6 +131,8 @@ gpub.diagrams = {
     switch(diagramType) {
       case 'GOOE':
         return gpub.diagrams.gooe.create(flattened);
+      case 'GNOS':
+        return gpub.diagrams.gnos.create(flattened);
       default:
         throw new Error('Not currently supported: ' + diagramType);
     }
