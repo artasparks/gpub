@@ -52,5 +52,9 @@ gpub.diagrams.gnos.symbolMap = {
   WSTONE_NUMLABEL_1_99: '{\\gnosw\\char%s}',
   WSTONE_NUMLABEL_100_199: '{\\gnoswi\\char%s}',
   WSTONE_NUMLABEL_200_299: '{\\gnoswii\\char%s}',
-  WSTONE_NUMLABEL_300_399: '{\\gnoswiii\\char%s}'
+  WSTONE_NUMLABEL_300_399: '{\\gnoswiii\\char%s}',
+
+  markOverlap: function(a, b) {
+    return '\\gnosOverlap{' + a + '}{\\gnos' + b + '}';
+  }
 };

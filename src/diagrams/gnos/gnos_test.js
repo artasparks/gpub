@@ -3,7 +3,7 @@ gpub.diagrams.gnos.gnosTest = function() {
   var gnosBoard = gpub.diagrams.gnos.gnosBoard;
   var symbolMap = gpub.diagrams.gnos.symbolMap;
   var basicSgf = '(;GB[1]C[foo]AW[aa]AB[ab][ad]LB[ab:z]LB[bc:2]' +
-      '[ad:3])';
+      '[ad:30]TR[dd])';
   var flattened = gpub.diagrams.flatten(
       basicSgf, [], [], 'TOP_LEFT');
 
@@ -15,20 +15,26 @@ gpub.diagrams.gnos.gnosTest = function() {
 
     deepEqual(board.getInt(0,0), symbolMap.WSTONE);
     deepEqual(board.getInt(0,1),
-        symbolMap.BSTONE_TEXTLABEL.replace('%s', 'z'));
+        symbolMap.BSTONE_TEXTLABEL.replace('%s', '\\small{z}'));
     deepEqual(board.getInt(0,2), symbolMap.LEFT_EDGE);
     deepEqual(board.getInt(1,0), symbolMap.TOP_EDGE);
     deepEqual(board.getInt(1,1), symbolMap.CENTER);
     deepEqual(board.getInt(1,2),
-        symbolMap.TEXTLABEL.replace('%s', 2));
+        symbolMap.TEXTLABEL.replace('%s', '\\small{2}'));
     deepEqual(board.getInt(0,3),
-        symbolMap.BSTONE_NUMLABEL_1_99.replace('%s', 3));
+        symbolMap.BSTONE_TEXTLABEL.replace('%s', '\\footnotesize{30}'));
+    deepEqual(board.getInt(3,3),
+        symbolMap.markOverlap(symbolMap.CENTER_STARPOINT, symbolMap.TRIANGLE));
   });
 
   test('Gnos getLabelDef', function() {
     var getLabelDef = gpub.diagrams.gnos.getLabelDef;
     var o = getLabelDef('23', 20 /* bstone */, 12);
-    deepEqual(o, 'BSTONE_NUMLABEL_1_99');
-    deepEqual(getLabelDef('3', 20 /* bstone */, 12), 'BSTONE_NUMLABEL_1_99');
+    deepEqual(o, 'BSTONE_TEXTLABEL');
+    deepEqual(getLabelDef('3', 20 /* bstone */, 12), 'BSTONE_TEXTLABEL');
+    deepEqual(getLabelDef('3', 20 /* bstone */, 8), 'BSTONE_NUMLABEL_1_99');
+
+    deepEqual(getLabelDef('300', 20 /* bstone */, 12), 'BSTONE_NUMLABEL_300_399');
+    deepEqual(getLabelDef('300', 21 /* wstone */, 12), 'WSTONE_NUMLABEL_300_399');
   });
 };
