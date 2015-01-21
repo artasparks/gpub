@@ -15,12 +15,15 @@ var flags = flagz.init(
     directory: ['string', ''],
     spec_type: ['gpub.spec.specType', 'GAME_BOOK'],
     region: ['glift.enums.boardRegion', ''],
+    collection: ['filename', ''],
     js_namespace: ['string', 'gliftspec'],
     as_javascript: ['boolean', false]
   }).process();
 
+var collection = flags.processed.collection || null;
+
 var fileDef = filez.readFromDirAndArgs(
-    flags.processed.directory, flags.args, '\\.sgf');
+    flags.processed.directory, flags.args, collection, '\\.sgf');
 
 var options = {};
 if (flags.processed.region) {
@@ -28,6 +31,7 @@ if (flags.processed.region) {
 }
 
 var out = gpub.spec.fromSgfs(
+    fileDef.collection,
     fileDef.contents,
     flags.processed.spec_type,
     flags.processed.region);

@@ -24,7 +24,7 @@ gpub.spec.problemBook = {
    *  numAnswerVars : Defaults to 3. -1 means all variations. set to 0 if the
    *      answer style is NONE.
    */
-  multi: function(buffer, opts) {
+  multi: function(buffer, sgfObj, opts) {
     var opts = opts || {};
     var answerStyle = opts.answerStyle ||
         gpub.spec.problemBook.answerStyle.END_OF_SECTION;

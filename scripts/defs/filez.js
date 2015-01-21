@@ -2,51 +2,87 @@
 
 var fs = require('fs');
 var path = require('path')
+var glift = require('./glift')
 
 var sgfRegex = /.*\.sgf$/;
 
 /**
  * Returns
- * {
- *  fnames: [],
- *  contents: []
- * }
+ *  {
+ *    collection: <glift collection>
+ *    contents: {
+ *      <filename> : contents
+ *    }
+ *  }
  */
-var readFromDirAndArgs = function(dir, args, filter) {
+var readFromDirAndArgs = function(dir, args, collectionFile, filter) {
   var filter = filter || '.*';
   var filterType = typeof filter;
   if (filter && filterType === 'string') {
     filter = new RegExp(filter);
   }
+
+  if (collectionFile && dir) {
+    console.error('Collection file and directory cannot both be specified');
+    process.exit(1);
+  }
+
   var def = {
-    fnames: [],
-    contents: []
+    collection: [],
+    contents: {}
   };
+
+  var fnames = [];
 
   if (dir) {
     var tmpfnames = fs.readdirSync(dir);
     for (var i = 0; i < tmpfnames.length; i++) {
       if (filter.test(tmpfnames[i])) {
-        def.fnames.push(path.join(dir, tmpfnames[i]));
+        fnames.push(path.join(dir, tmpfnames[i]));
       }
     }
   }
-  if (args) {
+
+  var sgfCollection = null;
+  var collectionDir = null;
+  if (collectionFile) {
+    var coll = JSON.parse(fs.readFileSync(collectionFile, {encoding: 'utf8'}));
+    var collectionDir = path.dirname(collectionFile);
+    for (var i = 0; i < coll.length; i++) {
+      var item = coll[i];
+      if (typeof item === 'object') {
+        fnames.push(item.url);
+      } else {
+        fnames.push(item);
+      }
+    }
+    sgfCollection = coll;
+  }
+
+  // Fallback to processing args.
+  if (!dir && !collectionFile && args) {
     for (var i = 0; i < args.length; i++) {
       var f = args[i];
       if (f && filter.test(f)) {
-        def.fnames.push(args[i]);
+        fnames.push(args[i]);
       }
     }
   }
 
-  for (var i = 0; i < def.fnames.length; i++) {
-    def.contents.push(fs.readFileSync(def.fnames[i], {encoding: 'utf8'}));
+  for (var i = 0; i < fnames.length; i++) {
+    var fname = fnames[i];
+    var fnamePath = fname;
+    if (collectionDir) {
+      fnamePath = path.join(collectionDir, fname);
+    }
+    def.contents[fname] =
+        fs.readFileSync(fnamePath, {encoding: 'utf8'});
   }
 
-  if (def.contents.length !== def.fnames.length) {
-    throw new Error('Contents.length !== Filenames.length');
-  }
+  def.collection = glift.widgets.options.setOptionDefaults({
+    sgfCollection: sgfCollection || fnames
+  }).sgfCollection;
+
   return def;
 };
 

@@ -5,9 +5,10 @@ gpub.spec.gameBook = {
    * mt: A movetree from which we want to generate our SGF Collection.
    * alias: The name of this movetree / SGF instance. This is used to create the
    *    alias.
-   * options: options object. See above for the structure
+   * sgfObj: base sgf object. currently unused.
+   * options: options object.
    */
-  one: function(mt, alias, options) {
+  one: function(mt, alias, sgfObj, options) {
     var boardRegions = glift.enums.boardRegions;
     var out = [];
     var varPathBuffer = [];

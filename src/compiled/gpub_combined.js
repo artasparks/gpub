@@ -430,7 +430,8 @@ gpub.spec  = {
   /**
    * Creates a Glift collection from sgfs.
    *
-   * sgfs: Array of SGFs.
+   * sgfCol: Array of SGFs.
+   * contents: An SGF Collection definition. Still needs processing.
    * stype: The spec type to generate
    * options: Has the following structure:
    *    {
@@ -440,7 +441,7 @@ gpub.spec  = {
    *
    * returns: A full glift options specification.
    */
-  fromSgfs: function(sgfs, specTypeIn, options) {
+  fromSgfs: function(sgfCol, contents, specTypeIn, options) {
     var specType = gpub.spec.specType;
     var opts = options || {};
     var stype = specTypeIn || specType.GAME_BOOK;
@@ -465,16 +466,17 @@ gpub.spec  = {
       case 'GAME_BOOK':
         spec.sgfDefaults.widgetType = 'EXAMPLE';
         maxBufferSize = 1;
-        processingFn = function(buf, optz) {
-          return gpub.spec.gameBook.one(buf[0].movetree, buf[0].name, optz);
+        processingFn = function(buf, sgfObj, optz) {
+          return gpub.spec.gameBook.one(buf[0].movetree, buf[0].name, sgfObj, optz);
         };
         break;
 
       case 'PROBLEM_SET':
         spec.sgfDefaults.widgetType = 'STANDARD_PROBLEM';
+        spec.sgfDefaults.region = 'AUTO';
         maxBufferSize = 1;
-        processingFn = function(buf, optz) {
-          return gpub.spec.problemSet.one(buf[0].movetree, buf[0].name, optz);
+        processingFn = function(buf, sgfObj, optz) {
+          return gpub.spec.problemSet.one(buf[0].movetree, buf[0].name, sgfObj, optz);
         };
         break;
 
@@ -497,17 +499,24 @@ gpub.spec  = {
     }
 
     var buffer = new gpub.util.Buffer(maxBufferSize);
-    for (var i = 0; sgfs && i < sgfs.length; i++) {
-      var sgf = sgfs[i];
-      var mt = glift.parse.fromString(sgf);
-      var sgfName = mt.properties().getOneValue('GN') || 'sgf:' + i;
+    var sgfDefaults = glift.util.simpleClone(
+        glift.widgets.options.baseOptions.sgfDefaults);
+    for (var i = 0; sgfCol && i < sgfCol.length; i++) {
+      var sgfObj = sgfCol[i];
+      if (typeof sgfObj === 'string') {
+        sgfObj = { url: sgfObj }
+      }
+      var fname = sgfObj.url;
+      var sgfStr = contents[fname];
+      var mt = glift.parse.fromString(sgfStr);
+      var sgfName = mt.properties().getOneValue('GN') || fname;
       buffer.add({ movetree: mt, name: sgfName });
       if (buffer.atCapacity() || i === sgfs.length - 1) {
         spec.sgfCollection = spec.sgfCollection.concat(
-            processingFn(buffer.flush(), opts));
+            processingFn(buffer.flush(), sgfObj, opts));
       }
-      spec.sgfMapping[sgfName] = sgf;
     }
+    spec.sgfMapping = contents;
 
     return spec;
   },
@@ -554,9 +563,10 @@ gpub.spec.gameBook = {
    * mt: A movetree from which we want to generate our SGF Collection.
    * alias: The name of this movetree / SGF instance. This is used to create the
    *    alias.
-   * options: options object. See above for the structure
+   * sgfObj: base sgf object. currently unused.
+   * options: options object.
    */
-  one: function(mt, alias, options) {
+  one: function(mt, alias, sgfObj, options) {
     var boardRegions = glift.enums.boardRegions;
     var out = [];
     var varPathBuffer = [];
@@ -648,7 +658,7 @@ gpub.spec.problemBook = {
    *  numAnswerVars : Defaults to 3. -1 means all variations. set to 0 if the
    *      answer style is NONE.
    */
-  multi: function(buffer, opts) {
+  multi: function(buffer, sgfObj, opts) {
     var opts = opts || {};
     var answerStyle = opts.answerStyle ||
         gpub.spec.problemBook.answerStyle.END_OF_SECTION;
@@ -703,13 +713,20 @@ gpub.spec.problemSet = {
   /**
    * Process one movetree.
    */
-  one: function(mt, alias, options) {
+  one: function(mt, alias, sgfObj, options) {
     region = options.region || glift.enums.boardRegions.AUTO;
-    return {
-      alias: alias,
-      widgetType: 'STANDARD_PROBLEM',
-      boardRegion: region
+    var widgetType = options.widgetType || null;
+    if (mt.getTreeFromRoot().node().numChildren() === 0) {
+      widgetType = 'EXAMPLE';
     }
+    var baseSgfObj = glift.util.simpleClone(sgfObj);
+    if (widgetType) {
+      baseSgfObj.widgetType = widgetType;
+    }
+    if (!baseSgfObj.url) {
+      baseSgfObj.alias = alias;
+    }
+    return baseSgfObj;
   }
 };
 gpub.diagrams = {
