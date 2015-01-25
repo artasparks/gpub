@@ -112,7 +112,10 @@ gpub.spec  = {
             processingFn(buffer.flush(), sgfObj, opts));
       }
     }
-    spec.sgfMapping = contents;
+    if (contents) {
+      // This is an edge case.  If there are no contents, just pass on through.
+      spec.sgfMapping = contents;
+    }
 
     return spec;
   },

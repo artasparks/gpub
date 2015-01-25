@@ -4,7 +4,7 @@ gpub.spec.specTest  = function() {
   var stypes = gpub.spec.specType;
 
   test('fromSgfs: Default Case', function() {
-    var out = spec.fromSgfs();
+    var out = spec.fromSgfs([], '');
     deepEqual(out.divId, null);
     deepEqual(out.sgfCollection, []);
     deepEqual(out.sgfMapping, {});

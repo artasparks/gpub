@@ -20,6 +20,7 @@ FILES_TO_AUTOGEN = {
 DIR_ORDER = [
   '.',
   'util',
+  'markdown',
   'book',
   'spec',
   'diagrams',
