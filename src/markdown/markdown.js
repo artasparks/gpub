@@ -1,7 +1,6 @@
 /**
- * Markdown for Gpub.  This is a wrapper around the markdown-js script to make
- * it easier to use.
+ * Markdown for Gpub.
  */
-gpub.mardown = {
-
+gpub.markdown = {
+  // TODO(kashomon): Write a marked render.
 };
