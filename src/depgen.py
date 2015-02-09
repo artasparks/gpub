@@ -30,6 +30,9 @@ DIR_ORDER = [
   'diagrams/pdf',
   'diagrams/latex',
   'templates',
+
+  # Last but hardly least.
+  'api',
 ]
 
 COMBINED_LOC = 'compiled/gpub_combined.js'
