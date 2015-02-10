@@ -62,7 +62,7 @@ gpub._validateInputs = function(sgfs, options) {
 /**
  * Process the incoming options and set any missing values.
  */
-gpub.processOptions(options) {
+gpub.processOptions = function(options) {
   if (!options) {
     options = {};
   }
