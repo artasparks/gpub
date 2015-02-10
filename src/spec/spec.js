@@ -1,139 +1,82 @@
-gpub.spec  = {
+/**
+ * Methods for processing and creating Glift specifications.
+ */
+gpub.spec = {
   /**
-   * Types of specs to generate
+   * A default Glift specification.
    */
-  specType: {
-    /** Standard problem SGF Collection. */
-    PROBLEM_SET: 'PROBLEM_SET',
-
-    /**
-     * Problems that have been converted into a book format. In other words,
-     * we've flattened all the problems into EXAMPLEs.
-     */
-    PROBLEM_BOOK: 'PROBLEM_BOOK',
-
-    /** Game that's been flattened into examples. */
-    GAME_BOOK: 'GAME_BOOK'
+  _defaultSpec: {
+    // Since this is for a book definition, we don't need a divId. Clients
+    // can add in a relevant ID later.
+    divId: null,
+    // An array of sgf-objects.  This will be populated with entries, created by
+    // the spec processors.
+    sgfCollection: [],
+    // We must rely on SGF aliases to generate the collection to ensure the
+    // collection is self contained.
+    sgfMapping: {},
+    // SGF Defaults that apply to all SGFs. This is a good place to specify the
+    // base widget type, e.g., STANDARD_PROBLEM or EXAMPLE.
+    sgfDefaults: {},
+    // Metadata for the entire spec. Metedata is unused by Glift, but it's
+    // sometimes convenient for Gpub.
+    metadata: {}
   },
 
-  /** The type of information the problem is intending to display */
-  exampleType: {
-    PROBLEM: 'PROBLEM',
-    ANSWER: 'ANSWER',
-    GAME_REVIEW: 'GAME_REVIEW'
-  },
-
   /**
-   * Creates a Glift collection from sgfs.
-   *
-   * sgfCol: Array of SGFs.
-   * contents: An SGF Collection definition. Still needs processing.
-   * stype: The spec type to generate
-   * options: Has the following structure:
-   *    {
-   *      boardRegion: <boardRegion> -- The board region to display
-   *      bufferSize: Usually 1. For problems, sometimes more.
-   *    }
-   *
-   * returns: A full glift options specification.
+   * Gets the the processor based on the book purpose.
    */
-  fromSgfs: function(sgfCol, contents, specTypeIn, options) {
-    var specType = gpub.spec.specType;
-    var opts = options || {};
-    var stype = specTypeIn || specType.GAME_BOOK;
-    var spec = {
-      // Since this is for a book definition, we don't need a divId. Clients
-      // can add in a relevant ID later.
-      divId: null,
-      sgfCollection: [],
-      // We must rely on SGF aliases to generate the collection to ensure the
-      // collection is self contained.
-      sgfMapping: {},
-      sgfDefaults: {},
-      metadata: {
-        specType: stype
-      }
-    };
-
-    var maxBufferSize = 1;
-
-    var processingFn = null;
-    switch(stype) {
-      case 'GAME_BOOK':
-        spec.sgfDefaults.widgetType = 'EXAMPLE';
-        maxBufferSize = 1;
-        processingFn = function(buf, sgfObj, optz) {
-          return gpub.spec.gameBook.one(buf[0].movetree, buf[0].name, sgfObj, optz);
-        };
-        break;
-
+  _getSpecProcessor: function(bookPurpose) {
+    switch(bookPurpose) {
+      case 'GAME_COMMENTARY':
+        return gpub.spec.gameBook;
       case 'PROBLEM_SET':
-        spec.sgfDefaults.widgetType = 'STANDARD_PROBLEM';
-        spec.sgfDefaults.region = 'AUTO';
-        maxBufferSize = 1;
-        processingFn = function(buf, sgfObj, optz) {
-          return gpub.spec.problemSet.one(buf[0].movetree, buf[0].name, sgfObj, optz);
-        };
-        break;
-
-      case 'PROBLEM_BOOK':
-        spec.sgfDefaults.widgetType = 'EXAMPLE';
-        processingFn = gpub.spec.problemBook.multi;
-        var answerStyle = gpub.spec.problemBook.answerStyle;
-        opts.answerStyle = opts.answerStyle || answerStyle.END_OF_SECTION;
-        if (opts.answerStyle === answerStyle.END_OF_SECTION) {
-          maxBufferSize = sgfs.length;
-        } else if (opts.answerStyle === answerStyle.AFTER_PAGE) {
-          maxBufferSize = opts.bufferSize || 4;
-        } else {
-          maxBufferSize = 1;
-        }
-        break;
-
+        return gpub.spec.problemSet;
       default:
-        throw new Error('Unknown spec type: ' + stype);
+        throw new Error('Unsupported book purpose: ' + options.bookPurpose);
+        break;
     }
+    return null;
+  },
 
-    var buffer = new gpub.util.Buffer(maxBufferSize);
-    var sgfDefaults = glift.util.simpleClone(
+  /**
+   * Creates a glift spec from an array of sgf data. At this point, we assume
+   * the validity of the options passed in.
+   */
+  create: function(sgfs, options) {
+    var spec = glift.util.simpleClone(gpub.spec._defaultSpec);
+    var processor = gpub.spec._getSpecProcessor(options.bookPurpose);
+
+    spec.sgfDefaults = glift.util.simpleClone(
         glift.widgets.options.baseOptions.sgfDefaults);
-    for (var i = 0; sgfCol && i < sgfCol.length; i++) {
-      var sgfObj = sgfCol[i];
-      if (typeof sgfObj === 'string') {
-        sgfObj = { url: sgfObj }
-      }
-      var fname = sgfObj.url;
-      var sgfStr = contents[fname];
-      var mt = glift.parse.fromString(sgfStr);
-      var sgfName = mt.properties().getOneValue('GN') || fname;
-      buffer.add({ movetree: mt, name: sgfName });
-      if (buffer.atCapacity() || i === sgfs.length - 1) {
-        spec.sgfCollection = spec.sgfCollection.concat(
-            processingFn(buffer.flush(), sgfObj, opts));
-      }
-    }
-    if (contents) {
-      // This is an edge case.  If there are no contents, just pass on through.
-      spec.sgfMapping = contents;
-    }
+    processor.setHeaderInfo(spec);
 
+    for (var i = 0; sgfs && i < sgfs.length; i++) {
+      var sgfStr = sgfs[i];
+      var mt = glift.parse.fromString(sgfStr);
+      var alias = mt.properties().getOneValue('GN') || 'sgf ' + i;
+      if (!spec.sgfMapping[alias]) {
+        spec.sgfMapping[alias] = sgfStr;
+      }
+      spec.sgfCollection = spec.sgfCollection.concat(
+          processor.processOneSgf(mt, alias, options));
+    }
     return spec;
   },
 
   /**
    * Convert a movetree and a couple of options to an entry in the SGF
-   * collection.
+   * collection. Note: this doesn't set the widgetType: it's expected that users
+   * will probably already have widgetType = EXAMPLE. Users can, of course, set
+   * the widgetType after this processor helper.
+   *
    * alias: Required. The cache alias.
    * initPos: Required. The init position
    * nextMoves: Required. Next moves path
-   * region: not required. Defaults to ALL, but must be part of
-   *    glift.enums.boardRegions.
-   * exampleType: What the diagram is intended for.
-   *    From gpub.spec.examplePurpose;
+   * boardRegion: Required. The region of the board to display.
    */
   createExample: function(
-      alias, initPos, nextMoves, region, exampleType) {
-    region = region || glift.enums.boardRegions.ALL;
+      alias, initPos, nextMoves, region) {
     if (!glift.enums.boardRegions[region]) {
       throw new Error('Unknown board region: ' + region);
     }
@@ -141,17 +84,12 @@ gpub.spec  = {
     var ipString = glift.rules.treepath.toInitPathString;
     var fragString = glift.rules.treepath.toFragmentString;
     var base = {
-      widgetType: 'EXAMPLE',
+      // widgetType: 'EXAMPLE',
       alias: alias,
       initialPosition: ipString(initPos),
       nextMovesPath: fragString(nextMoves),
       boardRegion: region
     };
-    if (exampleType && exType[exampleType]) {
-      base.metadata = {
-        exampleType: exampleType
-      }
-    }
     return base;
   }
 };

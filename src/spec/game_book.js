@@ -1,15 +1,13 @@
+/**
+ * A gpub spec processor. Implements gpub.spec.processor.
+ */
 gpub.spec.gameBook = {
-  /**
-   * Convert a single movetree to a SGF Collection.
-   *
-   * mt: A movetree from which we want to generate our SGF Collection.
-   * alias: The name of this movetree / SGF instance. This is used to create the
-   *    alias.
-   * sgfObj: base sgf object. currently unused.
-   * options: options object.
-   */
-  one: function(mt, alias, sgfObj, options) {
-    var boardRegions = glift.enums.boardRegions;
+  setHeaderInfo: function(spec, options) {
+    spec.sgfDefaults.widgetType = glift.enums.widgetTypes.EXAMPLE;
+    return spec;
+  },
+
+  processOneSgf: function(mt, alias, options) {
     var out = [];
     var varPathBuffer = [];
     var node = mt.node();
@@ -26,7 +24,10 @@ gpub.spec.gameBook = {
         // the variations.
         var pathSpec = glift.rules.treepath.findNextMovesPath(mt);
         out.push(gpub.spec.createExample(
-            alias, pathSpec.treepath, pathSpec.nextMoves));
+            alias,
+            pathSpec.treepath,
+            pathSpec.nextMoves,
+            options.boardRegion));
 
         varPathBuffer = varPathBuffer.concat(
             gpub.spec.gameBook.variationPaths(mt));
@@ -35,7 +36,10 @@ gpub.spec.gameBook = {
           var mtz = mt.getTreeFromRoot(path);
           var varPathSpec = glift.rules.treepath.findNextMovesPath(mtz);
           out.push(gpub.spec.createExample(
-              alias, varPathSpec.treepath, varPathSpec.nextMoves));
+              alias,
+              varPathSpec.treepath,
+              varPathSpec.nextMoves,
+              options.boardRegion));
         }
         varPathBuffer = [];
       }
@@ -60,7 +64,7 @@ gpub.spec.gameBook = {
       return out;
     }
 
-    mt.moveUp(); 
+    mt.moveUp();
     for (var i = 1; i < mt.node().numChildren(); i++) {
       var mtz = mt.newTreeRef();
       mtz.moveDown(i);

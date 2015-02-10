@@ -1,13 +1,14 @@
 gpub.spec.specTest  = function() {
   module('gpub.spec.specTest');
   var spec = gpub.spec;
-  var stypes = gpub.spec.specType;
+  var defaultOptions = gpub.processOptions();
 
   test('fromSgfs: Default Case', function() {
-    var out = spec.fromSgfs([], '');
+    var out = spec.fromSgfs([], defaultOptions);
     deepEqual(out.divId, null);
     deepEqual(out.sgfCollection, []);
     deepEqual(out.sgfMapping, {});
+    deepEqual(out.metadata, {});
   });
 
   test('createExample', function() {
@@ -31,7 +32,7 @@ gpub.spec.specTest  = function() {
   test('fromsGfs: one simple game, with variation', function() {
     var out = spec.fromSgfs([
       '(;GM[1]AW[aa]AB[ba];B[bb](;W[ab]C[The End!])(;W[ac]C[Surprise!]))'
-      ], stypes.GAME_BOOK);
+      ]);
     var outcol = out.sgfCollection;
     deepEqual(outcol.length, 2);
     deepEqual(outcol[0], spec.createExample('sgf:0', [], '0.0'));
