@@ -23,7 +23,7 @@ gpub.spec.gameBook = {
         // This node has a comment or is terminal.  Process this node and all
         // the variations.
         var pathSpec = glift.rules.treepath.findNextMovesPath(mt);
-        out.push(gpub.spec.createExample(
+        out.push(gpub.spec._createExample(
             alias,
             pathSpec.treepath,
             pathSpec.nextMoves,
@@ -35,7 +35,7 @@ gpub.spec.gameBook = {
           var path = varPathBuffer[i];
           var mtz = mt.getTreeFromRoot(path);
           var varPathSpec = glift.rules.treepath.findNextMovesPath(mtz);
-          out.push(gpub.spec.createExample(
+          out.push(gpub.spec._createExample(
               alias,
               varPathSpec.treepath,
               varPathSpec.nextMoves,

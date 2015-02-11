@@ -33,7 +33,7 @@ gpub.spec = {
       case 'PROBLEM_SET':
         return gpub.spec.problemSet;
       default:
-        throw new Error('Unsupported book purpose: ' + options.bookPurpose);
+        throw new Error('Unsupported book purpose: ' + bookPurpose);
         break;
     }
     return null;
@@ -54,7 +54,7 @@ gpub.spec = {
     for (var i = 0; sgfs && i < sgfs.length; i++) {
       var sgfStr = sgfs[i];
       var mt = glift.parse.fromString(sgfStr);
-      var alias = mt.properties().getOneValue('GN') || 'sgf ' + i;
+      var alias = mt.properties().getOneValue('GN') || 'sgf:' + i;
       if (!spec.sgfMapping[alias]) {
         spec.sgfMapping[alias] = sgfStr;
       }
@@ -75,8 +75,11 @@ gpub.spec = {
    * nextMoves: Required. Next moves path
    * boardRegion: Required. The region of the board to display.
    */
-  createExample: function(
+  _createExample: function(
       alias, initPos, nextMoves, region) {
+    if (!alias) { throw new Error('No SGF Alias'); }
+    if (!initPos) { throw new Error('No Initial Position'); }
+    if (!nextMoves) { throw new Error('No Next Moves'); }
     if (!glift.enums.boardRegions[region]) {
       throw new Error('Unknown board region: ' + region);
     }

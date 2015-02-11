@@ -80,6 +80,7 @@
 <script type="text/javascript" src="../book/latex_book_test.js"></script>
 <script type="text/javascript" src="../book/manager_test.js"></script>
 <!-- Spec Tests -->
+<script type="text/javascript" src="../spec/processor_test.js"></script>
 <script type="text/javascript" src="../spec/spec_test.js"></script>
 <!-- Diagrams Tests -->
 <script type="text/javascript" src="../diagrams/diagrams_test.js"></script>
@@ -114,9 +115,9 @@
   gpub.diagrams.latex.latexTest();
 
   // Spec tests are currently broken.
-  // gpub.spec.specTest();
+  gpub.spec.specTest();
+  gpub.spec.processorTest();
   // gpub.spec.problemSetTest();
-  // gpub.spec.problemBookTest();
 
   // gpub.book.latexBookTest();
 
