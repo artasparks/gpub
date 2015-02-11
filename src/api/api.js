@@ -22,14 +22,13 @@ gpub.outputFormat = {
   LATEX: 'LATEX',
 
   /** Constructs a full HTML page. This is often useful for testing. */
-  HTML_PAGE: 'HTML_PAGE',
+  HTMLPAGE: 'HTMLPAGE',
 
   /** Construct a book in ASCII format. */
   ASCII: 'ASCII'
 
   // Future Work:
-  // - LATEX_DIAGRAMS
-  // - PDF_DIAGRAMS
+  // - ONLY_DIAGRAMS
   // - ASCII
   // - SmartGo Books
 };
@@ -58,6 +57,10 @@ gpub._validateInputs = function(sgfs, options) {
     throw new Error('GPub depends on Glift, but Glift was not defined');
   }
 };
+
+////////////////////////
+// Methods in the API //
+////////////////////////
 
 /**
  * Process the incoming options and set any missing values.

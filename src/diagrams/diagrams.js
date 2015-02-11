@@ -21,13 +21,15 @@ gpub.diagrams = {
 
     /**
      * Native PDF generation
-     * >> Not Currently Supported
+     * >> Not Currently Supported, but here for illustration.
      */
     PDF: 'PDF'
   },
 
   /**
-   * Types of diagram purposes.
+   * Types of diagram purposes. It's not currently clear to me if this should
+   * continue to exist. This should never be exposed in a top-level API, but it
+   * might make sense to expose this package's API.
    */
   diagramPurpose: {
     SECTION_INTRO: 'SECTION_INTRO',
@@ -48,6 +50,8 @@ gpub.diagrams = {
 
   /**
    * Generates a diagram for a specific purpose and a given format
+   *
+   * flattened: Glift flattened obj.
    */
   forPurpose: function(
       flattened,
@@ -79,8 +83,8 @@ gpub.diagrams = {
 
     var label = null;
     switch(diagramPurpose) {
-      case 'GAME_REVIEW': // fallthrough
-      case 'GAME_REVIEW_CHAPTER': // fallthrough
+      case 'GAME_REVIEW':
+      case 'GAME_REVIEW_CHAPTER':
       case 'SECTION_INTRO':
         label  = gpub.diagrams.constructLabel(
             flattened.collisions(),
