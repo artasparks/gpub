@@ -19,6 +19,7 @@ gpub.book.latex = {
     if (!spec) {
       throw new Error('Options must be defined. Was: ' + spec);
     }
+
     var diagramsPerPage = 2;
 
     var templateString = templateString || gpub.templates.latexBase;
