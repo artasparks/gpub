@@ -1,16 +1,5 @@
 /**
- * Package for creating the books!
+ * Package for creating the 'books'! A book, in this context, is simply defined
+ * as a generated string that contains rendered SGF data.
  */
-gpub.book = {
-  /**
-   * Available book formats.
-   */
-  // TODO(kashomon): Move into diagram package?
-  bookFormat: {
-    /** Standard GLift web display */
-    HTML: 'HTML',
-
-    /** LaTeX output */
-    LATEX: 'LATEX'
-  }
-};
+gpub.book = {};

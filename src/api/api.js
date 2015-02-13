@@ -1,5 +1,6 @@
 /**
- * Stub namespace.
+ * Stub namespace. Not really used because all the API should exist at the top
+ * level.
  */
 gpub.api = {};
 
@@ -31,70 +32,4 @@ gpub.outputFormat = {
   // - ONLY_DIAGRAMS
   // - ASCII
   // - SmartGo Books
-};
-
-/**
- * Default options for GPub API.
- */
-gpub.defaultOptions = {
-  /** See gpub.bookFormat. */
-  outputFormat: 'LATEX',
-  /** See gpub.bookPurpose. */
-  bookPurpose: 'GAME_COMMENTARY',
-  /** See glift.enums.boardRegions. */
-  boardRegion: 'AUTO',
-};
-
-/**
- * Validates that the relevant parameters are available and returns the
- * processed options.
- */
-gpub._validateInputs = function(sgfs, options) {
-  if (!sgfs || !sgfs.length || glift.util.typeOf(sgfs) !== 'array') {
-    throw new Error('SGF array must be defined and non-empty');
-  }
-  if (!glift) {
-    throw new Error('GPub depends on Glift, but Glift was not defined');
-  }
-};
-
-////////////////////////
-// Methods in the API //
-////////////////////////
-
-/**
- * Process the incoming options and set any missing values.
- */
-gpub.processOptions = function(options) {
-  if (!options) {
-    options = {};
-  }
-  for (var key in gpub.defaultOptions) {
-    var val = options[key];
-    if (!val) {
-      options[key] = gpub.defaultOptions[key];
-    }
-  }
-  return options;
-};
-
-/**
- * The API for Gift
- *
- * SGFS: Array of SGFs.
- * options: An options array. See gpub.defaultOptions for the format.
- *
- * Returns: The completed book or document.
- */
-gpub.create = function(sgfs, options) {
-  // Validate input and create the options array.
-  gpub._validateInputs(sgfs, options);
-
-  // Process the options and fill in any missing values or defaults.
-  options = gpub.processOptions(options);
-
-  // Create the glift specification.
-  var spec = gpub.spec.create(sgfs, options);
-
-  return spec;
 };

@@ -2,6 +2,7 @@ gpub.diagrams = {
   /**
    * Types of diagram output.
    */
+  // TODO(kashomon): Make part of the API.
   diagramType: {
     /**
      * Dan Bump's LaTeX font. Part of the Sgf2Dg script.
