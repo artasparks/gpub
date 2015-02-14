@@ -1,3 +1,7 @@
+/**
+ * LaTeX book processor. Should implement methods present in
+ * gpub.book.processor.
+ */
 gpub.book.latex = {
   /**
    * Generate a LaTeX book!
