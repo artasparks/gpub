@@ -22,6 +22,9 @@ DIR_ORDER = [
   'util',
   'markdown',
   'book',
+  'book/html',
+  'book/latex',
+
   'spec',
   'diagrams',
   'diagrams/gooe',
