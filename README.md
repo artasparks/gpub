@@ -87,7 +87,7 @@ The __`Output Format`__ represents type of data that GPub produces.  Some curren
   * `SMART_GO`: A book in the Smart Go format. Not currently supported
 
 #### Diagram Type
-Diagram type indicates how diagrams should be rendered. Note that most diagrams
+__`Diagram Type`__ indicates how diagrams should be rendered. Note that most diagrams
 have an intended target output format. It is left as future work to indicate to
 the user how the diagram types are restricted.
 
@@ -107,6 +107,26 @@ future, all the major output formats will support
 custom renderers. See the [Markdown Page](http://daringfireball.net/projects/markdown/syntax)
 for more details about the supported syntax.
 
+#### Templating and Templating Variables
+The basic structure of the output file generated is provided by a template, that
+is ultimately rendered by [Mustache.js](https://github.com/janl/mustache.js/).
+See the Mustache docs for more information about what is supported.
 
+To override the default template (for the particular output type), set the
+options.template variable.
 
+Generally, the structure of a template looks like:
 
+```latex
+\documentclass[letterpaper,12pt]{article}
+\begin{document}
+
+\title{[[title]]}
+\author{[[author]]}
+
+\maketitle
+
+[[content]]
+
+\end{document}
+```
