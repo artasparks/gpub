@@ -167,9 +167,11 @@ This was the second game in a ten game match between Fujisawa Hosai 9p and Go Se
 
 As per (2.), templace praameters may also be provided via the API like so:
 
+```javascript
 gpub.create([sgf1, sgf2, ...], {
   bookOptions: {
     title: 'My Book',
     author: 'Kashomon'
   }
 });
+```
