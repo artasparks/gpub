@@ -10,11 +10,12 @@ gpub.defaultOptions = {
   boardRegion: 'AUTO',
   /** See glift.diagrams.diagramType. */
   diagramType: 'GNOS',
+
+  /** A false-y template will resulti in using the default template */
+  template: null,
+
   /** Options specificaly for book processors */
-  bookOptions: {
-    /** A false-y template will resulti in using the default template */
-    template: null
-  }
+  bookOptions: {}
 };
 
 /**

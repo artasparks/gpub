@@ -41,7 +41,8 @@ gpub.spec = {
 
   /**
    * Creates a glift spec from an array of sgf data. At this point, we assume
-   * the validity of the options passed in.
+   * the validity of the options passed in. In other words, we expect that the
+   * options have been processed by the API.
    */
   create: function(sgfs, options) {
     var spec = glift.util.simpleClone(gpub.spec._defaultSpec);
@@ -61,6 +62,7 @@ gpub.spec = {
       spec.sgfCollection = spec.sgfCollection.concat(
           processor.processOneSgf(mt, alias, options));
     }
+    metadata.bookPurpose = options.bookPurpose;
     return spec;
   },
 

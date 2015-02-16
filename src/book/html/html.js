@@ -36,6 +36,7 @@ gpub.book.html._template = [
 '    <script type="text/javascript">',
 '      var gliftMgr = glift.create({{book_definition}});',
 '    </script>',
+// TODO(kashomon): Need to put Glift in here somewhere.
 '  </body>',
 '<html>',
 ].join('\n');
