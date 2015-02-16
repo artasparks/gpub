@@ -107,6 +107,12 @@ future, all the major output formats will support
 custom renderers. See the [Markdown Page](http://daringfireball.net/projects/markdown/syntax)
 for more details about the supported syntax.
 
+GPub also uses Markdown to gather diagram-level Metadata. The following headers will be used to generate chapter-data.
+
+    # Foo Bar => Book Foo Bar
+    ## Foo Bar => Part Foo Bar
+    ### Foo Bar => Chapter Foo Bar
+
 #### Templating and Templating Variables
 The basic structure of the output file generated is provided by a template, that
 is ultimately rendered by [Mustache.js](https://github.com/janl/mustache.js/).
@@ -142,13 +148,12 @@ __Reserved Template Variables__
 
   * `content`
 
-
 #### Templating Variables
 
 A user may specify template variables in one of two ways:
 
   1. As JSON within the 0th-node comment of the first SGF.
-  2. As keys to the bookOptions objeect
+  2. As keys to the `bookOptions` option.
 
 As per 1., template parameters may be provided embedded with an SGF's first comment with the following format:
 
