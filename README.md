@@ -164,7 +164,8 @@ METADATA
   "author": "Kashomon"
 }
 END_METADATA
-This was the second game in a ten game match between Fujisawa Hosai 9p and Go Seigen 9p. It was played on February 25 and 26, 1943.
+This was the second game in a ten game match between Fujisawa Hosai 9p and Go
+Seigen 9p. It was played on February 25 and 26, 1943.
 ...
 ```
 
