@@ -150,7 +150,7 @@ A user may specify template variables in one of two ways:
   1. As JSON within the 0th-node comment of the first SGF.
   2. As keys to the bookOptions objeect
 
-As per (1.), template parameters may be provided embedded with an SGF's first comment with the following format:
+As per 1., template parameters may be provided embedded with an SGF's first comment with the following format:
 
 ```
 METADATA
@@ -159,13 +159,11 @@ METADATA
   "author": "Kashomon"
 }
 END_METADATA
-
 This was the second game in a ten game match between Fujisawa Hosai 9p and Go Seigen 9p. It was played on February 25 and 26, 1943.
-
 ...
 ```
 
-As per (2.), templace praameters may also be provided via the API like so:
+As per 2., template prameters may also be provided via the gpub API:
 
 ```javascript
 gpub.create([sgf1, sgf2, ...], {
