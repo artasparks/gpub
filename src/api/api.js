@@ -5,7 +5,8 @@
 gpub.api = {};
 
 /**
- * The type general type of the book.  Specifes roughly how 
+ * The type general type of the book.  Specifes roughly how we generate the
+ * Glift spec.
  */
 gpub.bookPurpose = {
   /** Game with commentary. */
@@ -26,7 +27,10 @@ gpub.outputFormat = {
   HTMLPAGE: 'HTMLPAGE',
 
   /** Construct a book in ASCII format. */
-  ASCII: 'ASCII'
+  ASCII: 'ASCII',
+
+  /** Construct a book in Smart Go format. */
+  SMART_GO: 'SMART_GO'
 
   // Future Work:
   // - ONLY_DIAGRAMS
