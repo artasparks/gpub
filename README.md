@@ -14,7 +14,7 @@ rendering.
 The JavaScript API for book generation is:
 
 ```javascript
-  gpub.create([sgf1, sgf2, ...], {...options...});
+gpub.create([sgf1, sgf2, ...], {...options...});
 ```
 
 This returns the string output of the book.
@@ -38,8 +38,8 @@ Structure of the options object in the API
   // The type of diagrams to generate within the book.
   diagramType: <gpub.diagrams.diagramType, default='GNOS'>,
 
-  // Override the templates
-  // A false-y template will resulti in using the default template//
+  // Override the template to use. By default, gpub uses a default template
+  // based on the output format
   template: null,
 
   // Options specificaly for book processors.  These options are generally
@@ -63,34 +63,51 @@ consumable by Glift directly (modulo the addition of a HTML element ID).
 The output of spec-generation is configured by the __`Book Purpose`__ option.
 Currently gpub supports two book purposes:
 
-  * `GAME_COMMENTARY`: An SGF that has been processed into examples to display commentary in a book form.
-  * `PROBLEM_SET`: A set of problems, used to create a book problems (with or without answers).
+  * __`GAME_COMMENTARY`__: An SGF that has been processed into examples to display commentary in a book form.
+  * __`PROBLEM_SET`__: A set of problems, used to create a book problems (with or without answers).
 
 
 ###  Book Generation
 
-### A Discussion of Architecture
+Once we have generated the Glift Spec, we can proceed with the task of generating a book.   Book generation is configured by the following parameters:
 
-At the base of GPub is Glift, which provides all the interesting SGF parsing / handling.
+#### Output Format
 
-GPub deals with a number of data types:
+The __`Output Format`__ represents type of data that GPub produces.  Some currently supported output formats:
 
-* __SGF__: SGF is the basic file format for Go. It stands for Smart Go Format
-  and is meant to record moves, variations, and comments.  SGFs look like `(;GM[1]AW[aa]AB[ab]...)`
-* __Glift Spec__: This is the JSON format used by Glift for rendering multiple
-  SGFs.  Beyond SGFs, it also contains tertiary data for rendering such as widgetType.
-* __LaTeX__: A target book format.
-* __Markdown__: Markdown is a text-formatting style used for rendering.
-  Typically, the target is HTML, but in the case of GPub, Markdown is used for comments to rendor LaTeX.
+  * `LATEX`: The orginal target for GPub.  LaTeX itself is an intermediate
+    format that uses the TeX compiler to ultimately produce PDF.  Diagrams may
+    be of multiple types
+  * `HTMLPAGE`: Since all Glift Specs are required to be renderable by Glift, we
+    can simple create an HTML page embedded with Glift and the glift spec.  This
+    output type is primarily used for testing. Diagrams don't require any
+    processing since Glift is responsible for generating the UI in this case.
+  * `ASCII`:  A simple ASCII format, possibly RTF, used for testing and editing.
+    Diagrams are intended to be generated as ASCII diagrams, or perhaps as
+    rasterized images.
+  * `SMART_GO`: A book in the Smart Go format. Not currently supported
 
-Thus, we see the following flow in GPub:
+#### Diagram Type
+Diagram type indicates how diagrams should be rendered.  Note that most diagrams
+have an intended target output format.  It is left as future work to indicate to
+the user how the diagram types are restricted.
 
-    List of SGFS  => Generate Glift Spec
-                  => Generate Book Spec (Optional)
-                  => Generate LaTeX
-                  => Generate PDF (via pdflatex)
+Various diagram types:
 
-### Open Questions
+  * `ASCII`: Generate ASCII Images.
+  * `GNOS`: Uses the Gnos LaTeX font.
+  * `GOOE`: Uses the GOOE LaTeX font
+  * `IGO`: Uses the IGO LaTeX font (\*not currently supported).
+  * `PDF`: Generate raw PDFs (\*not currently supported).
 
-* Does it make sense to generate an intermediate Book Spec? It works reasonably
-  well for games, but it might not make sense for problems.
+#### Styling via Markdown
+By default, GPub uses
+[Markdown](http://daringfireball.net/projects/markdown/syntax) to add styling to
+diagram comments via [Marked.js](https://github.com/chjj/marked). In the near
+future, all the major output formats will support
+custom renderers. See the [Markdown Page](http://daringfireball.net/projects/markdown/syntax)
+for more details about the supported syntax.
+
+
+
+
