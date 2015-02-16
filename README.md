@@ -115,18 +115,23 @@ See the Mustache docs for more information about what is supported.
 To override the default template (for the particular output type), set the
 options.template variable.
 
+__Caveats__: We use special tags for LaTeX `<% %>` rather than the default 
+`{{ }}` brackets.  
+
 Generally, the structure of a template looks like:
 
 ```latex
 \documentclass[letterpaper,12pt]{article}
 \begin{document}
 
-\title{[[title]]}
-\author{[[author]]}
+\title{<%title%>}
+\author{<%author%>}
 
 \maketitle
 
-[[content]]
+<%content%>
 
 \end{document}
 ```
+
+
