@@ -22,7 +22,8 @@ DIR_ORDER = [
   'util',
   'markdown',
   'book',
-  'book/html',
+  'book/ascii',
+  'book/htmlpage',
   'book/latex',
 
   'spec',

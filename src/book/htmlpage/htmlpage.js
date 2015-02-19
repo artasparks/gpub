@@ -1,19 +1,9 @@
 /**
  * An html 'book' creator/processor. Implements gpub.book.processor.
  */
-gpub.book.html = {
-  create: function(spec, options) {
-  },
+gpub.book.htmlpage = {}
 
-  defaultTemplate: function() {
-    return gpub.book.htmlBook._template;
-  },
-
-  processBookOptions: function() {
-  }
-};
-
-gpub.book.html._template = [
+gpub.book.htmlpage._template = [
 '<!DOCTYPE html>',
 '<html>',
 '  <head>',

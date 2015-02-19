@@ -30,7 +30,7 @@ gpub.outputFormat = {
   ASCII: 'ASCII',
 
   /** Construct a book in Smart Go format. */
-  SMART_GO: 'SMART_GO'
+  // SMART_GO: 'SMART_GO'
 
   // Future Work:
   // - ONLY_DIAGRAMS

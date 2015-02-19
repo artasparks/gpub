@@ -62,7 +62,7 @@ gpub.spec = {
       spec.sgfCollection = spec.sgfCollection.concat(
           processor.processOneSgf(mt, alias, options));
     }
-    metadata.bookPurpose = options.bookPurpose;
+    spec.metadata.bookPurpose = options.bookPurpose;
     return spec;
   },
 

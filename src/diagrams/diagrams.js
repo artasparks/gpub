@@ -63,7 +63,7 @@ gpub.diagrams = {
     if (!diagramType || !gpub.diagrams.diagramType[diagramType]) {
       throw new Error('Unknown diagram type: ' + diagramType);
     }
-    if (!bookFormat || !gpub.book.bookFormat[bookFormat]) {
+    if (!bookFormat || !gpub.outputFormat[bookFormat]) {
       throw new Error('Unknown diagram type: ' + bookFormat);
     }
     if (!diagramPurpose || !gpub.diagrams.diagramPurpose[diagramPurpose]) {

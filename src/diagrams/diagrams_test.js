@@ -3,7 +3,7 @@ gpub.diagrams.diagramsTest = function() {
   var basicSgf = '(;GB[1]C[foo]AW[aa]AB[ab]LB[ab:z])';
   var diagramType = gpub.diagrams.diagramType;
   var diagramPurpose = gpub.diagrams.diagramPurpose;
-  var format = gpub.book.bookFormat
+  var format = gpub.outputFormat;
 
   test('Test basic flattened', function() {
     var f = gpub.diagrams.flatten(basicSgf);

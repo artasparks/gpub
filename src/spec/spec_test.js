@@ -11,7 +11,9 @@ gpub.spec.specTest  = function() {
     deepEqual(out.divId, null);
     deepEqual(out.sgfCollection, []);
     deepEqual(out.sgfMapping, {});
-    deepEqual(out.metadata, {});
+    deepEqual(out.metadata, {
+      bookPurpose: gpub.bookPurpose.GAME_COMMENTARY
+    });
   });
 
   test('createExample', function() {

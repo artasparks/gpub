@@ -1,0 +1,1 @@
+gpub.book.ascii = {};

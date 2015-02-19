@@ -2,7 +2,7 @@
  * Interface for book processors. This describes the method signature for all
  * book processors.
  */
-gpub.book.processor = {
+gpub.book.generator = {
   /**
    * Generate a 'book', whatever that means in the relevant context.
    *
@@ -17,5 +17,11 @@ gpub.book.processor = {
   /**
    * Return the default template string for the book processor.
    */
-  defaultTemplate: function() {}
+  defaultTemplate: function() {},
+
+  /**
+   * Process the book-specific options.  Usually, this relies on some
+   * understanding of the current template.
+   */
+  processBookOptions: function(options) {}
 };
