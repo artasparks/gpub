@@ -1,4 +1,4 @@
-gpub.diagrams.diagramsTest = function() {
+(function() {
   module('glift.diagrams.diagramsTest');
   var basicSgf = '(;GB[1]C[foo]AW[aa]AB[ab]LB[ab:z])';
   var diagramType = gpub.diagrams.diagramType;
@@ -39,4 +39,4 @@ gpub.diagrams.diagramsTest = function() {
     ok(out, 'should be truthy');
     ok(out.indexOf(f.comment()) > -1, 'comment');;
   });
-};
+})();

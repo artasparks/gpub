@@ -1,4 +1,4 @@
-gpub.spec.specTest  = function() {
+(function() {
   module('gpub.spec.specTest');
   var spec = gpub.spec;
   var defaultOptions = gpub.processOptions();
@@ -58,4 +58,4 @@ gpub.spec.specTest  = function() {
       'boardRegion': 'AUTO'
     });
   });
-};
+})();

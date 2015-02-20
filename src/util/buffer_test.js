@@ -1,4 +1,4 @@
-gpub.util.bufferTest = function() {
+(function() {
   module('gpub.util.bufferTest');
 
   var newBuffer = function(s) {
@@ -37,4 +37,4 @@ gpub.util.bufferTest = function() {
     deepEqual(buffer._buffer, []);
     deepEqual(out, ['zed']);
   });
-};
+})();

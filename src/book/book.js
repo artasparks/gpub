@@ -5,8 +5,15 @@
 gpub.book = {
   /** Creates a book! */
   create: function(spec, options) {
-    var generatork = gpub.book._getGenerator(options);
+    this._validate(spec);
+    var generator = this._getGenerator(options);
     return package.generator().generate(spec, options);
+  },
+
+  _validate: function(spec) {
+    if (spec.sgfCollection.length < 1) {
+      throw new Error('sgfCollection must be non-empty');
+    }
   },
 
   _getGenerator: function(options) {

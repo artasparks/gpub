@@ -5,6 +5,11 @@ gpub.diagrams = {
   // TODO(kashomon): Make part of the API.
   diagramType: {
     /**
+     * ASCII. Generate an ascii diagram.
+     */
+    ASCII: 'ASCII',
+
+    /**
      * Dan Bump's LaTeX font. Part of the Sgf2Dg script.
      */
     GOOE: 'GOOE',

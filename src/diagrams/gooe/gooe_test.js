@@ -1,4 +1,4 @@
-gpub.diagrams.gooe.gooeTest = function() {
+(function() {
   module('gpub.diagrams.gooe.gooeTest');
   var gooeBoard = gpub.diagrams.gooe.gooeBoard;
   var symbolMap = gpub.diagrams.gooe.symbolMap;
@@ -43,4 +43,4 @@ gpub.diagrams.gooe.gooeTest = function() {
     deepEqual(arr[0], '{\\bgoo');
     deepEqual(arr[arr.length - 1], '}');
   })
-};
+})();

@@ -1,4 +1,4 @@
-gpub.diagrams.gnos.gnosTest = function() {
+(function() {
   module('gpub.diagrams.gnos.gnosTest');
   var gnosBoard = gpub.diagrams.gnos.gnosBoard;
   var symbolMap = gpub.diagrams.gnos.symbolMap;
@@ -37,4 +37,4 @@ gpub.diagrams.gnos.gnosTest = function() {
     deepEqual(getLabelDef('300', 20 /* bstone */, 12), 'BSTONE_NUMLABEL_300_399');
     deepEqual(getLabelDef('300', 21 /* wstone */, 12), 'WSTONE_NUMLABEL_300_399');
   });
-};
+})();

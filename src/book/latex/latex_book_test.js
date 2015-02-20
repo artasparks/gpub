@@ -1,5 +1,9 @@
-gpub.book.latexBookTest = function() {
+(function() {
   module('gpub.book.latexBookTest');
+
+  console.log('DISABLED: gpub.book.latexBookTest');
+  return;
+
   var sgf = testdata.sgfs.complexproblem;
 
   test('Test no exceptions', function() {
@@ -28,4 +32,4 @@ gpub.book.latexBookTest = function() {
         );
     ok(latexBook, 'must be defined');
   });
-};
+})();

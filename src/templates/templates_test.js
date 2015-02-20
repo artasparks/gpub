@@ -1,4 +1,4 @@
-gpub.templates.templatesTest = function() {
+(function() {
   module('gpub.templates.templatestTest');
   var parse = gpub.templates.parse;
 
@@ -12,4 +12,4 @@ gpub.templates.templatesTest = function() {
     parsed.setParam('bar', 'bram')
     deepEqual(parsed.compile(), 'foo bram biff');
   });
-};
+})();

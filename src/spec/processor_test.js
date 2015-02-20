@@ -1,4 +1,4 @@
-gpub.spec.processorTest = function() {
+(function() {
   module('gpub.spec.processorTest');
 
   test('Processor Mapping', function() {
@@ -14,4 +14,4 @@ gpub.spec.processorTest = function() {
       }
     }
   });
-};
+})();

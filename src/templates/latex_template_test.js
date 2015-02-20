@@ -1,4 +1,4 @@
-gpub.templates.latexTemplateTest = function() {
+(function() {
   module('gpub.templates.latexTemplateTest');
 
   var validTemplate = [
@@ -43,4 +43,4 @@ gpub.templates.latexTemplateTest = function() {
         .compile();
     ok(str.indexOf('zeded') > -1);
   });
-};
+})();

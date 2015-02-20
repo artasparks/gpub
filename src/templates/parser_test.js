@@ -1,4 +1,4 @@
-gpub.templates.parserTest = function() {
+(function() {
   module('gpub.templates.parserTest');
   var parse = gpub.templates.parse;
 
@@ -37,4 +37,4 @@ gpub.templates.parserTest = function() {
     });
     deepEqual(parsed._sections[4].indexOf('</script>'), 0);
   });
-};
+})();
