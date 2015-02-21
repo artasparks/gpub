@@ -21,6 +21,8 @@ DIR_ORDER = [
   '.',
   'util',
   'markdown',
+  'mustache',
+
   'book',
   'book/ascii',
   'book/htmlpage',
