@@ -2,7 +2,7 @@
   module('glift.diagrams.diagramsTest');
   var basicSgf = '(;GB[1]C[foo]AW[aa]AB[ab]LB[ab:z])';
   var diagramType = gpub.diagrams.diagramType;
-  var diagramPurpose = gpub.diagrams.diagramPurpose;
+  var diagramContext = gpub.diagrams.diagramContext;
   var format = gpub.outputFormat;
 
   test('Test basic flattened', function() {
@@ -35,7 +35,7 @@
         gpub.diagrams.flatten(basicSgf),
         diagramType.GOOE,
         format.LATEX,
-        diagramPurpose.GAME_REVIEW);
+        diagramContext.GAME_REVIEW);
     ok(out, 'should be truthy');
     ok(out.indexOf(f.comment()) > -1, 'comment');;
   });

@@ -2,7 +2,7 @@ gpub.diagrams = {
   /**
    * Types of diagram output.
    */
-  // TODO(kashomon): Make part of the API.
+  // TODO(kashomon): Make part of the API (gpub.api)
   diagramType: {
     /**
      * ASCII. Generate an ascii diagram.
@@ -37,7 +37,7 @@ gpub.diagrams = {
    * continue to exist. This should never be exposed in a top-level API, but it
    * might make sense to expose this package's API.
    */
-  diagramPurpose: {
+  diagramContext: {
     SECTION_INTRO: 'SECTION_INTRO',
 
     GAME_REVIEW: 'GAME_REVIEW',
@@ -63,7 +63,7 @@ gpub.diagrams = {
       flattened,
       diagramType,
       bookFormat,
-      diagramPurpose,
+      diagramContext,
       bookData) {
     if (!diagramType || !gpub.diagrams.diagramType[diagramType]) {
       throw new Error('Unknown diagram type: ' + diagramType);
@@ -71,8 +71,8 @@ gpub.diagrams = {
     if (!bookFormat || !gpub.outputFormat[bookFormat]) {
       throw new Error('Unknown diagram type: ' + bookFormat);
     }
-    if (!diagramPurpose || !gpub.diagrams.diagramPurpose[diagramPurpose]) {
-      throw new Error('Unknown diagram type: ' + diagramPurpose);
+    if (!diagramContext|| !gpub.diagrams.diagramContext[diagramContext]) {
+      throw new Error('Unknown diagram type: ' + diagramContext);
     }
 
     var bookData = bookData || {};
@@ -88,7 +88,7 @@ gpub.diagrams = {
     }
 
     var label = null;
-    switch(diagramPurpose) {
+    switch(diagramContext) {
       case 'GAME_REVIEW':
       case 'GAME_REVIEW_CHAPTER':
       case 'SECTION_INTRO':
@@ -104,7 +104,7 @@ gpub.diagrams = {
 
     return pkg.typeset(
         diagramString,
-        diagramPurpose,
+        diagramContext,
         flattened.comment(),
         label,
         flattened.isOnMainPath(),
