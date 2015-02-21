@@ -33,16 +33,13 @@ gpub.diagrams = {
   },
 
   /**
-   * Types of diagram purposes. It's not currently clear to me if this should
-   * continue to exist. This should never be exposed in a top-level API, but it
-   * might make sense to expose this package's API.
+   * Types of diagram context.
    */
   diagramContext: {
+    NONE: 'NONE',
     SECTION_INTRO: 'SECTION_INTRO',
-
     GAME_REVIEW: 'GAME_REVIEW',
     GAME_REVIEW_CHAPTER: 'GAME_REVIEW_CHAPTER',
-
     PROBLEM: 'PROBLEM',
     ANSWER: 'ANSWER'
   },

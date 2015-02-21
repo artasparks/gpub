@@ -16,4 +16,11 @@ gpub.book.ascii._Generator.prototype = {
 
   processBookOptions: function() {
   }
-}
+};
+
+gpub.book.ascii._template = [
+'Title: {{title}}',
+'Authors {{#authors}}{{.}}{{/authors}}',
+'--------------------------------------',
+'{{content}}'
+].join('\n');

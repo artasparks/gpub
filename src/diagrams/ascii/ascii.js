@@ -1,0 +1,3 @@
+gpub.diagrams.ascii = {
+
+};
