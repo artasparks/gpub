@@ -1,26 +1,14 @@
-gpub.book.ascii.generator = function() {
-  return new gpub.book.ascii._Generator();
-};
-
 /**
- * Generator that implements gpub.book.generator interface.
+ * ASCII book generator methods, for implementing gpub.book.generator
+ * interface.
  */
-gpub.book.ascii._Generator = function() {}
-
-gpub.book.ascii._Generator.prototype = {
+gpub.book.ascii.generator = {
   generate: function(spec, options) {
+
   },
 
-  defaultTemplate: function() {
-  },
-
-  processBookOptions: function() {
+  template: function() {
+    return gpub.book.ascii._defaultTemplate;
   }
 };
 
-gpub.book.ascii._template = [
-'Title: {{title}}',
-'Authors {{#authors}}{{.}}{{/authors}}',
-'--------------------------------------',
-'{{content}}'
-].join('\n');

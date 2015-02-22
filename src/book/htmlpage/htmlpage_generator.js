@@ -1,17 +1,11 @@
-gpub.book.htmlpage.generator = function() {
-  return new gpub.book.htmlpage._Generator();
-};
-
-gpub.book.htmlpage._Generator = function() {}
-
-gpub.book.htmlpage._Generator.prototype = {
+/**
+ * Generator methods for the HTML page.
+ */
+gpub.book.htmlpage.generator = {
   generate: function(spec, options) {
   },
 
-  defaultTemplate: function() {
+  template: function() {
     return gpub.book.htmlBook._template;
-  },
-
-  processBookOptions: function() {
   }
-}
+};
