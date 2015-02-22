@@ -1,7 +1,13 @@
 gpub.book.latex.generator = {
-  generate: function(spec, options) {
+  generate: function(spec) {
+    return '';
   },
 
-  template: function() {
+  defaultTemplate: function() {
+    return '';
+  },
+
+  defaultOptions: function() {
+    return {};
   }
 }

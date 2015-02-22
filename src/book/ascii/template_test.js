@@ -10,6 +10,8 @@
     var template = gpub.book.generator(gpub.outputFormat.ASCII).template();
     ok(template, 'template should be defined');
 
+    var parsed = gpub.Mustache.parse(template)
+
     var out = gpub.Mustache.render(template, view)
     ok(out, 'render should be successful');
 
