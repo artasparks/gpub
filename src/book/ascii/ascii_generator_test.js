@@ -1,3 +1,3 @@
-gpub.book.ascii.generator = function() {
+(function() {
 
-};
+})();

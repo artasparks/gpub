@@ -6,7 +6,8 @@
       var p = gpub.book._getGenerator({
         outputFormat: key
       });
-      ok(p);
+
+      ok(p, 'generator not defined for key: ' + key);
       for (var method in gpub.book.generator) {
         ok(p[method], 'no method: ' + method + ' for processor ' + key);
       }
