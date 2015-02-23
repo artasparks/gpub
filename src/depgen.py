@@ -30,6 +30,7 @@ DIR_ORDER = [
 
   'spec',
   'diagrams',
+  'diagrams/senseis_ascii',
   'diagrams/gooe',
   'diagrams/gnos',
   'diagrams/igo',

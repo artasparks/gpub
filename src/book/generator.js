@@ -78,6 +78,10 @@ gpub.book._Generator.prototype = {
 
   /**
    * Helper function for looping over each SGF in the SGF collection.
+   *
+   * The function fn should expect two params:
+   *  - The movetree.
+   *  - The 'flattened' object.
    */
   forEachSgf: function(spec, fn) {
     var mgr = glift.widgets.createNoDraw(spec);

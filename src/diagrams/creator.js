@@ -3,9 +3,7 @@
  */
 gpub.diagrams.creator = {
   /**
-   * Create diagram
+   * Create diagram from a flattened display.
    */
-  create: function(flattened, context, options) {
-
-  }
+  create: function(flattened, options) {}
 };

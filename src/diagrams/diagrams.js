@@ -10,6 +10,11 @@ gpub.diagrams = {
     ASCII: 'ASCII',
 
     /**
+     * Sensei's ASCII variant.
+     */
+    SENSEIS_ASCII: 'SENSEIS_ASCII',
+
+    /**
      * Dan Bump's LaTeX font. Part of the Sgf2Dg script.
      */
     GOOE: 'GOOE',

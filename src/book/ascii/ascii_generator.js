@@ -19,6 +19,6 @@ gpub.book.ascii.generator = {
     return {
       diagramType: gpub.diagrams.diagramType.ASCII
     }
-  },
+  }
 };
 
