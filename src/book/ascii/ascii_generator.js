@@ -17,7 +17,7 @@ gpub.book.ascii.generator = {
 
   defaultOptions: function(opts) {
     return {
-      diagramType: gpub.diagrams.diagramType.ASCII
+      diagramType: gpub.diagrams.diagramType.SENSEIS_ASCII;
     }
   }
 };
