@@ -1,5 +1,5 @@
 /**
- * ASCII in the Sensei's library format.  See: 
+ * ASCII in the Sensei's library format.  See:
  * http://senseis.xmp.net/?HowDiagramsWork
  *
  * Example:
@@ -18,8 +18,34 @@
 gpub.diagrams.senseisAscii = {
   create: function(flattened, opts) {
     var toStr = glift.flattener.symbolStr;
-    var newBoard = flattened.board().transform(function(isection, x, y) {
+    var symbolMap = gpub.diagrams.senseisAscii.symbolMap;
+    var newBoard = flattened.board().transform(function(i, x, y) {
+      var symbol = toStr(i.base());
 
+      if (i.textLabel() &&
+          i.mark() &&
+          i.mark() === glift.flattener.symbols.TEXTLABEL) {
+        var label = i.textLabel(); // need to check about.
+      } else if (i.mark() && i.stone()) {
+        symbol = toStr(i.stone()) + '_' + toStr(i.mark());
+      } else if (i.stone()) {
+        symbol = toStr(i.stone());
+      } else if (i.mark()) {
+        symbol = toStr(i.mark());
+      } // default case: symbol is the base.
+
+      var out = symbolMap[symbol];
+      if (!out) {
+        console.log('Could not find symbol str for : ' + symbol);
+      }
+      return out;
     });
+
+    var outArr = [];
+    for (var i = 0, arr = newBoard.boardArray(); i < arr.length; i++) {
+      outArr.push(arr[i].join(' '));
+    }
+
+    return outArr.join('\n');
   }
 };
