@@ -336,7 +336,8 @@ glift.enums = {
     ALL: 'ALL',
     // Automatically determine the board region.
     AUTO: 'AUTO',
-    // Minimal cropbox, modulo some heuristics.
+    // Minimal cropbox, modulo some heuristics. To do this, you usually need a
+    // movetree, and usually, you need next-path information.
     MINIMAL: 'MINIMAL'
   },
 
@@ -1293,8 +1294,9 @@ glift.dom.Element.prototype = {
 /**
  * Built-in clases used to style Glift.
  */
+// TODO(kashomon): Move to a more appropriate API location.
 glift.dom.classes = {
-  COMMENT_BOX: 'glfit-comment-box'
+  COMMENT_BOX: 'glift-comment-box'
 };
 /** Tags currently allowed. */
 glift.dom._sanitizeWhitelist = {
@@ -7926,8 +7928,9 @@ glift.rules.movetree = {
 
   /** Create a MoveTree from an SGF. */
   getFromSgf: function(sgfString, initPosition, parseType) {
-    var parseType = parseType || glift.parse.parseType.SGF;
     initPosition = initPosition || []; // treepath.
+    parseType = parseType || glift.parse.parseType.SGF;
+
     if (glift.util.typeOf(initPosition) === 'string' ||
         glift.util.typeOf(initPosition) === 'number') {
       initPosition = glift.rules.treepath.parsePath(initPosition);
@@ -7935,22 +7938,14 @@ glift.rules.movetree = {
     if (sgfString === undefined || sgfString === '') {
       return glift.rules.movetree.getInstance(19);
     }
+
     glift.util.majorPerfLog('Before SGF parsing in movetree');
     var mt = glift.parse.fromString(sgfString, parseType);
 
+    mt = mt.getTreeFromRoot(initPosition);
     glift.util.majorPerfLog('After SGF parsing in movetree');
-    for (var i = 0; i < initPosition.length; i++) {
-      mt.moveDown(initPosition[i]);
-    }
-    return mt;
-  },
 
-  /**
-   * Since a MoveTree is a tree of connected nodes, we can create a sub-tree
-   * from any position in the tree.  This can be useful for recursion.
-   */
-  getFromNode: function(node) {
-    return new glift.rules._MoveTree(node);
+    return mt;
   },
 
   /** Seach nodes with a Depth First Search. */
@@ -8007,10 +8002,19 @@ glift.rules.movetree = {
  * problem, demonstration, or example.  Thus, this is the place where such moves
  * as currentPlayer or lastMove.
  */
-glift.rules._MoveTree = function(rootNode, currentNode) {
+glift.rules._MoveTree = function(rootNode, currentNode, metadata) {
   this._rootNode = rootNode;
   this._currentNode = currentNode || rootNode;
   this._markedMainline = false;
+
+  /**
+   * Metadata is arbitrary data attached to the node.
+   *
+   * As a side note, Metadata extraction in Glift happens in the parser and so
+   * will not show up in comments.  See the metadataProperty option in
+   * options.baseOptions.
+   */
+  this._metadata = metadata || null;
 };
 
 glift.rules._MoveTree.prototype = {
@@ -8026,6 +8030,16 @@ glift.rules._MoveTree.prototype = {
   /** Get the properties object on the current node. */
   properties: function() {
     return this.node().properties();
+  },
+
+  /** Gets global movetree metadata. */
+  metadata: function() {
+    return this._metadata;
+  },
+
+  /** Set the metadata for this Movetree. */
+  setMetdata: function(data) {
+    this._metadata = data;
   },
 
   /**
@@ -8088,16 +8102,30 @@ glift.rules._MoveTree.prototype = {
    * changed.
    */
   newTreeRef: function() {
-    return new glift.rules._MoveTree(this._rootNode, this._currentNode);
+    return new glift.rules._MoveTree(
+        this._rootNode, this._currentNode, this._metadata);
   },
 
   /**
-   * Get a new move tree instance from the root node.
+   * Creates a new Movetree reference from a particular node. The underlying
+   * node-tree remains the same.
+   *
+   * Since a MoveTree is a tree of connected nodes, we can create a sub-tree
+   * from any position in the tree.  This can be useful for recursion.
+   */
+  getFromNode: function(node) {
+    return new glift.rules._MoveTree(node, node, this._metadata);
+  },
+
+  /**
+   * Gets a new move tree instance from the root node. Important note: this
+   * creates a new tree reference. Thus, if you don't assign to a var, nothing
+   * will happen.
    *
    * treepath: optionally also apply a treepath to the tree
    */
   getTreeFromRoot: function(treepath) {
-    var mt = glift.rules.movetree.getFromNode(this._rootNode);
+    var mt = this.getFromNode(this._rootNode);
     if (treepath && glift.util.typeOf(treepath) === 'array') {
       for (var i = 0, len = treepath.length;
            i < len && mt.node().numChildren() > 0; i++) {
@@ -8421,7 +8449,7 @@ glift.rules.problems = {
       var successTracker = {};
       for (var i = 0; i < flatPaths.length; i++) {
         var path = flatPaths[i];
-        var newmt = glift.rules.movetree.getFromNode(movetree.node());
+        var newmt = movetree.getFromNode(movetree.node());
         var pathCorrect = false
         for (var j = 0; j < path.length; j++) {
           newmt.moveDown(path[j]);
@@ -9344,6 +9372,26 @@ glift.parse.pandanet = function(string) {
   return glift.parse.sgf(repl);
 };
 /**
+ * Metadata Start and End tags allow us to insert metadata directly, as
+ * JSON, into SGF comments.  It will not be display by glift (although it
+ * will by other editors, of course). It's primary use is as an API for
+ * embedding tertiary data.
+ *
+ * It is currently expected that this property is attached to the root node.
+ *
+ * Some other notes:
+ *  - Metadata extraction happens in the parser.
+ *  - If the metadataProperty field is set, it will grab all the data from
+ *  the relevant property and try to convert it to JSON.
+ *
+ * To disable this behavior, set metadataProperty to null.
+ *
+ * @api(experimental)
+ */
+glift.parse.sgfMetadataProperty = 'GC';
+
+
+/**
  * The new Glift SGF parser!
  * Takes a string, returns a movetree.  Easy =).
  *
@@ -9407,6 +9455,17 @@ glift.parse.sgf = function(sgfString) {
 
   var flushPropDataIfNecessary = function() {
     if (curProp.length > 0) {
+      if (glift.parse.sgfMetadataProperty &&
+          curProp === glift.parse.sgfMetadataProperty &&
+          !movetree.node().getParent()) {
+        try {
+          var mdata = JSON.parse(propData);
+          movetree.setMetdata(mdata);
+        } catch (e) {
+          glift.util.logz('For property: ' + curProp + ' unable to parse ' +
+              ': ' + propData + ' as JSON for SGF metadata');
+        }
+      }
       movetree.properties().add(curProp, propData);
       propData = [];
       curProp = '';
@@ -10607,11 +10666,16 @@ glift.bridge = {
 };
 
 /**
- * Takes a movetree and returns the optimal BoardRegion for cropping purposes.
+ * Takes a movetree and returns the optimal BoardRegion-Quad for cropping purposes.
  *
- * Optionally, take a treepath
+ * Note: This isn't a minimal cropping: we split the board into 4 quadrants.
+ * Then, we use the quad as part of the final quad-output. Note that we only
+ * allow convex shapes.  Thus, these aren't allowed (where the X's are
+ * quad-regions)
+ * .X     X.
+ * X. and XX
  */
-glift.bridge.getCropFromMovetree = function(movetree, treepath) {
+glift.bridge.getQuadCropFromMovetree = function(movetree) {
   var bbox = glift.displays.bbox.fromPts;
   var pt = glift.util.point;
   var boardRegions = glift.enums.boardRegions;
@@ -10898,7 +10962,7 @@ glift.flattener = {
 
     // Calculate the board region.
     if (boardRegion === glift.enums.boardRegions.AUTO) {
-      boardRegion = glift.bridge.getCropFromMovetree(mt);
+      boardRegion = glift.bridge.getQuadCropFromMovetree(mt);
     }
     var cropping = glift.displays.cropbox.getFromRegion(
         boardRegion, mt.getIntersections());
@@ -11715,7 +11779,7 @@ glift.widgets.BaseWidget.prototype = {
 
     this.displayOptions.boardRegion =
         this.sgfOptions.boardRegion === glift.enums.boardRegions.AUTO
-        ? glift.bridge.getCropFromMovetree(this.controller.movetree)
+        ? glift.bridge.getQuadCropFromMovetree(this.controller.movetree)
         : this.sgfOptions.boardRegion;
 
     this.displayOptions.rotation = this.sgfOptions.rotation;
@@ -12515,7 +12579,7 @@ glift.widgets.options = {
  * Terminology:
  *  - I use SGF through this file and in Glift to refer to a go-data-file.  This
  *    is largely due to myopia early in the dev process. With the @api(1.X) in
- *    full sway, it's not possible to change this distinction. Regardless, it is
+ *    full sway, it's not easy to change this distinction. Regardless, it is
  *    possible that in the future, SGF strings and SGF URLs will grow to
  *    encompass other types go-data, like the Tygem .gib filetypes.
  *
@@ -12720,6 +12784,7 @@ glift.widgets.options.baseOptions = {
      * Metadata for this SGF.  Like the global metadata, this option is not
      * meant to be used directly by Glift but by other programs utilizing Glift
      * and so the metadata has no expected structure.
+     *
      * @api(experimental)
      */
     metadata: undefined,

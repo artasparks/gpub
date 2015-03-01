@@ -22,4 +22,36 @@
       }
     }
   });
+
+  test('SGF Signature', function() {
+    var absgen = new gpub.book._Generator();
+    deepEqual(absgen._sgfSignature('abc'), 'abc', 'less than 100');
+
+    var exactlyHundred =
+      '01234567690123456769012345676901234567690123456769' +
+      '01234567690123456769012345676901234567690123456769';
+    deepEqual(absgen._sgfSignature(exactlyHundred), exactlyHundred);
+
+    var firstFifty =  '01234567690123456769012345676901234567690123456769';
+    var secondFifty = 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwx';
+    deepEqual(
+      absgen._sgfSignature(firstFifty + 'aouarugsoecuhaeosruch' + secondFifty),
+      firstFifty + secondFifty);
+  });
+
+  test('Book Options / view', function() {
+    var gen = new gpub.book._Generator({
+      bookOptions: { zed: 'fred' }
+    });
+
+    var spec = {
+      sgfCollection: [
+        { sgfString: '(;GM[1]GC[{"zed": "frood", "zod": "frod"}])' }
+      ]
+    };
+
+    var view = gen.view(spec);
+    ok(view);
+    deepEqual(view, { zed: 'fred', zod: 'frod' });
+  });
 })();

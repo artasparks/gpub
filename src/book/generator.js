@@ -22,6 +22,10 @@ gpub.book.generator = function(outputFormat, options) {
     }
   }
 
+  if (!gen.defaultOptions) {
+    throw new Error('No default options defined for type: ' + outputFormat);
+  }
+
   var defOpts = gen.defaultOptions();
   if (defOpts) {
     for (var key in defOpts) {
@@ -66,25 +70,71 @@ gpub.book.Gen = {
  */
 gpub.book._Generator = function(options) {
   this._opts = glift.util.simpleClone(options || {});
+
+  /** Map from first 50 bytes + last 50 bytes of the SGF to the full SGF */
+  this._parseCache = {};
 };
 
 gpub.book._Generator.prototype = {
-  /**
-   * Shared options-getter method.
-   */
-  options: function() {
-    return this._opts;
+  /** Returns the 'view' for filling out a template. */
+  view: function(spec) {
+    if (!spec) { throw new Error('Spec must be defined. Was: ' + spec) };
+
+    var view = glift.util.simpleClone(this._opts.bookOptions);
+    var mgr = this.manager(spec);
+    var firstSgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(0));
+    var mt = this.getMovetree(firstSgfObj);
+    var globalMetadata = mt.metadata();
+    // Should we defer to the book options or the data defined in the SGF? Here,
+    // we've made the decision to defer to the book options, since, in some
+    // sense, the book options as an argument are more explicit.
+    if (globalMetadata) {
+      for (var key in globalMetadata) {
+        if (globalMetadata[key] && !view[key]) {
+          view[key] = globalMetadata[key];
+        }
+      }
+    }
+    return view
+  },
+
+  /** Returns a Glift SGF Manager instance. */
+  manager: function(spec) {
+    return glift.widgets.createNoDraw(spec);
   },
 
   /**
    * Helper function for looping over each SGF in the SGF collection.
    *
    * The function fn should expect two params:
+   *  - the index
    *  - The movetree.
    *  - The 'flattened' object.
    */
   forEachSgf: function(spec, fn) {
-    var mgr = glift.widgets.createNoDraw(spec);
+    var mgr = this.manager();
+    for (var i = 0; i < mgr.sgfCollection.length; i++) {
+      var sgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(i));
+      var mt = this.getMovetree(sgfObj);
+      var flattened = glift.flattener.flatten(mt, {
+          nextMovesTreepath: sgfObj.nextMovesPath,
+          boardRegion: sgfObj.boardRegion
+      });
+      fn(i, mt, flattened);
+    }
+  },
+
+  /**
+   * Get a movetree. SGF Parsing is cached for efficiency.
+   */
+  getMovetree: function(sgfObj) {
+    var signature = this._sgfSignature(sgfObj.sgfString);
+    if (!this._parseCache[signature]) {
+      this._parseCache[signature] =
+          glift.rules.movetree.getFromSgf(sgfObj.sgfString);
+    }
+    var initPos = glift.rules.treepath.parsePath(sgfObj.initialPosition);
+    return this._parseCache[signature].getTreeFromRoot(initPos);
   },
 
   /**
@@ -92,11 +142,26 @@ gpub.book._Generator.prototype = {
    * otherwise, default to the default template for the output format.
    */
   template: function() {
-    var opts = this.options();
+    var opts = this._opts;
     if (opts.template) {
       return opts.template;
     } else {
       return this.defaultTemplate();
     }
-  }
+  },
+
+  /**
+   * Returns a signature that for the SGF that can be used in a map.
+   * Method: if sgf < 100 bytes, use SGF. Otherwise, use first 50 bytes + last
+   * 50 bytes.
+   */
+  _sgfSignature: function(sgf) {
+    if (typeof sgf !== 'string') {
+      throw new Error('Improper type for SGF: ' + sgf);
+    }
+    if (sgf.length <= 100) {
+      return sgf;
+    }
+    return sgf.substring(0, 50) + sgf.substring(sgf.length - 50, sgf.length);
+  },
 };
