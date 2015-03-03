@@ -29,7 +29,7 @@ gpub.book.generator = function(outputFormat, options) {
   var defOpts = gen.defaultOptions();
   if (defOpts) {
     for (var key in defOpts) {
-      if (!gen._opts[key]) {
+      if (defOpts[key] && !gen._opts[key]) {
         gen._opts[key] = defOpts[key];
       }
     }

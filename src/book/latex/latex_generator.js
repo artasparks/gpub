@@ -8,8 +8,8 @@ gpub.book.latex.generator = {
     var diagramType = gpub.diagrams.diagramType.GNOS;
     var template = this.template();
     var view = this.view();
-    var content = [];
 
+    var content = [];
     this.forEachSgf(function(idx, mt, flattened) {
       var diagram = gpub.diagrams.forPurpose(
           flattened, diagramType);

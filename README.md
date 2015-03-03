@@ -155,19 +155,17 @@ A user may specify template variables in one of two ways:
   1. As JSON within the 0th-node comment of the first SGF.
   2. As keys to the `bookOptions` option.
 
-As per 1., template parameters may be provided embedded with an SGF's first comment with the following format:
+As per 1., template parameters may be provided embedded with an SGF property as JSON.  For example:
 
 ```
-METADATA
-{
+GC[{
   "title": "My Book!",
   "author": "Kashomon"
-}
-END_METADATA
-This was the second game in a ten game match between Fujisawa Hosai 9p and Go
-Seigen 9p. It was played on February 25 and 26, 1943.
-...
+}]
 ```
+
+Where `GC` is the Game Commentary SGF field.  The field used for metadata storage is
+specified in the `glift.parse.sgfMetadatProperty` field.
 
 As per 2., template prameters may also be provided via the gpub API:
 
