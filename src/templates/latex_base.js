@@ -1,7 +1,5 @@
 /**
- * Basic latex template. Generally, these should be defined as the relevant
- * filetype (e.g., .tex).  However, this is defined within javascript for
- * convenience.
+ * Basic latex template.
  */
 gpub.templates.latexBase = [
 '\\documentclass[letterpaper,12pt]{memoir}',

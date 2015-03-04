@@ -8,52 +8,28 @@ gpub.diagrams = {
      * ASCII. Generate an ascii diagram.
      */
     ASCII: 'ASCII',
-
     /**
      * Sensei's ASCII variant.
      */
     SENSEIS_ASCII: 'SENSEIS_ASCII',
-
     /**
      * Dan Bump's LaTeX font. Part of the Sgf2Dg script.
      */
     GOOE: 'GOOE',
-
     /**
      * Josh Hoak's variant of Gooe
      */
     GNOS: 'GNOS',
-
     /**
      * Another LaTeX font / LaTeX style package
      * >> Not Currently Supported
      */
     IGO: 'IGO',
-
     /**
      * Native PDF generation
      * >> Not Currently Supported, but here for illustration.
      */
     PDF: 'PDF'
-  },
-
-  /**
-   * Types of diagram context.
-   */
-  diagramContext: {
-    NONE: 'NONE',
-    SECTION_INTRO: 'SECTION_INTRO',
-    GAME_REVIEW: 'GAME_REVIEW',
-    GAME_REVIEW_CHAPTER: 'GAME_REVIEW_CHAPTER',
-    PROBLEM: 'PROBLEM',
-    ANSWER: 'ANSWER'
-  },
-
-  // TODO(kashomon): Remove this. Sizes are a property of the fonts, at least
-  // for latex. Gooe only supports 2 sizes.  Gnos supports 8.
-  sizes: {
-    NORMAL: 'NORMAL',
-    LARGE: 'LARGE'
   },
 
   /**
@@ -139,12 +115,12 @@ gpub.diagrams = {
   /**
    * Return a diagram from a glift Flattened object.
    */
-  fromFlattened: function(flattened, diagramType) {
+  fromFlattened: function(flattened, diagramType, options) {
     switch(diagramType) {
       case 'GOOE':
-        return gpub.diagrams.gooe.create(flattened);
+        return gpub.diagrams.gooe.create(flattened, options);
       case 'GNOS':
-        return gpub.diagrams.gnos.create(flattened);
+        return gpub.diagrams.gnos.create(flattened, options);
       default:
         throw new Error('Not currently supported: ' + diagramType);
     }

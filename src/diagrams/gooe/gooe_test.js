@@ -2,8 +2,8 @@
   module('gpub.diagrams.gooe.gooeTest');
   var gooeBoard = gpub.diagrams.gooe.gooeBoard;
   var symbolMap = gpub.diagrams.gooe.symbolMap;
-  var NORMAL = gpub.diagrams.sizes.NORMAL;
-  var LARGE = gpub.diagrams.sizes.LARGE;
+  var NORMAL = gpub.diagrams.gooe.sizes.NORMAL;
+  var LARGE = gpub.diagrams.gooe.sizes.LARGE;
   var basicSgf = '(;GB[1]C[foo]AW[aa]AB[ab]LB[ab:z])';
   var flattened = gpub.diagrams.flatten(
       basicSgf, [], [], 'TOP_LEFT');

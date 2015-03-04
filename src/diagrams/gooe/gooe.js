@@ -2,6 +2,13 @@
  * Create a gooe-font diagram.
  */
 gpub.diagrams.gooe = {
+  // TODO(kashomon): Remove this. Sizes are a property of the fonts, at least
+  // for latex. Gooe only supports 2 sizes.  Gnos supports 8.
+  sizes: {
+    NORMAL: 'NORMAL',
+    LARGE: 'LARGE'
+  },
+
   /**
    * Takes a flattened set of symbols and produces a full string diagram. These
    * diagrams are not stand alone and must live inside a LaTeX document to
