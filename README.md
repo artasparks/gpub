@@ -165,7 +165,7 @@ GC[{
 ```
 
 Where `GC` is the Game Commentary SGF field.  The field used for metadata storage is
-specified in the `glift.parse.sgfMetadatProperty` field.
+specified in the `glift.parse.sgfMetadataProperty` field.
 
 As per 2., template prameters may also be provided via the gpub API:
 
