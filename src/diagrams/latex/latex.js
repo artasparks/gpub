@@ -18,7 +18,6 @@ gpub.diagrams.latex = {
    */
   typeset: function(str, purpose, comment, label, isMainLine, bookData) {
     comment = this.sanitize(comment);
-
     var camelCaseName = glift.enums.toCamelCase(purpose)
     var func = gpub.diagrams.latex[camelCaseName];
     switch(purpose) {

@@ -7,7 +7,7 @@
       authors: ['Zod Frog', 'Mod Frog'],
       content: 'nada'
     }
-    var template = gpub.book.generator(gpub.outputFormat.ASCII).template();
+    var template = gpub.book.generator(gpub.outputFormat.ASCII, {}).template();
     ok(template, 'template should be defined');
 
     var parsed = gpub.Mustache.parse(template)

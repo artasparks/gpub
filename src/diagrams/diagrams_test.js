@@ -2,7 +2,7 @@
   module('glift.diagrams.diagramsTest');
   var basicSgf = '(;GB[1]C[foo]AW[aa]AB[ab]LB[ab:z])';
   var diagramType = gpub.diagrams.diagramType;
-  var diagramContext = gpub.diagrams.diagramContext;
+  var diagramContext = gpub.book.diagramContext;
   var format = gpub.outputFormat;
 
   test('Test basic flattened', function() {

@@ -39,8 +39,8 @@
       firstFifty + secondFifty);
   });
 
-  test('Book Options / view', function() {
-    var gen = new gpub.book._Generator({
+  test('Book Options / view from SGF', function() {
+    var gen = new gpub.book._Generator().initOptions({
       bookOptions: { zed: 'fred' }
     });
 
@@ -51,7 +51,30 @@
     };
 
     var view = gen.view(spec);
-    ok(view);
     deepEqual(view, { zed: 'fred', zod: 'frod' });
+  });
+
+  test('Book process options: defaults for type', function() {
+    var gen = new gpub.book._Generator();
+    gen.defaultOptions = function() {
+      return {
+        zap: 'bang',
+        bookOptions: {
+          zed: 'fred',
+          zod: 'frod'
+        }
+      };
+    };
+    gen.initOptions({
+      bookOptions: { zed: 'frood' }
+    })
+
+    deepEqual(gen._opts, {
+      zap: 'bang',
+      bookOptions: {
+        zed: 'frood',
+        zod: 'frod'
+      }
+    });
   });
 })();

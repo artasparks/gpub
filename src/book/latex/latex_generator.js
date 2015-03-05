@@ -4,8 +4,6 @@
  */
 gpub.book.latex.generator = {
   generate: function(spec) {
-    var diagramsPerPage = 2;
-    var diagramType = gpub.diagrams.diagramType.GNOS;
     var template = this.template();
     var view = this.view();
 
@@ -19,12 +17,12 @@ gpub.book.latex.generator = {
   },
 
   defaultTemplate: function() {
-    return gpub.templates.latexBase;
+    return gpub.book.latex.defaultTemplate;
   },
 
   defaultOptions: function() {
     return {
-      diagramType: gpub.diagrams.diagramType.GOOE
+      diagramType: gpub.diagrams.diagramType.GNOS
     };
   }
 };

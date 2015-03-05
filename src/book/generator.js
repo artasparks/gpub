@@ -2,18 +2,18 @@
  * Constructs a book generator.
  */
 gpub.book.generator = function(outputFormat, options) {
-  if (!outputFormat) {
-    throw new Error('No output format defined');
-  }
+  if (!outputFormat) { throw new Error('No output format defined'); }
+  if (!options) { throw new Error('Options not defined'); }
 
   var package = gpub.book[outputFormat.toLowerCase()];
   if (!package) {
     throw new Error('No package defined for: ' + outputFormat);
   }
   if (!package.generator) {
-    throw new Error('No generator implementation for: ' + outputFormat);
+    throw new Error('No generator impl for: ' + outputFormat);
   }
-  var gen = new gpub.book._Generator(options);
+
+  var gen = new gpub.book._Generator();
 
   // Copy over the methods from the implementations;
   for (var key in package.generator) {
@@ -22,20 +22,13 @@ gpub.book.generator = function(outputFormat, options) {
     }
   }
 
-  if (!gen.defaultOptions) {
-    throw new Error('No default options defined for type: ' + outputFormat);
+  if (!gen.defaultOptions ||
+      glift.util.typeOf(gen.defaultOptions) !== 'function' ) {
+    throw new Error('No default options-function defined for type: ' +
+        outputFormat);
   }
 
-  var defOpts = gen.defaultOptions();
-  if (defOpts) {
-    for (var key in defOpts) {
-      if (defOpts[key] && !gen._opts[key]) {
-        gen._opts[key] = defOpts[key];
-      }
-    }
-  }
-
-  return gen;
+  return gen.initOptions(options);
 };
 
 /**
@@ -68,10 +61,13 @@ gpub.book.Gen = {
 /**
  * Abstract book generator. Provides default methods and constructor.
  */
-gpub.book._Generator = function(options) {
-  this._opts = glift.util.simpleClone(options || {});
+gpub.book._Generator = function() {
+  this._opts = {};
 
-  /** Map from first 50 bytes + last 50 bytes of the SGF to the full SGF */
+  /**
+   * Map from first 50 bytes + last 50 bytes of the SGF to the movetree. To
+   * prevent-reparsing unnecessarily over and over.
+   */
   this._parseCache = {};
 };
 
@@ -151,6 +147,40 @@ gpub.book._Generator.prototype = {
   },
 
   /**
+   * Set the options for the Generator. Note: The generator defensively makes
+   * a copy of the options.
+   */
+  initOptions: function(opts) {
+    if (!opts) { throw new Error('Opts not defined'); }
+    this._opts = glift.util.simpleClone(opts || {});
+
+    var defOpts = {};
+    if (this.defaultOptions) {
+      defOpts = this.defaultOptions();
+    }
+
+    if (!defOpts) { throw new Error('Default options not defined'); }
+
+    // TODO(kashomon): Should this be recursive? It's not clear to me.  Do you
+    // usually want to copy over top level objects as they are?
+    for (var key in defOpts) {
+      if (defOpts[key] && !this._opts[key]) {
+        this._opts[key] = defOpts[key];
+      }
+      // Step one level deeper into book options and copy the keys there.
+      if (key === 'bookOptions') {
+        var bookOptions = defOpts[key];
+        for (var bkey in bookOptions) {
+          if (bookOptions[bkey] && !this._opts.bookOptions[bkey]) {
+            this._opts.bookOptions[bkey] = bookOptions[bkey];
+          }
+        }
+      }
+    }
+    return this;
+  },
+
+  /**
    * Returns a signature that for the SGF that can be used in a map.
    * Method: if sgf < 100 bytes, use SGF. Otherwise, use first 50 bytes + last
    * 50 bytes.
@@ -163,5 +193,5 @@ gpub.book._Generator.prototype = {
       return sgf;
     }
     return sgf.substring(0, 50) + sgf.substring(sgf.length - 50, sgf.length);
-  },
+  }
 };

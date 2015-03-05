@@ -112,7 +112,8 @@ gpub.book.latex = {
     var strbuff = [
       '\\definecolor{light-gray}{gray}{0.55}',
       '\\newcommand*{\\mainBookTitle}{\\begingroup',
-      '  \\raggedleft'];
+      '  \\raggedleft'
+    ];
     for (var i = 0; i < authors.length; i++) {
       strbuff.push('  {\\Large ' + authors[i] + '} \\\\')
       if (i === 0) {
@@ -121,14 +122,16 @@ gpub.book.latex = {
         strbuff.push('  \\vspace*{0.5 em}');
       }
     }
-    return strbuff.concat(['  \\vspace*{5 em}',
+    return strbuff.concat([
+      '  \\vspace*{5 em}',
       '  {\\textcolor{light-gray}{\\Huge ' + title + '}}\\\\',
       '  \\vspace*{\\baselineskip}',
       '  {\\small \\bfseries ' + subtitle + '}\\par',
       '  \\vfill',
       '  {\\Large ' + publisher + '}\\par',
       '  \\vspace*{2\\baselineskip}',
-      '\\endgroup}']).join('\n');
+      '\\endgroup}'
+      ]).join('\n');
   },
 
   renderPage: function(buffer) {

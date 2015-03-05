@@ -14,16 +14,5 @@ gpub.book = {
     if (spec.sgfCollection.length < 1) {
       throw new Error('sgfCollection must be non-empty');
     }
-  },
-
-  /**
-   * Gets the book options from the SGF.
-   */
-  _getBookOptions: function(sgf) {
-    var startTag = "<METADATA>";
-    var endTag = "</END_METADATA>";
-    var mgr = glift.widgets.createNoDraw(spec);
-    var sgfObj = mgr.loadSgfStringSync(mgf.getSgfObj(0));
-    return '';
   }
 };
