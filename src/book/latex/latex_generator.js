@@ -22,7 +22,24 @@ gpub.book.latex.generator = {
 
   defaultOptions: function() {
     return {
-      diagramType: gpub.diagrams.diagramType.GNOS
+      diagramType: gpub.diagrams.diagramType.GNOS,
+      bookOptions: {
+        diagramWrapperDef: [
+          '% Mainline Diagrams. reset at parts',
+          '\\newcounter{GoFigure}[part]',
+          '\\newcommand{\\gofigure}{%',
+          ' \\stepcounter{GoFigure}',
+          ' \\centerline{\\textit{Figure.\\thinspace\\arabic{GoFigure}}}',
+          '}',
+          '% Variation Diagrams. reset at parts.',
+          '\\newcounter{GoDiagram}[part]',
+          '\\newcommand{\\godiagram}{%',
+          ' \\stepcounter{GoDiagram}',
+          ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoDiagram}}}',
+          '}',
+          '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
+          ''].join('\n');
+      }
     };
   }
 };

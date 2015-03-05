@@ -5,16 +5,19 @@ gpub.book.latex.defaultTemplate = [
 '\\usepackage{setspace}',
 '\\usepackage{unicode}',
 '\\usepackage[margin=1in]{geometry}',
+
 '%%% Define any extra packages %%%',
 '{{extraPackages}}',
 '',
 '\\setlength{\\parskip}{0.5em}',
 '\\setlength{\\parindent}{0pt}',
 '',
+
 '%%% Extra defs',
 '% Necessary for the particular digaram type.',
 '{{diagramTypeDefs}}',
 '',
+
 '%%% Diagram Figure defs.',
 '% Must expose two commands',
 '%  \\gofigure  (mainline diagrams)',
@@ -53,6 +56,7 @@ gpub.book.latex.defaultTemplate = [
 '\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
 '\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}',
 '',
+
 '%%% The content. %%%',
 '{{content}}',
 '',
