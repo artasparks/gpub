@@ -38,7 +38,7 @@ gpub.book.latex.generator = {
           ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoDiagram}}}',
           '}',
           '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
-          ''].join('\n');
+          ''].join('\n')
       }
     };
   }
