@@ -7,7 +7,7 @@ gpub.book.htmlpage._template = [
 '<!DOCTYPE html>',
 '<html>',
 '  <head>',
-'    <title> {{book_title}} </title>',
+'    <title> {{title}} </title>',
 '  <style>',
 '    * {',
 '      margin: 0;',
@@ -24,9 +24,10 @@ gpub.book.htmlpage._template = [
 '      <div id="glift_display1"></div>',
 '    </div>',
 '    <script type="text/javascript">',
-'      var gliftMgr = glift.create({{book_definition}});',
+'      var gliftMgr = glift.create({{content}});',
 '    </script>',
-// TODO(kashomon): Need to put Glift in here somewhere.
+// TODO(kashomon): Need to put Glift in here somewhere. Maybe even just
+// embedded.
 '  </body>',
 '<html>',
 ].join('\n');
