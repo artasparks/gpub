@@ -4,16 +4,6 @@
  */
 gpub.diagrams.latex = {
   /**
-   * Sanitizes latex input. This isn't particularly robust, but it is meant to
-   * protect us against accidental characters.
-   */
-  sanitize: function(text) {
-    return text.replace(/[$#}{]/g, function(match) {
-      return '\\' + match;
-    });
-  },
-
-  /**
    * Typeset the diagram into LaTeX
    */
   typeset: function(str, purpose, comment, label, isMainLine, bookData) {

@@ -1,8 +1,8 @@
 (function() {
-  module('gpub.diagrams.latexTest');
+  module('gpub.book.latex.sanitize');
 
   test('Test sanitize LaTeX', function() {
-    deepEqual(gpub.diagrams.latex.sanitize('foo bar #${}'),
+    deepEqual(gpub.book.latex.sanitize('foo bar #${}'),
         'foo bar \\#\\$\\{\\}');
   });
 })();
