@@ -33,6 +33,26 @@ gpub.diagrams = {
   },
 
   /**
+   * The new method for generating diagrams. Note that this no longer generates
+   * the diagram context -- that is left up to the relevant book generator.
+   */
+  create: function(
+      flattened,
+      diagramType,
+      options) {
+    if (!diagramType || gpub.diagrams.diagramType[diagramType]) {
+      throw new Error('Unknown diagram type: ' + diagramType);
+    }
+    var pkgName = glift.enums.toCamelCase(diagramType);
+    var pkg = gpub.diagrams[pkg];
+
+    if (!pkg) { new Error('No package for diagram type: ' + diagramType); }
+    if (!pkg.creator) { new Error('No creator for package: ' + pkgName); }
+
+    return pkg.creator.create(flattened, options);
+  },
+
+  /**
    * Generates a diagram for a specific purpose and a given format
    *
    * flattened: Glift flattened obj.
