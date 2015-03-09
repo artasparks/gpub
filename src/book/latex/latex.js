@@ -94,46 +94,6 @@ gpub.book.latex = {
     return template.setContent(content.join('\n')).compile();
   },
 
-  /**
-   * Generates a basic title.
-   *
-   * title: title of the book as string
-   * author: array of one or several authors as array af string
-   * subtitle: the subtitle as string
-   * publisher: the publisher as string
-   *
-   * Note: The LaTeX template expects the command \mainBookTitle.
-   *
-   * returns: filled in string.
-   */
-  // TODO(kashomon): Perhaps there should be a 'titles' package. Or perhaps each
-  // booktype should get its own sub-package?
-  basicTitleDef: function(title, subtitle, authors, publisher) {
-    var strbuff = [
-      '\\definecolor{light-gray}{gray}{0.55}',
-      '\\newcommand*{\\mainBookTitle}{\\begingroup',
-      '  \\raggedleft'
-    ];
-    for (var i = 0; i < authors.length; i++) {
-      strbuff.push('  {\\Large ' + authors[i] + '} \\\\')
-      if (i === 0) {
-        strbuff.push('  \\vspace*{0.5 em}');
-      } else if (i < authors.length - 1) {
-        strbuff.push('  \\vspace*{0.5 em}');
-      }
-    }
-    return strbuff.concat([
-      '  \\vspace*{5 em}',
-      '  {\\textcolor{light-gray}{\\Huge ' + title + '}}\\\\',
-      '  \\vspace*{\\baselineskip}',
-      '  {\\small \\bfseries ' + subtitle + '}\\par',
-      '  \\vfill',
-      '  {\\Large ' + publisher + '}\\par',
-      '  \\vspace*{2\\baselineskip}',
-      '\\endgroup}'
-      ]).join('\n');
-  },
-
   renderPage: function(buffer) {
     buffer.push('\\newpage');
     return buffer.join('\n');
