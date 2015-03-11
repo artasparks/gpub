@@ -4,11 +4,18 @@
  */
 gpub.book.ascii.generator = {
   generate: function(spec) {
-    var view = this.options().bookOptions;
+    var view = this.view(spec);
+    var opts = this.options();
     var content = [];
-    this.forEachSgf(spec, function(mt, flattened) {
 
-    });
+    this.forEachSgf(spec, function(mt, flattened) {
+      var diagramStr = gpub.diagrams.create(flattened, opts.diagramType);
+      content.push(diagramStr);
+    }.bind(this));
+
+    view.content = content.join('\n');
+
+    return gpub.Mustache.render(this.template(), view);
   },
 
   defaultTemplate: function() {

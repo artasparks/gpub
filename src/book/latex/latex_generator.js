@@ -4,7 +4,6 @@
  */
 gpub.book.latex.generator = {
   generate: function(spec) {
-    var template = this.template();
     var view = this.view(spec);
     var opts = this.options();
     var content = [];
@@ -15,7 +14,7 @@ gpub.book.latex.generator = {
 
     view.content = content.join('\n');
 
-    return gpub.Mustache.render(template, view);
+    return gpub.Mustache.render(this.template(), view);
   },
 
   defaultTemplate: function() {
