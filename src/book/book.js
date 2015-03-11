@@ -7,7 +7,7 @@ gpub.book = {
   create: function(spec, options) {
     this._validate(spec);
     var gen = this.generator(options.outputFormat, options);
-    return gen.generate(spec, options);
+    return gen.generate(spec);
   },
 
   _validate: function(spec) {

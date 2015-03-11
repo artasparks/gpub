@@ -5,13 +5,13 @@
 gpub.book.latex.generator = {
   generate: function(spec) {
     var template = this.template();
-    var view = this.view();
-
+    var view = this.view(spec);
+    var opts = this.options();
     var content = [];
-    this.forEachSgf(function(idx, mt, flattened) {
-      var diagramStr = gpub.diagrams.create(flattened, diagramType);
+    this.forEachSgf(spec, function(idx, mt, flattened) {
+      var diagramStr = gpub.diagrams.create(flattened, opts.diagramType);
       content.push(diagramStr);
-    });
+    }.bind(this));
 
     view.content = content.join('\n');
 

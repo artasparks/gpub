@@ -78,8 +78,10 @@ gpub.book._Generator.prototype = {
 
     var view = glift.util.simpleClone(this._opts.bookOptions);
     var mgr = this.manager(spec);
+
     var firstSgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(0));
     var mt = this.getMovetree(firstSgfObj);
+
     var globalMetadata = mt.metadata();
     // Should we defer to the book options or the data defined in the SGF? Here,
     // we've made the decision to defer to the book options, since, in some
@@ -96,6 +98,7 @@ gpub.book._Generator.prototype = {
 
   /** Returns a Glift SGF Manager instance. */
   manager: function(spec) {
+    if (!spec) { throw new Error('Spec not defined'); }
     return glift.widgets.createNoDraw(spec);
   },
 
@@ -108,10 +111,15 @@ gpub.book._Generator.prototype = {
    *  - The 'flattened' object.
    */
   forEachSgf: function(spec, fn) {
-    var mgr = this.manager();
-    for (var i = 0; i < mgr.sgfCollection.length; i++) {
+    var mgr = this.manager(spec);
+    var opts = this.options();
+    // 1 million diagrams should be enough for anybody ;)
+    var max = opts.maxDiagrams ? opts.maxDiagrams : 1000000;
+    for (var i = opts.skipDiagrams;
+        i < mgr.sgfCollection.length && i < max; i++) {
       var sgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(i));
       var mt = this.getMovetree(sgfObj);
+
       var flattened = glift.flattener.flatten(mt, {
           nextMovesTreepath: sgfObj.nextMovesPath,
           boardRegion: sgfObj.boardRegion
@@ -178,6 +186,11 @@ gpub.book._Generator.prototype = {
       }
     }
     return this;
+  },
+
+  /** Returns the current options */
+  options: function() {
+    return this._opts;
   },
 
   /**

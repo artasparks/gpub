@@ -22,16 +22,9 @@ gpub.create = function(sgfs, options) {
   var spec = gpub.spec.create(sgfs, options);
 
   // Create the finished book (or whatever that means).
-  var book = gpub.book.generate
+  var book = gpub.book.create(spec, options)
 
-  return spec;
-};
-
-/**
- * 
- */
-gpub.createDiagrams = function(sgfs, options) {
-
+  return book;
 };
 
 /////////////

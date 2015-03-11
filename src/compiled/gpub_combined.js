@@ -65,259 +65,247 @@ gpub.util.Buffer.prototype = {
   }
 };
 /**
- * Package for creating the books!
+ * Markdown for Gpub.
+ */
+gpub.markdown = {
+  // TODO(kashomon): Write a 'marked' render.
+};
+/** * Initialize the Mustache templating library into gpub.Mustache; */gpub.__initMustache = function(fn) {  fn.call(this); // Init };gpub.__initMustache(function() {(function(global,factory){if(typeof exports==="object"&&exports){factory(exports)}else if(typeof define==="function"&&define.amd){define(["exports"],factory)}else{factory(global.Mustache={})}})(this,function(mustache){var Object_toString=Object.prototype.toString;var isArray=Array.isArray||function(object){return Object_toString.call(object)==="[object Array]"};function isFunction(object){return typeof object==="function"}function escapeRegExp(string){return string.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g,"\\$&")}var RegExp_test=RegExp.prototype.test;function testRegExp(re,string){return RegExp_test.call(re,string)}var nonSpaceRe=/\S/;function isWhitespace(string){return!testRegExp(nonSpaceRe,string)}var entityMap={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;","/":"&#x2F;"};function escapeHtml(string){return String(string).replace(/[&<>"'\/]/g,function(s){return entityMap[s]})}var whiteRe=/\s*/;var spaceRe=/\s+/;var equalsRe=/\s*=/;var curlyRe=/\s*\}/;var tagRe=/#|\^|\/|>|\{|&|=|!/;function parseTemplate(template,tags){if(!template)return[];var sections=[];var tokens=[];var spaces=[];var hasTag=false;var nonSpace=false;function stripSpace(){if(hasTag&&!nonSpace){while(spaces.length)delete tokens[spaces.pop()]}else{spaces=[]}hasTag=false;nonSpace=false}var openingTagRe,closingTagRe,closingCurlyRe;function compileTags(tags){if(typeof tags==="string")tags=tags.split(spaceRe,2);if(!isArray(tags)||tags.length!==2)throw new Error("Invalid tags: "+tags);openingTagRe=new RegExp(escapeRegExp(tags[0])+"\\s*");closingTagRe=new RegExp("\\s*"+escapeRegExp(tags[1]));closingCurlyRe=new RegExp("\\s*"+escapeRegExp("}"+tags[1]))}compileTags(tags||mustache.tags);var scanner=new Scanner(template);var start,type,value,chr,token,openSection;while(!scanner.eos()){start=scanner.pos;value=scanner.scanUntil(openingTagRe);if(value){for(var i=0,valueLength=value.length;i<valueLength;++i){chr=value.charAt(i);if(isWhitespace(chr)){spaces.push(tokens.length)}else{nonSpace=true}tokens.push(["text",chr,start,start+1]);start+=1;if(chr==="\n")stripSpace()}}if(!scanner.scan(openingTagRe))break;hasTag=true;type=scanner.scan(tagRe)||"name";scanner.scan(whiteRe);if(type==="="){value=scanner.scanUntil(equalsRe);scanner.scan(equalsRe);scanner.scanUntil(closingTagRe)}else if(type==="{"){value=scanner.scanUntil(closingCurlyRe);scanner.scan(curlyRe);scanner.scanUntil(closingTagRe);type="&"}else{value=scanner.scanUntil(closingTagRe)}if(!scanner.scan(closingTagRe))throw new Error("Unclosed tag at "+scanner.pos);token=[type,value,start,scanner.pos];tokens.push(token);if(type==="#"||type==="^"){sections.push(token)}else if(type==="/"){openSection=sections.pop();if(!openSection)throw new Error('Unopened section "'+value+'" at '+start);if(openSection[1]!==value)throw new Error('Unclosed section "'+openSection[1]+'" at '+start)}else if(type==="name"||type==="{"||type==="&"){nonSpace=true}else if(type==="="){compileTags(value)}}openSection=sections.pop();if(openSection)throw new Error('Unclosed section "'+openSection[1]+'" at '+scanner.pos);return nestTokens(squashTokens(tokens))}function squashTokens(tokens){var squashedTokens=[];var token,lastToken;for(var i=0,numTokens=tokens.length;i<numTokens;++i){token=tokens[i];if(token){if(token[0]==="text"&&lastToken&&lastToken[0]==="text"){lastToken[1]+=token[1];lastToken[3]=token[3]}else{squashedTokens.push(token);lastToken=token}}}return squashedTokens}function nestTokens(tokens){var nestedTokens=[];var collector=nestedTokens;var sections=[];var token,section;for(var i=0,numTokens=tokens.length;i<numTokens;++i){token=tokens[i];switch(token[0]){case"#":case"^":collector.push(token);sections.push(token);collector=token[4]=[];break;case"/":section=sections.pop();section[5]=token[2];collector=sections.length>0?sections[sections.length-1][4]:nestedTokens;break;default:collector.push(token)}}return nestedTokens}function Scanner(string){this.string=string;this.tail=string;this.pos=0}Scanner.prototype.eos=function(){return this.tail===""};Scanner.prototype.scan=function(re){var match=this.tail.match(re);if(!match||match.index!==0)return"";var string=match[0];this.tail=this.tail.substring(string.length);this.pos+=string.length;return string};Scanner.prototype.scanUntil=function(re){var index=this.tail.search(re),match;switch(index){case-1:match=this.tail;this.tail="";break;case 0:match="";break;default:match=this.tail.substring(0,index);this.tail=this.tail.substring(index)}this.pos+=match.length;return match};function Context(view,parentContext){this.view=view==null?{}:view;this.cache={".":this.view};this.parent=parentContext}Context.prototype.push=function(view){return new Context(view,this)};Context.prototype.lookup=function(name){var cache=this.cache;var value;if(name in cache){value=cache[name]}else{var context=this,names,index;while(context){if(name.indexOf(".")>0){value=context.view;names=name.split(".");index=0;while(value!=null&&index<names.length)value=value[names[index++]]}else if(typeof context.view=="object"){value=context.view[name]}if(value!=null)break;context=context.parent}cache[name]=value}if(isFunction(value))value=value.call(this.view);return value};function Writer(){this.cache={}}Writer.prototype.clearCache=function(){this.cache={}};Writer.prototype.parse=function(template,tags){var cache=this.cache;var tokens=cache[template];if(tokens==null)tokens=cache[template]=parseTemplate(template,tags);return tokens};Writer.prototype.render=function(template,view,partials){var tokens=this.parse(template);var context=view instanceof Context?view:new Context(view);return this.renderTokens(tokens,context,partials,template)};Writer.prototype.renderTokens=function(tokens,context,partials,originalTemplate){var buffer="";var token,symbol,value;for(var i=0,numTokens=tokens.length;i<numTokens;++i){value=undefined;token=tokens[i];symbol=token[0];if(symbol==="#")value=this._renderSection(token,context,partials,originalTemplate);else if(symbol==="^")value=this._renderInverted(token,context,partials,originalTemplate);else if(symbol===">")value=this._renderPartial(token,context,partials,originalTemplate);else if(symbol==="&")value=this._unescapedValue(token,context);else if(symbol==="name")value=this._escapedValue(token,context);else if(symbol==="text")value=this._rawValue(token);if(value!==undefined)buffer+=value}return buffer};Writer.prototype._renderSection=function(token,context,partials,originalTemplate){var self=this;var buffer="";var value=context.lookup(token[1]);function subRender(template){return self.render(template,context,partials)}if(!value)return;if(isArray(value)){for(var j=0,valueLength=value.length;j<valueLength;++j){buffer+=this.renderTokens(token[4],context.push(value[j]),partials,originalTemplate)}}else if(typeof value==="object"||typeof value==="string"){buffer+=this.renderTokens(token[4],context.push(value),partials,originalTemplate)}else if(isFunction(value)){if(typeof originalTemplate!=="string")throw new Error("Cannot use higher-order sections without the original template");value=value.call(context.view,originalTemplate.slice(token[3],token[5]),subRender);if(value!=null)buffer+=value}else{buffer+=this.renderTokens(token[4],context,partials,originalTemplate)}return buffer};Writer.prototype._renderInverted=function(token,context,partials,originalTemplate){var value=context.lookup(token[1]);if(!value||isArray(value)&&value.length===0)return this.renderTokens(token[4],context,partials,originalTemplate)};Writer.prototype._renderPartial=function(token,context,partials){if(!partials)return;var value=isFunction(partials)?partials(token[1]):partials[token[1]];if(value!=null)return this.renderTokens(this.parse(value),context,partials,value)};Writer.prototype._unescapedValue=function(token,context){var value=context.lookup(token[1]);if(value!=null)return value};Writer.prototype._escapedValue=function(token,context){var value=context.lookup(token[1]);if(value!=null)return mustache.escape(value)};Writer.prototype._rawValue=function(token){return token[1]};mustache.name="mustache.js";mustache.version="1.1.0";mustache.tags=["{{","}}"];var defaultWriter=new Writer;mustache.clearCache=function(){return defaultWriter.clearCache()};mustache.parse=function(template,tags){return defaultWriter.parse(template,tags)};mustache.render=function(template,view,partials){return defaultWriter.render(template,view,partials)};mustache.to_html=function(template,view,partials,send){var result=mustache.render(template,view,partials);if(isFunction(send)){send(result)}else{return result}};mustache.escape=escapeHtml;mustache.Scanner=Scanner;mustache.Context=Context;mustache.Writer=Writer});}); // __initMustache/**
+ * Package for creating the 'books'! A book, in this context, is simply defined
+ * as a generated string that contains rendered SGF data.
  */
 gpub.book = {
-  /**
-   * Available book formats.
-   */
-  // TODO(kashomon): Move into diagram package?
-  bookFormat: {
-    /** Standard GLift web display */
-    HTML: 'HTML',
+  /** Creates a book! */
+  create: function(spec, options) {
+    this._validate(spec);
+    var gen = this.generator(options.outputFormat, options);
+    return gen.generate(spec, options);
+  },
 
-    /** LaTeX output */
-    LATEX: 'LATEX'
+  _validate: function(spec) {
+    if (spec.sgfCollection.length < 1) {
+      throw new Error('sgfCollection must be non-empty');
+    }
   }
 };
+//
+// Tentative ideas about how to insert diagrams into the page.
+//
+
+
 /**
- * An html 'book' creator
+ * The diagram context. How should the diagram be wrapped?
  */
-gpub.book.htmlBook = {
-  /**
-   * Expects a book definition, like the kind specified from gen.collection
-   */
-  create: function(options, template) {
+gpub.book.diagramContext = {
+  NONE: 'NONE',
+  SECTION_INTRO: 'SECTION_INTRO',
+  GAME_REVIEW: 'GAME_REVIEW',
+  GAME_REVIEW_CHAPTER: 'GAME_REVIEW_CHAPTER',
+  PROBLEM: 'PROBLEM',
+  ANSWER: 'ANSWER'
+};
 
+/**
+ * Not entirely sure what to put here
+ */
+gpub.book.pageContext = {
+
+};
+/**
+ * Constructs a book generator.
+ */
+gpub.book.generator = function(outputFormat, options) {
+  if (!outputFormat) { throw new Error('No output format defined'); }
+  if (!options) { throw new Error('Options not defined'); }
+
+  var package = gpub.book[outputFormat.toLowerCase()];
+  if (!package) {
+    throw new Error('No package defined for: ' + outputFormat);
   }
-}
-gpub.book.latex = {
-  /**
-   * Generate a LaTeX book!
-   *
-   * We assume that the options have already been generated.
-   *
-   * spec: A bookSpec -- i.e., a set of glift options.
-   * templateString: the book template to use for the book
-   * diagramType: The diagram format.
-   * options: optional parameters. Including:
-   *    Title: The title of the book
-   *    Subtitle: Optional Subtitle
-   *    Authors: Array of author names
-   *    Publisher: Publisher Name
-   *
-   * Note: these parameters can also be specified in the spec metadata.
-   */
-  generate: function(spec, templateString, diagramType, options) {
-    if (!spec) {
-      throw new Error('Options must be defined. Was: ' + spec);
+  if (!package.generator) {
+    throw new Error('No generator impl for: ' + outputFormat);
+  }
+
+  var gen = new gpub.book._Generator();
+
+  // Copy over the methods from the implementations;
+  for (var key in package.generator) {
+    if (key && package.generator[key]) {
+      gen[key] = package.generator[key].bind(gen);
     }
-    var diagramsPerPage = 2;
+  }
 
-    var templateString = templateString || gpub.templates.latexBase;
-    var diagramType = diagramType || gpub.diagrams.diagramType.GOOE
+  if (!gen.defaultOptions ||
+      glift.util.typeOf(gen.defaultOptions) !== 'function' ) {
+    throw new Error('No default options-function defined for type: ' +
+        outputFormat);
+  }
 
-    var mgr = glift.widgets.createNoDraw(spec);
-    var template = gpub.templates.parseLatexTemplate(templateString);
-    var diagramTypePkg = gpub.diagrams[glift.enums.toCamelCase(diagramType)];
-    var diagramTypeHeaders = diagramTypePkg.latexHeaders;
+  return gen.initOptions(options);
+};
 
-    var latexDefs = gpub.diagrams.latex;
+/**
+ * Generator interface.  All these metheds must be defined by the book-generator
+ * implementations.
+ */
+gpub.book.Gen = {
+  /**
+   * Generates a 'book', whatever that means in the relevant context.
+   *
+   * Arguments:
+   *  spec: The glift spec.
+   *  options: The gpub options.
+   *
+   * Returns a string: the completed book.
+   */
+  generate: function(spec) {},
 
-    template.setExtraPackages(diagramTypeHeaders.packageDef())
-        .setDiagramTypeDefs(diagramTypeHeaders.extraDefs())
-        .setDiagramWrapperDefs(latexDefs.diagramDefs())
-        .setTitleDef(this.basicTitleDef(
-            'Relentless',
-            'Gu Li vs Lee Sedol',
-            ['Younggil An', 'David Ormerod', 'Josh Hoak'],
-            'Go Game Guru'));
+  /**
+   * Returns the default template string for the specific book processor.
+   */
+  defaultTemplate: function() {},
 
-    var content = [];
-    var diagramBuffer = []
-    var chapter = 1;
-    var section = 1;
-    var lastPurpose = null;
-    var diagramPurpose = gpub.diagrams.diagramPurpose;
+  /**
+   * Returns the default options for the specific book processor.
+   */
+  defaultOptions: function() {},
+};
+
+/**
+ * Abstract book generator. Provides default methods and constructor.
+ */
+gpub.book._Generator = function() {
+  this._opts = {};
+
+  /**
+   * Map from first 50 bytes + last 50 bytes of the SGF to the movetree. To
+   * prevent-reparsing unnecessarily over and over.
+   */
+  this._parseCache = {};
+};
+
+gpub.book._Generator.prototype = {
+  /** Returns the 'view' for filling out a template. */
+  view: function(spec) {
+    if (!spec) { throw new Error('Spec must be defined. Was: ' + spec) };
+
+    var view = glift.util.simpleClone(this._opts.bookOptions);
+    var mgr = this.manager(spec);
+    var firstSgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(0));
+    var mt = this.getMovetree(firstSgfObj);
+    var globalMetadata = mt.metadata();
+    // Should we defer to the book options or the data defined in the SGF? Here,
+    // we've made the decision to defer to the book options, since, in some
+    // sense, the book options as an argument are more explicit.
+    if (globalMetadata) {
+      for (var key in globalMetadata) {
+        if (globalMetadata[key] && !view[key]) {
+          view[key] = globalMetadata[key];
+        }
+      }
+    }
+    return view
+  },
+
+  /** Returns a Glift SGF Manager instance. */
+  manager: function(spec) {
+    return glift.widgets.createNoDraw(spec);
+  },
+
+  /**
+   * Helper function for looping over each SGF in the SGF collection.
+   *
+   * The function fn should expect two params:
+   *  - the index
+   *  - The movetree.
+   *  - The 'flattened' object.
+   */
+  forEachSgf: function(spec, fn) {
+    var mgr = this.manager();
     for (var i = 0; i < mgr.sgfCollection.length; i++) {
       var sgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(i));
-      var mt = glift.rules.movetree.getFromSgf(
-          sgfObj.sgfString, sgfObj.initialPosition);
+      var mt = this.getMovetree(sgfObj);
       var flattened = glift.flattener.flatten(mt, {
           nextMovesTreepath: sgfObj.nextMovesPath,
           boardRegion: sgfObj.boardRegion
       });
+      fn(i, mt, flattened);
+    }
+  },
 
-      var nodeData = gpub.book.NodeData.fromContext(
-          mt, flattened, sgfObj.metadata, sgfObj.nextMovesPath || []);
-      section = nodeData.setSectionFromCtx(mt, lastPurpose, section);
-      chapter = nodeData.setChapterFromCtx(mt, lastPurpose, chapter);
+  /**
+   * Get a movetree. SGF Parsing is cached for efficiency.
+   */
+  getMovetree: function(sgfObj) {
+    var signature = this._sgfSignature(sgfObj.sgfString);
+    if (!this._parseCache[signature]) {
+      this._parseCache[signature] =
+          glift.rules.movetree.getFromSgf(sgfObj.sgfString);
+    }
+    var initPos = glift.rules.treepath.parsePath(sgfObj.initialPosition);
+    return this._parseCache[signature].getTreeFromRoot(initPos);
+  },
 
-      var diagram = gpub.diagrams.forPurpose(
-          flattened,
-          diagramType,
-          gpub.book.bookFormat.LATEX,
-          nodeData.purpose,
-          nodeData);
+  /**
+   * Returns the template to use. Use the user provided template if it exists;
+   * otherwise, default to the default template for the output format.
+   */
+  template: function() {
+    var opts = this._opts;
+    if (opts.template) {
+      return opts.template;
+    } else {
+      return this.defaultTemplate();
+    }
+  },
 
-      if (nodeData.purpose === diagramPurpose.SECTION_INTRO ||
-          nodeData.purpose === diagramPurpose.GAME_REVIEW_CHAPTER ||
-          nodeData.purpose !== lastPurpose) {
-        // Flush the previous buffer centent to the page.
-        content.push(gpub.book.latex.renderPage(diagramBuffer));
+  /**
+   * Set the options for the Generator. Note: The generator defensively makes
+   * a copy of the options.
+   */
+  initOptions: function(opts) {
+    if (!opts) { throw new Error('Opts not defined'); }
+    this._opts = glift.util.simpleClone(opts || {});
 
-        diagramBuffer = [];
-        diagramBuffer.push(diagram);
-        content.push(gpub.book.latex.renderPage(diagramBuffer));
-        diagramBuffer = [];
-      } else {
-        diagramBuffer.push(diagram);
-        if (diagramBuffer.length === diagramsPerPage) {
-          content.push(gpub.book.latex.renderPage(diagramBuffer));
-          diagramBuffer = [];
+    var defOpts = {};
+    if (this.defaultOptions) {
+      defOpts = this.defaultOptions();
+    }
+
+    if (!defOpts) { throw new Error('Default options not defined'); }
+
+    // TODO(kashomon): Should this be recursive? It's not clear to me.  Do you
+    // usually want to copy over top level objects as they are?
+    for (var key in defOpts) {
+      if (defOpts[key] && !this._opts[key]) {
+        this._opts[key] = defOpts[key];
+      }
+      // Step one level deeper into book options and copy the keys there.
+      if (key === 'bookOptions') {
+        var bookOptions = defOpts[key];
+        for (var bkey in bookOptions) {
+          if (bookOptions[bkey] && !this._opts.bookOptions[bkey]) {
+            this._opts.bookOptions[bkey] = bookOptions[bkey];
+          }
         }
       }
-      lastPurpose = nodeData.purpose;
     }
-    return template.setContent(content.join('\n')).compile();
+    return this;
   },
 
   /**
-   * Generates a basic title.
-   *
-   * title: title of the book as string
-   * author: array of one or several authors as array af string
-   * subtitle: the subtitle as string
-   * publisher: the publisher as string
-   *
-   * Note: The LaTeX template expects the command \mainBookTitle.
-   *
-   * returns: filled in string.
+   * Returns a signature that for the SGF that can be used in a map.
+   * Method: if sgf < 100 bytes, use SGF. Otherwise, use first 50 bytes + last
+   * 50 bytes.
    */
-  // TODO(kashomon): Perhaps there should be a 'titles' package. Or perhaps each
-  // booktype should get its own sub-package?
-  basicTitleDef: function(title, subtitle, authors, publisher) {
-    var strbuff = [
-      '\\definecolor{light-gray}{gray}{0.55}',
-      '\\newcommand*{\\mainBookTitle}{\\begingroup',
-      '  \\raggedleft'];
-    for (var i = 0; i < authors.length; i++) {
-      strbuff.push('  {\\Large ' + authors[i] + '} \\\\')
-      if (i === 0) {
-        strbuff.push('  \\vspace*{0.5 em}');
-      } else if (i < authors.length - 1) {
-        strbuff.push('  \\vspace*{0.5 em}');
-      }
+  _sgfSignature: function(sgf) {
+    if (typeof sgf !== 'string') {
+      throw new Error('Improper type for SGF: ' + sgf);
     }
-    return strbuff.concat(['  \\vspace*{5 em}',
-      '  {\\textcolor{light-gray}{\\Huge ' + title + '}}\\\\',
-      '  \\vspace*{\\baselineskip}',
-      '  {\\small \\bfseries ' + subtitle + '}\\par',
-      '  \\vfill',
-      '  {\\Large ' + publisher + '}\\par',
-      '  \\vspace*{2\\baselineskip}',
-      '\\endgroup}']).join('\n');
-  },
-
-  renderPage: function(buffer) {
-    buffer.push('\\newpage');
-    return buffer.join('\n');
-  }
-};
-/**
- * Conversion related to managers
- */
-gpub.book.manager = {
-  /**
-   * Convert all the panels in a widget manager into a LaTeX book using gooe
-   * fonts. Returns the string form of the book
-   */
-  toBook: function(manager, callback) {
-    var document = [];
-    var showVars = glift.enums.showVariations.NEVER;
-    var gooe = gpub.diagrams.gooe;
-    var latex = gpub.diagrams.latex;
-    var managerConverter = gpub.book.manager;
-    var globalBookData = manager.bookData;
-    var diagramTypes = gpub.diagrams.diagramTypes;
-
-    document.push(latex.basicHeader());
-    document.push(gooe.gooeDefs());
-    document.push(latex.generateTitleDef(
-        globalBookData.title,
-        globalBookData.subtitle,
-        globalBookData.authors,
-        globalBookData.publisher));
-    document.push('');
-    document.push(latex.diagramLabelMacros());
-    document.push(latex.startDocument());
-
-    manager.prepopulateCache(function() {
-      var maxPageBuf = globalBookData.diagramsPerPage;
-      var counts = {
-        curPageBuf: 1,
-        varDiags: 1,
-        mainDiags: 1
-      };
-
-      for (var i = 0, len = manager.sgfList.length; i < len; i++) {
-        var curObj = manager.getSgfObj(i),
-            boardRegion = curObj.boardRegion,
-            initPos = curObj.initialPosition,
-            treepath = glift.rules.treepath.parseInitPosition(initPos),
-            nextMovesPath = [];
-
-        // This should be synchronous since we've prepopulated the cache.
-        manager.getSgfString(curObj, function(sobj) {
-          // Movetree at root.
-          var movetree = glift.rules.movetree.getFromSgf(sobj.sgfString, treepath);
-          var isMainline = movetree.onMainline();
-          if (isMainline) { counts.mainDiags++; }
-          else { counts.varDiags++; }
-
-          if (globalBookData.autoNumber) {
-            var out = glift.rules.treepath.findNextMovesPath(movetree);
-            movetree = out.movetree;
-            treepath = out.treepath;
-            nextMovesPath = out.nextMoves;
-          }
-          var goban = glift.rules.goban.getFromMoveTree(movetree).goban;
-          var startNum = isMainline ? movetree.node().getNodeNum() + 1 : 1;
-          var flattened = glift.bridge.flattener.flatten(
-              movetree, goban, boardRegion, showVars, nextMovesPath, startNum);
-
-          var diagramStr = '';
-          if (sobj.bookData.showDiagram) {
-            diagramStr = managerConverter.createDiagram(flattened, sobj.bookData);
-          }
-          var tex = managerConverter.typesetDiagram(
-              diagramStr, flattened.comment, sobj.bookData,
-              flattened.collisions, isMainline);
-
-          if (!sobj.bookData.chapterTitle && counts.curPageBuf < maxPageBuf) {
-            document.push('\\newpage');
-            counts.curPageBuf++;
-          } else {
-            counts.curPageBuf = 1;
-          }
-
-          document.push(tex);
-        });
-      }
-      document.push(latex.basicFooter);
-      callback(document.join("\n"));
-    });
-  },
-
-  createDiagram: function(flattened, bookData) {
-    var gooe = gpub.diagrams.gooe;
-    var size = gpub.diagrams.diagramSize.NORMAL;
-    if (bookData.chapterTitle) {
-      size = gpub.diagrams.diagramSize.LARGE;
+    if (sgf.length <= 100) {
+      return sgf;
     }
-    var gooeArray = gooe.diagramArray(flattened, size);
-    var diagram = gooe.diagramArrToString(gooeArray);
-    return diagram;
+    return sgf.substring(0, 50) + sgf.substring(sgf.length - 50, sgf.length);
   }
 };
 /**
@@ -402,139 +390,393 @@ gpub.book.NodeData.fromContext = function(
 
   return new gpub.book.NodeData(purpose);
 };
-gpub.spec  = {
-  /**
-   * Types of specs to generate
-   */
-  specType: {
-    /** Standard problem SGF Collection. */
-    PROBLEM_SET: 'PROBLEM_SET',
+/**
+ * Generate an ASCII book.
+ */
+gpub.book.ascii = {};
+/**
+ * ASCII book generator methods, for implementing gpub.book.Gen
+ * interface.
+ */
+gpub.book.ascii.generator = {
+  generate: function(spec) {
+    var view = this.options().bookOptions;
+    var content = [];
+    this.forEachSgf(spec, function(mt, flattened) {
 
-    /**
-     * Problems that have been converted into a book format. In other words,
-     * we've flattened all the problems into EXAMPLEs.
-     */
-    PROBLEM_BOOK: 'PROBLEM_BOOK',
-
-    /** Game that's been flattened into examples. */
-    GAME_BOOK: 'GAME_BOOK'
+    });
   },
 
-  /** The type of information the problem is intending to display */
-  exampleType: {
-    PROBLEM: 'PROBLEM',
-    ANSWER: 'ANSWER',
-    GAME_REVIEW: 'GAME_REVIEW'
+  defaultTemplate: function() {
+    return gpub.book.ascii._defaultTemplate;
   },
 
+  defaultOptions: function(opts) {
+    return {
+      diagramType: gpub.diagrams.diagramType.SENSEIS_ASCII
+    }
+  }
+};
+
+gpub.book.ascii._defaultTemplate = [
+'Title: {{title}}',
+'Authors: {{#authors}}{{.}}, {{/authors}}',
+'--------------------------------------',
+'{{content}}'
+].join('\n');
+/**
+ * An html 'book' creator/processor. Implements gpub.book.processor.
+ */
+gpub.book.htmlpage = {}
+
+gpub.book.htmlpage._template = [
+'<!DOCTYPE html>',
+'<html>',
+'  <head>',
+'    <title> {{title}} </title>',
+'  <style>',
+'    * {',
+'      margin: 0;',
+'      padding: 0;',
+'    }',
+'    #glift_display1 {',
+'      height:500px;',
+'      width:100%;',
+'      position:relative;',
+'    }',
+'  </style>',
+'  <body>',
+'    <div id="wrap" style="position:relative;">',
+'      <div id="glift_display1"></div>',
+'    </div>',
+'    <script type="text/javascript">',
+'      var gliftMgr = glift.create({{content}});',
+'    </script>',
+// TODO(kashomon): Need to put Glift in here somewhere. Maybe even just
+// embedded.
+'  </body>',
+'<html>',
+].join('\n');
+/**
+ * Generator methods for the HTML page.
+ */
+gpub.book.htmlpage.generator = {
+  generate: function(spec, options) {
+  },
+
+  defaultTemplate: function() {
+    return gpub.book.htmlBook._template;
+  },
+
+  defaultOptions: function() {
+    return {};
+  }
+};
+/**
+ * LaTeX book processor. Should implement methods present in
+ * gpub.book.processor.
+ */
+gpub.book.latex = {
   /**
-   * Creates a Glift collection from sgfs.
+   * Generate a LaTeX book!
    *
-   * sgfCol: Array of SGFs.
-   * contents: An SGF Collection definition. Still needs processing.
-   * stype: The spec type to generate
-   * options: Has the following structure:
-   *    {
-   *      boardRegion: <boardRegion> -- The board region to display
-   *      bufferSize: Usually 1. For problems, sometimes more.
-   *    }
+   * We assume that the options have already been generated.
    *
-   * returns: A full glift options specification.
+   * spec: A bookSpec -- i.e., a set of glift options.
+   * templateString: the book template to use for the book
+   * diagramType: The diagram format.
+   * options: optional parameters. Including:
+   *    Title: The title of the book
+   *    Subtitle: Optional Subtitle
+   *    Authors: Array of author names
+   *    Publisher: Publisher Name
+   *
+   * Note: these parameters can also be specified in the spec metadata.
    */
-  fromSgfs: function(sgfCol, contents, specTypeIn, options) {
-    var specType = gpub.spec.specType;
-    var opts = options || {};
-    var stype = specTypeIn || specType.GAME_BOOK;
-    var spec = {
-      // Since this is for a book definition, we don't need a divId. Clients
-      // can add in a relevant ID later.
-      divId: null,
-      sgfCollection: [],
-      // We must rely on SGF aliases to generate the collection to ensure the
-      // collection is self contained.
-      sgfMapping: {},
-      sgfDefaults: {},
-      metadata: {
-        specType: stype
+  generate: function(spec, templateString, diagramType, options) {
+    if (!spec) {
+      throw new Error('Options must be defined. Was: ' + spec);
+    }
+
+    var diagramsPerPage = 2;
+
+    var templateString = templateString || gpub.templates.latexBase;
+    var diagramType = diagramType || gpub.diagrams.diagramType.GOOE
+
+    var mgr = glift.widgets.createNoDraw(spec);
+    var template = gpub.templates.parseLatexTemplate(templateString);
+    var diagramTypePkg = gpub.diagrams[glift.enums.toCamelCase(diagramType)];
+    var diagramTypeHeaders = diagramTypePkg.latexHeaders;
+
+    var latexDefs = gpub.diagrams.latex;
+
+    template.setExtraPackages(diagramTypeHeaders.packageDef())
+        .setDiagramTypeDefs(diagramTypeHeaders.extraDefs())
+        .setDiagramWrapperDefs(latexDefs.diagramDefs())
+        .setTitleDef(this.basicTitleDef(
+            'Relentless',
+            'Gu Li vs Lee Sedol',
+            ['Younggil An', 'David Ormerod', 'Josh Hoak'],
+            'Go Game Guru'));
+
+    var content = [];
+    var diagramBuffer = []
+    var chapter = 1;
+    var section = 1;
+    var lastPurpose = null;
+    var diagramPurpose = gpub.diagrams.diagramPurpose;
+    for (var i = 0; i < mgr.sgfCollection.length; i++) {
+      var sgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(i));
+      var mt = glift.rules.movetree.getFromSgf(
+          sgfObj.sgfString, sgfObj.initialPosition);
+      var flattened = glift.flattener.flatten(mt, {
+          nextMovesTreepath: sgfObj.nextMovesPath,
+          boardRegion: sgfObj.boardRegion
+      });
+
+      var nodeData = gpub.book.NodeData.fromContext(
+          mt, flattened, sgfObj.metadata, sgfObj.nextMovesPath || []);
+      section = nodeData.setSectionFromCtx(mt, lastPurpose, section);
+      chapter = nodeData.setChapterFromCtx(mt, lastPurpose, chapter);
+
+      var diagram = gpub.diagrams.forPurpose(
+          flattened,
+          diagramType,
+          gpub.book.bookFormat.LATEX,
+          nodeData.purpose,
+          nodeData);
+
+      if (nodeData.purpose === diagramPurpose.SECTION_INTRO ||
+          nodeData.purpose === diagramPurpose.GAME_REVIEW_CHAPTER ||
+          nodeData.purpose !== lastPurpose) {
+        // Flush the previous buffer centent to the page.
+        content.push(gpub.book.latex.renderPage(diagramBuffer));
+
+        diagramBuffer = [];
+        diagramBuffer.push(diagram);
+        content.push(gpub.book.latex.renderPage(diagramBuffer));
+        diagramBuffer = [];
+      } else {
+        diagramBuffer.push(diagram);
+        if (diagramBuffer.length === diagramsPerPage) {
+          content.push(gpub.book.latex.renderPage(diagramBuffer));
+          diagramBuffer = [];
+        }
+      }
+      lastPurpose = nodeData.purpose;
+    }
+    return template.setContent(content.join('\n')).compile();
+  },
+
+  renderPage: function(buffer) {
+    buffer.push('\\newpage');
+    return buffer.join('\n');
+  }
+};
+/**
+ * Methods implementing gpub.book.generater. These will get attached to a
+ * generic generator instance.
+ */
+gpub.book.latex.generator = {
+  generate: function(spec) {
+    var template = this.template();
+    var view = this.view();
+
+    var content = [];
+    this.forEachSgf(function(idx, mt, flattened) {
+      var diagramStr = gpub.diagrams.create(flattened, diagramType);
+      content.push(diagramStr);
+    });
+
+    view.content = content.join('\n');
+
+    return gpub.Mustache.render(template, view);
+  },
+
+  defaultTemplate: function() {
+    return gpub.book.latex.defaultTemplate;
+  },
+
+  defaultOptions: function() {
+    return {
+      diagramType: gpub.diagrams.diagramType.GNOS,
+      bookOptions: {
+        diagramWrapperDef: [
+          '% Mainline Diagrams. reset at parts',
+          '\\newcounter{GoFigure}[part]',
+          '\\newcommand{\\gofigure}{%',
+          ' \\stepcounter{GoFigure}',
+          ' \\centerline{\\textit{Figure.\\thinspace\\arabic{GoFigure}}}',
+          '}',
+          '% Variation Diagrams. reset at parts.',
+          '\\newcounter{GoDiagram}[part]',
+          '\\newcommand{\\godiagram}{%',
+          ' \\stepcounter{GoDiagram}',
+          ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoDiagram}}}',
+          '}',
+          '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
+          ''].join('\n')
       }
     };
+  }
+};
+gpub.book.latex.defaultTemplate = [
+'\\documentclass[letterpaper,12pt]{memoir}',
+'\\usepackage{color}',
+'\\usepackage{wrapfig}',
+'\\usepackage{setspace}',
+'\\usepackage{unicode}',
+'\\usepackage[margin=1in]{geometry}',
 
-    var maxBufferSize = 1;
+'%%% Define any extra packages %%%',
+'{{extraPackages}}',
+'',
+'\\setlength{\\parskip}{0.5em}',
+'\\setlength{\\parindent}{0pt}',
+'',
 
-    var processingFn = null;
-    switch(stype) {
-      case 'GAME_BOOK':
-        spec.sgfDefaults.widgetType = 'EXAMPLE';
-        maxBufferSize = 1;
-        processingFn = function(buf, sgfObj, optz) {
-          return gpub.spec.gameBook.one(buf[0].movetree, buf[0].name, sgfObj, optz);
-        };
-        break;
+'%%% Extra defs',
+'% Necessary for the particular digaram type.',
+'{{diagramTypeDefs}}',
+'',
 
+'%%% Diagram Figure defs.',
+'% Must expose two commands',
+'%  \\gofigure  (mainline diagrams)',
+'%  \\godiagram (variation diagrams)',
+'{{diagramWrapperDef}}',
+'',
+
+'%%% Define the main title %%%',
+'\\definecolor{light-gray}{gray}{0.55}',
+'\\newcommand*{\\mainBookTitle}{\\begingroup',
+'  \\raggedleft',
+'  {{#authors}}',
+'     {\\Large {{name}} }',
+'  {{/authors}}',
+'  \\vspace*{5 em}',
+'  {\\textcolor{light-gray}{\\Huge {{title}} }\\\\',
+'  \\vspace*{\\baselineskip}',
+'  {\\small \\bfseries {{subtitle}} }\\par',
+'  \\vfill',
+'  {\\Large {{publisher}} }\\par',
+'  \\vspace*{2\\baselineskip}',
+'\\endgroup}',
+
+'',
+'\\begin{document}',
+'',
+'\\pagestyle{empty}',
+'\\mainBookTitle',
+'\\newpage',
+'\\tableofcontents',
+'',
+'\\chapterstyle{section}',
+'\\pagestyle{companion}',
+'\\makepagestyle{headings}',
+'\\renewcommand{\\printchapternum}{\\space}',
+'\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
+'\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}',
+'',
+
+'%%% The content. %%%',
+'{{content}}',
+'',
+'\\end{document}'].join('\n');
+  /**
+   * Sanitizes latex input. This isn't particularly robust, but it is meant to
+   * protect us against accidental problematic characters rather than malicious
+   * user input.
+   */
+gpub.book.latex.sanitize = function(text) {
+  return text.replace(/[$#}{]/g, function(match) {
+    return '\\' + match;
+  });
+};
+/**
+ * Methods for processing and creating Glift specifications.
+ */
+gpub.spec = {
+  /**
+   * A default Glift specification.
+   */
+  _defaultSpec: {
+    // Since this is for a book definition, we don't need a divId. Clients
+    // can add in a relevant ID later.
+    divId: null,
+    // An array of sgf-objects.  This will be populated with entries, created by
+    // the spec processors.
+    sgfCollection: [],
+    // We must rely on SGF aliases to generate the collection to ensure the
+    // collection is self contained.
+    sgfMapping: {},
+    // SGF Defaults that apply to all SGFs. This is a good place to specify the
+    // base widget type, e.g., STANDARD_PROBLEM or EXAMPLE.
+    sgfDefaults: {},
+    // Metadata for the entire spec. Metedata is unused by Glift, but it's
+    // sometimes convenient for Gpub.
+    metadata: {}
+  },
+
+  /**
+   * Gets the the processor based on the book purpose.
+   */
+  _getSpecProcessor: function(bookPurpose) {
+    switch(bookPurpose) {
+      case 'GAME_COMMENTARY':
+        return gpub.spec.gameBook;
       case 'PROBLEM_SET':
-        spec.sgfDefaults.widgetType = 'STANDARD_PROBLEM';
-        spec.sgfDefaults.region = 'AUTO';
-        maxBufferSize = 1;
-        processingFn = function(buf, sgfObj, optz) {
-          return gpub.spec.problemSet.one(buf[0].movetree, buf[0].name, sgfObj, optz);
-        };
-        break;
-
-      case 'PROBLEM_BOOK':
-        spec.sgfDefaults.widgetType = 'EXAMPLE';
-        processingFn = gpub.spec.problemBook.multi;
-        var answerStyle = gpub.spec.problemBook.answerStyle;
-        opts.answerStyle = opts.answerStyle || answerStyle.END_OF_SECTION;
-        if (opts.answerStyle === answerStyle.END_OF_SECTION) {
-          maxBufferSize = sgfs.length;
-        } else if (opts.answerStyle === answerStyle.AFTER_PAGE) {
-          maxBufferSize = opts.bufferSize || 4;
-        } else {
-          maxBufferSize = 1;
-        }
-        break;
-
+        return gpub.spec.problemSet;
       default:
-        throw new Error('Unknown spec type: ' + stype);
+        throw new Error('Unsupported book purpose: ' + bookPurpose);
+        break;
     }
+    return null;
+  },
 
-    var buffer = new gpub.util.Buffer(maxBufferSize);
-    var sgfDefaults = glift.util.simpleClone(
+  /**
+   * Creates a glift spec from an array of sgf data. At this point, we assume
+   * the validity of the options passed in. In other words, we expect that the
+   * options have been processed by the API.
+   */
+  create: function(sgfs, options) {
+    var spec = glift.util.simpleClone(gpub.spec._defaultSpec);
+    var processor = gpub.spec._getSpecProcessor(options.bookPurpose);
+
+    spec.sgfDefaults = glift.util.simpleClone(
         glift.widgets.options.baseOptions.sgfDefaults);
-    for (var i = 0; sgfCol && i < sgfCol.length; i++) {
-      var sgfObj = sgfCol[i];
-      if (typeof sgfObj === 'string') {
-        sgfObj = { url: sgfObj }
-      }
-      var fname = sgfObj.url;
-      var sgfStr = contents[fname];
-      var mt = glift.parse.fromString(sgfStr);
-      var sgfName = mt.properties().getOneValue('GN') || fname;
-      buffer.add({ movetree: mt, name: sgfName });
-      if (buffer.atCapacity() || i === sgfs.length - 1) {
-        spec.sgfCollection = spec.sgfCollection.concat(
-            processingFn(buffer.flush(), sgfObj, opts));
-      }
-    }
-    spec.sgfMapping = contents;
+    processor.setHeaderInfo(spec);
 
+    for (var i = 0; sgfs && i < sgfs.length; i++) {
+      var sgfStr = sgfs[i];
+      var mt = glift.parse.fromString(sgfStr);
+      var alias = mt.properties().getOneValue('GN') || 'sgf:' + i;
+      if (!spec.sgfMapping[alias]) {
+        spec.sgfMapping[alias] = sgfStr;
+      }
+      spec.sgfCollection = spec.sgfCollection.concat(
+          processor.processOneSgf(mt, alias, options));
+    }
+    spec.metadata.bookPurpose = options.bookPurpose;
     return spec;
   },
 
   /**
    * Convert a movetree and a couple of options to an entry in the SGF
-   * collection.
+   * collection. Note: this doesn't set the widgetType: it's expected that users
+   * will probably already have widgetType = EXAMPLE. Users can, of course, set
+   * the widgetType after this processor helper.
+   *
    * alias: Required. The cache alias.
    * initPos: Required. The init position
    * nextMoves: Required. Next moves path
-   * region: not required. Defaults to ALL, but must be part of
-   *    glift.enums.boardRegions.
-   * exampleType: What the diagram is intended for.
-   *    From gpub.spec.examplePurpose;
+   * boardRegion: Required. The region of the board to display.
    */
-  createExample: function(
-      alias, initPos, nextMoves, region, exampleType) {
-    region = region || glift.enums.boardRegions.ALL;
+  _createExample: function(
+      alias, initPos, nextMoves, region) {
+    if (!alias) { throw new Error('No SGF Alias'); }
+    if (!initPos) { throw new Error('No Initial Position'); }
+    if (!nextMoves) { throw new Error('No Next Moves'); }
     if (!glift.enums.boardRegions[region]) {
       throw new Error('Unknown board region: ' + region);
     }
@@ -542,32 +784,25 @@ gpub.spec  = {
     var ipString = glift.rules.treepath.toInitPathString;
     var fragString = glift.rules.treepath.toFragmentString;
     var base = {
-      widgetType: 'EXAMPLE',
+      // widgetType: 'EXAMPLE',
       alias: alias,
       initialPosition: ipString(initPos),
       nextMovesPath: fragString(nextMoves),
       boardRegion: region
     };
-    if (exampleType && exType[exampleType]) {
-      base.metadata = {
-        exampleType: exampleType
-      }
-    }
     return base;
   }
 };
+/**
+ * A gpub spec processor. Implements gpub.spec.processor.
+ */
 gpub.spec.gameBook = {
-  /**
-   * Convert a single movetree to a SGF Collection.
-   *
-   * mt: A movetree from which we want to generate our SGF Collection.
-   * alias: The name of this movetree / SGF instance. This is used to create the
-   *    alias.
-   * sgfObj: base sgf object. currently unused.
-   * options: options object.
-   */
-  one: function(mt, alias, sgfObj, options) {
-    var boardRegions = glift.enums.boardRegions;
+  setHeaderInfo: function(spec, options) {
+    spec.sgfDefaults.widgetType = glift.enums.widgetTypes.EXAMPLE;
+    return spec;
+  },
+
+  processOneSgf: function(mt, alias, options) {
     var out = [];
     var varPathBuffer = [];
     var node = mt.node();
@@ -583,8 +818,11 @@ gpub.spec.gameBook = {
         // This node has a comment or is terminal.  Process this node and all
         // the variations.
         var pathSpec = glift.rules.treepath.findNextMovesPath(mt);
-        out.push(gpub.spec.createExample(
-            alias, pathSpec.treepath, pathSpec.nextMoves));
+        out.push(gpub.spec._createExample(
+            alias,
+            pathSpec.treepath,
+            pathSpec.nextMoves,
+            options.boardRegion));
 
         varPathBuffer = varPathBuffer.concat(
             gpub.spec.gameBook.variationPaths(mt));
@@ -592,8 +830,11 @@ gpub.spec.gameBook = {
           var path = varPathBuffer[i];
           var mtz = mt.getTreeFromRoot(path);
           var varPathSpec = glift.rules.treepath.findNextMovesPath(mtz);
-          out.push(gpub.spec.createExample(
-              alias, varPathSpec.treepath, varPathSpec.nextMoves));
+          out.push(gpub.spec._createExample(
+              alias,
+              varPathSpec.treepath,
+              varPathSpec.nextMoves,
+              options.boardRegion));
         }
         varPathBuffer = [];
       }
@@ -618,7 +859,7 @@ gpub.spec.gameBook = {
       return out;
     }
 
-    mt.moveUp(); 
+    mt.moveUp();
     for (var i = 1; i < mt.node().numChildren(); i++) {
       var mtz = mt.newTreeRef();
       mtz.moveDown(i);
@@ -632,219 +873,122 @@ gpub.spec.gameBook = {
     return out;
   }
 };
-gpub.spec.problemBook = {
-  answerStyle: {
-    /** No answers. */
-    NONE: 'NONE',
-
-    /** The answers go at the end of section */
-    END_OF_SECTION: 'END_OF_SECTION',
-
-    /** The answers go immediately after the page. */
-    AFTER_PAGE : 'END_OF_SECTION'
+/**
+ * Generates a problem set spec. Implements gpub.spec.processor.
+ */
+gpub.spec.problemSet = {
+  setHeaderInfo: function(spec, options) {
+    spec.sgfDefaults.widgetType = glift.enums.widgetTypes.STANDARD_PROBLEM;
+    return spec;
   },
 
-  /** Converts a problem set into a problem book. */
-  fromProblemSet: function(spec) {
-    // TODO(kashomon): Implement.
-  },
-
-  /**
-   * buffer: gpub.util.Buffer, with an SGF obj.
-   *
-   * options:
-   *  region: default region.
-   *  answerStyle: See above.
-   *  numAnswerVars : Defaults to 3. -1 means all variations. set to 0 if the
-   *      answer style is NONE.
-   */
-  multi: function(buffer, sgfObj, opts) {
-    var opts = opts || {};
-    var answerStyle = opts.answerStyle ||
-        gpub.spec.problemBook.answerStyle.END_OF_SECTION;
-    var numAnswerVars = opts.numAnswerVars || 3;
-    var problems = [];
-    var answers = [];
-    var region  = opts.region || glift.enums.boardRegions.AUTO;
-    for (var i = 0; i < buffer.length; i++) {
-      // We assume the problem begins at the beginning.
-      var mt = buffer[i].movetree.newTreeRef();
-      var name = buffer[i].name;
-      var ex = gpub.spec.createExample(name, [], [], region, 'PROBLEM');
-      problems.push(ex);
-
-      var answerVars = gpub.spec.problemBook.variationPaths(mt, numAnswerVars);
-      for (var j = 0; j < answerVars.length; j++) {
-        var ans = gpub.spec.createExample(name, '', answerVars[j], region, 'ANSWER');
-        answers.push(ans);
+  processOneSgf: function(mt, alias, options) {
+    var outObj = {
+      alias: alias,
+      boardRegion: options.boardRegion
+    };
+    var widgetType = null;
+    if (mt.getTreeFromRoot().node().numChildren() === 0) {
+      // It may seem strange to use examples for problems, but this prevents
+      // web-instances from trying to create a solution viewer and books from
+      // creating answers. This is probably a hack, but it's not enough of one
+      // to remove right now.
+      if (widgetType) {
+        outObj.widgetType = 'EXAMPLE';
       }
     }
-    return problems.concat(answers);
-  },
-
-  /** Create the answer-variation paths for a problem */
-  variationPaths: function(mt, maxVars) {
-    var out = [];
-    if (maxVars === 0) {
-      return out;
-    }
-
-    mt.recurseFromRoot(function(mtz) { 
-      // TODO(kashomon): Support partial continuations
-      // if (mtz.properties().getOneValue('C')) {
-        // out.push(mtz.treepathToHere());
-        // return;
-      // }
-      if (mtz.node().numChildren() === 0) {
-        out.push(mtz.treepathToHere());
-      }
-    });
-    if (maxVars < 0) {
-      return out;
-    } else {
-      return out.slice(0, maxVars);
-    }
+    return [outObj];
   }
 };
 /**
- * Generates a problem set spec.
+ * The inteface for a spec processor. All spec processors must implement this
+ * interface.
  */
-gpub.spec.problemSet = {
+gpub.spec.processor = {
   /**
-   * Process one movetree.
+   * Sets any relevant header info on the SGF Spec. Usually, the processor will
+   * specify a widgetType, but other SGF Defaults or metadata may make sense.
    */
-  one: function(mt, alias, sgfObj, options) {
-    region = options.region || glift.enums.boardRegions.AUTO;
-    var widgetType = options.widgetType || null;
-    if (mt.getTreeFromRoot().node().numChildren() === 0) {
-      widgetType = 'EXAMPLE';
-    }
-    var baseSgfObj = glift.util.simpleClone(sgfObj);
-    if (widgetType) {
-      baseSgfObj.widgetType = widgetType;
-    }
-    if (!baseSgfObj.url) {
-      baseSgfObj.alias = alias;
-    }
-    return baseSgfObj;
-  }
+  setHeaderInfo: function(spec, options) {},
+
+  /**
+   * Process one SGF instance. Processing one SGF can result in multiple entries
+   * in the SGF collection and so the return type is an array of sgf objects.
+   * The most common case for this is that processing one Game results in many
+   * commentary diagrams.
+   *
+   * movetree: The parsed SGF.
+   * alias: the 'key' used for the SGF in the sgf collection in the SGF cache.
+   * options: any additional options: .e.g., boardRegion.
+   *
+   * Returns: an array of sgf objects for the SGF collection.
+   */
+  processOneSgf: function(movetree, alias, options) {}
 };
 gpub.diagrams = {
   /**
    * Types of diagram output.
    */
+  // TODO(kashomon): Make part of the API (gpub.api)
   diagramType: {
+    /**
+     * ASCII. Generate an ascii diagram.
+     */
+    ASCII: 'ASCII',
+    /**
+     * Sensei's ASCII variant.
+     */
+    SENSEIS_ASCII: 'SENSEIS_ASCII',
     /**
      * Dan Bump's LaTeX font. Part of the Sgf2Dg script.
      */
     GOOE: 'GOOE',
-
     /**
      * Josh Hoak's variant of Gooe
      */
     GNOS: 'GNOS',
-
     /**
      * Another LaTeX font / LaTeX style package
      * >> Not Currently Supported
      */
     IGO: 'IGO',
-
     /**
      * Native PDF generation
-     * >> Not Currently Supported
+     * >> Not Currently Supported, but here for illustration.
      */
     PDF: 'PDF'
   },
 
   /**
-   * Types of diagram purposes.
+   * The new method for generating diagrams. Note that this no longer generates
+   * the diagram context -- that is left up to the relevant book generator.
    */
-  diagramPurpose: {
-    SECTION_INTRO: 'SECTION_INTRO',
-
-    GAME_REVIEW: 'GAME_REVIEW',
-    GAME_REVIEW_CHAPTER: 'GAME_REVIEW_CHAPTER',
-
-    PROBLEM: 'PROBLEM',
-    ANSWER: 'ANSWER'
-  },
-
-  // TODO(kashomon): Remove this. Sizes are a property of the fonts, at least
-  // for latex. Gooe only supports 2 sizes.  Gnos supports 8.
-  sizes: {
-    NORMAL: 'NORMAL',
-    LARGE: 'LARGE'
-  },
-
-  /**
-   * Generates a diagram for a specific purpose and a given format
-   */
-  forPurpose: function(
-      flattened,
-      diagramType,
-      bookFormat,
-      diagramPurpose,
-      bookData) {
+  create: function(flattened, diagramType, options) {
+    options = options || {};
     if (!diagramType || !gpub.diagrams.diagramType[diagramType]) {
       throw new Error('Unknown diagram type: ' + diagramType);
     }
-    if (!bookFormat || !gpub.book.bookFormat[bookFormat]) {
-      throw new Error('Unknown diagram type: ' + bookFormat);
-    }
-    if (!diagramPurpose || !gpub.diagrams.diagramPurpose[diagramPurpose]) {
-      throw new Error('Unknown diagram type: ' + diagramPurpose);
-    }
+    var pkgName = glift.enums.toCamelCase(diagramType);
+    var pkg = gpub.diagrams[pkgName];
 
-    var bookData = bookData || {};
-    var diagramString = gpub.diagrams.fromFlattened(flattened, diagramType);
-
-    var pkg = null;
-    switch(bookFormat) {
-      case 'LATEX':
-        pkg = gpub.diagrams.latex
-        break;
-      default:
-        throw new Error('Unsupported book format: ' + bookFormat);
+    if (!pkg) {
+      throw new Error('No package for diagram type: ' + diagramType);
+    }
+    if (!pkg.create) {
+      throw new Error('No create method for diagram type: ' + diagramType);
+    }
+    if (!pkg.create) {
+      throw new Error('No create method for diagram type: ' + diagramType);
     }
 
-    var label = null;
-    switch(diagramPurpose) {
-      case 'GAME_REVIEW': // fallthrough
-      case 'GAME_REVIEW_CHAPTER': // fallthrough
-      case 'SECTION_INTRO':
-        label  = gpub.diagrams.constructLabel(
-            flattened.collisions(),
-            flattened.isOnMainPath(),
-            flattened.startingMoveNum(),
-            flattened.endingMoveNum());
-        break;
-      default:
-        label = '';
-    }
-
-    return pkg.typeset(
-        diagramString,
-        diagramPurpose,
-        flattened.comment(),
-        label,
-        flattened.isOnMainPath(),
-        bookData);
-  },
-
-  /**
-   * Creates a diagram-for-print! This is largely a convenience method.  Most
-   * users will want
-   */
-  create: function(sgf, diagramType, initPos, nextMovesPath, boardRegion) {
-    var flattened = this.flatten(sgf, initPos, nextMovesPath, boardRegion);
-    return this.fromFlattened(flattened, diagramType);
+    return pkg.create(flattened, options);
   },
 
   /**
    * A flattener helper.  Returns a Flattened object, which is key for
    * generating diagrams.
    */
+  // TODO(kashomon): Consider deleting this. It's really not doing much at all.
   flatten: function(sgf, initPos, nextMovesPath, boardRegion) {
     initPos = initPos || [];
     nextMovesPath = nextMovesPath || [];
@@ -856,22 +1000,26 @@ gpub.diagrams = {
   },
 
   /**
-   * Return a diagram from a glift Flattened object.
+   * Construct the label based on the flattened object. From the flattened
+   * object, we must extract the collisions and the move numbers.
+   *
+   * Collisions is an array of collisions objects, having the form:
+   *    {color: <color>, mvnum: <number>, label: <str label>}
+   *
+   * returns: stringified label format.
    */
-  fromFlattened: function(flattened, diagramType) {
-    switch(diagramType) {
-      case 'GOOE':
-        return gpub.diagrams.gooe.create(flattened);
-      case 'GNOS':
-        return gpub.diagrams.gnos.create(flattened);
-      default:
-        throw new Error('Not currently supported: ' + diagramType);
-    }
+  constructLabelFromFlattened: function(flattened) {
+    return gpub.diagrams.constructLabel(
+        collisions = flattened.collisions(),
+        isOnMainline = flattened.isOnMainline(),
+        startNum = flattened.startingMoveNum(),
+        endNum = flattened.endingMoveNum());
   },
 
   /**
-   * Construct the label based on the collisions and the move numbers.
-   * 
+   * Construct the label based on the flattened object. From the flattened
+   * object, we must extract the collisions and the move numbers.
+   *
    * Collisions is an array of collisions objects, having the form:
    *    {color: <color>, mvnum: <number>, label: <str label>}
    *
@@ -905,9 +1053,125 @@ gpub.diagrams = {
   }
 };
 /**
+ * The diagrams creator interface.
+ */
+gpub.diagrams.creator = {
+  /**
+   * Create diagram from a flattened display.
+   */
+  create: function(flattened, options) {}
+};
+/**
+ * ASCII in the Sensei's library format.  See:
+ * http://senseis.xmp.net/?HowDiagramsWork
+ *
+ * Example:
+ * $$ A [joseki] variation
+ * $$  ------------------
+ * $$ | . . . . . . . . .
+ * $$ | . . . . . . . . .
+ * $$ | . . 7 3 X d . . .
+ * $$ | . . O 1 O 6 . . .
+ * $$ | . . 4 2 5 c . . .
+ * $$ | . . 8 X a . . . .
+ * $$ | . . . b . . . . .
+ * $$ | . . . . . . . . .
+ * $$ | . . . . . . . . .
+ */
+gpub.diagrams.senseisAscii = {
+  create: function(flattened, opts) {
+    var toStr = glift.flattener.symbolStr;
+    var symbolMap = gpub.diagrams.senseisAscii.symbolMap;
+    var newBoard = flattened.board().transform(function(i, x, y) {
+      var symbol = toStr(i.base());
+
+      if (i.textLabel() &&
+          i.mark() &&
+          i.mark() === glift.flattener.symbols.TEXTLABEL) {
+        var label = i.textLabel(); // need to check about.
+      } else if (i.mark() && i.stone()) {
+        symbol = toStr(i.stone()) + '_' + toStr(i.mark());
+      } else if (i.stone()) {
+        symbol = toStr(i.stone());
+      } else if (i.mark()) {
+        symbol = toStr(i.mark());
+      } // default case: symbol is the base.
+
+      var out = symbolMap[symbol];
+      if (!out) {
+        console.log('Could not find symbol str for : ' + symbol);
+      }
+      return out;
+    });
+
+    var outArr = [];
+    for (var i = 0, arr = newBoard.boardArray(); i < arr.length; i++) {
+      outArr.push(arr[i].join(' '));
+    }
+
+    return outArr.join('\n');
+  }
+};
+gpub.diagrams.senseisAscii.symbolMap = {
+  /** Placeholder symbol. */
+  EMPTY: '_',
+
+  /** Base layer. */
+  TL_CORNER: '.',
+  TR_CORNER: '.',
+  BL_CORNER: '.',
+  BR_CORNER: '.',
+  TOP_EDGE: '.',
+  BOT_EDGE: '.',
+  LEFT_EDGE: '.',
+  RIGHT_EDGE: '.',
+  CENTER: '.',
+  CENTER_STARPOINT: '+',
+
+  /**
+   * Stone layer. We don't display the base layer if a stone layer exists.
+   */
+  BSTONE: 'X',
+  WSTONE: 'O',
+
+  /**
+   * Marks and StoneMarks layer. Gooe combines squashes marks and stones into a
+   * single symbol. Also, if we display a symbol or stone, we don't display the
+   * base layer.
+   */
+  BSTONE_TRIANGLE: 'Y',
+  WSTONE_TRIANGLE: 'Q',
+  TRIANGLE: 'T',
+
+  BSTONE_SQUARE: '#',
+  WSTONE_SQUARE: '@',
+  SQUARE: 'S',
+
+  BSTONE_CIRCLE: 'B',
+  WSTONE_CIRCLE: 'W',
+  CIRCLE: 'C',
+
+  BSTONE_XMARK: 'Z',
+  WSTONE_XMARK: 'P',
+  XMARK: 'M',
+
+  // Note: BStone and WStone text labels don't really work and should be ignored
+  // and just rendered as stones, unless they're numbers between 1-10
+  BSTONE_TEXTLABEL: '%s',
+  WSTONE_TEXTLABEL: '%s',
+  TEXTLABEL: '%s'
+};
+/**
  * Create a gooe-font diagram.
  */
 gpub.diagrams.gooe = {
+  // TODO(kashomon): Remove this. Sizes are a property of the fonts, at least
+  // for latex. Gooe only supports 2 sizes.  Gnos supports 8.
+  sizes: {
+    NORMAL: 'NORMAL',
+    LARGE: 'LARGE'
+  },
+
   /**
    * Takes a flattened set of symbols and produces a full string diagram. These
    * diagrams are not stand alone and must live inside a LaTeX document to
@@ -1127,26 +1391,14 @@ gpub.diagrams.gnos = {
     'Huge'
   ],
 
-  create: function(flattened, size) {
-    var size = size || gpub.diagrams.gnos.sizes['12'];
-    return gpub.diagrams.gnos.gnosStringArr(flattened, size).join('\n');
-  },
-
-  createSimple: function(flattened, size) {
-    var size = size || gpub.diagrams.gnos.sizes['12'];
-    return gpub.diagrams.gnos.gnosStringArrSimple(flattened, size).join('\n');
-  },
-
-  gnosStringArrSimple: function(flattened, size) {
-    var base = [
-      '\\gnosfontsize{' + size + '}',
-      '\\gnos'];
-    var latexNewLine = '\\\\';
-    var board = gpub.diagrams.gnos.gnosBoard(flattened, size);
-    for (var i = 0, arr = board.boardArray(); i < arr.length; i++) {
-      base.push(arr[i].join('') + latexNewLine);
-    }
-    return base;
+  /**
+   * The create method!
+   * 
+   * We expect flattened and options to be edfined
+   */
+  create: function(flattened, options) {
+    options.size = options.size || gpub.diagrams.gnos.sizes['12']
+    return gpub.diagrams.gnos.gnosStringArr(flattened, options.size).join('\n');
   },
 
   gnosStringArr: function(flattened, size) {
@@ -1336,21 +1588,10 @@ gpub.diagrams.pdf = {
  */
 gpub.diagrams.latex = {
   /**
-   * Sanitizes latex input. This isn't particularly robust, but it is meant to
-   * protect us against accidental characters.
-   */
-  sanitize: function(text) {
-    return text.replace(/[$#}{]/g, function(match) {
-      return '\\' + match;
-    });
-  },
-
-  /**
    * Typeset the diagram into LaTeX
    */
   typeset: function(str, purpose, comment, label, isMainLine, bookData) {
     comment = this.sanitize(comment);
-
     var camelCaseName = glift.enums.toCamelCase(purpose)
     var func = gpub.diagrams.latex[camelCaseName];
     switch(purpose) {
@@ -1440,32 +1681,6 @@ gpub.diagrams.latex = {
       comment].join('\n');
   }
 };
-/**
- * Diagram label macros. For making Figure.1, Dia.1, etc.
- *
- * This is the basic style.  Used for games, primarily.
- * Defines:
- *  \gofigure: mainline variations.
- *  \godiagram: variation diagrams.
- */
-gpub.diagrams.latex.diagramDefs = function(diagramPurpose) {
-  // TODO(kashomon): Switch off of diagramPurpose.
-  return [
-    '% Mainline Diagrams. reset at parts',
-    '\\newcounter{GoFigure}[part]',
-    '\\newcommand{\\gofigure}{%',
-    ' \\stepcounter{GoFigure}',
-    ' \\centerline{\\textit{Figure.\\thinspace\\arabic{GoFigure}}}',
-    '}',
-    '% Variation Diagrams. reset at parts.',
-    '\\newcounter{GoDiagram}[part]',
-    '\\newcommand{\\godiagram}{%',
-    ' \\stepcounter{GoDiagram}',
-    ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoDiagram}}}',
-    '}',
-    '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
-    ''].join('\n');
-};
 gpub.templates = {};
 
 /**
@@ -1504,9 +1719,7 @@ gpub.templates._Template.prototype = {
   }
 };
 /**
- * Basic latex template. Generally, these should be defined as the relevant
- * filetype (e.g., .tex).  However, this is defined within javascript for
- * convenience.
+ * Basic latex template.
  */
 gpub.templates.latexBase = [
 '\\documentclass[letterpaper,12pt]{memoir}',
@@ -1657,4 +1870,131 @@ gpub.templates.parse = function(template) {
   }
   sections.push(buffer.join(''));
   return new gpub.templates._Template(sections, paramMap);
+};
+/**
+ * Stub namespace. Not really used because all the API should exist at the top
+ * level.
+ */
+gpub.api = {};
+
+/**
+ * The type general type of the book.  Specifes roughly how we generate the
+ * Glift spec.
+ */
+gpub.bookPurpose = {
+  /** Game with commentary. */
+  GAME_COMMENTARY: 'GAME_COMMENTARY',
+
+  /** Set of problems and, optionally, anwsers. */
+  PROBLEM_SET: 'PROBLEM_SET'
+};
+
+/**
+ * The format for gpub output.
+ */
+gpub.outputFormat = {
+  /** Construct a book with a LaTeX format. */
+  LATEX: 'LATEX',
+
+  /** Constructs a full HTML page. This is often useful for testing. */
+  HTMLPAGE: 'HTMLPAGE',
+
+  /** Construct a book in ASCII format. */
+  ASCII: 'ASCII',
+
+  /** Construct a book in Smart Go format. */
+  // SMART_GO: 'SMART_GO'
+
+  // Future Work:
+  // - ONLY_DIAGRAMS
+  // - ASCII
+  // - SmartGo Books
+};
+////////////////////////
+// Methods in the API //
+////////////////////////
+
+
+/**
+ * Create a book or other output from 
+ *
+ * SGFS: Array of SGFs.
+ * options: An options array. See gpub.defaultOptions for the format.
+ *
+ * Returns: The completed book or document.
+ */
+gpub.create = function(sgfs, options) {
+  // Validate input and create the options array.
+  gpub._validateInputs(sgfs, options);
+
+  // Process the options and fill in any missing values or defaults.
+  options = gpub.processOptions(options);
+
+  // Create the glift specification.
+  var spec = gpub.spec.create(sgfs, options);
+
+  // Create the finished book (or whatever that means).
+  var book = gpub.book.generate
+
+  return spec;
+};
+
+/**
+ * 
+ */
+gpub.createDiagrams = function(sgfs, options) {
+
+};
+
+/////////////
+// Private //
+/////////////
+
+/**
+ * Validates that the relevant parameters are available and returns the
+ * processed options.
+ */
+gpub._validateInputs = function(sgfs, options) {
+  if (!sgfs || !sgfs.length || glift.util.typeOf(sgfs) !== 'array') {
+    throw new Error('SGF array must be defined and non-empty');
+  }
+  if (!glift) {
+    throw new Error('GPub depends on Glift, but Glift was not defined');
+  }
+};
+
+/**
+ * Default options for GPub API.
+ */
+gpub.defaultOptions = {
+  /** See gpub.bookFormat. */
+  outputFormat: 'LATEX',
+  /** See gpub.bookPurpose. */
+  bookPurpose: 'GAME_COMMENTARY',
+  /** See glift.enums.boardRegions. */
+  boardRegion: 'AUTO',
+  /** See glift.diagrams.diagramType. */
+  diagramType: 'GNOS',
+
+  /** A false-y template will resulti in using the default template */
+  template: null,
+
+  /** Options specificaly for book processors */
+  bookOptions: {}
+};
+
+/**
+ * Process the incoming options and set any missing values.
+ */
+gpub.processOptions = function(options) {
+  if (!options) {
+    options = {};
+  }
+  for (var key in gpub.defaultOptions) {
+    var val = options[key];
+    if (!val) {
+      options[key] = gpub.defaultOptions[key];
+    }
+  }
+  return options;
 };

@@ -1,4 +1,4 @@
-gpub.api.endToEndTest = function() {
+(function() {
   module('glift.api.endToEndTest');
   var sgf = testdata.gogameguru_commentary;
 
@@ -19,6 +19,9 @@ gpub.api.endToEndTest = function() {
   });
 
   test('Testing full happy path, no exceptions', function() {
-    ok(gpub.create([sgf]), 'Output should be defined');
+    var output = gpub.create([sgf], {
+      maxDiagrams: 20
+    })
+    ok(output, 'Output should be defined');
   });
-};
+})();
