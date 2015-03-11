@@ -40,26 +40,14 @@ gpub.diagrams.gnos = {
     'Huge'
   ],
 
-  create: function(flattened, size) {
-    var size = size || gpub.diagrams.gnos.sizes['12'];
-    return gpub.diagrams.gnos.gnosStringArr(flattened, size).join('\n');
-  },
-
-  createSimple: function(flattened, size) {
-    var size = size || gpub.diagrams.gnos.sizes['12'];
-    return gpub.diagrams.gnos.gnosStringArrSimple(flattened, size).join('\n');
-  },
-
-  gnosStringArrSimple: function(flattened, size) {
-    var base = [
-      '\\gnosfontsize{' + size + '}',
-      '\\gnos'];
-    var latexNewLine = '\\\\';
-    var board = gpub.diagrams.gnos.gnosBoard(flattened, size);
-    for (var i = 0, arr = board.boardArray(); i < arr.length; i++) {
-      base.push(arr[i].join('') + latexNewLine);
-    }
-    return base;
+  /**
+   * The create method!
+   * 
+   * We expect flattened and options to be edfined
+   */
+  create: function(flattened, options) {
+    options.size = options.size || gpub.diagrams.gnos.sizes['12']
+    return gpub.diagrams.gnos.gnosStringArr(flattened, options.size).join('\n');
   },
 
   gnosStringArr: function(flattened, size) {

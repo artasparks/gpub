@@ -9,11 +9,13 @@ gpub.book.latex.generator = {
 
     var content = [];
     this.forEachSgf(function(idx, mt, flattened) {
-      var diagram = gpub.diagrams.forPurpose(
-          flattened, diagramType);
+      var diagramStr = gpub.diagrams.create(flattened, diagramType);
+      content.push(diagramStr);
     });
 
-    return template.setContent(content.join('\n')).compile();
+    view.content = content.join('\n');
+
+    return gpub.Mustache.render(template, view);
   },
 
   defaultTemplate: function() {
