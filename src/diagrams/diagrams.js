@@ -36,92 +36,32 @@ gpub.diagrams = {
    * The new method for generating diagrams. Note that this no longer generates
    * the diagram context -- that is left up to the relevant book generator.
    */
-  create: function(
-      flattened,
-      diagramType,
-      options) {
-    if (!diagramType || gpub.diagrams.diagramType[diagramType]) {
-      throw new Error('Unknown diagram type: ' + diagramType);
-    }
-    var pkgName = glift.enums.toCamelCase(diagramType);
-    var pkg = gpub.diagrams[pkg];
-
-    if (!pkg) { new Error('No package for diagram type: ' + diagramType); }
-    if (!pkg.creator) { new Error('No creator for package: ' + pkgName); }
-
-    return pkg.creator.create(flattened, options);
-  },
-
-  /**
-   * Generates a diagram for a specific purpose and a given format
-   *
-   * flattened: Glift flattened obj.
-   */
-  forPurpose: function(
-      flattened,
-      diagramType,
-      bookFormat,
-      diagramContext,
-      bookData) {
+  create: function(flattened, diagramType, options) {
+    options = options || {};
     if (!diagramType || !gpub.diagrams.diagramType[diagramType]) {
       throw new Error('Unknown diagram type: ' + diagramType);
     }
-    if (!bookFormat || !gpub.outputFormat[bookFormat]) {
-      throw new Error('Unknown diagram type: ' + bookFormat);
-    }
-    if (!diagramContext|| !gpub.diagrams.diagramContext[diagramContext]) {
-      throw new Error('Unknown diagram type: ' + diagramContext);
-    }
+    var pkgName = glift.enums.toCamelCase(diagramType);
+    var pkg = gpub.diagrams[pkgName];
 
-    var bookData = bookData || {};
-    var diagramString = gpub.diagrams.fromFlattened(flattened, diagramType);
-
-    var pkg = null;
-    switch(bookFormat) {
-      case 'LATEX':
-        pkg = gpub.diagrams.latex
-        break;
-      default:
-        throw new Error('Unsupported book format: ' + bookFormat);
+    if (!pkg) {
+      throw new Error('No package for diagram type: ' + diagramType);
+    }
+    if (!pkg.create) {
+      throw new Error('No create method for diagram type: ' + diagramType);
+    }
+    if (!pkg.create) {
+      throw new Error('No create method for diagram type: ' + diagramType);
     }
 
-    var label = null;
-    switch(diagramContext) {
-      case 'GAME_REVIEW':
-      case 'GAME_REVIEW_CHAPTER':
-      case 'SECTION_INTRO':
-        label  = gpub.diagrams.constructLabel(
-            flattened.collisions(),
-            flattened.isOnMainPath(),
-            flattened.startingMoveNum(),
-            flattened.endingMoveNum());
-        break;
-      default:
-        label = '';
-    }
-
-    return pkg.typeset(
-        diagramString,
-        diagramContext,
-        flattened.comment(),
-        label,
-        flattened.isOnMainPath(),
-        bookData);
-  },
-
-  /**
-   * Creates a diagram-for-print! This is largely a convenience method.  Most
-   * users will want
-   */
-  create: function(sgf, diagramType, initPos, nextMovesPath, boardRegion) {
-    var flattened = this.flatten(sgf, initPos, nextMovesPath, boardRegion);
-    return this.fromFlattened(flattened, diagramType);
+    return pkg.create(flattened, options);
   },
 
   /**
    * A flattener helper.  Returns a Flattened object, which is key for
    * generating diagrams.
    */
+  // TODO(kashomon): Consider deleting this. It's really not doing much at all.
   flatten: function(sgf, initPos, nextMovesPath, boardRegion) {
     initPos = initPos || [];
     nextMovesPath = nextMovesPath || [];
@@ -133,22 +73,26 @@ gpub.diagrams = {
   },
 
   /**
-   * Return a diagram from a glift Flattened object.
+   * Construct the label based on the flattened object. From the flattened
+   * object, we must extract the collisions and the move numbers.
+   *
+   * Collisions is an array of collisions objects, having the form:
+   *    {color: <color>, mvnum: <number>, label: <str label>}
+   *
+   * returns: stringified label format.
    */
-  fromFlattened: function(flattened, diagramType, options) {
-    switch(diagramType) {
-      case 'GOOE':
-        return gpub.diagrams.gooe.create(flattened, options);
-      case 'GNOS':
-        return gpub.diagrams.gnos.create(flattened, options);
-      default:
-        throw new Error('Not currently supported: ' + diagramType);
-    }
+  constructLabelFromFlattened: function(flattened) {
+    return gpub.diagrams.constructLabel(
+        collisions = flattened.collisions(),
+        isOnMainline = flattened.isOnMainline(),
+        startNum = flattened.startingMoveNum(),
+        endNum = flattened.endingMoveNum());
   },
 
   /**
-   * Construct the label based on the collisions and the move numbers.
-   * 
+   * Construct the label based on the flattened object. From the flattened
+   * object, we must extract the collisions and the move numbers.
+   *
    * Collisions is an array of collisions objects, having the form:
    *    {color: <color>, mvnum: <number>, label: <str label>}
    *

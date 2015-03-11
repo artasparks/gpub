@@ -5,14 +5,9 @@
   var diagramContext = gpub.book.diagramContext;
   var format = gpub.outputFormat;
 
-  test('Test basic flattened', function() {
-    var f = gpub.diagrams.flatten(basicSgf);
-    ok(f !== undefined);
-    deepEqual(f.comment(), 'foo');
-  });
-
   test('Create: GOOE', function() {
-    var d = gpub.diagrams.create(basicSgf, diagramType.GOOE);
+    var flattened = gpub.diagrams.flatten(basicSgf);
+    var d = gpub.diagrams.create(flattened, diagramType.GOOE);
     ok(d.indexOf(gpub.diagrams.gooe.symbolMap.TOP_EDGE) !== -1);
   });
 
@@ -26,17 +21,11 @@
         'Black 1 at a, White 10 at x.');
   });
 
-  // test('label for mainline variation', function() {
-  // }
-
   test('Full Latex Creation', function() {
     var f = gpub.diagrams.flatten(basicSgf);
-    var out = gpub.diagrams.forPurpose(
+    var out = gpub.diagrams.create(
         gpub.diagrams.flatten(basicSgf),
-        diagramType.GOOE,
-        format.LATEX,
-        diagramContext.GAME_REVIEW);
+        diagramType.GOOE);
     ok(out, 'should be truthy');
-    ok(out.indexOf(f.comment()) > -1, 'comment');;
   });
 })();
