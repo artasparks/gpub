@@ -1,5 +1,4 @@
 gpub.diagrams.igo = {
-  create: function(flattened) {
-
+  create: function(flattened, options) {
   }
 };

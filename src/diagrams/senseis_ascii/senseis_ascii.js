@@ -19,9 +19,9 @@ gpub.diagrams.senseisAscii = {
   create: function(flattened, opts) {
     var toStr = glift.flattener.symbolStr;
     var symbolMap = gpub.diagrams.senseisAscii.symbolMap;
+
     var newBoard = flattened.board().transform(function(i, x, y) {
       var symbol = toStr(i.base());
-
       if (i.textLabel() &&
           i.mark() &&
           i.mark() === glift.flattener.symbols.TEXTLABEL) {
