@@ -7,7 +7,8 @@ gpub.book.latex.defaultTemplate = [
 '\\usepackage[margin=1in]{geometry}',
 
 '%%% Define any extra packages %%%',
-'{{extraPackages}}',
+'{{init}}',
+
 '',
 '\\setlength{\\parskip}{0.5em}',
 '\\setlength{\\parindent}{0pt}',

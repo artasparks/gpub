@@ -25,6 +25,11 @@ gpub.book.latex.generator = {
     return {
       diagramType: gpub.diagrams.diagramType.GNOS,
       bookOptions: {
+        /**
+         * init: Any additional setup that needs to be done in the header.
+         */
+        init: '',
+
         diagramWrapperDef: [
           '% Mainline Diagrams. reset at parts',
           '\\newcounter{GoFigure}[part]',
