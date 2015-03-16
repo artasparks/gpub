@@ -93,7 +93,7 @@ the user how the diagram types are restricted.
 
 Various diagram types:
 
-  * `ASCII`: Generate ASCII Images.
+  * `SENSEIS_ASCII`: Generate SENSEIS\_ASCII Images.
   * `GNOS`: Uses the Gnos LaTeX font.
   * `GOOE`: Uses the GOOE LaTeX font
   * `IGO`: Uses the IGO LaTeX font (\*not currently supported).
@@ -152,7 +152,7 @@ __Reserved Template Variables__
 
 A user may specify template variables in one of two ways:
 
-  1. As JSON within the 0th-node comment of the first SGF.
+  1. As JSON within the GC comment of the first SGF.
   2. As keys to the `bookOptions` option.
 
 As per 1., template parameters may be provided embedded with an SGF property as JSON.  For example:
