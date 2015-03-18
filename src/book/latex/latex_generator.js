@@ -30,6 +30,7 @@ gpub.book.latex.generator = {
          */
         init: '',
 
+        /** Defs for definiing the diagrams. */
         diagramWrapperDef: [
           '% Mainline Diagrams. reset at parts',
           '\\newcounter{GoFigure}[part]',
