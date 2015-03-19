@@ -1,8 +1,7 @@
 /**
- * Some basic LaTeX definitions. This should perhaps be its own directory, once
- * more styles are added.
+ * Some basic LaTeX context definitions.
  */
-gpub.diagrams.latex = {
+gpub.book.latex.context = {
   /**
    * Typeset the diagram into LaTeX
    */

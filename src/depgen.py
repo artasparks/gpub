@@ -35,7 +35,6 @@ DIR_ORDER = [
   'diagrams/gnos',
   'diagrams/igo',
   'diagrams/pdf',
-  'diagrams/latex',
   'templates',
 
   # Last but hardly least.

@@ -1,6 +1,10 @@
-gpub.diagrams.gooe.latexHeaders = {
-  packageDef: function() {
-    return '\\usepackage{gooemacs}';
+/**
+ * Initialization necessary for various output formats.
+ */
+gpub.diagrams.gooe.init = {
+  LATEX: function() {
+    return '\\usepackage{gooemacs}\n \\\\'
+      + this.extraDefs();
   },
 
   /**
