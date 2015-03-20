@@ -1,5 +1,3 @@
 gpub.diagrams.gnos.init = {
-  LATEX: function(){
-    return '\\usepackage{gnos}';
-  }
+  LATEX: '\\usepackage{gnos}'
 };

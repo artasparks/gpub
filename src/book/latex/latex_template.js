@@ -14,11 +14,6 @@ gpub.book.latex.defaultTemplate = [
 '\\setlength{\\parindent}{0pt}',
 '',
 
-'%%% Extra defs',
-'% Necessary for the particular digaram type.',
-'{{diagramTypeDefs}}',
-'',
-
 '%%% Diagram Figure defs.',
 '% Must expose two commands',
 '%  \\gofigure  (mainline diagrams)',

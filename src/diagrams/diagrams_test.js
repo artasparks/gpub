@@ -28,4 +28,14 @@
         diagramType.GOOE);
     ok(out, 'should be truthy');
   });
+
+  test('Get init: gnos', function() {
+    var init = gpub.diagrams.getInit('GNOS', 'LATEX');
+    deepEqual(init, gpub.diagrams.gnos.init.LATEX);
+  });
+
+  test('Get init: gooe', function() {
+    var init = gpub.diagrams.getInit('GOOE', 'LATEX');
+    deepEqual(init, gpub.diagrams.gooe.init.LATEX());
+  });
 })();

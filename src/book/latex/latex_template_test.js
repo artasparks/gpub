@@ -9,8 +9,7 @@
   test('DefaultTemplate: render', function() {
     var template = gpub.book.latex.generator.defaultTemplate();;
     var view = {
-      extraPackages: 'extraPackages-Filled',
-      diagramTypeDefs: 'extraPackages-Filled',
+      init: 'zogzog',
       diagramWrapperDef: 'diagramWrapperDef-Filled',
       authors: [
         {name: 'Name1-Filled'},

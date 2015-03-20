@@ -37,7 +37,14 @@ gpub.diagrams = {
    * the diagram context -- that is left up to the relevant book generator.
    */
   create: function(flattened, diagramType, options) {
+    // TODO(kashomon): Remove optional options obj. We should only do options
+    // processing in api land.
     options = options || {};
+    return this._getPackage(diagramType).create(flattened, options);
+  },
+
+  /** Gets a diagram type package */
+  _getPackage: function(diagramType) {
     if (!diagramType || !gpub.diagrams.diagramType[diagramType]) {
       throw new Error('Unknown diagram type: ' + diagramType);
     }
@@ -50,11 +57,25 @@ gpub.diagrams = {
     if (!pkg.create) {
       throw new Error('No create method for diagram type: ' + diagramType);
     }
-    if (!pkg.create) {
-      throw new Error('No create method for diagram type: ' + diagramType);
-    }
+    return pkg
+  },
 
-    return pkg.create(flattened, options);
+  /** Gets the initialization data for a diagramType. */
+  getInit: function(diagramType, outputFormat) {
+    var pkg = this._getPackage(diagramType);
+    if (!pkg.init || typeof pkg.init != 'object') {
+      throw new Error('No init obj');
+    }
+    var init = pkg.init[outputFormat];
+    if (!init) {
+      return ''
+    } else if (typeof init === 'function') {
+      return init();
+    } else if (typeof init === 'string') {
+      return init;
+    } else {
+      return '';
+    }
   },
 
   /**

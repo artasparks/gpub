@@ -4,7 +4,7 @@
 gpub.diagrams.gooe.init = {
   LATEX: function() {
     return '\\usepackage{gooemacs}\n \\\\'
-      + this.extraDefs();
+      gpub.diagrams.gooe.init.extraDefs();
   },
 
   /**
