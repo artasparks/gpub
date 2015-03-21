@@ -29,5 +29,5 @@ gpub.book.htmlpage._template = [
 // TODO(kashomon): Need to put Glift in here somewhere. Maybe even just
 // embedded.
 '  </body>',
-'<html>',
+'<html>'
 ].join('\n');

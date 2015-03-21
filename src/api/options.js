@@ -62,7 +62,7 @@ gpub.outputFormat = {
   HTMLPAGE: 'HTMLPAGE',
 
   /** Construct a book in ASCII format. */
-  ASCII: 'ASCII',
+  ASCII: 'ASCII'
 
   /** Construct a book in Smart Go format. */
   // SMART_GO: 'SMART_GO'

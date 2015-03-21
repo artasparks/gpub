@@ -6,6 +6,7 @@ gpub.book.latex.generator = {
   generate: function(spec) {
     var view = this.view(spec);
     var opts = this.options();
+    view.init = gpub.diagrams.getInit(opts.diagramType, 'LATEX');
     var content = [];
     this.forEachSgf(spec, function(idx, mt, flattened) {
       var diagramStr = gpub.diagrams.create(flattened, opts.diagramType);
@@ -29,6 +30,13 @@ gpub.book.latex.generator = {
          * init: Any additional setup that needs to be done in the header.
          */
         init: '',
+
+        title: 'My Book',
+        subtitle: 'Subtitle',
+        publisher: 'Publisher',
+        authors: [
+          {name: 'You!' }
+        ],
 
         /** Defs for definiing the diagrams. */
         diagramWrapperDef: [

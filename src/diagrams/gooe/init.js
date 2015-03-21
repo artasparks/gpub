@@ -3,7 +3,7 @@
  */
 gpub.diagrams.gooe.init = {
   LATEX: function() {
-    return '\\usepackage{gooemacs}\n \\\\'
+    return '\\usepackage{gooemacs}\n \\\\\n' +
       gpub.diagrams.gooe.init.extraDefs();
   },
 
@@ -43,7 +43,7 @@ gpub.diagrams.gooe.init = {
    * Takes a base font family. Defaults to cmss (computer modern sans serif).
    */
   extraDefs: function(baseFont) {
-    var defs = gpub.diagrams.gooe.latexHeaders.defs;
+    var defs = gpub.diagrams.gooe.init.defs;
     var baseFont = baseFont || 'cmss';
     var fontDefsBase = [
       '% Gooe font definitions',
@@ -57,4 +57,4 @@ gpub.diagrams.gooe.init = {
       .concat(defs.bigBoardDefs)
       .concat(defs.normalBoardDefs).join('\n');
   }
-}
+};

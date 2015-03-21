@@ -36,7 +36,6 @@ gpub.spec = {
         throw new Error('Unsupported book purpose: ' + bookPurpose);
         break;
     }
-    return null;
   },
 
   /**

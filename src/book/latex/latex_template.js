@@ -29,7 +29,7 @@ gpub.book.latex.defaultTemplate = [
 '     {\\Large {{name}} }',
 '  {{/authors}}',
 '  \\vspace*{5 em}',
-'  {\\textcolor{light-gray}{\\Huge {{title}} }\\\\',
+'  {\\textcolor{light-gray}{\\Huge {{title}} } }\\\\',
 '  \\vspace*{\\baselineskip}',
 '  {\\small \\bfseries {{subtitle}} }\\par',
 '  \\vfill',

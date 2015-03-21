@@ -22,7 +22,7 @@ var init = function(helptext, args, flagkeys) {
  *      Flag names have have the format: 
  *          foo_bar_biff
  *      Flag arrays (the values in the obj) have the format:
- *          ['flagtype', <default value>]
+ *          ['flagtype', <default value>, helptext]
  *
  *      where flag types are strings with the following formats:
  *          :: Default Javascript Types ::
@@ -133,17 +133,19 @@ FlagzDef.prototype = {
     // TODO(kashomon): I should probably do this at some point.
   },
 
+  /** Display the help text. */
   displayHelp: function() {
     var usage = '\n\n:::Usage:::\n' + this._scriptname + ' ' +
         this.args.join(' ') + ' <optional flags>';
     var argData = '\n\n' +
         ':::Flags:::\n' +
-        'flag_name: <expected type>, <default value>\n' +
+        'flag_name: <expected type>, <default value> :: Help Text\n' +
         '-----------------------------------\n';
     for (var flag in this.flagdefs) {
-      var farr= this.flagdefs[flag];
+      var farr = this.flagdefs[flag];
+      var helpText = farr[2] || '';
       argData += flag + ': <'
-          + farr[0] + '>, <' + farr[1] + '>\n';
+          + farr[0] + '>, <' + farr[1] + '>, ' + helpText + '\n';
     }
     argData = argData.slice(0, argData.length - 1);
     console.log(

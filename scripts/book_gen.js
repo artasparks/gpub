@@ -3,6 +3,7 @@
 var glift = require('./defs/glift.js');
 var gpub = require('./defs/gpub.js');
 var flagz = require('./defs/flagz.js')
+var filez = require('./defs/filez.js')
 
 var fs = require('fs');
 var path = require('path')
@@ -11,22 +12,20 @@ var flags = flagz.init(
   'A script for generating books from book specs!',
   ['<json-book-definition>'],
   {
-    diagram_type: ['string', 'GNOS'],
-
-    // These are currently unused
-    book_title: ['string', 'My Book'],
-    output_dir: ['string', 'gpub-book'],
-    book_type: ['string', 'LATEX'],
-    template: ['string', 'templates/html_book_templates.html'],
+    outputFormat: ['string', 'LATEX', 'The output format for the book.'],
+    directory: ['string', '', 'The directory from which to process SGFs.']
   }).process();
 
-var bookDef = JSON.parse(fs.readFileSync(flags.args[0], {encoding: 'utf8'}));
+var def = filez.readFromDirAndArgs(
+    flags.processed.directory, flags.args, '', '\\.sgf');
 
-var def = gpub.book.latex.generate(
-    bookDef,
-    null, // template string
-    flags.processed.diagram_type,
-    null  // optionsb
-);
+var sgfArr = [] ;
+for (var i = 0; i < def.collection.length; i++) {
+  sgfArr.push(def.contents[def.collection[i]]);
+}
 
-console.log(def);
+// console.log(sgfArr);
+
+var book = gpub.create(sgfArr);
+
+console.log(book);

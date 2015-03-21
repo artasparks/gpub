@@ -10,7 +10,6 @@
 
   test('Test all generator methods', function() {
     var interface = gpub.book.Generator;
-
     for (var key in gpub.outputFormat) {
       var pkg = gpub.book[key.toLowerCase()];
       var gen = pkg.generator;

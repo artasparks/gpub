@@ -5,20 +5,20 @@ gpub.book.generator = function(outputFormat, options) {
   if (!outputFormat) { throw new Error('No output format defined'); }
   if (!options) { throw new Error('Options not defined'); }
 
-  var package = gpub.book[outputFormat.toLowerCase()];
-  if (!package) {
+  var pkg = gpub.book[outputFormat.toLowerCase()];
+  if (!pkg) {
     throw new Error('No package defined for: ' + outputFormat);
   }
-  if (!package.generator) {
+  if (!pkg.generator) {
     throw new Error('No generator impl for: ' + outputFormat);
   }
 
   var gen = new gpub.book._Generator();
 
   // Copy over the methods from the implementations;
-  for (var key in package.generator) {
-    if (key && package.generator[key]) {
-      gen[key] = package.generator[key].bind(gen);
+  for (var gkey in pkg.generator) {
+    if (gkey && pkg.generator[gkey]) {
+      gen[gkey] = pkg.generator[gkey].bind(gen);
     }
   }
 
@@ -55,7 +55,7 @@ gpub.book.Gen = {
   /**
    * Returns the default options for the specific book processor.
    */
-  defaultOptions: function() {},
+  defaultOptions: function() {}
 };
 
 /**
@@ -171,13 +171,13 @@ gpub.book._Generator.prototype = {
 
     // TODO(kashomon): Should this be recursive? It's not clear to me.  Do you
     // usually want to copy over top level objects as they are?
-    for (var key in defOpts) {
-      if (defOpts[key] && !this._opts[key]) {
-        this._opts[key] = defOpts[key];
+    for (var gkey in defOpts) {
+      if (defOpts[gkey] && !this._opts[gkey]) {
+        this._opts[gkey] = defOpts[gkey];
       }
       // Step one level deeper into book options and copy the keys there.
-      if (key === 'bookOptions') {
-        var bookOptions = defOpts[key];
+      if (gkey === 'bookOptions') {
+        var bookOptions = defOpts[gkey];
         for (var bkey in bookOptions) {
           if (bookOptions[bkey] && !this._opts.bookOptions[bkey]) {
             this._opts.bookOptions[bkey] = bookOptions[bkey];
