@@ -35,7 +35,7 @@ gpub.book.latex.generator = {
         subtitle: 'Subtitle',
         publisher: 'Publisher',
         authors: [
-          {name: 'You!' }
+          'You!'
         ],
 
         /** Defs for definiing the diagrams. */

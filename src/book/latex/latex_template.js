@@ -26,7 +26,7 @@ gpub.book.latex.defaultTemplate = [
 '\\newcommand*{\\mainBookTitle}{\\begingroup',
 '  \\raggedleft',
 '  {{#authors}}',
-'     {\\Large {{name}} }',
+'     {\\Large {{.}} }',
 '  {{/authors}}',
 '  \\vspace*{5 em}',
 '  {\\textcolor{light-gray}{\\Huge {{title}} } }\\\\',
@@ -54,6 +54,6 @@ gpub.book.latex.defaultTemplate = [
 '',
 
 '%%% The content. %%%',
-'{{content}}',
+'{{&content}}',
 '',
 '\\end{document}'].join('\n');
