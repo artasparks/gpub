@@ -31,10 +31,24 @@ gpub.markdown = {
     /** content: string */
     tablerow: function(content) {},
     /** content: string, flags: object */
-    tablecell: function(content, flags) {}
+    tablecell: function(content, flags) {},
 
     ///////////////////////////////////
     // Inline level renderer methods //
     ///////////////////////////////////
+
+    /** text: string */
+    strong: function(text) {},
+    /** text: string */
+    em: function(text) {},
+    /** code: string */
+    codespan: function(code) {},
+    br: function() {},
+    /** text: string */
+    del: function(text) {},
+    /** href: string, title: string, text: string */
+    link: function(href, title, text) {},
+    /** image: string, title: string, text: string */
+    image: function(href, title, text) {}
   }
 };
