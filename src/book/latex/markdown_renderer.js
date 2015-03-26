@@ -1,21 +1,59 @@
 /** Creates a marked-Markdown renderer for LaEeX */
 gpub.book.latex.renderer = function() {
+  if (gpub.book.latex._rendererInstance) {
+    return gpub.book.latex._rendererInstance;
+  }
   var renderer = new glift.marked.Renderer();
   for (var key in gpub.book.latex.markdown) {
     renderer[key] = gpub.book.latex.markdown[key];
   }
-  return renderer;
+
+  gpub.book.latex._rendererInstance = renderer;
+  return gpub.book.latex._rendererInstance;
 };
 
+gpub.book.latex._rendererInstance = null;
+
+gpub.book.latex.renderMarkdown = function(str) {
+  return glift.marked(str, {
+    renderer:  gpub.book.latex.renderer()
+  });
+};
+
+/** Set of markdown methods for the renderer */
 gpub.book.latex.markdown = {
   //////////////////////////////////
   // Block level renderer methods //
   //////////////////////////////////
 
-  /** text: string, level: number  */
-  heading: function(text, level) {},
+  /**
+   * Note: this assumes the memoir class.
+   *
+   * # Level 1: Book
+   * ## Level 2: Part
+   * ### Level 3: Chapter
+   * ####+ Level 4+: Chapter*
+   * text: string, level: number  
+   */
+  heading: function(text, level) {
+    if (level === 1) {
+      return '\\book{' + text + '}';
+    } else if (level === 2) {
+      return '\\part{' + text + '}';
+    } else if (level === 3) {
+      return '\\chapter{' + text + '}';
+    } else {
+      // A chapter heading without
+      return '\\chapter*{' + text + '}';
+    }
+    // TODO(kashomon): Should \\section{...} go here?
+  },
+
   /** No args */
-  hr: function() {},
+  hr: function() {
+    return '\\hrule';
+  },
+
   /** body: string, ordered: boolean */
   list: function(body, ordered) {
     if (ordererd) {
@@ -38,6 +76,7 @@ gpub.book.latex.markdown = {
 
   /** text: string */
   paragraph: function(text) {
+    // Nothing special for paragraphs.
     return text;
   },
 
@@ -46,26 +85,38 @@ gpub.book.latex.markdown = {
   ///////////////////////////////////
 
   /** text: string */
-  strong: function(text) {},
+  strong: function(text) {
+    return '\\textbf{' +  text + '}';
+  },
+
   /** text: string */
-  em: function(text) {},
+  em: function(text) {
+    return '\\textit{' +  text + '}';
+  },
+
   /** code: string */
-  codespan: function(code) {},
-  br: function() {},
-  /** text: string */
-  del: function(text) {},
+  br: function() {
+    return '\\newline'
+  },
+
   /** href: string, title: string, text: string */
-  link: function(href, title, text) {},
+  // requires: \usepackage{hyperref}
+  // link: function(href, title, text) {},
+
   /** image: string, title: string, text: string */
-  image: function(href, title, text) {}
+  // might not be necessary
+  // image: function(href, title, text) {}
 
   ///////////////////
   // Not Supported //
   ///////////////////
-  // code: function(code, language) {},
-  // blockquote: function(quote) {},
-  // html: function(html) {},
-  // table: function(header, body) {},
+  code: function(code, language) { return code; },
+  blockquote: function(quote) { return quote; },
+  html: function(html) { return html; },
+  // table: function(header, body) {return table},
   // tablerow: function(content) {},
   // tablecell: function(content, flags) {},
+
+  codespan: function(code) { return code; },
+  del: function(text) { return text; },
 };
