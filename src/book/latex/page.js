@@ -1,24 +1,26 @@
 /**
- * Page context wrapper.
+ * Page context wrapper. I think this will probably -- at least for now -- be a
+ * LaTeX consideration.
  */
-gpub.book.Page = function() {
-  this.lines = [];
+gpub.book.latex.Page = function() {
+  this.buffer = [];
 };
 
-gpub.book.Page.prototype = {
+gpub.book.latex.Page.prototype = {
   /** Add a diagram to the page. */
-  addDiagram: function(lines, comment) {
+  addDiagram: function(str, context, comment, label, isMainLine) {
+
   },
 
   /** Clear the page lines */
   flush: function() {
-    var out = this.lines.join('\n');
-    this.lines = [];
+    var out = this.buffer.join('\n');
+    this.buffer = [];
     return out;
   }
 };
 
-gpub.book.pageSize = {
+gpub.book.latex.pageSize = {
   A4: 'A4',
   A5: 'A5',
   LETTER: 'LETTER',

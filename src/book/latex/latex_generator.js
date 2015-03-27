@@ -8,6 +8,7 @@ gpub.book.latex.generator = {
     var opts = this.options();
     view.init = gpub.diagrams.getInit(opts.diagramType, 'LATEX');
     var content = [];
+
     this.forEachSgf(spec, function(idx, mt, flattened) {
       var diagramStr = gpub.diagrams.create(flattened, opts.diagramType);
       content.push(diagramStr);

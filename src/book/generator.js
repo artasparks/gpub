@@ -105,7 +105,7 @@ gpub.book._Generator.prototype = {
   /**
    * Helper function for looping over each SGF in the SGF collection.
    *
-   * The function fn should expect two params:
+   * The function fn should expect four params:
    *  - the index
    *  - The movetree.
    *  - The 'flattened' object.
@@ -124,7 +124,10 @@ gpub.book._Generator.prototype = {
           nextMovesTreepath: sgfObj.nextMovesPath,
           boardRegion: sgfObj.boardRegion
       });
-      fn(i, mt, flattened);
+
+      var ctx = gpub.book.getDiagramContext(mt, sgfObj);
+
+      fn(i, mt, flattened, ctx);
     }
   },
 

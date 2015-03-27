@@ -92,7 +92,8 @@ gpub.spec = {
       alias: alias,
       initialPosition: ipString(initPos),
       nextMovesPath: fragString(nextMoves),
-      boardRegion: region
+      boardRegion: region,
+      widgetType: 'EXAMPLE'
     };
     return base;
   }
