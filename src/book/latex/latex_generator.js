@@ -27,7 +27,8 @@ gpub.book.latex.generator = {
       diagramType: gpub.diagrams.diagramType.GNOS,
       bookOptions: {
         /**
-         * init: Any additional setup that needs to be done in the header.
+         * init: Any additional setup that needs to be done in the header. I.e.,
+         * for diagram packages.
          */
         init: '',
 
