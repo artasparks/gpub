@@ -8,8 +8,9 @@ gpub.book.ascii.generator = {
     var opts = this.options();
     var content = [];
 
-    this.forEachSgf(spec, function(mt, flattened) {
+    this.forEachSgf(spec, function(mt, flattened, ctx) {
       var diagramStr = gpub.diagrams.create(flattened, opts.diagramType);
+      var label = gpub.diagrams.createLabel(flattened);
       content.push(diagramStr);
     }.bind(this));
 

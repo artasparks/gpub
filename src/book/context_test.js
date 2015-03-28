@@ -4,7 +4,6 @@
   var ctx = gpub.book.contextType;
   var newCtx = gpub.book.newDiagramContext;
 
-
   var constructSpec = function(objs) {
     var spec = { sgfCollection: [] };
     for (var i = 0; i < objs.length; i++) {
@@ -29,8 +28,8 @@
       { widgetType: wtypes.STANDARD_PROBLEM, sgfString: '(;GM[1]C[### foo])' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.PROBLEM, false),
-      newCtx(ctx.PROBLEM, true),
+      newCtx(ctx.PROBLEM, false, true),
+      newCtx(ctx.PROBLEM, true, true),
     ]);
   });
 
@@ -40,8 +39,8 @@
       { widgetType: wtypes.GAME_VIEWER, sgfString: '(;GM[1]C[### foo])' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.VARIATIONS, false),
-      newCtx(ctx.VARIATIONS, true),
+      newCtx(ctx.VARIATIONS, false, true),
+      newCtx(ctx.VARIATIONS, true, true),
     ]);
   });
 
@@ -51,8 +50,8 @@
       { widgetType: wtypes.EXAMPLE, sgfString: '(;GM[1]C[## foo])' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.DESCRIPTION, false),
-      newCtx(ctx.DESCRIPTION, true),
+      newCtx(ctx.DESCRIPTION, false, true),
+      newCtx(ctx.DESCRIPTION, true, true),
     ]);
   });
 
@@ -64,9 +63,19 @@
       { widgetType: wtypes.EXAMPLE, sgfString: '(;GM[1]AB[aa]C[## foo])' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.EXAMPLE, false),
-      newCtx(ctx.EXAMPLE, false),
-      newCtx(ctx.EXAMPLE, true),
+      newCtx(ctx.EXAMPLE, false, true),
+      newCtx(ctx.EXAMPLE, false, true),
+      newCtx(ctx.EXAMPLE, true, true),
+    ]);
+  });
+
+  test('Example: Not Mainline', function() {
+    var spec = constructSpec([
+      { widgetType: wtypes.EXAMPLE, sgfString: '(;GM[1](;B[aa])(;B[bb]))',
+          initialPosition: '0.1' },
+    ]);
+    deepEqual(getCtxFromSpec(spec), [
+      newCtx(ctx.EXAMPLE, false, false),
     ]);
   });
 })();

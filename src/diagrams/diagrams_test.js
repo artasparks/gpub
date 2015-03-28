@@ -17,7 +17,7 @@
       {color: 'WHITE', mvnum: '10', label: 'x'}
     ];
     deepEqual(
-        gpub.diagrams.constructLabel(coll),
+        gpub.diagrams._constructLabel(coll),
         'Black 1 at a, White 10 at x.');
   });
 

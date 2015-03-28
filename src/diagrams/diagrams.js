@@ -102,7 +102,7 @@ gpub.diagrams = {
    *
    * returns: stringified label format.
    */
-  constructLabelFromFlattened: function(flattened) {
+  createLabel: function(flattened) {
     return gpub.diagrams.constructLabel(
         collisions = flattened.collisions(),
         isOnMainline = flattened.isOnMainline(),
@@ -119,7 +119,7 @@ gpub.diagrams = {
    *
    * returns: stringified label format.
    */
-  constructLabel: function(collisions, isOnMainline, startNum, endNum) {
+  _constructLabel: function(collisions, isOnMainline, startNum, endNum) {
     var baseLabel = '';
     if (isOnMainline) {
       var nums = [startNum];
