@@ -1,7 +1,17 @@
 /**
+ * Constructs a new Diagram Context.
+ */
+gpub.book.newDiagramContext = function(ctype, isChapter) {
+  return {
+    contextType: ctype,
+    isChapter: isChapter
+  };
+};
+
+/**
  * The diagram context. How should the diagram be displayed in the page?
  */
-gpub.book.diagramContext = {
+gpub.book.contextType = {
   /** No diagram context: just the digaram. */
   NONE: 'NONE',
 
@@ -10,17 +20,8 @@ gpub.book.diagramContext = {
    */
   DESCRIPTION: 'DESCRIPTION',
 
-  /**
-   * No go diagram; just text. At the beginning of commentary. Should be of
-   * type EXAMPLE.
-   */
-  DESCRIPTION_INTRO: 'DESCRIPTION_INTRO',
-
   /** Go diagram + text + variations. */
   EXAMPLE: 'EXAMPLE',
-
-  /** Chapter + Go diagram + text + variations. */
-  EXAMPLE_CHAPTER: 'EXAMPLE_CHAPTER',
 
   /**
    * Go diagram + text + variations. A 'Variations' needs further processing.
@@ -35,27 +36,39 @@ gpub.book.diagramContext = {
   PROBLEM: 'PROBLEM'
 };
 
+gpub.book._headingRegex = /(^|\n)#+\s*\w+/;
+
 /**
  * Gets the diagram context from a movetree, which says, roughly, how to typeset
  * a diagram in the page.
  *
  * This method uses a bunch of heuristics and is somewhat brittle.
  */
-gpub.book.getDiagramContext = function(movetree, sgfObj) {
-  var ctx = gpub.book.diagramContext;
+gpub.book.getDiagramContext = function(mt, sgfObj) {
+  var ctx = gpub.book.contextType;
   var wtypes = glift.enums.widgetTypes;
   var wt = sgfObj.widgetType;
 
+  var ctxType = ctx.NONE;
+  var comment = mt.properties().getComment();
+  var isChapter = gpub.book._headingRegex.test(comment);
+
   if (wt === wtypes.STANDARD_PROBLEM ||
       wt === wtypes.STANDARD_PROBLEM) {
-    return ctx.PROBLEM;
-  } else if (wt === wtypes.EXAMPLE) {
-    return ctx.EXAMPLE;
+    ctxType = ctx.PROBLEM;
   } else if (
       wt === wtypes.GAME_VIEWER ||
       wt === wtypes.REDUCED_GAME_VIEWER) {
-    return ctx.VARIATIONS; // Needs
+    ctxType = ctx.VARIATIONS; // Needs more processing
+  } else if (wt === wtypes.EXAMPLE && mt.node().getNodeNum() === 0) {
+    var stones = mt.properties().getAllStones();
+    if (stones.BLACK.length === 0 && stones.WHITE.length === 0) {
+      ctxType = ctx.DESCRIPTION;
+    } else {
+      ctxType = ctx.EXAMPLE;
+    }
+  } else {
+    ctxType = ctx.EXAMPLE;
   }
-
-  return ctx.NONE;
+  return gpub.book.newDiagramContext(ctxType, isChapter);
 };
