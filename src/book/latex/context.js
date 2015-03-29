@@ -5,11 +5,11 @@ gpub.book.latex.context = {
   /**
    * Typeset the diagram into LaTeX
    */
-  typeset: function(str, purpose, comment, label, isMainLine, bookData) {
+  typeset: function(str, comment, label, context) {
     comment = this.sanitize(comment);
     var camelCaseName = glift.enums.toCamelCase(purpose)
     var func = gpub.diagrams.latex[camelCaseName];
-    switch(purpose) {
+    switch(context.comment) {
       case 'GAME_REVIEW':
       case 'GAME_REVIEW_CHAPTER':
         var baseLabel = isMainLine ? '\\gofigure' : '\\godiagram';

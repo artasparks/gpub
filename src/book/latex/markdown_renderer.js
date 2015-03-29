@@ -5,23 +5,42 @@ gpub.book.latex.renderer = function() {
   }
   var renderer = new glift.marked.Renderer();
   for (var key in gpub.book.latex.markdown) {
-    renderer[key] = gpub.book.latex.markdown[key];
+    renderer[key] = gpub.book.latex.markdown[key].bind(renderer);
   }
+  renderer._preamble = [];
 
-  gpub.book.latex._rendererInstance = renderer;
-  return gpub.book.latex._rendererInstance;
+  return renderer;
 };
 
-gpub.book.latex._rendererInstance = null;
-
+/**
+ * Returns:
+ *  {
+ *    preamble: ...
+ *    text: ...
+ *  }
+ */
 gpub.book.latex.renderMarkdown = function(str) {
-  return glift.marked(str, {
-    renderer:  gpub.book.latex.renderer()
+  var renderer = gpub.book.latex.renderer()
+  var text = glift.marked(str, {
+    renderer: renderer
   });
+  return {
+    preamble: renderer.extractPreamble(),
+    text: text
+  }
 };
 
 /** Set of markdown methods for the renderer */
 gpub.book.latex.markdown = {
+  ////////////////////
+  // Custom methods //
+  ////////////////////
+
+  /** Extract the preamble from the renderer */
+  extractPreamble: function() {
+    return this._preamble.join('\n');
+  },
+
   //////////////////////////////////
   // Block level renderer methods //
   //////////////////////////////////
@@ -37,15 +56,16 @@ gpub.book.latex.markdown = {
    */
   heading: function(text, level) {
     if (level === 1) {
-      return '\\book{' + text + '}';
+      this._preamble.push('\\book{' + text + '}');
     } else if (level === 2) {
-      return '\\part{' + text + '}';
+      this._preamble.push('\\part{' + text + '}');
     } else if (level === 3) {
-      return '\\chapter{' + text + '}';
+      this._preamble.push('\\chapter{' + text + '}');
     } else {
       // A chapter heading without
-      return '\\chapter*{' + text + '}';
+      this._preamble.push('\\chapter*{' + text + '}');
     }
+    return ''; // Don't return anything. Header should be part of the preamble.
     // TODO(kashomon): Should \\section{...} go here?
   },
 
@@ -96,7 +116,7 @@ gpub.book.latex.markdown = {
 
   /** code: string */
   br: function() {
-    return '\\newline'
+    return '\\newline';
   },
 
   /** href: string, title: string, text: string */
