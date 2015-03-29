@@ -10,8 +10,11 @@ gpub.book.latex.generator = {
     var content = [];
 
     this.forEachSgf(spec, function(idx, mt, flattened, ctx) {
-      var diagramStr = gpub.diagrams.create(flattened, opts.diagramType);
-      content.push(diagramStr);
+      var diagram = gpub.diagrams.create(flattened, opts.diagramType);
+      var label = gpub.diagrams.createLabel(flattened);
+      var contextualized = gpub.book.latex.context.typeset(
+          diagram, ctx, flattened.comment(), label);
+      content.push(contextualized);
     }.bind(this));
 
     view.content = content.join('\n');
@@ -48,6 +51,7 @@ gpub.book.latex.generator = {
           ' \\stepcounter{GoFigure}',
           ' \\centerline{\\textit{Figure.\\thinspace\\arabic{GoFigure}}}',
           '}',
+
           '% Variation Diagrams. reset at parts.',
           '\\newcounter{GoDiagram}[part]',
           '\\newcommand{\\godiagram}{%',

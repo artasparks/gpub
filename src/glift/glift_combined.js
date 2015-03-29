@@ -2440,6 +2440,10 @@ InlineLexer.prototype.output = function(src) {
     , href
     , cap;
 
+  var escape = function(text) {
+    return text;
+  };
+
   while (src) {
     // escape
     if (cap = this.rules.escape.exec(src)) {
@@ -2950,6 +2954,7 @@ Parser.prototype.tok = function() {
  */
 
 function escape(html, encode) {
+  return '';
   return html
     .replace(!encode ? /&(?!#?\w+;)/g : /&/g, '&amp;')
     .replace(/</g, '&lt;')

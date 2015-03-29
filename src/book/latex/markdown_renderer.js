@@ -21,8 +21,11 @@ gpub.book.latex.renderer = function() {
  */
 gpub.book.latex.renderMarkdown = function(str) {
   var renderer = gpub.book.latex.renderer()
+  str = gpub.book.latex.sanitize(str);
+
   var text = glift.marked(str, {
-    renderer: renderer
+    renderer: renderer,
+    silent: true
   });
   return {
     preamble: renderer.extractPreamble(),
@@ -97,7 +100,7 @@ gpub.book.latex.markdown = {
   /** text: string */
   paragraph: function(text) {
     // Nothing special for paragraphs.
-    return text;
+    return text + '\n\n';
   },
 
   ///////////////////////////////////
@@ -138,5 +141,5 @@ gpub.book.latex.markdown = {
   // tablecell: function(content, flags) {},
 
   codespan: function(code) { return code; },
-  del: function(text) { return text; },
+  del: function(text) { return text; }
 };

@@ -65,10 +65,58 @@ gpub.util.Buffer.prototype = {
   }
 };
 /**
- * Markdown for Gpub.
+ * Markdown for Gpub. Note that Glift comes pre-packaged with markdown.
+ *
+ * Most output formats will want to defined a custom renderer.
  */
 gpub.markdown = {
-  // TODO(kashomon): Write a 'marked' render.
+  /** For reference, here are the relevant methods */
+  rendererMethods: {
+    //////////////////////////////////
+    // Block level renderer methods //
+    //////////////////////////////////
+
+    /** code: string, language: string */
+    code: function(code, language) {},
+    /** quote: string */
+    blockquote: function(quote) {},
+    /** html: string */
+    html: function(html) {},
+    /** text: string, level: number  */
+    heading: function(text, level) {},
+    /** No args */
+    hr: function() {},
+    /** body: string, ordered: boolean */
+    list: function(body, ordered) {},
+    /** text: string */
+    listitem: function(text) {},
+    /** text: string */
+    paragraph: function(text) {},
+    /** header: string, body: string*/
+    table: function(header, body) {},
+    /** content: string */
+    tablerow: function(content) {},
+    /** content: string, flags: object */
+    tablecell: function(content, flags) {},
+
+    ///////////////////////////////////
+    // Inline level renderer methods //
+    ///////////////////////////////////
+
+    /** text: string */
+    strong: function(text) {},
+    /** text: string */
+    em: function(text) {},
+    /** code: string */
+    codespan: function(code) {},
+    br: function() {},
+    /** text: string */
+    del: function(text) {},
+    /** href: string, title: string, text: string */
+    link: function(href, title, text) {},
+    /** image: string, title: string, text: string */
+    image: function(href, title, text) {}
+  }
 };
 gpub.mustache = {};
 
@@ -675,28 +723,80 @@ gpub.book = {
     }
   }
 };
-//
-// Tentative ideas about how to insert diagrams into the page.
-//
-
-
 /**
- * The diagram context. How should the diagram be wrapped?
+ * Constructs a new Diagram Context.
  */
-gpub.book.diagramContext = {
-  NONE: 'NONE',
-  SECTION_INTRO: 'SECTION_INTRO',
-  GAME_REVIEW: 'GAME_REVIEW',
-  GAME_REVIEW_CHAPTER: 'GAME_REVIEW_CHAPTER',
-  PROBLEM: 'PROBLEM',
-  ANSWER: 'ANSWER'
+gpub.book.newDiagramContext = function(ctype, isChapter, isMainline) {
+  return {
+    contextType: ctype,
+    isChapter: isChapter,
+    isMainline: isMainline
+  };
 };
 
 /**
- * Not entirely sure what to put here
+ * The diagram context. How should the diagram be displayed in the page?
  */
-gpub.book.pageContext = {
+gpub.book.contextType = {
+  /** No diagram context: just the digaram. */
+  NONE: 'NONE',
 
+  /**
+   * No go diagram; just text. WidgetType should be of type EXAMPLE.
+   */
+  DESCRIPTION: 'DESCRIPTION',
+
+  /** Go diagram + text + variations. */
+  EXAMPLE: 'EXAMPLE',
+
+  /**
+   * Go diagram + text + variations. A 'Variations' needs further processing.
+   * It's a 'game' that hasn't been turned into a series of examples.
+   */
+  VARIATIONS: 'VARIATIONS',
+
+  /**
+   * A Go problem. Go Problems need further processing: primarily because are
+   * several ways you may want to display answers.
+   */
+  PROBLEM: 'PROBLEM'
+};
+
+gpub.book._headingRegex = /(^|\n)#+\s*\w+/;
+
+/**
+ * Gets the diagram context from a movetree, which says, roughly, how to typeset
+ * a diagram in the page.
+ *
+ * This method uses a bunch of heuristics and is somewhat brittle.
+ */
+gpub.book.getDiagramContext = function(mt, sgfObj) {
+  var ctx = gpub.book.contextType;
+  var wtypes = glift.enums.widgetTypes;
+  var wt = sgfObj.widgetType;
+
+  var ctxType = ctx.NONE;
+  var comment = mt.properties().getComment();
+  var isChapter = gpub.book._headingRegex.test(comment);
+
+  if (wt === wtypes.STANDARD_PROBLEM ||
+      wt === wtypes.STANDARD_PROBLEM) {
+    ctxType = ctx.PROBLEM;
+  } else if (
+      wt === wtypes.GAME_VIEWER ||
+      wt === wtypes.REDUCED_GAME_VIEWER) {
+    ctxType = ctx.VARIATIONS; // Needs more processing
+  } else if (wt === wtypes.EXAMPLE && mt.node().getNodeNum() === 0) {
+    var stones = mt.properties().getAllStones();
+    if (stones.BLACK.length === 0 && stones.WHITE.length === 0) {
+      ctxType = ctx.DESCRIPTION;
+    } else {
+      ctxType = ctx.EXAMPLE;
+    }
+  } else {
+    ctxType = ctx.EXAMPLE;
+  }
+  return gpub.book.newDiagramContext(ctxType, isChapter, mt.onMainline());
 };
 /**
  * Constructs a book generator.
@@ -805,7 +905,7 @@ gpub.book._Generator.prototype = {
   /**
    * Helper function for looping over each SGF in the SGF collection.
    *
-   * The function fn should expect two params:
+   * The function fn should expect four params:
    *  - the index
    *  - The movetree.
    *  - The 'flattened' object.
@@ -824,7 +924,10 @@ gpub.book._Generator.prototype = {
           nextMovesTreepath: sgfObj.nextMovesPath,
           boardRegion: sgfObj.boardRegion
       });
-      fn(i, mt, flattened);
+
+      var ctx = gpub.book.getDiagramContext(mt, sgfObj);
+
+      fn(i, mt, flattened, ctx);
     }
   },
 
@@ -909,88 +1012,6 @@ gpub.book._Generator.prototype = {
   }
 };
 /**
- * NodeData object.
- */
-gpub.book.NodeData = function(purpose) {
-  if (!gpub.diagrams.diagramPurpose[purpose]) {
-    throw new Error(
-        'Purpose not defined in gpub.diagrams.diagramPurpose: ' + purpose)
-  }
-  this.purpose = purpose;
-
-  this.sectionTitle = null;
-  this.sectionNumber = -1;
-
-  this.chapterTitle = null;
-  this.chapterNumber = -1;
-};
-
-/** Methods */
-gpub.book.NodeData.prototype = {
-  /** Sets the section title from the context. */
-  setSectionFromCtx: function(mt, previousPurpose, idx) {
-    var diagramPurpose = gpub.diagrams.diagramPurpose;
-    if (this.purpose === diagramPurpose.SECTION_INTRO) {
-      // We're at the beginning of the game. Create a new section
-      this.sectionTitle =
-          mt.getTreeFromRoot().properties().getOneValue('GN') || '';
-      this.sectionNumber = idx;
-      return idx + 1;
-    }
-    return idx;
-  },
-
-  /** Sets the chapter title from the context. */
-  setChapterFromCtx : function(mt, previousPurpose, idx) {
-    var diagramPurpose = gpub.diagrams.diagramPurpose;
-    if (this.purpose === diagramPurpose.GAME_REVIEW_CHAPTER) {
-      this.chapterTitle = 'Chapter: ' + idx;
-      this.chapterNumber = idx;
-      return idx + 1;
-    } else if ((this.purpose === diagramPurpose.PROBLEM || 
-        this.purpose === diagramPurpose.ANSWER) &&
-        this.purpose !== previousPurpose) {
-      this.chapterTitle = 'Chapter: ' + idx;
-      this.chapterNumber = idx;
-      return idx + 1;
-    }
-    return idx;
-  }
-};
-
-/**
- * Staticly creates NodeData based on some context.  Basically, this uses
- * hueristics
- *
- * This method is pretty hacky and may need to be rethought.
- */
-gpub.book.NodeData.fromContext = function(
-    mt, flattened, sgfMetadata, nextMovesPath) {
-  var diagramPurpose = gpub.diagrams.diagramPurpose;
-  var exampleType = gpub.spec.exampleType;
-  var purpose = diagramPurpose.GAME_REVIEW;
-  sgfMetadata = sgfMetadata || {};
-
-  if (diagramPurpose[sgfMetadata.exampleType]) {
-    purpose = sgfMetadata.exampleType;
-  }
-
-  // We're at the beginning of a game. Don't display a board, but display the
-  // comment (assuming there is one).
-  if (mt.node().getNodeNum() === 0 &&
-      nextMovesPath.length === 0 &&
-      purpose === diagramPurpose.GAME_REVIEW) {
-    purpose = gpub.diagrams.diagramPurpose.SECTION_INTRO;
-  }
-
-  // Try out the chapter-title stuff.
-  if (flattened.isOnMainPath() && purpose === diagramPurpose.GAME_REVIEW) {
-    purpose = gpub.diagrams.diagramPurpose.GAME_REVIEW_CHAPTER;
-  }
-
-  return new gpub.book.NodeData(purpose);
-};
-/**
  * Generate an ASCII book.
  */
 gpub.book.ascii = {};
@@ -1004,8 +1025,9 @@ gpub.book.ascii.generator = {
     var opts = this.options();
     var content = [];
 
-    this.forEachSgf(spec, function(mt, flattened) {
+    this.forEachSgf(spec, function(mt, flattened, ctx) {
       var diagramStr = gpub.diagrams.create(flattened, opts.diagramType);
+      var label = gpub.diagrams.createLabel(flattened);
       content.push(diagramStr);
     }.bind(this));
 
@@ -1090,95 +1112,80 @@ gpub.book.latex.context = {
   /**
    * Typeset the diagram into LaTeX
    */
-  typeset: function(str, purpose, comment, label, isMainLine, bookData) {
-    comment = this.sanitize(comment);
-    var camelCaseName = glift.enums.toCamelCase(purpose)
-    var func = gpub.diagrams.latex[camelCaseName];
-    switch(purpose) {
-      case 'GAME_REVIEW':
-      case 'GAME_REVIEW_CHAPTER':
-        var baseLabel = isMainLine ? '\\gofigure' : '\\godiagram';
-        if (label) {
-          var splat = label.split('\n');
-          for (var i = 0; i < splat.length; i++ ) {
-            baseLabel += '\n\n\\subtext{' + splat[i] + '}';
-          }
-        }
-        var label = baseLabel;
-        break;
-      default:
-        // Do nothing.  This switch is for processing the incoming label.
+  typeset: function(diagram, ctx, comment, label) {
+    comment = comment || '';
+    label = label || '';
+
+    // Render the markdown. Note: This splits the comment into a
+    //  .preamble -- the header
+    //  .text -- the main body of the text.
+    var processedComment = comment ? gpub.book.latex.renderMarkdown(comment) : {
+      preamble: '',
+      text: ''
+    };
+
+    var processedLabel = gpub.book.latex.context._processLabel(label, ctx);
+
+    var renderer = gpub.book.latex.context.rendering[ctx.contextType];
+    if (!renderer) {
+      renderer = gpub.book.latex.context.rendering[DESCRIPTION];
     }
-    return func(str, comment, label, bookData);
+
+    return renderer(diagram, ctx, processedComment, processedLabel);
   },
 
-  /**
-   * Return a section intro.
-   */
-  sectionIntro: function(diagramString, comment, label, bookData) {
-    var part = bookData.sectionTitle || '';
-    var chapter = bookData.chapterTitle || '';
-    return [
-      '\\part{' + part + '}',
-      '\\chapter{' + chapter + '}',
-      comment
-    ].join('\n');
+  /** Process the label to make it appropriate for LaTeX. */
+  _processLabel: function(label, ctx) {
+    var baseLabel = ctx.isMainLine ? '\\gofigure' : '\\godiagram';
+    if (label) {
+      var splat = label.split('\n');
+      for (var i = 0; i < splat.length; i++ ) {
+        baseLabel += '\n\n\\subtext{' + splat[i] + '}';
+      }
+    }
+    return baseLabel;
   },
 
-  /**
-   * Generate a GAME_REVIEW diagram.
-   *
-   * diagramString: Literal string for the diagram
-   * comment: Comment for diagram
-   * label: Diagram label
-   *
-   * returns: filled-in latex string.
-   */
-  gameReview: function(diagramString, comment, label) {
-    return [
-      '',
-      '\\rule{\\textwidth}{0.5pt}',
-      '',
-      '\\begin{minipage}[t]{0.5\\textwidth}',
-      diagramString,
-      label,
-      '\\end{minipage}',
-      '\\begin{minipage}[t]{0.5\\textwidth}',
-      '\\setlength{\\parskip}{0.5em}',
-      comment,
-      '\\end{minipage}',
-      '\\vfill'].join('\n');
-  },
+  /** Render the specific digaram context. */
+  rendering: {
+    EXAMPLE: function(diagram, ctx, pcomment, label) {
+      if (ctx.preamble) {
+        return [
+          pcomment.preamble,
+          '{\\centering',
+          diagram,
+          '}',
+          label,
+          '',
+          pcomment.text,
+          '\\vfill'].join('\n');
+      } else {
+        return [
+          '',
+          '\\rule{\\textwidth}{0.5pt}',
+          '',
+          '\\begin{minipage}[t]{0.5\\textwidth}',
+          diagram,
+          label,
+          '\\end{minipage}',
+          '\\begin{minipage}[t]{0.5\\textwidth}',
+          '\\setlength{\\parskip}{0.5em}',
+          pcomment.text,
+          '\\end{minipage}',
+          '\\vfill'].join('\n');
+      }
+    },
 
-  /**
-   * Generate a Game Review Chapter Diagram.
-   */
-  gameReviewChapter: function(diagramString, comment, label, bookdata) {
-    return [
-      '\\chapter{' + bookdata.chapterTitle + '}',
-      '{\\centering',
-      diagramString,
-      '}',
-      label,
-      '',
-      comment,
-      '\\vfill'].join('\n');
-  },
+    DESCRIPTION: function(diagram, ctx, pcomment, label) {
+      return [
+        pcomment.preamble,
+        pcomment.text
+      ].join('\n');
+    },
 
-  problem: function(diagramString, comment, label, bookdata) {
-    return [
-      diagramString,
-      label,
-      '',
-      comment].join('\n');
-  },
-
-  answer: function(diagramString, comment, label, bookdata) {
-    return [
-      diagramString,
-      label,
-      '',
-      comment].join('\n');
+    PROBLEM: function(diagram, ctx, pcomment, label) {
+      // TODO(kashomon): implement.
+    }
   }
 };
 /**
@@ -1191,9 +1198,13 @@ gpub.book.latex.generator = {
     var opts = this.options();
     view.init = gpub.diagrams.getInit(opts.diagramType, 'LATEX');
     var content = [];
-    this.forEachSgf(spec, function(idx, mt, flattened) {
-      var diagramStr = gpub.diagrams.create(flattened, opts.diagramType);
-      content.push(diagramStr);
+
+    this.forEachSgf(spec, function(idx, mt, flattened, ctx) {
+      var diagram = gpub.diagrams.create(flattened, opts.diagramType);
+      var label = gpub.diagrams.createLabel(flattened);
+      var contextualized = gpub.book.latex.context.typeset(
+          diagram, ctx, flattened.comment(), label);
+      content.push(contextualized);
     }.bind(this));
 
     view.content = content.join('\n');
@@ -1210,7 +1221,8 @@ gpub.book.latex.generator = {
       diagramType: gpub.diagrams.diagramType.GNOS,
       bookOptions: {
         /**
-         * init: Any additional setup that needs to be done in the header.
+         * init: Any additional setup that needs to be done in the header. I.e.,
+         * for diagram packages.
          */
         init: '',
 
@@ -1229,6 +1241,7 @@ gpub.book.latex.generator = {
           ' \\stepcounter{GoFigure}',
           ' \\centerline{\\textit{Figure.\\thinspace\\arabic{GoFigure}}}',
           '}',
+
           '% Variation Diagrams. reset at parts.',
           '\\newcounter{GoDiagram}[part]',
           '\\newcommand{\\godiagram}{%',
@@ -1300,15 +1313,198 @@ gpub.book.latex.defaultTemplate = [
 '{{&content}}',
 '',
 '\\end{document}'].join('\n');
-  /**
-   * Sanitizes latex input. This isn't particularly robust, but it is meant to
-   * protect us against accidental problematic characters rather than malicious
-   * user input.
-   */
-gpub.book.latex.sanitize = function(text) {
-  return text.replace(/[$#}{]/g, function(match) {
-    return '\\' + match;
+/** Creates a marked-Markdown renderer for LaEeX */
+gpub.book.latex.renderer = function() {
+  if (gpub.book.latex._rendererInstance) {
+    return gpub.book.latex._rendererInstance;
+  }
+  var renderer = new glift.marked.Renderer();
+  for (var key in gpub.book.latex.markdown) {
+    renderer[key] = gpub.book.latex.markdown[key].bind(renderer);
+  }
+  renderer._preamble = [];
+
+  return renderer;
+};
+
+/**
+ * Returns:
+ *  {
+ *    preamble: ...
+ *    text: ...
+ *  }
+ */
+gpub.book.latex.renderMarkdown = function(str) {
+  var renderer = gpub.book.latex.renderer()
+  str = gpub.book.latex.sanitize(str);
+
+  var text = glift.marked(str, {
+    renderer: renderer,
+    silent: true
   });
+  return {
+    preamble: renderer.extractPreamble(),
+    text: text
+  }
+};
+
+/** Set of markdown methods for the renderer */
+gpub.book.latex.markdown = {
+  ////////////////////
+  // Custom methods //
+  ////////////////////
+
+  /** Extract the preamble from the renderer */
+  extractPreamble: function() {
+    return this._preamble.join('\n');
+  },
+
+  //////////////////////////////////
+  // Block level renderer methods //
+  //////////////////////////////////
+
+  /**
+   * Note: this assumes the memoir class.
+   *
+   * # Level 1: Book
+   * ## Level 2: Part
+   * ### Level 3: Chapter
+   * ####+ Level 4+: Chapter*
+   * text: string, level: number  
+   */
+  heading: function(text, level) {
+    if (level === 1) {
+      this._preamble.push('\\book{' + text + '}');
+    } else if (level === 2) {
+      this._preamble.push('\\part{' + text + '}');
+    } else if (level === 3) {
+      this._preamble.push('\\chapter{' + text + '}');
+    } else {
+      // A chapter heading without
+      this._preamble.push('\\chapter*{' + text + '}');
+    }
+    return ''; // Don't return anything. Header should be part of the preamble.
+    // TODO(kashomon): Should \\section{...} go here?
+  },
+
+  /** No args */
+  hr: function() {
+    return '\\hrule';
+  },
+
+  /** body: string, ordered: boolean */
+  list: function(body, ordered) {
+    if (ordererd) {
+      return [
+        '\\begin{enumerate}',
+        body,
+        '\\end{enumerate}'].join('\n');
+    } else {
+      return [
+        '\\begin{itemize}',
+        body,
+        '\\end{itemize}'].join('\n');
+    }
+  },
+
+  /** text: string */
+  listitem: function(text) {
+    return '\\item ' + text;
+  },
+
+  /** text: string */
+  paragraph: function(text) {
+    // Nothing special for paragraphs.
+    return text + '\n\n';
+  },
+
+  ///////////////////////////////////
+  // Inline level renderer methods //
+  ///////////////////////////////////
+
+  /** text: string */
+  strong: function(text) {
+    return '\\textbf{' +  text + '}';
+  },
+
+  /** text: string */
+  em: function(text) {
+    return '\\textit{' +  text + '}';
+  },
+
+  /** code: string */
+  br: function() {
+    return '\\newline';
+  },
+
+  /** href: string, title: string, text: string */
+  // requires: \usepackage{hyperref}
+  // link: function(href, title, text) {},
+
+  /** image: string, title: string, text: string */
+  // might not be necessary
+  // image: function(href, title, text) {}
+
+  ///////////////////
+  // Not Supported //
+  ///////////////////
+  code: function(code, language) { return code; },
+  blockquote: function(quote) { return quote; },
+  html: function(html) { return html; },
+  // table: function(header, body) {return table},
+  // tablerow: function(content) {},
+  // tablecell: function(content, flags) {},
+
+  codespan: function(code) { return code; },
+  del: function(text) { return text; }
+};
+///////////////////
+// Experimental! //
+///////////////////
+
+/**
+ * Page context wrapper. I think this will probably -- at least for now -- be a
+ * LaTeX consideration.
+ */
+gpub.book.latex.Page = function() {
+  this.buffer = [];
+};
+
+gpub.book.latex.Page.prototype = {
+  /** Add a diagram to the page. */
+  addDiagram: function(str, context, comment, label, isMainLine) {
+
+  },
+
+  /** Clear the page lines */
+  flush: function() {
+    var out = this.buffer.join('\n');
+    this.buffer = [];
+    return out;
+  }
+};
+
+gpub.book.latex.pageSize = {
+  A4: 'A4',
+  A5: 'A5',
+  LETTER: 'LETTER',
+
+  // http://en.wikipedia.org/wiki/Book_size
+  QUARTO: 'QUARTO',
+  OCTAVO: 'OCTAVO',
+  TWELVEMO: 'TWELVEMO'
+};
+/**
+ * Sanitizes latex input. This isn't particularly robust, but it is meant to
+ * protect us against accidental problematic characters rather than malicious
+ * user input.
+ */
+gpub.book.latex.sanitize = function(text) {
+  return text
+    .replace(/\\/g, '\\textbackslash')
+    .replace(/[$}{%&]/g, function(match) {
+      return '\\' + match;
+    });
 };
 /**
  * Methods for processing and creating Glift specifications.
@@ -1404,7 +1600,8 @@ gpub.spec = {
       alias: alias,
       initialPosition: ipString(initPos),
       nextMovesPath: fragString(nextMoves),
-      boardRegion: region
+      boardRegion: region,
+      widgetType: 'EXAMPLE'
     };
     return base;
   }
@@ -1645,10 +1842,10 @@ gpub.diagrams = {
    *
    * returns: stringified label format.
    */
-  constructLabelFromFlattened: function(flattened) {
-    return gpub.diagrams.constructLabel(
+  createLabel: function(flattened) {
+    return gpub.diagrams._constructLabel(
         collisions = flattened.collisions(),
-        isOnMainline = flattened.isOnMainline(),
+        isOnMainline = flattened.isOnMainPath(),
         startNum = flattened.startingMoveNum(),
         endNum = flattened.endingMoveNum());
   },
@@ -1662,7 +1859,7 @@ gpub.diagrams = {
    *
    * returns: stringified label format.
    */
-  constructLabel: function(collisions, isOnMainline, startNum, endNum) {
+  _constructLabel: function(collisions, isOnMainline, startNum, endNum) {
     var baseLabel = '';
     if (isOnMainline) {
       var nums = [startNum];

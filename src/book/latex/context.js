@@ -5,94 +5,79 @@ gpub.book.latex.context = {
   /**
    * Typeset the diagram into LaTeX
    */
-  typeset: function(str, comment, label, context) {
-    comment = this.sanitize(comment);
-    var camelCaseName = glift.enums.toCamelCase(purpose)
-    var func = gpub.diagrams.latex[camelCaseName];
-    switch(context.comment) {
-      case 'GAME_REVIEW':
-      case 'GAME_REVIEW_CHAPTER':
-        var baseLabel = isMainLine ? '\\gofigure' : '\\godiagram';
-        if (label) {
-          var splat = label.split('\n');
-          for (var i = 0; i < splat.length; i++ ) {
-            baseLabel += '\n\n\\subtext{' + splat[i] + '}';
-          }
-        }
-        var label = baseLabel;
-        break;
-      default:
-        // Do nothing.  This switch is for processing the incoming label.
+  typeset: function(diagram, ctx, comment, label) {
+    comment = comment || '';
+    label = label || '';
+
+    // Render the markdown. Note: This splits the comment into a
+    //  .preamble -- the header
+    //  .text -- the main body of the text.
+    var processedComment = comment ? gpub.book.latex.renderMarkdown(comment) : {
+      preamble: '',
+      text: ''
+    };
+
+    var processedLabel = gpub.book.latex.context._processLabel(label, ctx);
+
+    var renderer = gpub.book.latex.context.rendering[ctx.contextType];
+    if (!renderer) {
+      renderer = gpub.book.latex.context.rendering[DESCRIPTION];
     }
-    return func(str, comment, label, bookData);
+
+    return renderer(diagram, ctx, processedComment, processedLabel);
   },
 
-  /**
-   * Return a section intro.
-   */
-  sectionIntro: function(diagramString, comment, label, bookData) {
-    var part = bookData.sectionTitle || '';
-    var chapter = bookData.chapterTitle || '';
-    return [
-      '\\part{' + part + '}',
-      '\\chapter{' + chapter + '}',
-      comment
-    ].join('\n');
+  /** Process the label to make it appropriate for LaTeX. */
+  _processLabel: function(label, ctx) {
+    var baseLabel = ctx.isMainLine ? '\\gofigure' : '\\godiagram';
+    if (label) {
+      var splat = label.split('\n');
+      for (var i = 0; i < splat.length; i++ ) {
+        baseLabel += '\n\n\\subtext{' + splat[i] + '}';
+      }
+    }
+    return baseLabel;
   },
 
-  /**
-   * Generate a GAME_REVIEW diagram.
-   *
-   * diagramString: Literal string for the diagram
-   * comment: Comment for diagram
-   * label: Diagram label
-   *
-   * returns: filled-in latex string.
-   */
-  gameReview: function(diagramString, comment, label) {
-    return [
-      '',
-      '\\rule{\\textwidth}{0.5pt}',
-      '',
-      '\\begin{minipage}[t]{0.5\\textwidth}',
-      diagramString,
-      label,
-      '\\end{minipage}',
-      '\\begin{minipage}[t]{0.5\\textwidth}',
-      '\\setlength{\\parskip}{0.5em}',
-      comment,
-      '\\end{minipage}',
-      '\\vfill'].join('\n');
-  },
+  /** Render the specific digaram context. */
+  rendering: {
+    EXAMPLE: function(diagram, ctx, pcomment, label) {
+      if (ctx.preamble) {
+        return [
+          pcomment.preamble,
+          '{\\centering',
+          diagram,
+          '}',
+          label,
+          '',
+          pcomment.text,
+          '\\vfill'].join('\n');
+      } else {
+        return [
+          '',
+          '\\rule{\\textwidth}{0.5pt}',
+          '',
+          '\\begin{minipage}[t]{0.5\\textwidth}',
+          diagram,
+          label,
+          '\\end{minipage}',
+          '\\begin{minipage}[t]{0.5\\textwidth}',
+          '\\setlength{\\parskip}{0.5em}',
+          pcomment.text,
+          '\\end{minipage}',
+          '\\vfill'].join('\n');
+      }
+    },
 
-  /**
-   * Generate a Game Review Chapter Diagram.
-   */
-  gameReviewChapter: function(diagramString, comment, label, bookdata) {
-    return [
-      '\\chapter{' + bookdata.chapterTitle + '}',
-      '{\\centering',
-      diagramString,
-      '}',
-      label,
-      '',
-      comment,
-      '\\vfill'].join('\n');
-  },
+    DESCRIPTION: function(diagram, ctx, pcomment, label) {
+      return [
+        pcomment.preamble,
+        pcomment.text
+      ].join('\n');
+    },
 
-  problem: function(diagramString, comment, label, bookdata) {
-    return [
-      diagramString,
-      label,
-      '',
-      comment].join('\n');
-  },
-
-  answer: function(diagramString, comment, label, bookdata) {
-    return [
-      diagramString,
-      label,
-      '',
-      comment].join('\n');
+    PROBLEM: function(diagram, ctx, pcomment, label) {
+      // TODO(kashomon): implement.
+    }
   }
 };

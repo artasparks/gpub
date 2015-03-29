@@ -4,7 +4,9 @@
  * user input.
  */
 gpub.book.latex.sanitize = function(text) {
-  return text.replace(/[$#}{]/g, function(match) {
-    return '\\' + match;
-  });
+  return text
+    .replace(/\\/g, '\\textbackslash')
+    .replace(/[$}{%&]/g, function(match) {
+      return '\\' + match;
+    });
 };

@@ -103,9 +103,9 @@ gpub.diagrams = {
    * returns: stringified label format.
    */
   createLabel: function(flattened) {
-    return gpub.diagrams.constructLabel(
+    return gpub.diagrams._constructLabel(
         collisions = flattened.collisions(),
-        isOnMainline = flattened.isOnMainline(),
+        isOnMainline = flattened.isOnMainPath(),
         startNum = flattened.startingMoveNum(),
         endNum = flattened.endingMoveNum());
   },
