@@ -28,7 +28,7 @@ gpub.book.generator = function(outputFormat, options) {
         outputFormat);
   }
 
-  return gen.initOptions(options);
+  return gen._initOptions(options);
 };
 
 /**
@@ -82,14 +82,27 @@ gpub.book._Generator.prototype = {
     var firstSgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(0));
     var mt = this.getMovetree(firstSgfObj);
 
+    var defaultView = this.defaultOptions ?
+        this.defaultOptions().bookOptions || {} : {};
+
     var globalMetadata = mt.metadata();
-    // Should we defer to the book options or the data defined in the SGF? Here,
-    // we've made the decision to defer to the book options, since, in some
-    // sense, the book options as an argument are more explicit.
+
+    // Prefer options in the following order:
+    //  1. explicitly passed in options (already done)
+    //  2. metadata in the SGF
+    //  3. default view options
     if (globalMetadata) {
       for (var key in globalMetadata) {
-        if (globalMetadata[key]) {
+        if (globalMetadata[key] && !view[key]) {
           view[key] = globalMetadata[key];
+        }
+      }
+    }
+
+    if (defaultView) {
+      for (var key in defaultView) {
+        if (defaultView[key] && !view[key]) {
+          view[key] = defaultView[key];
         }
       }
     }
@@ -161,33 +174,24 @@ gpub.book._Generator.prototype = {
    * Set the options for the Generator. Note: The generator defensively makes
    * a copy of the options.
    */
-  initOptions: function(opts) {
+  _initOptions: function(opts) {
     if (!opts) { throw new Error('Opts not defined'); }
     this._opts = glift.util.simpleClone(opts || {});
 
-    var defOpts = {};
+    var defaultOpts = {};
     if (this.defaultOptions) {
-      defOpts = this.defaultOptions();
+      defaultOpts = this.defaultOptions();
     }
 
-    if (!defOpts) { throw new Error('Default options not defined'); }
+    if (!defaultOpts) { throw new Error('Default options not defined'); }
 
-    // TODO(kashomon): Should this be recursive? It's not clear to me.  Do you
-    // usually want to copy over top level objects as they are?
-    for (var gkey in defOpts) {
-      if (defOpts[gkey] && !this._opts[gkey]) {
-        this._opts[gkey] = defOpts[gkey];
-      }
-      // Step one level deeper into book options and copy the keys there.
-      if (gkey === 'bookOptions') {
-        var bookOptions = defOpts[gkey];
-        for (var bkey in bookOptions) {
-          if (bookOptions[bkey] && !this._opts.bookOptions[bkey]) {
-            this._opts.bookOptions[bkey] = bookOptions[bkey];
-          }
-        }
+    for (var gkey in defaultOpts) {
+      if (defaultOpts[gkey] && !this._opts[gkey]) {
+        this._opts[gkey] = defaultOpts[gkey];
       }
     }
+    // Note: We explicitly don't drill down into the bookOptions / view so that
+    // the passed-in bookOptions have the ability to take precedence.
     return this;
   },
 
