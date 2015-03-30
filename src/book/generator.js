@@ -88,7 +88,7 @@ gpub.book._Generator.prototype = {
     // sense, the book options as an argument are more explicit.
     if (globalMetadata) {
       for (var key in globalMetadata) {
-        if (globalMetadata[key] && !view[key]) {
+        if (globalMetadata[key]) {
           view[key] = globalMetadata[key];
         }
       }
