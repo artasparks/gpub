@@ -45,13 +45,14 @@ gpub.book._headingRegex = /(^|\n)#+\s*\w+/;
  *
  * This method uses a bunch of heuristics and is somewhat brittle.
  */
-gpub.book.getDiagramContext = function(mt, sgfObj) {
+gpub.book.getDiagramContext = function(mt, flattened, sgfObj) {
   var ctx = gpub.book.contextType;
   var wtypes = glift.enums.widgetTypes;
   var wt = sgfObj.widgetType;
+  mt = mt.newTreeRef();
 
   var ctxType = ctx.NONE;
-  var comment = mt.properties().getComment();
+  var comment = flattened.comment();
   var isChapter = gpub.book._headingRegex.test(comment);
 
   if (wt === wtypes.STANDARD_PROBLEM ||
@@ -61,9 +62,8 @@ gpub.book.getDiagramContext = function(mt, sgfObj) {
       wt === wtypes.GAME_VIEWER ||
       wt === wtypes.REDUCED_GAME_VIEWER) {
     ctxType = ctx.VARIATIONS; // Needs more processing
-  } else if (wt === wtypes.EXAMPLE && mt.node().getNodeNum() === 0) {
-    var stones = mt.properties().getAllStones();
-    if (stones.BLACK.length === 0 && stones.WHITE.length === 0) {
+  } else if (wt === wtypes.EXAMPLE && flattened.endingMoveNum() === 1) {
+    if (glift.obj.isEmpty(flattened.stoneMap())) {
       ctxType = ctx.DESCRIPTION;
     } else {
       ctxType = ctx.EXAMPLE;

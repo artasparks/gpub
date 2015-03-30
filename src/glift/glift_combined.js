@@ -693,6 +693,14 @@ glift.obj = {
       }
     }
     return newObj;
+  },
+
+  /** Returns true if an object is empty. False otherwise. */
+  isEmpty: function(obj) {
+    for (var key in obj) {
+      return false;
+    }
+    return true;
   }
 };
 glift.util.perfLog = function(msg) {
@@ -2442,7 +2450,7 @@ InlineLexer.prototype.output = function(src) {
 
   var escape = function(text) {
     return text;
-  };
+  }
 
   while (src) {
     // escape
@@ -2954,7 +2962,6 @@ Parser.prototype.tok = function() {
  */
 
 function escape(html, encode) {
-  return '';
   return html
     .replace(!encode ? /&(?!#?\w+;)/g : /&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -11019,10 +11026,12 @@ glift.flattener = {
     var comment = mt.properties().getComment() || '';
     return new glift.flattener.Flattened(
         board, collisions, comment, boardRegion, cropping, mt.onMainline(),
-        startingMoveNum, endingMoveNum);
+        startingMoveNum, endingMoveNum, stoneMap);
   },
 
   /**
+   * Note: This contains ALL stones for a given position.
+   *
    * Get map from pt string to stone {point: <point>, color: <color>}.
    * goban: a glift.rules.goban instance.
    * nextStones: array of stone objects -- {point: <pt>, color: <color>}
@@ -11376,7 +11385,7 @@ glift.flattener._Board.prototype = {
  */
 glift.flattener.Flattened = function(
     board, collisions, comment, boardRegion, cropping, isOnMainPath,
-    startMoveNum, endMoveNum) {
+    startMoveNum, endMoveNum, stoneMap) {
   /**
    * Board wrapper. Essentially a double array of intersection objects.
    */
@@ -11409,6 +11418,14 @@ glift.flattener.Flattened = function(
    */
   this._startMoveNum = startMoveNum;
   this._endMoveNum = endMoveNum;
+
+  /**
+   * All the stones!
+   *
+   * A map from the point string to a stone object:
+   *    {point: <point>, color: <color>}
+   */
+  this._stoneMap = stoneMap;
 };
 
 glift.flattener.Flattened.prototype = {
@@ -11432,7 +11449,10 @@ glift.flattener.Flattened.prototype = {
   startingMoveNum: function() { return this._startMoveNum; },
 
   /** Returns the ending move number. */
-  endingMoveNum: function() { return this._endMoveNum; }
+  endingMoveNum: function() { return this._endMoveNum; },
+
+  /** Returns the stone map. */
+  stoneMap: function() { return this._stoneMap; }
 };
 glift.flattener.intersection = {
 

@@ -78,4 +78,14 @@
       newCtx(ctx.EXAMPLE, false, false),
     ]);
   });
+
+  test('Example: variation from beginning', function() {
+    var spec = constructSpec([
+      { widgetType: wtypes.EXAMPLE, sgfString: '(;GM[1](;B[aa])(;B[bb]))',
+          initialPosition: '', nextMovesPath: '0' },
+    ]);
+    deepEqual(getCtxFromSpec(spec), [
+      newCtx(ctx.EXAMPLE, false, true),
+    ]);
+  })
 })();

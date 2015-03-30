@@ -125,7 +125,7 @@ gpub.book._Generator.prototype = {
           boardRegion: sgfObj.boardRegion
       });
 
-      var ctx = gpub.book.getDiagramContext(mt, sgfObj);
+      var ctx = gpub.book.getDiagramContext(mt, flattened, sgfObj);
 
       fn(i, mt, flattened, ctx);
     }

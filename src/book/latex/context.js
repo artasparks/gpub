@@ -72,7 +72,8 @@ gpub.book.latex.context = {
     DESCRIPTION: function(diagram, ctx, pcomment, label) {
       return [
         pcomment.preamble,
-        pcomment.text
+        pcomment.text,
+        '\\vfill'
       ].join('\n');
     },
 
