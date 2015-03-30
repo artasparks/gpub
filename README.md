@@ -84,7 +84,6 @@ The __`Output Format`__ represents type of data that GPub produces.  Some curren
   * `ASCII`: A simple ASCII format, possibly RTF, used for testing and editing.
     Diagrams are intended to be generated as ASCII diagrams, or perhaps as
     rasterized images.
-  * `SMART_GO`: A book in the Smart Go format. Not currently supported
 
 #### Diagram Type
 __`Diagram Type`__ indicates how diagrams should be rendered. Note that most diagrams
@@ -121,9 +120,9 @@ See the Mustache docs for more information about what is supported.
 To override the default template (for the particular output type), set the
 options.template variable.
 
-__Caveat__: We use special tags for LaTeX `<% %>` rather than the default
-`{{ }}` brackets. The standard curly brackets are used for all other output
-formats.
+__Note__: We will probably switch to using special tags for LaTeX `<% %>` rather
+than the default `{{ }}` brackets, since curly-brackets are used as control
+characters in LaTeX
 
 Generally, the structure of a template looks like:
 
@@ -131,12 +130,12 @@ Generally, the structure of a template looks like:
 \documentclass[letterpaper,12pt]{article}
 \begin{document}
 
-\title{<%title%>}
-\author{<%author%>}
+\title{ {{title%}} }
+\author{ {{author}} }
 
 \maketitle
 
-<%content%>
+{{content}}
 
 \end{document}
 ```
@@ -160,7 +159,7 @@ As per 1., template parameters may be provided embedded with an SGF property as 
 ```
 GC[{
   "title": "My Book!",
-  "author": "Kashomon"
+  "authors": ["Kashomon"]
 }]
 ```
 
@@ -173,7 +172,7 @@ As per 2., template prameters may also be provided via the gpub API:
 gpub.create([sgf1, sgf2, ...], {
   bookOptions: {
     title: 'My Book',
-    author: 'Kashomon'
+    authors: ['Kashomon']
   }
 });
 ```
