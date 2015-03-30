@@ -1260,7 +1260,6 @@ gpub.book.latex.defaultTemplate = [
 '\\usepackage{color}',
 '\\usepackage{wrapfig}',
 '\\usepackage{setspace}',
-'\\usepackage{unicode}',
 '\\usepackage[margin=1in]{geometry}',
 
 '%%% Define any extra packages %%%',
