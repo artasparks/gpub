@@ -50,7 +50,7 @@
     };
 
     var view = gen.view(spec);
-    deepEqual(view, { zed: 'fred', zod: 'frod' });
+    deepEqual(view, { zed: 'frood', zod: 'frod' });
   });
 
   test('Book process options: defaults for type', function() {
