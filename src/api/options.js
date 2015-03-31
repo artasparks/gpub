@@ -35,6 +35,16 @@ gpub.defaultOptions = {
   // TODO(kashomon): Rename this to view so that we can have the book options be
   // separate.
   bookOptions: {}
+
+  /** Text supporting the bulk of the the work that comes before the main thrust
+   * of the book. */
+  frontmatter: {
+    forward: null,
+    preface: null,
+    acknowledgements: null,
+    glossary: null,
+    introduction: null,
+  }
 };
 
 
