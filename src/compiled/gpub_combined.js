@@ -893,7 +893,7 @@ gpub.book._Generator.prototype = {
     //  3. default view options
     if (globalMetadata) {
       for (var key in globalMetadata) {
-        if (globalMetadata[key] && !view[key]) {
+        if (globalMetadata[key] !== undefined && view[key] === undefined) {
           view[key] = globalMetadata[key];
         }
       }
@@ -901,7 +901,7 @@ gpub.book._Generator.prototype = {
 
     if (defaultView) {
       for (var key in defaultView) {
-        if (defaultView[key] && !view[key]) {
+        if (defaultView[key] !== undefined && view[key] === undefined) {
           view[key] = defaultView[key];
         }
       }
@@ -1153,7 +1153,7 @@ gpub.book.latex.context = {
   /** Render the specific digaram context. */
   rendering: {
     EXAMPLE: function(diagram, ctx, pcomment, label) {
-      if (ctx.preamble) {
+      if (pcomment.preamble) {
         return [
           pcomment.preamble,
           '{\\centering',
@@ -1287,14 +1287,19 @@ gpub.book.latex.defaultTemplate = [
 '  \\raggedleft',
 '  {{#authors}}',
 '     {\\Large {{.}} } \\\\',
+'     \\vspace*{5 em}',
 '  {{/authors}}',
 '  \\vspace*{5 em}',
 '  {\\textcolor{light-gray}{\\Huge {{title}} }}\\\\',
 '  \\vspace*{\\baselineskip}',
+'  {{#subtitle}}',
 '  {\\small \\bfseries {{subtitle}} }\\par',
+'  {{/subtitle}}',
 '  \\vfill',
+'  {{#publisher}}',
 '  {\\Large {{publisher}} }\\par',
 '  \\vspace*{2\\baselineskip}',
+'  {{/publisher}}',
 '\\endgroup}',
 
 '',

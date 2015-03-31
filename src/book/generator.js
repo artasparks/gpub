@@ -93,7 +93,7 @@ gpub.book._Generator.prototype = {
     //  3. default view options
     if (globalMetadata) {
       for (var key in globalMetadata) {
-        if (globalMetadata[key] && !view[key]) {
+        if (globalMetadata[key] !== undefined && view[key] === undefined) {
           view[key] = globalMetadata[key];
         }
       }
@@ -101,7 +101,7 @@ gpub.book._Generator.prototype = {
 
     if (defaultView) {
       for (var key in defaultView) {
-        if (defaultView[key] && !view[key]) {
+        if (defaultView[key] !== undefined && view[key] === undefined) {
           view[key] = defaultView[key];
         }
       }

@@ -42,7 +42,7 @@ gpub.book.latex.context = {
   /** Render the specific digaram context. */
   rendering: {
     EXAMPLE: function(diagram, ctx, pcomment, label) {
-      if (ctx.preamble) {
+      if (pcomment.preamble) {
         return [
           pcomment.preamble,
           '{\\centering',
