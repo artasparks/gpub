@@ -49,14 +49,14 @@ gpub.book.latex.generator = {
           '\\newcounter{GoFigure}[part]',
           '\\newcommand{\\gofigure}{%',
           ' \\stepcounter{GoFigure}',
-          ' \\centerline{\\textit{Figure.\\thinspace\\arabic{GoFigure}}}',
+          ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoFigure}}}',
           '}',
 
           '% Variation Diagrams. reset at parts.',
           '\\newcounter{GoDiagram}[part]',
           '\\newcommand{\\godiagram}{%',
           ' \\stepcounter{GoDiagram}',
-          ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoDiagram}}}',
+          ' \\centerline{\\textit{Variation.\\thinspace\\arabic{GoDiagram}}}',
           '}',
           '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
           ''].join('\n')

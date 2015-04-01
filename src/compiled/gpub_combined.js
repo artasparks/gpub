@@ -796,7 +796,7 @@ gpub.book.getDiagramContext = function(mt, flattened, sgfObj) {
   } else {
     ctxType = ctx.EXAMPLE;
   }
-  return gpub.book.newDiagramContext(ctxType, isChapter, mt.onMainline());
+  return gpub.book.newDiagramContext(ctxType, isChapter, flattened.isOnMainPath());
 };
 /**
  * Constructs a book generator.
@@ -1140,7 +1140,7 @@ gpub.book.latex.context = {
 
   /** Process the label to make it appropriate for LaTeX. */
   _processLabel: function(label, ctx) {
-    var baseLabel = ctx.isMainLine ? '\\gofigure' : '\\godiagram';
+    var baseLabel = ctx.isMainline ? '\\gofigure' : '\\godiagram';
     if (label) {
       var splat = label.split('\n');
       for (var i = 0; i < splat.length; i++ ) {
@@ -1244,14 +1244,14 @@ gpub.book.latex.generator = {
           '\\newcounter{GoFigure}[part]',
           '\\newcommand{\\gofigure}{%',
           ' \\stepcounter{GoFigure}',
-          ' \\centerline{\\textit{Figure.\\thinspace\\arabic{GoFigure}}}',
+          ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoFigure}}}',
           '}',
 
           '% Variation Diagrams. reset at parts.',
           '\\newcounter{GoDiagram}[part]',
           '\\newcommand{\\godiagram}{%',
           ' \\stepcounter{GoDiagram}',
-          ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoDiagram}}}',
+          ' \\centerline{\\textit{Variation.\\thinspace\\arabic{GoDiagram}}}',
           '}',
           '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
           ''].join('\n')
@@ -2698,7 +2698,18 @@ gpub.defaultOptions = {
 
   // TODO(kashomon): Rename this to view so that we can have the book options be
   // separate.
-  bookOptions: {}
+  bookOptions: {},
+
+  /** Text supporting the bulk of the the work that comes before the main thrust
+   * of the book. */
+  frontmatter: {
+    forward: null,
+    preface: null,
+    acknowledgements: null,
+    introduction: null,
+
+    glossary: null
+  }
 };
 
 

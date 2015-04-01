@@ -71,5 +71,5 @@ gpub.book.getDiagramContext = function(mt, flattened, sgfObj) {
   } else {
     ctxType = ctx.EXAMPLE;
   }
-  return gpub.book.newDiagramContext(ctxType, isChapter, mt.onMainline());
+  return gpub.book.newDiagramContext(ctxType, isChapter, flattened.isOnMainPath());
 };
