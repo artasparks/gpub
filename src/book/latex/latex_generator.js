@@ -53,10 +53,10 @@ gpub.book.latex.generator = {
           '}',
 
           '% Variation Diagrams. reset at parts.',
-          '\\newcounter{GoDiagram}[part]',
-          '\\newcommand{\\godiagram}{%',
-          ' \\stepcounter{GoDiagram}',
-          ' \\centerline{\\textit{Variation.\\thinspace\\arabic{GoDiagram}}}',
+          '\\newcounter{GoVariation}[part]',
+          '\\newcommand{\\govariation}{%',
+          ' \\stepcounter{GoVariation}',
+          ' \\centerline{\\textit{Variation.\\thinspace\\arabic{GoVariation}}}',
           '}',
           '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
           ''].join('\n')

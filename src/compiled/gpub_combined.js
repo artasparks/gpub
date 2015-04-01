@@ -1140,7 +1140,7 @@ gpub.book.latex.context = {
 
   /** Process the label to make it appropriate for LaTeX. */
   _processLabel: function(label, ctx) {
-    var baseLabel = ctx.isMainline ? '\\gofigure' : '\\godiagram';
+    var baseLabel = ctx.isMainline ? '\\gofigure' : '\\govariation';
     if (label) {
       var splat = label.split('\n');
       for (var i = 0; i < splat.length; i++ ) {
@@ -1248,10 +1248,10 @@ gpub.book.latex.generator = {
           '}',
 
           '% Variation Diagrams. reset at parts.',
-          '\\newcounter{GoDiagram}[part]',
-          '\\newcommand{\\godiagram}{%',
-          ' \\stepcounter{GoDiagram}',
-          ' \\centerline{\\textit{Variation.\\thinspace\\arabic{GoDiagram}}}',
+          '\\newcounter{GoVariation}[part]',
+          '\\newcommand{\\govariation}{%',
+          ' \\stepcounter{GoVariation}',
+          ' \\centerline{\\textit{Variation.\\thinspace\\arabic{GoVariation}}}',
           '}',
           '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
           ''].join('\n')

@@ -29,7 +29,7 @@ gpub.book.latex.context = {
 
   /** Process the label to make it appropriate for LaTeX. */
   _processLabel: function(label, ctx) {
-    var baseLabel = ctx.isMainline ? '\\gofigure' : '\\godiagram';
+    var baseLabel = ctx.isMainline ? '\\gofigure' : '\\govariation';
     if (label) {
       var splat = label.split('\n');
       for (var i = 0; i < splat.length; i++ ) {
