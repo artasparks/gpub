@@ -58,7 +58,10 @@ gpub.bookPurpose = {
   GAME_COMMENTARY: 'GAME_COMMENTARY',
 
   /** Set of problems and, optionally, anwsers. */
-  PROBLEM_SET: 'PROBLEM_SET'
+  PROBLEM_SET: 'PROBLEM_SET',
+
+  /** A set of problems processed specifically for book consumption. */
+  PROBLEM_BOOK: 'PROBLEM_BOOK'
 };
 
 

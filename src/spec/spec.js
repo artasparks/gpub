@@ -32,6 +32,8 @@ gpub.spec = {
         return gpub.spec.gameBook;
       case 'PROBLEM_SET':
         return gpub.spec.problemSet;
+      case 'PROBLEM_BOOK':
+        return gpub.spec.problemBook;
       default:
         throw new Error('Unsupported book purpose: ' + bookPurpose);
         break;
