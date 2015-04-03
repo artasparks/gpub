@@ -12,7 +12,7 @@ gpub.spec.gameBook = {
     var varPathBuffer = [];
     var node = mt.node();
     while (node) {
-      if (!mt.properties().getOneValue('C') && node.numChildren() > 0) {
+      if (!mt.properties().getComment() && node.numChildren() > 0) {
         // Ignore positions don't have comments and aren't terminal.
         // We ignore the current position, but if there are variations, we note
         // them so we can process them after we record the next comment.
