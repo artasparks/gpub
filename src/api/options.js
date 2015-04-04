@@ -36,14 +36,19 @@ gpub.defaultOptions = {
   // separate.
   bookOptions: {},
 
-  /** Text supporting the bulk of the the work that comes before the main thrust
-   * of the book. */
+  /**
+   * Text supporting the bulk of the the work that comes before the mainmatter
+   * of the book. Note: Not all of these will be supported by all the
+   * book-generators.
+   */
   frontmatter: {
-    forward: null,
-    preface: null,
+    colophon: null, // AKA Copyright Page
+    epigraph: null, // AKA Quote Page
+    // TOC comes here
+    forward: null, // Author or unrelated person
+    preface: null, // Author
     acknowledgements: null,
     introduction: null,
-
     glossary: null
   }
 };
