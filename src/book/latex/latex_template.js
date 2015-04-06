@@ -3,6 +3,7 @@ gpub.book.latex.defaultTemplate = [
 '\\usepackage{color}',
 '\\usepackage{wrapfig}',
 '\\usepackage{setspace}',
+'\\usepackage{graphicx}',
 '\\usepackage[margin=1in]{geometry}',
 
 '%%% Define any extra packages %%%',
@@ -26,7 +27,7 @@ gpub.book.latex.defaultTemplate = [
 '  \\raggedleft',
 '  {{#authors}}',
 '     {\\Large {{.}} } \\\\',
-'     \\vspace*{5 em}',
+'     \\vspace*{1 em}',
 '  {{/authors}}',
 '  \\vspace*{5 em}',
 '  {\\textcolor{light-gray}{\\Huge {{title}} }}\\\\',
@@ -41,23 +42,33 @@ gpub.book.latex.defaultTemplate = [
 '  {{/publisher}}',
 '\\endgroup}',
 
+' %%% Chapter settings %%%',
+//'\\pagestyle{empty}',
+//'\\chapterstyle{section}', -- the old style
+//'\\chapterstyle{demo2}', -- 2 hrules
+'\\chapterstyle{madsen}',
+'\\pagestyle{companion}',
+'\\makepagestyle{headings}',
+'\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
+'\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}',
+//'\\renewcommand{\\printchapternum}{\\space}', -- No chapter nums
+
 '',
 '\\begin{document}',
-'',
-'\\pagestyle{empty}',
+'%%% The Frontmatter. %%%',
+'\\begin{titlingpage}', // Don't number the title page
 '\\mainBookTitle',
+'\\end{titlingpage}',
+'\\frontmatter*',
+
+'',
+'',
 '\\newpage',
 '\\tableofcontents',
 '',
-'\\chapterstyle{section}',
-'\\pagestyle{companion}',
-'\\makepagestyle{headings}',
-'\\renewcommand{\\printchapternum}{\\space}',
-'\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
-'\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}',
 '',
-
 '%%% The content. %%%',
+'\\mainmatter',
 '{{&content}}',
 '',
 '\\end{document}'].join('\n');

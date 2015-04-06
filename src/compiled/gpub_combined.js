@@ -1264,6 +1264,7 @@ gpub.book.latex.defaultTemplate = [
 '\\usepackage{color}',
 '\\usepackage{wrapfig}',
 '\\usepackage{setspace}',
+'\\usepackage{graphicx}',
 '\\usepackage[margin=1in]{geometry}',
 
 '%%% Define any extra packages %%%',
@@ -1287,7 +1288,7 @@ gpub.book.latex.defaultTemplate = [
 '  \\raggedleft',
 '  {{#authors}}',
 '     {\\Large {{.}} } \\\\',
-'     \\vspace*{5 em}',
+'     \\vspace*{1 em}',
 '  {{/authors}}',
 '  \\vspace*{5 em}',
 '  {\\textcolor{light-gray}{\\Huge {{title}} }}\\\\',
@@ -1302,23 +1303,33 @@ gpub.book.latex.defaultTemplate = [
 '  {{/publisher}}',
 '\\endgroup}',
 
+' %%% Chapter settings %%%',
+//'\\pagestyle{empty}',
+//'\\chapterstyle{section}', -- the old style
+//'\\chapterstyle{demo2}', -- 2 hrules
+'\\chapterstyle{madsen}',
+'\\pagestyle{companion}',
+'\\makepagestyle{headings}',
+'\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
+'\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}',
+//'\\renewcommand{\\printchapternum}{\\space}', -- No chapter nums
+
 '',
 '\\begin{document}',
-'',
-'\\pagestyle{empty}',
+'%%% The Frontmatter. %%%',
+'\\begin{titlingpage}', // Don't number the title page
 '\\mainBookTitle',
+'\\end{titlingpage}',
+'\\frontmatter*',
+
+'',
+'',
 '\\newpage',
 '\\tableofcontents',
 '',
-'\\chapterstyle{section}',
-'\\pagestyle{companion}',
-'\\makepagestyle{headings}',
-'\\renewcommand{\\printchapternum}{\\space}',
-'\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
-'\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}',
 '',
-
 '%%% The content. %%%',
+'\\mainmatter',
 '{{&content}}',
 '',
 '\\end{document}'].join('\n');
@@ -1549,6 +1560,8 @@ gpub.spec = {
         return gpub.spec.gameBook;
       case 'PROBLEM_SET':
         return gpub.spec.problemSet;
+      case 'PROBLEM_BOOK':
+        return gpub.spec.problemBook;
       default:
         throw new Error('Unsupported book purpose: ' + bookPurpose);
         break;
@@ -1629,7 +1642,7 @@ gpub.spec.gameBook = {
     var varPathBuffer = [];
     var node = mt.node();
     while (node) {
-      if (!mt.properties().getOneValue('C') && node.numChildren() > 0) {
+      if (!mt.properties().getComment() && node.numChildren() > 0) {
         // Ignore positions don't have comments and aren't terminal.
         // We ignore the current position, but if there are variations, we note
         // them so we can process them after we record the next comment.
@@ -1693,6 +1706,28 @@ gpub.spec.gameBook = {
       });
     }
     return out;
+  }
+};
+/**
+ * A gpub spec processor for problem meant to go into books. I expect that this
+ * will be used as a just-in-time processor during book generation.
+ */
+gpub.spec.problemBook = {
+  setHeaderInfo: function(spec, options) {
+    spec.sgfDefaults.widgetType = glift.enums.widgetTypes.EXAMPLE;
+    return spec;
+  },
+
+  processOneSgf: function(mt, alias, options) {
+  },
+
+  processProblemDef: function(mt, alias, options) {
+  },
+
+  processCorrect: function(mt, alias, options) {
+  },
+
+  processIncorrect: function(mt, alias, options) {
   }
 };
 /**
@@ -2700,14 +2735,19 @@ gpub.defaultOptions = {
   // separate.
   bookOptions: {},
 
-  /** Text supporting the bulk of the the work that comes before the main thrust
-   * of the book. */
+  /**
+   * Text supporting the bulk of the the work that comes before the mainmatter
+   * of the book. Note: Not all of these will be supported by all the
+   * book-generators.
+   */
   frontmatter: {
-    forward: null,
-    preface: null,
+    colophon: null, // AKA Copyright Page
+    epigraph: null, // AKA Quote Page
+    // TOC comes here
+    forward: null, // Author or unrelated person
+    preface: null, // Author
     acknowledgements: null,
     introduction: null,
-
     glossary: null
   }
 };
@@ -2722,7 +2762,10 @@ gpub.bookPurpose = {
   GAME_COMMENTARY: 'GAME_COMMENTARY',
 
   /** Set of problems and, optionally, anwsers. */
-  PROBLEM_SET: 'PROBLEM_SET'
+  PROBLEM_SET: 'PROBLEM_SET',
+
+  /** A set of problems processed specifically for book consumption. */
+  PROBLEM_BOOK: 'PROBLEM_BOOK'
 };
 
 
