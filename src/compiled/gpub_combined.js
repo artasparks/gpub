@@ -1404,9 +1404,11 @@ gpub.book.latex.markdown = {
       this._preamble.push('\\part{' + text + '}');
     } else if (level === 3) {
       this._preamble.push('\\chapter{' + text + '}');
+    } else if (level === 4) {
+      this._preamble.push('\\section{' + text + '}');
     } else {
       // A chapter heading without
-      this._preamble.push('\\chapter*{' + text + '}');
+      this._preamble.push('\\section*{' + text + '}');
     }
     return ''; // Don't return anything. Header should be part of the preamble.
     // TODO(kashomon): Should \\section{...} go here?
