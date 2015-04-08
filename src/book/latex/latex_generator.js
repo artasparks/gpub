@@ -13,7 +13,7 @@ gpub.book.latex.generator = {
       var diagram = gpub.diagrams.create(flattened, opts.diagramType);
       var label = gpub.diagrams.createLabel(flattened);
       var contextualized = gpub.book.latex.context.typeset(
-          diagram, ctx, flattened.comment(), label);
+          opts.diagramType, diagram, ctx, flattened.comment(), label);
       content.push(contextualized);
     }.bind(this));
 

@@ -50,6 +50,29 @@ gpub.diagrams.gnos = {
     return gpub.diagrams.gnos.gnosStringArr(flattened, options.size).join('\n');
   },
 
+
+  _inlineBlack: '{\\raisebox{-.17em}{\\gnos ' +
+      '\\gnosOverlap{@}{\\color{white}\\small{%s}}}}',
+  _inlineWhite: '{\\raisebox{-.17em}{\\gnos \\gnosOverlap{!}{\\small{%s}}}}',
+
+  /** Render go stones that exist in a block of text. */
+  renderInline: function(text) {
+    return text.replace(/((Black)|(White)) (([A-Z])|([0-9]+))(?=([^a-z]|$))/g,
+        function(m, p1, xx2, xx3, p4) {
+      if (p1 === 'Black') {
+        return gpub.diagrams.gnos._inlineBlack.replace('%s', p4);
+      } else if (p1 === 'White') {
+        return gpub.diagrams.gnos._inlineWhite.replace('%s', p4);
+      } else {
+        return m;
+      }
+    });
+  },
+
+  ///////////////////////
+  // 'private' helpers //
+  ///////////////////////
+
   gnosStringArr: function(flattened, size) {
     var latexNewLine = '\\\\';
     var header = [

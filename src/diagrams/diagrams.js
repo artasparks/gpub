@@ -43,6 +43,11 @@ gpub.diagrams = {
     return this._getPackage(diagramType).create(flattened, options);
   },
 
+  /** Renders go stones that exist in a block of text. */
+  renderInline: function(diagramType, text) {
+    return this._getPackage(diagramType).renderInline(text);
+  },
+
   /** Gets a diagram type package */
   _getPackage: function(diagramType) {
     if (!diagramType || !gpub.diagrams.diagramType[diagramType]) {

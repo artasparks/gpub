@@ -21,6 +21,16 @@ gpub.diagrams.gooe = {
     return gpub.diagrams.gooe.gooeStringArray(flattened, size).join('\n');
   },
 
+  /** Render go stones that exist in a block of text. */
+  renderInline: function(text) {
+    // TODO(kashomon): Implement at some point. See gnos for an example.
+    return text;
+  },
+
+  ///////////////////////
+  // 'private' helpers //
+  ///////////////////////
+
   /**
    * Returns an array of string lines.
    */

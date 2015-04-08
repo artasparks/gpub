@@ -37,4 +37,19 @@
     deepEqual(getLabelDef('300', 20 /* bstone */, 12), 'BSTONE_NUMLABEL_300_399');
     deepEqual(getLabelDef('300', 21 /* wstone */, 12), 'WSTONE_NUMLABEL_300_399');
   });
+
+  test('Gnos render inline', function() {
+    var g = gpub.diagrams.gnos;
+    var text = 'And then! Black 3 followed by White 4! Destruction. ' +
+        'Avoidable with White A';
+    var expected = 'And then! ' +
+        g._inlineBlack.replace('%s', '3') +
+        ' followed by ' +
+        g._inlineWhite.replace('%s', '4') +
+        '! Destruction. ' +
+        'Avoidable with ' +
+        g._inlineWhite.replace('%s', 'A');
+    var t = g.renderInline(text);
+    deepEqual(g.renderInline(text), expected);
+  });
 })();

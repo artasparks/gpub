@@ -5,7 +5,7 @@ gpub.book.latex.context = {
   /**
    * Typeset the diagram into LaTeX
    */
-  typeset: function(diagram, ctx, comment, label) {
+  typeset: function(diagramType, diagram, ctx, comment, label) {
     comment = comment || '';
     label = label || '';
 
@@ -16,6 +16,9 @@ gpub.book.latex.context = {
       preamble: '',
       text: ''
     };
+
+    processedComment.text = gpub.diagrams.renderInline(
+        diagramType, processedComment.text);
 
     var processedLabel = gpub.book.latex.context._processLabel(label, ctx);
 

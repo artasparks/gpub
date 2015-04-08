@@ -1116,7 +1116,7 @@ gpub.book.latex.context = {
   /**
    * Typeset the diagram into LaTeX
    */
-  typeset: function(diagram, ctx, comment, label) {
+  typeset: function(diagramType, diagram, ctx, comment, label) {
     comment = comment || '';
     label = label || '';
 
@@ -1127,6 +1127,9 @@ gpub.book.latex.context = {
       preamble: '',
       text: ''
     };
+
+    processedComment.text = gpub.diagrams.renderInline(
+        diagramType, processedComment.text);
 
     var processedLabel = gpub.book.latex.context._processLabel(label, ctx);
 
@@ -1208,7 +1211,7 @@ gpub.book.latex.generator = {
       var diagram = gpub.diagrams.create(flattened, opts.diagramType);
       var label = gpub.diagrams.createLabel(flattened);
       var contextualized = gpub.book.latex.context.typeset(
-          diagram, ctx, flattened.comment(), label);
+          opts.diagramType, diagram, ctx, flattened.comment(), label);
       content.push(contextualized);
     }.bind(this));
 
@@ -1834,6 +1837,11 @@ gpub.diagrams = {
     return this._getPackage(diagramType).create(flattened, options);
   },
 
+  /** Renders go stones that exist in a block of text. */
+  renderInline: function(diagramType, text) {
+    return this._getPackage(diagramType).renderInline(text);
+  },
+
   /** Gets a diagram type package */
   _getPackage: function(diagramType) {
     if (!diagramType || !gpub.diagrams.diagramType[diagramType]) {
@@ -1944,7 +1952,10 @@ gpub.diagrams.creator = {
   /**
    * Create diagram from a flattened display.
    */
-  create: function(flattened, options) {}
+  create: function(flattened, options) {},
+
+  /** Renders go stones that exist in a block of text. */
+  renderInline: function(text) {}
 };
 /**
  * ASCII in the Sensei's library format.  See:
@@ -1995,6 +2006,12 @@ gpub.diagrams.senseisAscii = {
     }
 
     return outArr.join('\n');
+  },
+
+  /** Render go stones that exist in a block of text. */
+  renderInline: function(text) {
+    // We probably don't want to modifify inline go stones for ascii rendering.
+    return text;
   }
 };
 gpub.diagrams.senseisAscii.symbolMap = {
@@ -2068,6 +2085,16 @@ gpub.diagrams.gooe = {
   create: function(flattened, size) {
     return gpub.diagrams.gooe.gooeStringArray(flattened, size).join('\n');
   },
+
+  /** Render go stones that exist in a block of text. */
+  renderInline: function(text) {
+    // TODO(kashomon): Implement at some point. See gnos for an example.
+    return text;
+  },
+
+  ///////////////////////
+  // 'private' helpers //
+  ///////////////////////
 
   /**
    * Returns an array of string lines.
@@ -2290,6 +2317,29 @@ gpub.diagrams.gnos = {
     return gpub.diagrams.gnos.gnosStringArr(flattened, options.size).join('\n');
   },
 
+
+  _inlineBlack: '{\\raisebox{-.17em}{\\gnos ' +
+      '\\gnosOverlap{@}{\\color{white}\\small{%s}}}}',
+  _inlineWhite: '{\\raisebox{-.17em}{\\gnos \\gnosOverlap{!}{\\small{%s}}}}',
+
+  /** Render go stones that exist in a block of text. */
+  renderInline: function(text) {
+    return text.replace(/((Black)|(White)) (([A-Z])|([0-9]+))(?=([^a-z]|$))/g,
+        function(m, p1, xx2, xx3, p4) {
+      if (p1 === 'Black') {
+        return gpub.diagrams.gnos._inlineBlack.replace('%s', p4);
+      } else if (p1 === 'White') {
+        return gpub.diagrams.gnos._inlineWhite.replace('%s', p4);
+      } else {
+        return m;
+      }
+    });
+  },
+
+  ///////////////////////
+  // 'private' helpers //
+  ///////////////////////
+
   gnosStringArr: function(flattened, size) {
     var latexNewLine = '\\\\';
     var header = [
@@ -2454,6 +2504,12 @@ gpub.diagrams.gnos.symbolMap = {
 };
 gpub.diagrams.igo = {
   create: function(flattened, options) {
+  },
+
+  /** Render go stones that exist in a block of text. */
+  renderInline: function(text) {
+    // TODO(kashomon): Implement at some point. See gnos for an example.
+    return text;
   }
 };
 /**
@@ -2461,6 +2517,12 @@ gpub.diagrams.igo = {
  */
 gpub.diagrams.pdf = {
   create: function(flattened, options) {
+  },
+
+  /** Render go stones that exist in a block of text. */
+  renderInline: function(text) {
+    // We probably don't want to modifify inline go stones for PDF rendering.
+    return text;
   }
 };
 gpub.templates = {};
