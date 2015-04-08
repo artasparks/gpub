@@ -46,8 +46,13 @@ gpub.book.latex.defaultTemplate = [
 //'\\pagestyle{empty}',
 //'\\chapterstyle{section}', -- the old style
 //'\\chapterstyle{demo2}', -- 2 hrules
+// other options for chapter styles:
+// bringhurst,crosshead,default,dowding,memman,komalike,ntglike,tandh,wilsondob
 '\\chapterstyle{madsen}',
 '\\pagestyle{companion}',
+
+// openany, openright, openleft
+'\\openany',
 '\\makepagestyle{headings}',
 '\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
 '\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}',
