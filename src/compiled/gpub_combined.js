@@ -1131,7 +1131,7 @@ gpub.book.latex.context = {
         diagramType, processedComment.text);
 
     var processedLabel = gpub.book.latex.context._processLabel(
-        label, ctx, flattened);
+        diagramType, label, ctx, flattened);
 
     var renderer = gpub.book.latex.context.rendering[ctx.contextType];
     if (!renderer) {
@@ -1142,7 +1142,7 @@ gpub.book.latex.context = {
   },
 
   /** Process the label to make it appropriate for LaTeX. */
-  _processLabel: function(label, ctx, flattened) {
+  _processLabel: function(diagramType, label, ctx, flattened) {
     var baseLabel = flattened.isOnMainPath() ? '\\gofigure' : '\\govariation';
     if (label) {
       var splat = label.split('\n');
@@ -1150,6 +1150,7 @@ gpub.book.latex.context = {
         baseLabel += '\n\n\\subtext{' + splat[i] + '}';
       }
     }
+    baseLabel = gpub.diagrams.renderInline(diagramType, baseLabel);
     return baseLabel;
   },
 
@@ -1915,6 +1916,7 @@ gpub.diagrams = {
    */
   _constructLabel: function(collisions, isOnMainline, startNum, endNum) {
     var baseLabel = '';
+    var breakLineNum = 3;
     if (isOnMainline) {
       var nums = [startNum];
       if (startNum !== endNum) {
@@ -1930,11 +1932,16 @@ gpub.diagrams = {
         var c = collisions[i];
         var col = c.color === glift.enums.states.BLACK ? 'Black' : 'White';
         buffer.push(col + ' ' + c.mvnum + ' at ' + c.label);
+        if ((i + 1) % breakLineNum === 0 || i === collisions.length - 1) {
+          // Flush the buffer
+          if (baseLabel) {
+            baseLabel += '\n';
+          }
+          baseLabel += buffer.join(', ');
+          buffer = [];
+        }
       }
-      if (baseLabel) {
-        baseLabel += '\n';
-      }
-      baseLabel += buffer.join(', ') + '.';
+      baseLabel += '.';
     }
 
     return baseLabel;
@@ -2314,11 +2321,15 @@ gpub.diagrams.gnos = {
 
 
   _inlineBlack: '{\\raisebox{-.17em}{\\gnos ' +
-      '\\gnosOverlap{@}{\\color{white}\\small{%s}}}}',
-  _inlineWhite: '{\\raisebox{-.17em}{\\gnos \\gnosOverlap{!}{\\small{%s}}}}',
+      '\\gnosOverlap{@}{\\color{white}\\textnormal{\\textsf{\\footnotesize{%s}}}}}}',
+  _inlineWhite: '{\\raisebox{-.17em}{\\gnos ' +
+      '\\gnosOverlap{!}{\\textnormal{\\textsf{\\footnotesize{%s}}}}}}',
 
   /** Render go stones that exist in a block of text. */
   renderInline: function(text) {
+    // TODO(kashomon): The font size needs to be passed in here so we can select
+    // the correct label size. Moreover, we need to use get getLabelDef to be
+    // consistent between the diagram and inlined moves.
     return text.replace(/((Black)|(White)) (([A-Z])|([0-9]+))(?=([^a-z]|$))/g,
         function(m, p1, xx2, xx3, p4) {
       if (p1 === 'Black') {

@@ -21,7 +21,7 @@ gpub.book.latex.context = {
         diagramType, processedComment.text);
 
     var processedLabel = gpub.book.latex.context._processLabel(
-        label, ctx, flattened);
+        diagramType, label, ctx, flattened);
 
     var renderer = gpub.book.latex.context.rendering[ctx.contextType];
     if (!renderer) {
@@ -32,7 +32,7 @@ gpub.book.latex.context = {
   },
 
   /** Process the label to make it appropriate for LaTeX. */
-  _processLabel: function(label, ctx, flattened) {
+  _processLabel: function(diagramType, label, ctx, flattened) {
     var baseLabel = flattened.isOnMainPath() ? '\\gofigure' : '\\govariation';
     if (label) {
       var splat = label.split('\n');
@@ -40,6 +40,7 @@ gpub.book.latex.context = {
         baseLabel += '\n\n\\subtext{' + splat[i] + '}';
       }
     }
+    baseLabel = gpub.diagrams.renderInline(diagramType, baseLabel);
     return baseLabel;
   },
 

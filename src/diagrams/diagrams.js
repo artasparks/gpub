@@ -126,6 +126,7 @@ gpub.diagrams = {
    */
   _constructLabel: function(collisions, isOnMainline, startNum, endNum) {
     var baseLabel = '';
+    var breakLineNum = 3;
     if (isOnMainline) {
       var nums = [startNum];
       if (startNum !== endNum) {
@@ -141,11 +142,16 @@ gpub.diagrams = {
         var c = collisions[i];
         var col = c.color === glift.enums.states.BLACK ? 'Black' : 'White';
         buffer.push(col + ' ' + c.mvnum + ' at ' + c.label);
+        if ((i + 1) % breakLineNum === 0 || i === collisions.length - 1) {
+          // Flush the buffer
+          if (baseLabel) {
+            baseLabel += '\n';
+          }
+          baseLabel += buffer.join(', ');
+          buffer = [];
+        }
       }
-      if (baseLabel) {
-        baseLabel += '\n';
-      }
-      baseLabel += buffer.join(', ') + '.';
+      baseLabel += '.';
     }
 
     return baseLabel;

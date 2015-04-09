@@ -52,11 +52,15 @@ gpub.diagrams.gnos = {
 
 
   _inlineBlack: '{\\raisebox{-.17em}{\\gnos ' +
-      '\\gnosOverlap{@}{\\color{white}\\small{%s}}}}',
-  _inlineWhite: '{\\raisebox{-.17em}{\\gnos \\gnosOverlap{!}{\\small{%s}}}}',
+      '\\gnosOverlap{@}{\\color{white}\\textnormal{\\textsf{\\footnotesize{%s}}}}}}',
+  _inlineWhite: '{\\raisebox{-.17em}{\\gnos ' +
+      '\\gnosOverlap{!}{\\textnormal{\\textsf{\\footnotesize{%s}}}}}}',
 
   /** Render go stones that exist in a block of text. */
   renderInline: function(text) {
+    // TODO(kashomon): The font size needs to be passed in here so we can select
+    // the correct label size. Moreover, we need to use get getLabelDef to be
+    // consistent between the diagram and inlined moves.
     return text.replace(/((Black)|(White)) (([A-Z])|([0-9]+))(?=([^a-z]|$))/g,
         function(m, p1, xx2, xx3, p4) {
       if (p1 === 'Black') {
