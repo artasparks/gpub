@@ -726,11 +726,10 @@ gpub.book = {
 /**
  * Constructs a new Diagram Context.
  */
-gpub.book.newDiagramContext = function(ctype, isChapter, isMainline) {
+gpub.book.newDiagramContext = function(ctype, isChapter) {
   return {
     contextType: ctype,
-    isChapter: isChapter,
-    isMainline: isMainline
+    isChapter: isChapter
   };
 };
 
@@ -796,7 +795,7 @@ gpub.book.getDiagramContext = function(mt, flattened, sgfObj) {
   } else {
     ctxType = ctx.EXAMPLE;
   }
-  return gpub.book.newDiagramContext(ctxType, isChapter, flattened.isOnMainPath());
+  return gpub.book.newDiagramContext(ctxType, isChapter);
 };
 /**
  * Constructs a book generator.
@@ -1116,9 +1115,9 @@ gpub.book.latex.context = {
   /**
    * Typeset the diagram into LaTeX
    */
-  typeset: function(diagramType, diagram, ctx, comment, label) {
-    comment = comment || '';
-    label = label || '';
+  typeset: function(diagramType, diagram, ctx, flattened) {
+    comment = flattened.comment() || '';
+    label = gpub.diagrams.createLabel(flattened);
 
     // Render the markdown. Note: This splits the comment into a
     //  .preamble -- the header
@@ -1131,7 +1130,8 @@ gpub.book.latex.context = {
     processedComment.text = gpub.diagrams.renderInline(
         diagramType, processedComment.text);
 
-    var processedLabel = gpub.book.latex.context._processLabel(label, ctx);
+    var processedLabel = gpub.book.latex.context._processLabel(
+        label, ctx, flattened);
 
     var renderer = gpub.book.latex.context.rendering[ctx.contextType];
     if (!renderer) {
@@ -1142,8 +1142,8 @@ gpub.book.latex.context = {
   },
 
   /** Process the label to make it appropriate for LaTeX. */
-  _processLabel: function(label, ctx) {
-    var baseLabel = ctx.isMainline ? '\\gofigure' : '\\govariation';
+  _processLabel: function(label, ctx, flattened) {
+    var baseLabel = flattened.isOnMainPath() ? '\\gofigure' : '\\govariation';
     if (label) {
       var splat = label.split('\n');
       for (var i = 0; i < splat.length; i++ ) {
@@ -1209,9 +1209,8 @@ gpub.book.latex.generator = {
 
     this.forEachSgf(spec, function(idx, mt, flattened, ctx) {
       var diagram = gpub.diagrams.create(flattened, opts.diagramType);
-      var label = gpub.diagrams.createLabel(flattened);
       var contextualized = gpub.book.latex.context.typeset(
-          opts.diagramType, diagram, ctx, flattened.comment(), label);
+          opts.diagramType, diagram, ctx, flattened);
       content.push(contextualized);
     }.bind(this));
 
@@ -1239,27 +1238,9 @@ gpub.book.latex.generator = {
         publisher: 'Publisher',
         authors: [
           'You!'
-        ],
-
-        /** Defs for definiing the diagrams. */
-        diagramWrapperDef: [
-          '% Mainline Diagrams. reset at parts',
-          '\\newcounter{GoFigure}[part]',
-          '\\newcommand{\\gofigure}{%',
-          ' \\stepcounter{GoFigure}',
-          ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoFigure}}}',
-          '}',
-
-          '% Variation Diagrams. reset at parts.',
-          '\\newcounter{GoVariation}[part]',
-          '\\newcommand{\\govariation}{%',
-          ' \\stepcounter{GoVariation}',
-          ' \\centerline{\\textit{Variation.\\thinspace\\arabic{GoVariation}}}',
-          '}',
-          '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
-          ''].join('\n')
+        ]
       }
-    };
+    }
   }
 };
 gpub.book.latex.defaultTemplate = [
@@ -1282,7 +1263,21 @@ gpub.book.latex.defaultTemplate = [
 '% Must expose two commands',
 '%  \\gofigure  (mainline diagrams)',
 '%  \\godiagram (variation diagrams)',
-'{{diagramWrapperDef}}',
+'% Mainline Diagrams. reset at parts',
+'\\newcounter{GoFigure}[part]',
+'\\newcommand{\\gofigure}{%',
+' \\stepcounter{GoFigure}',
+' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoFigure}}}',
+'}',
+
+'% Variation Diagrams. reset at parts.',
+'\\newcounter{GoVariation}[part]',
+'\\newcommand{\\govariation}{%',
+' \\stepcounter{GoVariation}',
+' \\centerline{\\textit{Variation.\\thinspace\\arabic{GoVariation}}}',
+'}',
+'',
+'\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
 '',
 
 '%%% Define the main title %%%',

@@ -28,8 +28,8 @@
       { widgetType: wtypes.STANDARD_PROBLEM, sgfString: '(;GM[1]C[### foo])' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.PROBLEM, false, true),
-      newCtx(ctx.PROBLEM, true, true),
+      newCtx(ctx.PROBLEM, false),
+      newCtx(ctx.PROBLEM, true),
     ]);
   });
 
@@ -39,8 +39,8 @@
       { widgetType: wtypes.GAME_VIEWER, sgfString: '(;GM[1]C[### foo])' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.VARIATIONS, false, true),
-      newCtx(ctx.VARIATIONS, true, true),
+      newCtx(ctx.VARIATIONS, false),
+      newCtx(ctx.VARIATIONS, true),
     ]);
   });
 
@@ -63,9 +63,9 @@
       { widgetType: wtypes.EXAMPLE, sgfString: '(;GM[1]AB[aa]C[## foo])' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.EXAMPLE, false, true),
-      newCtx(ctx.EXAMPLE, false, true),
-      newCtx(ctx.EXAMPLE, true, true),
+      newCtx(ctx.EXAMPLE, false),
+      newCtx(ctx.EXAMPLE, false),
+      newCtx(ctx.EXAMPLE, true),
     ]);
   });
 
@@ -75,7 +75,7 @@
           initialPosition: '0.1' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.EXAMPLE, false, false),
+      newCtx(ctx.EXAMPLE, false),
     ]);
   });
 
@@ -85,7 +85,7 @@
           initialPosition: '', nextMovesPath: '0' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.EXAMPLE, false, true),
+      newCtx(ctx.EXAMPLE, false),
     ]);
   })
 })();

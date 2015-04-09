@@ -5,9 +5,9 @@ gpub.book.latex.context = {
   /**
    * Typeset the diagram into LaTeX
    */
-  typeset: function(diagramType, diagram, ctx, comment, label) {
-    comment = comment || '';
-    label = label || '';
+  typeset: function(diagramType, diagram, ctx, flattened) {
+    comment = flattened.comment() || '';
+    label = gpub.diagrams.createLabel(flattened);
 
     // Render the markdown. Note: This splits the comment into a
     //  .preamble -- the header
@@ -20,7 +20,8 @@ gpub.book.latex.context = {
     processedComment.text = gpub.diagrams.renderInline(
         diagramType, processedComment.text);
 
-    var processedLabel = gpub.book.latex.context._processLabel(label, ctx);
+    var processedLabel = gpub.book.latex.context._processLabel(
+        label, ctx, flattened);
 
     var renderer = gpub.book.latex.context.rendering[ctx.contextType];
     if (!renderer) {
@@ -31,8 +32,8 @@ gpub.book.latex.context = {
   },
 
   /** Process the label to make it appropriate for LaTeX. */
-  _processLabel: function(label, ctx) {
-    var baseLabel = ctx.isMainline ? '\\gofigure' : '\\govariation';
+  _processLabel: function(label, ctx, flattened) {
+    var baseLabel = flattened.isOnMainPath() ? '\\gofigure' : '\\govariation';
     if (label) {
       var splat = label.split('\n');
       for (var i = 0; i < splat.length; i++ ) {

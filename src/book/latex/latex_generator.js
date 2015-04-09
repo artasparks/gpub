@@ -11,9 +11,8 @@ gpub.book.latex.generator = {
 
     this.forEachSgf(spec, function(idx, mt, flattened, ctx) {
       var diagram = gpub.diagrams.create(flattened, opts.diagramType);
-      var label = gpub.diagrams.createLabel(flattened);
       var contextualized = gpub.book.latex.context.typeset(
-          opts.diagramType, diagram, ctx, flattened.comment(), label);
+          opts.diagramType, diagram, ctx, flattened);
       content.push(contextualized);
     }.bind(this));
 
@@ -41,26 +40,8 @@ gpub.book.latex.generator = {
         publisher: 'Publisher',
         authors: [
           'You!'
-        ],
-
-        /** Defs for definiing the diagrams. */
-        diagramWrapperDef: [
-          '% Mainline Diagrams. reset at parts',
-          '\\newcounter{GoFigure}[part]',
-          '\\newcommand{\\gofigure}{%',
-          ' \\stepcounter{GoFigure}',
-          ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoFigure}}}',
-          '}',
-
-          '% Variation Diagrams. reset at parts.',
-          '\\newcounter{GoVariation}[part]',
-          '\\newcommand{\\govariation}{%',
-          ' \\stepcounter{GoVariation}',
-          ' \\centerline{\\textit{Variation.\\thinspace\\arabic{GoVariation}}}',
-          '}',
-          '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
-          ''].join('\n')
+        ]
       }
-    };
+    }
   }
 };

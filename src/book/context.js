@@ -1,11 +1,10 @@
 /**
  * Constructs a new Diagram Context.
  */
-gpub.book.newDiagramContext = function(ctype, isChapter, isMainline) {
+gpub.book.newDiagramContext = function(ctype, isChapter) {
   return {
     contextType: ctype,
-    isChapter: isChapter,
-    isMainline: isMainline
+    isChapter: isChapter
   };
 };
 
@@ -71,5 +70,5 @@ gpub.book.getDiagramContext = function(mt, flattened, sgfObj) {
   } else {
     ctxType = ctx.EXAMPLE;
   }
-  return gpub.book.newDiagramContext(ctxType, isChapter, flattened.isOnMainPath());
+  return gpub.book.newDiagramContext(ctxType, isChapter);
 };

@@ -10,7 +10,6 @@
     var template = gpub.book.latex.generator.defaultTemplate();;
     var view = {
       init: 'zogzog',
-      diagramWrapperDef: 'diagramWrapperDef-Filled',
       authors: [
         {name: 'Name1-Filled'},
         {name: 'Name2-Filled'},
