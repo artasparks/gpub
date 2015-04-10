@@ -1957,7 +1957,7 @@ gpub.diagrams.creator = {
   create: function(flattened, options) {},
 
   /** Renders go stones that exist in a block of text. */
-  renderInline: function(text) {}
+  renderInline: function(text, options) {}
 };
 /**
  * ASCII in the Sensei's library format.  See:
@@ -2315,30 +2315,36 @@ gpub.diagrams.gnos = {
    * We expect flattened and options to be edfined
    */
   create: function(flattened, options) {
-    options.size = options.size || gpub.diagrams.gnos.sizes['12']
+    options.size = options.size || gpub.diagrams.gnos.sizes['12'];
     return gpub.diagrams.gnos.gnosStringArr(flattened, options.size).join('\n');
   },
 
 
-  _inlineBlack: '{\\raisebox{-.17em}{\\gnos ' +
-      '\\gnosOverlap{@}{\\color{white}\\textnormal{\\textsf{\\footnotesize{%s}}}}}}',
-  _inlineWhite: '{\\raisebox{-.17em}{\\gnos ' +
-      '\\gnosOverlap{!}{\\textnormal{\\textsf{\\footnotesize{%s}}}}}}',
+  _inlineWrapper: '{\\raisebox{-.17em}{\\textnormal{%s}}}',
 
   /** Render go stones that exist in a block of text. */
-  renderInline: function(text) {
+  renderInline: function(text, options) {
+    var options = options || {}; // TODO(kashomon): Remove hack. Push up a level.
+    var fontsize = options.size || gpub.diagrams.gnos.sizes['12'];
     // TODO(kashomon): The font size needs to be passed in here so we can select
     // the correct label size. Moreover, we need to use get getLabelDef to be
     // consistent between the diagram and inlined moves.
     return text.replace(/((Black)|(White)) (([A-Z])|([0-9]+))(?=([^a-z]|$))/g,
-        function(m, p1, xx2, xx3, p4) {
+        function(fullmatch, p1, xx2, xx3, p4) {
+      var stone = null;
+      var label = p4;
       if (p1 === 'Black') {
-        return gpub.diagrams.gnos._inlineBlack.replace('%s', p4);
+        stone = glift.flattener.symbols.BSTONE;
       } else if (p1 === 'White') {
-        return gpub.diagrams.gnos._inlineWhite.replace('%s', p4);
+        stone = glift.flattener.symbols.WSTONE;
       } else {
-        return m;
+        return fullmatch; // Shouldn't ever happen.
       }
+      var labelSymbol = gpub.diagrams.gnos.getLabelDef(label, stone, fontsize);
+      var labelSymbolVal = gpub.diagrams.gnos.symbolMap[labelSymbol];
+      var processed = gpub.diagrams.gnos._processTextLabel(
+          labelSymbol, labelSymbolVal, label, fontsize);
+      return gpub.diagrams.gnos._inlineWrapper.replace('%s', processed);
     });
   },
 
@@ -2385,7 +2391,8 @@ gpub.diagrams.gnos = {
       }
       var lbl = i.textLabel();
       if (lbl) {
-        out = gpub.diagrams.gnos._processTextLabel(symbol, out, lbl, size);
+        out = gpub.diagrams.gnos._processTextLabel(
+            symbol, out, lbl, size, true);
       } else if (i.mark() && !i.stone()) {
         out = gpub.diagrams.gnos.symbolMap.markOverlap(
             symbolMap[toStr(i.base())], out);
@@ -2419,6 +2426,8 @@ gpub.diagrams.gnos = {
         return stoneStr + '_' + 'NUMLABEL_200_299';
       } else if (num >= 300 && num < 399) {
         return stoneStr + '_' + 'NUMLABEL_300_399';
+      } else {
+        return toStr(stone) + '_' + 'TEXTLABEL';
       }
     } else if (stone && label) {
       return toStr(stone) + '_' + 'TEXTLABEL';
@@ -2428,13 +2437,18 @@ gpub.diagrams.gnos = {
   },
 
   /**
-   * Apply the label to the symbol value.
+   * Apply the label to the symbol value. Note: We shouldn't ever need 3 digit
+   * number-strings, since we have special fonts (gnosbi,gnoswii, etc.) that
+   * use the format \\gnosbi\char\d\d.
    */
   _processTextLabel: function(symbol, symbolVal, label, size) {
     if (/^\d+$/.test(label) && /NUMLABEL/.test(symbol)) {
       lbl = parseInt(label) % 100;
       return symbolVal.replace('%s', lbl);
     } else {
+      // TODO(kashomon): This looks like dead code, except for if the label is a
+      // non-number.
+
       // Make smaller for labels 2+ characters long
       var sizeIdx = gpub.diagrams.gnos.singleCharSizeAtTen[size] || 3;
       if (label.length > 1) {

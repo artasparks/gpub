@@ -8,5 +8,5 @@ gpub.diagrams.creator = {
   create: function(flattened, options) {},
 
   /** Renders go stones that exist in a block of text. */
-  renderInline: function(text) {}
+  renderInline: function(text, options) {}
 };

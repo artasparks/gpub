@@ -41,15 +41,21 @@
   test('Gnos render inline', function() {
     var g = gpub.diagrams.gnos;
     var text = 'And then! Black 3 followed by White 4! Destruction. ' +
-        'Avoidable with White A';
-    var expected = 'And then! ' +
-        g._inlineBlack.replace('%s', '3') +
-        ' followed by ' +
-        g._inlineWhite.replace('%s', '4') +
-        '! Destruction. ' +
-        'Avoidable with ' +
-        g._inlineWhite.replace('%s', 'A');
+        'Avoidable with White A. Followed by Black 101';
     var t = g.renderInline(text);
-    deepEqual(g.renderInline(text), expected);
+    ok(g.renderInline(text).indexOf('{\\gnosOverlap{!}') > -1,
+        'Exp: overlap !. Rendered Text:' + t);
+    ok(g.renderInline(text).indexOf('{\\gnosOverlap{@}') > -1,
+        'Exp: overlap @. Rendered Text:' + t);
+
+    ok(g.renderInline(text).indexOf('3') > -1,
+        'Exp: overlap 3 Rendered Text:' + t);
+    ok(g.renderInline(text).indexOf('{4}') > -1,
+        'Exp: overlap {4} Rendered Text:' + t);
+    ok(g.renderInline(text).indexOf('{A}') > -1,
+        'Exp: overlap {A} Rendered Text:' + t);
+
+    ok(g.renderInline(text).indexOf('{\\gnosbi\\char1}') > -1,
+        'Exp: overlap gnosbi. Rendered Text:' + t);
   });
 })();
