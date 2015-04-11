@@ -33,7 +33,21 @@ gpub.book.latex.context = {
 
   /** Process the label to make it appropriate for LaTeX. */
   _processLabel: function(diagramType, label, ctx, flattened) {
-    var baseLabel = flattened.isOnMainPath() ? '\\gofigure' : '\\govariation';
+    var baseLabel = '\\gofigure';
+    if (!flattened.isOnMainPath()) {
+      baseLabel = '\\govariation'
+      var mainMove = flattened.mainlineMove();
+      var mainMoveNum = flattened.mainlineMoveNum();
+      var readableColor = null;
+      if (mainMove.color === 'BLACK') {
+        readableColor = 'Black'
+      } else {
+        readableColor = 'White'
+      }
+      if (mainMove) {
+        baseLabel += '[ from ' + readableColor + ' ' + mainMoveNum + ']';
+      }
+    }
     if (label) {
       var splat = label.split('\n');
       for (var i = 0; i < splat.length; i++ ) {

@@ -1143,7 +1143,21 @@ gpub.book.latex.context = {
 
   /** Process the label to make it appropriate for LaTeX. */
   _processLabel: function(diagramType, label, ctx, flattened) {
-    var baseLabel = flattened.isOnMainPath() ? '\\gofigure' : '\\govariation';
+    var baseLabel = '\\gofigure';
+    if (!flattened.isOnMainPath()) {
+      baseLabel = '\\govariation'
+      var mainMove = flattened.mainlineMove();
+      var mainMoveNum = flattened.mainlineMoveNum();
+      var readableColor = null;
+      if (mainMove.color === 'BLACK') {
+        readableColor = 'Black'
+      } else {
+        readableColor = 'White'
+      }
+      if (mainMove) {
+        baseLabel += '[ from ' + readableColor + ' ' + mainMoveNum + ']';
+      }
+    }
     if (label) {
       var splat = label.split('\n');
       for (var i = 0; i < splat.length; i++ ) {
@@ -1266,6 +1280,7 @@ gpub.book.latex.defaultTemplate = [
 '%  \\godiagram (variation diagrams)',
 '% Mainline Diagrams. reset at parts',
 '\\newcounter{GoFigure}[part]',
+'',
 '\\newcommand{\\gofigure}{%',
 ' \\stepcounter{GoFigure}',
 ' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoFigure}}}',
@@ -1273,9 +1288,10 @@ gpub.book.latex.defaultTemplate = [
 
 '% Variation Diagrams. reset at parts.',
 '\\newcounter{GoVariation}[part]',
-'\\newcommand{\\govariation}{%',
+'',
+'\\newcommand{\\govariation}[1][]{%',
 ' \\stepcounter{GoVariation}',
-' \\centerline{\\textit{Variation.\\thinspace\\arabic{GoVariation}}}',
+' \\centerline{\\textit{Variation.\\thinspace\\arabic{GoVariation}#1}}',
 '}',
 '',
 '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
@@ -2318,7 +2334,6 @@ gpub.diagrams.gnos = {
     options.size = options.size || gpub.diagrams.gnos.sizes['12'];
     return gpub.diagrams.gnos.gnosStringArr(flattened, options.size).join('\n');
   },
-
 
   _inlineWrapper: '{\\raisebox{-.17em}{\\textnormal{%s}}}',
 
