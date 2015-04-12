@@ -1239,23 +1239,7 @@ gpub.book.latex.generator = {
   },
 
   defaultOptions: function() {
-    return {
-      diagramType: gpub.diagrams.diagramType.GNOS,
-      bookOptions: {
-        /**
-         * init: Any additional setup that needs to be done in the header. I.e.,
-         * for diagram packages.
-         */
-        init: '',
-
-        title: 'My Book',
-        subtitle: 'Subtitle',
-        publisher: 'Publisher',
-        authors: [
-          'You!'
-        ]
-      }
-    }
+    return gpub.book.latex.options();
   }
 };
 gpub.book.latex.defaultTemplate = [
@@ -1500,6 +1484,28 @@ gpub.book.latex.markdown = {
   codespan: function(code) { return code; },
   del: function(text) { return text; }
 };
+/**
+ *
+ */
+gpub.book.latex.options = function() {
+  return {
+    diagramType: gpub.diagrams.diagramType.GNOS,
+    bookOptions: {
+      /**
+       * init: Any additional setup that needs to be done in the header. I.e.,
+       * for diagram packages.
+       */
+      init: '',
+
+      title: 'My Book',
+      subtitle: 'Subtitle',
+      publisher: 'Publisher',
+      authors: [
+        'You!'
+      ]
+    }
+  }
+}
 ///////////////////
 // Experimental! //
 ///////////////////
@@ -2475,7 +2481,9 @@ gpub.diagrams.gnos = {
   }
 };
 gpub.diagrams.gnos.init = {
-  LATEX: '\\usepackage{gnos}'
+  LATEX: [
+    '\\usepackage{gnos}'
+  ].join('\n')
 };
 /**
  * Symbol map.

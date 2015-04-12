@@ -1,3 +1,5 @@
 gpub.diagrams.gnos.init = {
-  LATEX: '\\usepackage{gnos}'
+  LATEX: [
+    '\\usepackage{gnos}'
+  ].join('\n')
 };
