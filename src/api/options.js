@@ -2,16 +2,39 @@
  * Default options for GPub API.
  */
 gpub.defaultOptions = {
-  /** See gpub.bookFormat. */
+  /**
+   * The format of the 'book' output that is produced by GPub.
+   * See gpub.bookFormat.
+   */
   outputFormat: 'LATEX',
 
-  /** See gpub.bookPurpose. */
+  /**
+   * What is the purpose for the book? I.e., Commentary, Problem book,
+   * Combination-book.
+   * See gpub.bookPurpose.
+   */
   bookPurpose: 'GAME_COMMENTARY',
 
-  /** See glift.enums.boardRegions. */
+  /**
+   * See glift.enums.boardRegions.
+   */
+  // TODO(kashomon): Should this even be here?
   boardRegion: 'AUTO',
 
-  /** See glift.diagrams.diagramType. */
+  /**
+   * The type of diagrams produced by GPub.
+   *
+   * Ideally you would be able to use any diagramType in an outputFormat, but
+   * that is not currently the case.  Moreover, some output formats (e.g.,
+   * glift, smartgo) take charge of generating the diagrams.
+   *
+   * However, there are some types that are output format independent:
+   *  - ASCII,
+   *  - PDF,
+   *  - EPS
+   *
+   * See glift.diagrams.diagramType.
+   */
   diagramType: 'GNOS',
 
 
@@ -23,6 +46,7 @@ gpub.defaultOptions = {
    * book. 0 indicates that all subsequent diagrams are generated.
    */
   maxDiagrams: 0,
+
 
   /**
    * Override the default template.
@@ -37,18 +61,24 @@ gpub.defaultOptions = {
   bookOptions: {},
 
   /**
-   * Text supporting the bulk of the the work that comes before the mainmatter
-   * of the book. Note: Not all of these will be supported by all the
-   * book-generators.
+   * Text supporting the bulk of the the work that comes before/after the mainmatter
+   * of the book.
+   *
+   * Not all of these will be supported by all the book-generators. For those
+   * that do support the relevant sections, the frontmatter and backmatter are
+   * dumped into the book options.
    */
   frontmatter: {
     colophon: null, // AKA Copyright Page
     epigraph: null, // AKA Quote Page
-    // TOC comes here
+    /** Generate the Table of Contents or just 'Contents'. */
+    generateToc: true,
     forward: null, // Author or unrelated person
     preface: null, // Author
     acknowledgements: null,
-    introduction: null,
+    introduction: null
+  },
+  backmatter: {
     glossary: null
   }
 };
