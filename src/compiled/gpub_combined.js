@@ -1243,6 +1243,7 @@ gpub.book.latex.generator = {
   }
 };
 gpub.book.latex.defaultTemplate = [
+'{{=<% %>=}}', // Change the tag-type to ERB
 '\\documentclass[letterpaper,12pt]{memoir}',
 '\\usepackage{color}',
 '\\usepackage{wrapfig}',
@@ -1251,7 +1252,8 @@ gpub.book.latex.defaultTemplate = [
 '\\usepackage[margin=1in]{geometry}',
 
 '%%% Define any extra packages %%%',
-'{{init}}',
+'<%init%>',
+'<%={{ }}=%>', // Change it back for testing
 
 '',
 '\\setlength{\\parskip}{0.5em}',
@@ -1316,7 +1318,7 @@ gpub.book.latex.defaultTemplate = [
 '\\makepagestyle{headings}',
 '\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
 '\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}',
-//'\\renewcommand{\\printchapternum}{\\space}', -- No chapter nums
+//'\\renewcommand{\\printchapternum}{\\space}', -- Force no chapter nums
 
 '',
 '\\begin{document}',
@@ -1325,7 +1327,11 @@ gpub.book.latex.defaultTemplate = [
 '\\mainBookTitle',
 '\\end{titlingpage}',
 '\\frontmatter*',
-
+'', // copyright page
+'{{#frontmatter.copyright}}',
+// \\{include{
+// do stuff...
+'{{/frontmatter.copyright}}',
 '',
 '',
 '\\newpage',
@@ -1498,8 +1504,8 @@ gpub.book.latex.options = function() {
       init: '',
 
       title: 'My Book',
-      subtitle: 'Subtitle',
-      publisher: 'Publisher',
+      subtitle: null,
+      publisher: null,
       authors: [
         'You!'
       ]
@@ -2568,196 +2574,6 @@ gpub.diagrams.pdf = {
     return text;
   }
 };
-gpub.templates = {};
-
-/**
- * A representation of a GPub template. Like normal HTML templating, but quite
- * a bit simpler.
- */
-gpub.templates._Template = function(sections, paramMap) {
-  this._sections = sections;
-  this._paramMap = paramMap;
-  this._paramContent = {};
-};
-
-gpub.templates._Template.prototype = {
-  /** Compiles the template with the new template variables. */
-  compile: function() {
-    var sectionsCopy = this._sections.slice(0);
-    for (var key in this._paramMap) {
-      var idx = this._paramMap[key];
-      var content = this._paramContent[key] || '';
-      sectionsCopy[idx] = content;
-    }
-    return sectionsCopy.join('');
-  },
-
-  /** Returns true if the template has parameter given by 'key' */
-  hasParam: function(key) {
-    return !!this._paramMap[key];
-  },
-
-  /** Sets a template parameter. */
-  setParam: function(key, value) {
-    if (!this._paramMap[key]) {
-      throw new Error('Unknown key: ' + key);
-    }
-    this._paramContent[key] = value.toString();
-  }
-};
-/**
- * Basic latex template.
- */
-gpub.templates.latexBase = [
-'\\documentclass[letterpaper,12pt]{memoir}',
-'\\usepackage{color}',
-'\\usepackage{wrapfig}',
-'\\usepackage{setspace}',
-'\\usepackage{unicode}',
-'\\usepackage[margin=1in]{geometry}',
-'%%% Define any extra packages %%%',
-'{{ extraPackages }}',
-'',
-'\\setlength{\\parskip}{0.5em}',
-'\\setlength{\\parindent}{0pt}',
-'',
-'%%% Extra defs',
-'% Necessary for the particular digaram type.',
-'{{ diagramTypeDefs }}',
-'',
-'%%% Diagram Figure defs.',
-'% Must expose two commands',
-'%  \\gofigure  (mainline diagrams)',
-'%  \\godiagram (variation diagrams)',
-'{{ diagramWrapperDefs }}',
-'',
-'%%% Define the main title %%%',
-'{{ mainBookTitleDef }}',
-'',
-'\\begin{document}',
-'',
-'\\pagestyle{empty}',
-'\\mainBookTitle',
-'\\newpage',
-'\\tableofcontents',
-'',
-'\\chapterstyle{section}',
-'\\pagestyle{companion}',
-'\\makepagestyle{headings}',
-'\\renewcommand{\\printchapternum}{\\space}',
-'\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
-'\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}',
-'',
-'%%% The content. %%%',
-'{{ content }}',
-'',
-'\\end{document}'].join('\n');
-/**
- * Parse a latexTemplate.  LaTeX templates are only special in that they require
- * several specific parameters.  The parse step validates that these parameters
- * exist.
- */
-gpub.templates.parseLatexTemplate = function(str) {
-  var expectedParams = [
-    'extraPackages',
-    'diagramTypeDefs',
-    'diagramWrapperDefs',
-    'mainBookTitleDef',
-    'content'
-  ]
-  var template = gpub.templates.parse(str);
-  expectedParams.forEach(function(key) {
-    if (!template.hasParam(key)) {
-      throw new Error('Expected template to have key: ' + key);
-    }
-  });
-  return new gpub.templates.LatexTemplate(template);
-};
-
-gpub.templates.LatexTemplate = function(template) {
-  /** A parsed GPub template. */
-  this._template = template;
-};
-
-gpub.templates.LatexTemplate.prototype = {
-  setExtraPackages: function(str) {
-    this._template.setParam('extraPackages', str);
-    return this;
-  },
-  setDiagramTypeDefs: function(str) {
-    this._template.setParam('diagramTypeDefs', str);
-    return this;
-  },
-  setDiagramWrapperDefs: function(str) {
-    this._template.setParam('diagramWrapperDefs', str);
-    return this;
-  },
-  setTitleDef: function(str) {
-    this._template.setParam('mainBookTitleDef', str);
-    return this;
-  },
-  setContent: function(str) {
-    this._template.setParam('content', str);
-    return this;
-  },
-  compile: function() {
-    return this._template.compile();
-  }
-};
-/**
- * A simplistic template parser.
- */
-gpub.templates.parse = function(template) {
-  var sections = [];
-  var paramMap = {}; // key to position
-  var states = {
-    DEFAULT: 'DEFAULT',
-    IN_PARAM: 'IN_PARAM'
-  };
-  var curstate = states.DEFAULT;
-  var buffer = [];
-  var prev = null;
-  var position = 0;
-  for (var i = 0; i < template.length; i++) {
-    var c = template.charAt(i);
-    switch(curstate) {
-      case 'DEFAULT':
-        if (c === '{') {
-          if (prev === '{') {
-            sections.push(buffer.join(''));
-            curstate = states.IN_PARAM;
-            position++;
-            buffer = [];
-          }
-          // Else move on
-        } else {
-          if (prev === '{') buffer.push(prev);
-          buffer.push(c);
-        }
-        break;
-      case 'IN_PARAM':
-        if (c === '}') {
-          if (prev === '}') {
-            sections.push(null);
-            var param = buffer.join('').replace(/^\s*|\s*$/g, '');
-            paramMap[param] = position;
-            position++;
-            curstate = states.DEFAULT;
-            buffer = [];
-          }
-          // else ignore and move on
-        } else {
-          buffer.push(c)
-        }
-        break
-      default: 
-        throw new Error('Unknown state: ' + curstate);
-    }
-    prev = c;
-  }
-  sections.push(buffer.join(''));
-  return new gpub.templates._Template(sections, paramMap);
-};
 /**
  * Stub namespace. Not really used because all the API should exist at the top
  * level.
@@ -2813,16 +2629,39 @@ gpub._validateInputs = function(sgfs, options) {
  * Default options for GPub API.
  */
 gpub.defaultOptions = {
-  /** See gpub.bookFormat. */
+  /**
+   * The format of the 'book' output that is produced by GPub.
+   * See gpub.bookFormat.
+   */
   outputFormat: 'LATEX',
 
-  /** See gpub.bookPurpose. */
+  /**
+   * What is the purpose for the book? I.e., Commentary, Problem book,
+   * Combination-book.
+   * See gpub.bookPurpose.
+   */
   bookPurpose: 'GAME_COMMENTARY',
 
-  /** See glift.enums.boardRegions. */
+  /**
+   * See glift.enums.boardRegions.
+   */
+  // TODO(kashomon): Should this even be here?
   boardRegion: 'AUTO',
 
-  /** See glift.diagrams.diagramType. */
+  /**
+   * The type of diagrams produced by GPub.
+   *
+   * Ideally you would be able to use any diagramType in an outputFormat, but
+   * that is not currently the case.  Moreover, some output formats (e.g.,
+   * glift, smartgo) take charge of generating the diagrams.
+   *
+   * However, there are some types that are output format independent:
+   *  - ASCII,
+   *  - PDF,
+   *  - EPS
+   *
+   * See glift.diagrams.diagramType.
+   */
   diagramType: 'GNOS',
 
 
@@ -2834,6 +2673,7 @@ gpub.defaultOptions = {
    * book. 0 indicates that all subsequent diagrams are generated.
    */
   maxDiagrams: 0,
+
 
   /**
    * Override the default template.
@@ -2848,18 +2688,24 @@ gpub.defaultOptions = {
   bookOptions: {},
 
   /**
-   * Text supporting the bulk of the the work that comes before the mainmatter
-   * of the book. Note: Not all of these will be supported by all the
-   * book-generators.
+   * Text supporting the bulk of the the work that comes before/after the mainmatter
+   * of the book.
+   *
+   * Not all of these will be supported by all the book-generators. For those
+   * that do support the relevant sections, the frontmatter and backmatter are
+   * dumped into the book options.
    */
   frontmatter: {
-    colophon: null, // AKA Copyright Page
+    copyright: null, // AKA Colophon Page
     epigraph: null, // AKA Quote Page
-    // TOC comes here
+    /** Generate the Table of Contents or just 'Contents'. */
+    generateToc: true,
     forward: null, // Author or unrelated person
     preface: null, // Author
     acknowledgements: null,
-    introduction: null,
+    introduction: null
+  },
+  backmatter: {
     glossary: null
   }
 };

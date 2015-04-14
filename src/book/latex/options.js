@@ -12,8 +12,8 @@ gpub.book.latex.options = function() {
       init: '',
 
       title: 'My Book',
-      subtitle: 'Subtitle',
-      publisher: 'Publisher',
+      subtitle: null,
+      publisher: null,
       authors: [
         'You!'
       ]

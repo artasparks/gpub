@@ -1,4 +1,5 @@
 gpub.book.latex.defaultTemplate = [
+'{{=<% %>=}}', // Change the tag-type to ERB
 '\\documentclass[letterpaper,12pt]{memoir}',
 '\\usepackage{color}',
 '\\usepackage{wrapfig}',
@@ -7,7 +8,8 @@ gpub.book.latex.defaultTemplate = [
 '\\usepackage[margin=1in]{geometry}',
 
 '%%% Define any extra packages %%%',
-'{{init}}',
+'<%init%>',
+'<%={{ }}=%>', // Change it back for testing
 
 '',
 '\\setlength{\\parskip}{0.5em}',
@@ -72,7 +74,7 @@ gpub.book.latex.defaultTemplate = [
 '\\makepagestyle{headings}',
 '\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
 '\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}',
-//'\\renewcommand{\\printchapternum}{\\space}', -- No chapter nums
+//'\\renewcommand{\\printchapternum}{\\space}', -- Force no chapter nums
 
 '',
 '\\begin{document}',
@@ -81,7 +83,11 @@ gpub.book.latex.defaultTemplate = [
 '\\mainBookTitle',
 '\\end{titlingpage}',
 '\\frontmatter*',
-
+'', // copyright page
+'{{#frontmatter.copyright}}',
+// \\{include{
+// do stuff...
+'{{/frontmatter.copyright}}',
 '',
 '',
 '\\newpage',

@@ -69,7 +69,7 @@ gpub.defaultOptions = {
    * dumped into the book options.
    */
   frontmatter: {
-    colophon: null, // AKA Copyright Page
+    copyright: null, // AKA Colophon Page
     epigraph: null, // AKA Quote Page
     /** Generate the Table of Contents or just 'Contents'. */
     generateToc: true,
