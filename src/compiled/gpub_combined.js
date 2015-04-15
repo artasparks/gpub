@@ -1302,6 +1302,10 @@ gpub.book.latex.defaultTemplate = [
 '  {\\Large {{publisher}} }\\par',
 '  \\vspace*{2\\baselineskip}',
 '  {{/publisher}}',
+'  {{#year}}',
+'  {\\large {{year}} }\\par',
+'  \\vspace*{2\\baselineskip}',
+'  {{/year}}',
 '\\endgroup}',
 
 ' %%% Chapter settings %%%',
@@ -1508,7 +1512,8 @@ gpub.book.latex.options = function() {
       publisher: null,
       authors: [
         'You!'
-      ]
+      ],
+      year: null
     }
   }
 }

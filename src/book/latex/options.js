@@ -16,7 +16,8 @@ gpub.book.latex.options = function() {
       publisher: null,
       authors: [
         'You!'
-      ]
+      ],
+      year: null
     }
   }
 }
