@@ -1144,9 +1144,9 @@ gpub.book.latex.context = {
   /** Process the label to make it appropriate for LaTeX. */
   _processLabel: function(diagramType, label, ctx, flattened) {
     var baseLabel = '\\gofigure';
-    if (!flattened.isOnMainPath()) {
+    var mainMove = flattened.mainlineMove();
+    if (!flattened.isOnMainPath() && mainMove !== null) {
       baseLabel = '\\govariation'
-      var mainMove = flattened.mainlineMove();
       var mainMoveNum = flattened.mainlineMoveNum();
       var readableColor = null;
       if (mainMove.color === 'BLACK') {
