@@ -56,30 +56,45 @@ gpub.defaultOptions = {
 
   /** Options specifically for book processors */
 
-  // TODO(kashomon): Rename this to view so that we can have the book options be
-  // separate.
-  bookOptions: {},
+  bookOptions: {
+    /**
+     * init: Any additional setup that needs to be done in the header. I.e.,
+     * for diagram packages.
+     */
+    init: '',
 
-  /**
-   * Text supporting the bulk of the the work that comes before/after the mainmatter
-   * of the book.
-   *
-   * Not all of these will be supported by all the book-generators. For those
-   * that do support the relevant sections, the frontmatter and backmatter are
-   * dumped into the book options.
-   */
-  frontmatter: {
-    copyright: null, // AKA Colophon Page
-    epigraph: null, // AKA Quote Page
-    /** Generate the Table of Contents or just 'Contents'. */
-    generateToc: true,
-    forward: null, // Author or unrelated person
-    preface: null, // Author
-    acknowledgements: null,
-    introduction: null
-  },
-  backmatter: {
-    glossary: null
+    title: 'My Book',
+    subtitle: null,
+    publisher: 'GPub',
+    authors: [
+      'You!'
+    ],
+    year: null,
+
+    /**
+     * Frontmatter is text supporting the bulk of the the work that comes
+     * before/after the mainmatter of the book.
+     *
+     * Note: The format isn't specified here for the frontmatter. The relevant
+     * book generator may wish to do includes or direct text insertion.
+     *
+     * Not all of these will be supported by all the book-generators. For those
+     * that do support the relevant sections, the frontmatter and backmatter are
+     * dumped into the book options.
+     */
+    frontmatter: {
+      copyright: null, // AKA Colophon Page
+      epigraph: null, // AKA Quote Page
+      /** Generate the Table of Contents or just 'Contents'. */
+      generateToc: true,
+      forward: null, // Author or unrelated person
+      preface: null, // Author
+      acknowledgements: null,
+      introduction: null
+    },
+    backmatter: {
+      glossary: null
+    }
   }
 };
 
@@ -129,12 +144,23 @@ gpub.processOptions = function(options) {
   if (!options) {
     options = {};
   }
-  for (var key in gpub.defaultOptions) {
-    var val = options[key];
-    if (!val) {
-      options[key] = gpub.defaultOptions[key];
+  var options = glift.util.simpleClone(options);
+
+  var simpleTemplate = function(base, template) {
+    for (var key in template) {
+      var val = base[key];
+      // Note: we treat null as an intentionally falsey value.
+      if (val === undefined) {
+        base[key] = template[key];
+      }
     }
-  }
+  };
+
+  var t = gpub.defaultOptions;
+  simpleTemplate(options, t);
+  simpleTemplate(options.bookOptions, t.bookOptions);
+  simpleTemplate(options.bookOptions.frontmatter, t.bookOptions.frontmatter);
+
   if (options.skipDiagrams < 0) {
     throw new Error('skipDiagrams cannot be less than 0');
   }
