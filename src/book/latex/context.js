@@ -35,7 +35,8 @@ gpub.book.latex.context = {
   _processLabel: function(diagramType, label, ctx, flattened) {
     var baseLabel = '\\gofigure';
     var mainMove = flattened.mainlineMove();
-    // TODO(kashomon): Why would the mainMove be null?
+    // TODO(kashomon): Why would the mainMove be null? In anycase, if this is
+    // not here, we occasionally get errors.
     if (!flattened.isOnMainPath() && mainMove !== null) {
       baseLabel = '\\govariation'
       var mainMoveNum = flattened.mainlineMoveNum();
