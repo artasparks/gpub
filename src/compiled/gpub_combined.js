@@ -1255,7 +1255,6 @@ gpub.book.latex.defaultTemplate = [
 
 '%%% Define any extra packages %%%',
 '<%init%>',
-'<%={{ }}=%>', // Change it back for testing
 
 '',
 '\\setlength{\\parskip}{0.5em}',
@@ -1289,25 +1288,25 @@ gpub.book.latex.defaultTemplate = [
 '\\definecolor{light-gray}{gray}{0.55}',
 '\\newcommand*{\\mainBookTitle}{\\begingroup',
 '  \\raggedleft',
-'  {{#authors}}',
-'     {\\Large {{.}} } \\\\',
+'  <%#authors%>',
+'     {\\Large{<%.%>}} \\\\',
 '     \\vspace*{1 em}',
-'  {{/authors}}',
+'  <%/authors%>',
 '  \\vspace*{5 em}',
-'  {\\textcolor{light-gray}{\\Huge {{title}} }}\\\\',
+'  {\\textcolor{light-gray}{\\Huge{<%title%>}}}\\\\',
 '  \\vspace*{\\baselineskip}',
-'  {{#subtitle}}',
-'  {\\small \\bfseries {{subtitle}} }\\par',
-'  {{/subtitle}}',
+'  <%#subtitle%>',
+'  {\\small \\bfseries <%subtitle%> }\\par',
+'  <%/subtitle%>',
 '  \\vfill',
-'  {{#publisher}}',
-'  {\\Large {{publisher}} }\\par',
+'  <%#publisher%>',
+'  {\\Large{<%publisher%>}}\\par',
 '  \\vspace*{2\\baselineskip}',
-'  {{/publisher}}',
-'  {{#year}}',
-'  {\\large {{year}} }\\par',
+'  <%/publisher%>',
+'  <%#year%>',
+'  {\\large{<%year%>}}\\par',
 '  \\vspace*{2\\baselineskip}',
-'  {{/year}}',
+'  <%/year%>',
 '\\endgroup}',
 
 ' %%% Chapter settings %%%',
@@ -1334,10 +1333,10 @@ gpub.book.latex.defaultTemplate = [
 '\\end{titlingpage}',
 '\\frontmatter*',
 '', // copyright page
-'{{#frontmatter.copyright}}',
+'<%#frontmatter.copyright%>',
 // \\{include{
 // do stuff...
-'{{/frontmatter.copyright}}',
+'<%/frontmatter.copyright%>',
 '',
 '',
 '\\newpage',
@@ -1346,7 +1345,7 @@ gpub.book.latex.defaultTemplate = [
 '',
 '%%% The content. %%%',
 '\\mainmatter',
-'{{&content}}',
+'<%&content%>',
 '',
 '\\end{document}'].join('\n');
 /** Creates a marked-Markdown renderer for LaEeX */
