@@ -48,4 +48,5 @@ keeping them in my head.
   and OSX, but it's definitely on my radar.
 
 - __Better Cropping__: Only for game commentary. It would sometimes be nice to
-  crop a diagr
+  crop a diagram as tightly as possible (crop based only on the variation, not
+  on the existing stones).
