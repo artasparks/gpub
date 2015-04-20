@@ -88,8 +88,7 @@ gpub.book.latex.defaultTemplate = [
 '\\frontmatter*',
 '', // copyright page
 '<%#frontmatter.copyright%>',
-// \\{include{
-// do stuff...
+'\\include{<%frontmatter.copyright%>}',
 '<%/frontmatter.copyright%>',
 '',
 '',
