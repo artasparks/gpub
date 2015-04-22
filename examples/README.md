@@ -6,4 +6,4 @@ Note: this is a stub.
 
 ### Usage
 
-    generate.sh <directory>
+todo...
