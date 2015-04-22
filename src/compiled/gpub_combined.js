@@ -1334,8 +1334,7 @@ gpub.book.latex.defaultTemplate = [
 '\\frontmatter*',
 '', // copyright page
 '<%#frontmatter.copyright%>',
-// \\{include{
-// do stuff...
+'\\include{<%frontmatter.copyright%>}',
 '<%/frontmatter.copyright%>',
 '',
 '',
@@ -2578,22 +2577,21 @@ gpub.api = {};
 
 
 /**
- * Create a book or other output from 
+ * Create a 'book' output from SGFs.
  *
- * SGFS: Array of SGFs.
- * options: An options array. See gpub.defaultOptions for the format.
+ * options: A book options array. See gpub.defaultOptions for the format.
  *
  * Returns: The completed book or document.
  */
-gpub.create = function(sgfs, options) {
+gpub.create = function(options) {
   // Validate input and create the options array.
-  gpub._validateInputs(sgfs, options);
+  gpub._validateInputs(options);
 
   // Process the options and fill in any missing values or defaults.
   options = gpub.processOptions(options);
 
   // Create the glift specification.
-  var spec = gpub.spec.create(sgfs, options);
+  var spec = gpub.spec.create(options.sgfs, options);
 
   // Create the finished book (or whatever that means).
   var book = gpub.book.create(spec, options)
@@ -2609,8 +2607,9 @@ gpub.create = function(sgfs, options) {
  * Validates that the relevant parameters are available and returns the
  * processed options.
  */
-gpub._validateInputs = function(sgfs, options) {
-  if (!sgfs || !sgfs.length || glift.util.typeOf(sgfs) !== 'array') {
+gpub._validateInputs = function(options) {
+  var sgfs = options.sgfs;
+  if (!sgfs || glift.util.typeOf(sgfs) !== 'array' || !sgfs.length) {
     throw new Error('SGF array must be defined and non-empty');
   }
   if (!glift) {
@@ -2621,7 +2620,10 @@ gpub._validateInputs = function(sgfs, options) {
 /**
  * Default options for GPub API.
  */
-gpub.defaultOptions = {
+gpub.defaultBookOptions = {
+  /** Array of SGFS */
+  sgfs: [],
+
   /**
    * The format of the 'book' output that is produced by GPub.
    * See gpub.bookFormat.
@@ -2636,6 +2638,7 @@ gpub.defaultOptions = {
   bookPurpose: 'GAME_COMMENTARY',
 
   /**
+   * Default board region for cropping purposes.
    * See glift.enums.boardRegions.
    */
   // TODO(kashomon): Should this even be here?
@@ -2764,7 +2767,6 @@ gpub.processOptions = function(options) {
   if (!options) {
     options = {};
   }
-  var options = glift.util.simpleClone(options);
 
   var simpleTemplate = function(base, template) {
     for (var key in template) {
@@ -2776,7 +2778,7 @@ gpub.processOptions = function(options) {
     }
   };
 
-  var t = gpub.defaultOptions;
+  var t = gpub.defaultBookOptions;
   simpleTemplate(options, t);
   simpleTemplate(options.bookOptions, t.bookOptions);
   simpleTemplate(options.bookOptions.frontmatter, t.bookOptions.frontmatter);

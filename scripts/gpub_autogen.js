@@ -12,7 +12,7 @@ var flags = flagz.init(
   'A script for generating books from book specs!',
   ['<json-book-definition>'],
   {
-    outputFormat: ['string', 'LATEX', 'The output format for the book.'],
+    optionsName: ['string', 'LATEX', 'The output format for the book.'],
     directory: ['string', '', 'The directory from which to process SGFs.']
   }).process();
 
@@ -24,8 +24,9 @@ for (var i = 0; i < def.collection.length; i++) {
   sgfArr.push(def.contents[def.collection[i]]);
 }
 
-// console.log(sgfArr);
 
-var book = gpub.create(sgfArr);
+var book = gpub.create({
+  sgfs: sgfArr
+});
 
 console.log(book);

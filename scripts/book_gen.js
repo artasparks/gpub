@@ -24,8 +24,8 @@ for (var i = 0; i < def.collection.length; i++) {
   sgfArr.push(def.contents[def.collection[i]]);
 }
 
-// console.log(sgfArr);
-
-var book = gpub.create(sgfArr);
+var book = gpub.create({
+  sgfs: sgfArr
+});
 
 console.log(book);

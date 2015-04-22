@@ -1,7 +1,10 @@
 /**
  * Default options for GPub API.
  */
-gpub.defaultOptions = {
+gpub.defaultBookOptions = {
+  /** Array of SGFS */
+  sgfs: [],
+
   /**
    * The format of the 'book' output that is produced by GPub.
    * See gpub.bookFormat.
@@ -16,6 +19,7 @@ gpub.defaultOptions = {
   bookPurpose: 'GAME_COMMENTARY',
 
   /**
+   * Default board region for cropping purposes.
    * See glift.enums.boardRegions.
    */
   // TODO(kashomon): Should this even be here?
@@ -144,7 +148,6 @@ gpub.processOptions = function(options) {
   if (!options) {
     options = {};
   }
-  var options = glift.util.simpleClone(options);
 
   var simpleTemplate = function(base, template) {
     for (var key in template) {
@@ -156,7 +159,7 @@ gpub.processOptions = function(options) {
     }
   };
 
-  var t = gpub.defaultOptions;
+  var t = gpub.defaultBookOptions;
   simpleTemplate(options, t);
   simpleTemplate(options.bookOptions, t.bookOptions);
   simpleTemplate(options.bookOptions.frontmatter, t.bookOptions.frontmatter);

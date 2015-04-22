@@ -140,14 +140,14 @@ FlagzDef.prototype = {
     var argData = '\n\n' +
         ':::Flags:::\n' +
         'flag_name: <expected type>, <default value> :: Help Text\n' +
-        '-----------------------------------\n';
+        '--------------------------------------------------------\n';
     for (var flag in this.flagdefs) {
       var farr = this.flagdefs[flag];
       var helpText = farr[2] || '';
       argData += flag + ': <'
           + farr[0] + '>, <' + farr[1] + '>, ' + helpText + '\n';
     }
-    argData = argData.slice(0, argData.length - 1);
+    argData += '--------------------------------------------------------';
     console.log(
         this._scriptname + ': ' + this.helptext + usage + argData);
     process.exit(1);
