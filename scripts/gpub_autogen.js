@@ -12,8 +12,8 @@ var flags = flagz.init(
   'A script for generating books from book specs!',
   ['<json-book-definition>'],
   {
-    optionsName: ['string', 'LATEX', 'The output format for the book.'],
-    directory: ['string', '', 'The directory from which to process SGFs.']
+    optionsName: ['string', 'gpub_options.json', 'The name of the options file.'],
+    directory: ['string', '', 'The directory from which to process SGFs./options']
   }).process();
 
 var def = filez.readFromDirAndArgs(
