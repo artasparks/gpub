@@ -27,10 +27,14 @@ gpub.book.latex.renderMarkdown = function(str) {
     renderer: renderer,
     silent: true
   });
+
+  // Now we need to post-process and escape #
+  text = text.replace(/#/g, '\\#');
+
   return {
     preamble: renderer.extractPreamble(),
     text: text
-  }
+  };
 };
 
 /** Set of markdown methods for the renderer */

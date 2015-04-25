@@ -40,7 +40,6 @@
   });
 
   test('Realistic', function() {
-    deepEqual(1, 1, '1 should equal 1');
     deepEqual(render([
         '# Fujisawa and Go',
         '',
@@ -49,6 +48,13 @@
       preamble: '\\book{Fujisawa and Go}',
       text: 'This was the second game in a ten game match between ' +
           'Fujisawa Hosai 9p' + pend
+    });
+  });
+
+  test('Post-Process # character', function() {
+    deepEqual(render('Shusaku is still #1!'), {
+      preamble: '',
+      text: 'Shusaku is still \\#1!' + pend
     });
   });
 })();

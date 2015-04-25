@@ -2,7 +2,7 @@
   "outputFormat": "LATEX",
 
   "frontmatter": {
-    "colophon": "copyright_page.tex",
+    "copyright": "copyright_page.tex",
     "epigraph": "opening_quote.tex",
     "forward": "forward.tex",
     "preface": "preface.tex",

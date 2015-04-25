@@ -5,7 +5,7 @@
   test('Setup', function() {
     ok(sgf, 'testdata defined');
     ok(glift, 'glift global defined');
-    ok(gpub.defaultOptions, 'defaultOptions: defined');
+    ok(gpub.defaultBookOptions, 'defaultBookOptions: defined');
     ok(gpub.bookPurpose, 'bookPurpose: defined');
     ok(gpub.outputFormat, 'ouputFormat: defined');
   });
@@ -19,7 +19,8 @@
   });
 
   test('Testing full happy path, no exceptions', function() {
-    var output = gpub.create([sgf], {
+    var output = gpub.create({
+      sgfs: [sgf],
       maxDiagrams: 20
     })
     ok(output, 'Output should be defined');
