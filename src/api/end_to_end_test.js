@@ -5,7 +5,7 @@
   test('Setup', function() {
     ok(sgf, 'testdata defined');
     ok(glift, 'glift global defined');
-    ok(gpub.defaultBookOptions, 'defaultBookOptions: defined');
+    ok(gpub.defaultOptions, 'defaultOptions: defined');
     ok(gpub.bookPurpose, 'bookPurpose: defined');
     ok(gpub.outputFormat, 'ouputFormat: defined');
   });

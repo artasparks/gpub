@@ -890,9 +890,13 @@ gpub.book._Generator.prototype = {
     //  1. explicitly passed in options (already done)
     //  2. metadata in the SGF
     //  3. default view options
+    var globalBookDefaults = gpub.defaultOptions.bookOptions;
     if (globalMetadata) {
       for (var key in globalMetadata) {
-        if (globalMetadata[key] !== undefined && view[key] === undefined) {
+        if (globalMetadata[key] !== undefined && (
+            view[key] === undefined ||
+                JSON.stringify(view[key]) ===
+                JSON.stringify(globalBookDefaults[key]))) {
           view[key] = globalMetadata[key];
         }
       }
@@ -989,6 +993,7 @@ gpub.book._Generator.prototype = {
         this._opts[gkey] = defaultOpts[gkey];
       }
     }
+
     // Note: We explicitly don't drill down into the bookOptions / view so that
     // the passed-in bookOptions have the ability to take precedence.
     return this;
@@ -1516,13 +1521,23 @@ gpub.book.latex.options = function() {
  * Page context wrapper. I think this will probably -- at least for now -- be a
  * LaTeX consideration.
  */
-gpub.book.latex.Page = function() {
+gpub.book.latex.Page = function(pageSize) {
   this.buffer = [];
+
+  // TODO(kashomon): Set via page size
+  this.rows = 0;
+  this.cols = 0;
+
+  this.bleed = 0.125;
+
+  this.margins = 0.25;
+
+  this.pageSize = pageSize;
 };
 
 gpub.book.latex.Page.prototype = {
   /** Add a diagram to the page. */
-  addDiagram: function(str, context, comment, label, isMainLine) {
+  addDiagram: function(flattened) {
 
   },
 
@@ -1534,6 +1549,38 @@ gpub.book.latex.Page.prototype = {
   }
 };
 
+/**
+ * Mapping from page-size to col-maping.
+ *
+ * Note: height and width in mm.
+ */
+gpub.book.latex.sizeMapping = {
+  A4: {
+    heightMm: 297,
+    widthMm: 210,
+    widthIn: 8.268,
+    heightIn: 11.693
+  },
+  LETTER: {
+    heightMm: 280,
+    widthMm: 210,
+    heightIn: 11,
+    widthIn: 8.5
+  },
+  OCTAVO: {
+    heightMm: 229,
+    widthMm: 152,
+    heightIn: 9,
+    widthIn: 6
+  },
+  NOTECARD: {
+    heightMm: 178,
+    widthMm: 127,
+    heightIn: 7,
+    widthIn: 5
+  }
+};
+
 gpub.book.latex.pageSize = {
   A4: 'A4',
   A5: 'A5',
@@ -1542,6 +1589,9 @@ gpub.book.latex.pageSize = {
   // http://en.wikipedia.org/wiki/Book_size
   QUARTO: 'QUARTO',
   OCTAVO: 'OCTAVO',
+
+  NOTECARD: 'NOTECARD',
+
   TWELVEMO: 'TWELVEMO'
 };
 /**
@@ -2591,11 +2641,13 @@ gpub.create = function(options) {
   // Validate input and create the options array.
   gpub._validateInputs(options);
 
+  var sgfs = options.sgfs;
+
   // Process the options and fill in any missing values or defaults.
   options = gpub.processOptions(options);
 
   // Create the glift specification.
-  var spec = gpub.spec.create(options.sgfs, options);
+  var spec = gpub.spec.create(sgfs, options);
 
   // Create the finished book (or whatever that means).
   var book = gpub.book.create(spec, options)
@@ -2612,6 +2664,9 @@ gpub.create = function(options) {
  * processed options.
  */
 gpub._validateInputs = function(options) {
+  if (!options) {
+    throw new Error('No options defined');
+  }
   var sgfs = options.sgfs;
   if (!sgfs || glift.util.typeOf(sgfs) !== 'array' || !sgfs.length) {
     throw new Error('SGF array must be defined and non-empty');
@@ -2624,9 +2679,12 @@ gpub._validateInputs = function(options) {
 /**
  * Default options for GPub API.
  */
-gpub.defaultBookOptions = {
-  /** Array of SGFS */
-  sgfs: [],
+gpub.defaultOptions = {
+  /**
+   * Array of SGF (strings). No default is specified here: Must be explicitly
+   * passed in every time.
+   */
+  // sgfs: [],
 
   /**
    * The format of the 'book' output that is produced by GPub.
@@ -2664,7 +2722,6 @@ gpub.defaultBookOptions = {
    */
   diagramType: 'GNOS',
 
-
   /** Skip the first N diagrams. Allows users to generate parts of a book. */
   skipDiagrams: 0,
 
@@ -2674,7 +2731,6 @@ gpub.defaultBookOptions = {
    */
   maxDiagrams: 0,
 
-
   /**
    * Override the default template.
    * A false-y template will result in using the default template.
@@ -2682,7 +2738,6 @@ gpub.defaultBookOptions = {
   template: null,
 
   /** Options specifically for book processors */
-
   bookOptions: {
     /**
      * init: Any additional setup that needs to be done in the header. I.e.,
@@ -2718,9 +2773,6 @@ gpub.defaultBookOptions = {
       preface: null, // Author
       acknowledgements: null,
       introduction: null
-    },
-    backmatter: {
-      glossary: null
     }
   }
 };
@@ -2768,30 +2820,48 @@ gpub.outputFormat = {
  * Process the incoming options and set any missing values.
  */
 gpub.processOptions = function(options) {
-  if (!options) {
-    options = {};
-  }
+  var newo = {
+  };
+  var options = options || {};
 
-  var simpleTemplate = function(base, template) {
+  var simpleTemplate = function(target, base, template) {
     for (var key in template) {
+      if (key === 'sgfs') {
+        // We don't want to be duplicating the SGFs, so we assume that the SGFs
+        // have been extracted at this point.
+        continue;
+      }
+      if (newo[key] !== undefined) {
+        // We've already copied this key
+        continue;
+      }
       var val = base[key];
-      // Note: we treat null as an intentionally falsey value.
-      if (val === undefined) {
-        base[key] = template[key];
+      // Note: we treat null and empty string as intentionally falsey values,
+      // thus we only rely on default behavior in the case of
+      if (val !== undefined) {
+        target[key] = base[key];
+      } else {
+        target[key] = template[key];
       }
     }
+    return target;
   };
 
-  var t = gpub.defaultBookOptions;
-  simpleTemplate(options, t);
-  simpleTemplate(options.bookOptions, t.bookOptions);
-  simpleTemplate(options.bookOptions.frontmatter, t.bookOptions.frontmatter);
+  var bookOptions = options.bookOptions || {};
+  var frontmatter = bookOptions.frontmatter || {};
+  var t = gpub.defaultOptions;
+  simpleTemplate(
+      newo, options, t);
+  simpleTemplate(
+      newo.bookOptions, bookOptions, t.bookOptions);
+  simpleTemplate(
+      newo.bookOptions.frontmatter, frontmatter, t.bookOptions.frontmatter);
 
-  if (options.skipDiagrams < 0) {
+  if (newo.skipDiagrams < 0) {
     throw new Error('skipDiagrams cannot be less than 0');
   }
-  if (options.maxDiagrams < 0) {
+  if (newo.maxDiagrams < 0) {
     throw new Error('maxDiagrams cannot be less than 0');
   }
-  return options;
+  return newo;
 };

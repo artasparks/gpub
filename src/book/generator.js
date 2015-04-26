@@ -91,9 +91,13 @@ gpub.book._Generator.prototype = {
     //  1. explicitly passed in options (already done)
     //  2. metadata in the SGF
     //  3. default view options
+    var globalBookDefaults = gpub.defaultOptions.bookOptions;
     if (globalMetadata) {
       for (var key in globalMetadata) {
-        if (globalMetadata[key] !== undefined && view[key] === undefined) {
+        if (globalMetadata[key] !== undefined && (
+            view[key] === undefined ||
+                JSON.stringify(view[key]) ===
+                JSON.stringify(globalBookDefaults[key]))) {
           view[key] = globalMetadata[key];
         }
       }
@@ -190,6 +194,7 @@ gpub.book._Generator.prototype = {
         this._opts[gkey] = defaultOpts[gkey];
       }
     }
+
     // Note: We explicitly don't drill down into the bookOptions / view so that
     // the passed-in bookOptions have the ability to take precedence.
     return this;

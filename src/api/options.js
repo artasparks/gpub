@@ -1,9 +1,12 @@
 /**
  * Default options for GPub API.
  */
-gpub.defaultBookOptions = {
-  /** Array of SGFS */
-  sgfs: [],
+gpub.defaultOptions = {
+  /**
+   * Array of SGF (strings). No default is specified here: Must be explicitly
+   * passed in every time.
+   */
+  // sgfs: [],
 
   /**
    * The format of the 'book' output that is produced by GPub.
@@ -41,7 +44,6 @@ gpub.defaultBookOptions = {
    */
   diagramType: 'GNOS',
 
-
   /** Skip the first N diagrams. Allows users to generate parts of a book. */
   skipDiagrams: 0,
 
@@ -51,7 +53,6 @@ gpub.defaultBookOptions = {
    */
   maxDiagrams: 0,
 
-
   /**
    * Override the default template.
    * A false-y template will result in using the default template.
@@ -59,7 +60,6 @@ gpub.defaultBookOptions = {
   template: null,
 
   /** Options specifically for book processors */
-
   bookOptions: {
     /**
      * init: Any additional setup that needs to be done in the header. I.e.,
@@ -95,9 +95,6 @@ gpub.defaultBookOptions = {
       preface: null, // Author
       acknowledgements: null,
       introduction: null
-    },
-    backmatter: {
-      glossary: null
     }
   }
 };
@@ -145,30 +142,48 @@ gpub.outputFormat = {
  * Process the incoming options and set any missing values.
  */
 gpub.processOptions = function(options) {
-  if (!options) {
-    options = {};
-  }
+  var newo = {
+  };
+  var options = options || {};
 
-  var simpleTemplate = function(base, template) {
+  var simpleTemplate = function(target, base, template) {
     for (var key in template) {
+      if (key === 'sgfs') {
+        // We don't want to be duplicating the SGFs, so we assume that the SGFs
+        // have been extracted at this point.
+        continue;
+      }
+      if (newo[key] !== undefined) {
+        // We've already copied this key
+        continue;
+      }
       var val = base[key];
-      // Note: we treat null as an intentionally falsey value.
-      if (val === undefined) {
-        base[key] = template[key];
+      // Note: we treat null and empty string as intentionally falsey values,
+      // thus we only rely on default behavior in the case of
+      if (val !== undefined) {
+        target[key] = base[key];
+      } else {
+        target[key] = template[key];
       }
     }
+    return target;
   };
 
-  var t = gpub.defaultBookOptions;
-  simpleTemplate(options, t);
-  simpleTemplate(options.bookOptions, t.bookOptions);
-  simpleTemplate(options.bookOptions.frontmatter, t.bookOptions.frontmatter);
+  var bookOptions = options.bookOptions || {};
+  var frontmatter = bookOptions.frontmatter || {};
+  var t = gpub.defaultOptions;
+  simpleTemplate(
+      newo, options, t);
+  simpleTemplate(
+      newo.bookOptions, bookOptions, t.bookOptions);
+  simpleTemplate(
+      newo.bookOptions.frontmatter, frontmatter, t.bookOptions.frontmatter);
 
-  if (options.skipDiagrams < 0) {
+  if (newo.skipDiagrams < 0) {
     throw new Error('skipDiagrams cannot be less than 0');
   }
-  if (options.maxDiagrams < 0) {
+  if (newo.maxDiagrams < 0) {
     throw new Error('maxDiagrams cannot be less than 0');
   }
-  return options;
+  return newo;
 };

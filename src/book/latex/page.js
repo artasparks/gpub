@@ -42,21 +42,27 @@ gpub.book.latex.Page.prototype = {
 gpub.book.latex.sizeMapping = {
   A4: {
     heightMm: 297,
-    heightIn: 11.693,
     widthMm: 210,
-    widthIn: 8.268
+    widthIn: 8.268,
+    heightIn: 11.693
   },
   LETTER: {
-    height: 280, // 11 in
-    width: 210 // 8.5 in
+    heightMm: 280,
+    widthMm: 210,
+    heightIn: 11,
+    widthIn: 8.5
   },
   OCTAVO: {
-    height: 229, // 9 in,
-    width: 152 // 6 in
+    heightMm: 229,
+    widthMm: 152,
+    heightIn: 9,
+    widthIn: 6
   },
   NOTECARD: {
-    height:178, // 7 in
-    width:127 // 5 in
+    heightMm: 178,
+    widthMm: 127,
+    heightIn: 7,
+    widthIn: 5
   }
 };
 

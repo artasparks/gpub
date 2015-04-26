@@ -14,11 +14,13 @@ gpub.create = function(options) {
   // Validate input and create the options array.
   gpub._validateInputs(options);
 
+  var sgfs = options.sgfs;
+
   // Process the options and fill in any missing values or defaults.
   options = gpub.processOptions(options);
 
   // Create the glift specification.
-  var spec = gpub.spec.create(options.sgfs, options);
+  var spec = gpub.spec.create(sgfs, options);
 
   // Create the finished book (or whatever that means).
   var book = gpub.book.create(spec, options)
@@ -35,6 +37,9 @@ gpub.create = function(options) {
  * processed options.
  */
 gpub._validateInputs = function(options) {
+  if (!options) {
+    throw new Error('No options defined');
+  }
   var sgfs = options.sgfs;
   if (!sgfs || glift.util.typeOf(sgfs) !== 'array' || !sgfs.length) {
     throw new Error('SGF array must be defined and non-empty');
