@@ -1,5 +1,5 @@
 /**
- *
+ * Latex options defaults.
  */
 gpub.book.latex.options = function() {
   return {

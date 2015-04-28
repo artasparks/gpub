@@ -1,12 +1,7 @@
-///////////////////
-// Experimental! //
-///////////////////
-
 /**
- * Page context wrapper. I think this will probably -- at least for now -- be a
- * LaTeX consideration.
+ * (Currently Experimental) Page context wrapper for LaTeX.
  */
-gpub.book.latex.Page = function(pageSize) {
+gpub.book.latex.Page = function(pageSize, bleed, margin) {
   this.buffer = [];
 
   // TODO(kashomon): Set via page size
