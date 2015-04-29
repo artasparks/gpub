@@ -1,24 +1,38 @@
 /**
  * (Currently Experimental) Page context wrapper for LaTeX.
+ *
+ * A page is just that: a representation of a page. The page has knowledge of
+ * its margins, bleed, trim, and stock size. From that we can determine where
+ * to place text and go diagrams.
+ *
+ * How they work together:
+ *  |Bleed |Trim |Margin
+ *
+ * Bleed: the part that will be cut off.
+ * Trim: the part of the book actually shown (not trimmed).
+ * Margin: the whitespace border around the text.
+ *
+ * Note: by default, we don't assume bleed.
  */
-gpub.book.latex.Page = function(pageSize, bleed, margin) {
+gpub.book.latex.Page = function(pageSize, margin, bleed) {
   this.buffer = [];
 
   // TODO(kashomon): Set via page size
   this.rows = 0;
   this.cols = 0;
 
-  this.bleed = 0.125;
+  this.pageSize = pageSize ||
+      gpub.book.latex.pageSize.LETTER;
 
-  this.margins = 0.25;
+  this.margins = margins ||
+      gpub.book.latex.Page.defaultMargins;
 
-  this.pageSize = pageSize;
+  this.bleed = bleed || 0;
 };
 
 gpub.book.latex.Page.prototype = {
   /** Add a diagram to the page. */
   addDiagram: function(flattened) {
-
   },
 
   /** Clear the page lines */
@@ -28,6 +42,19 @@ gpub.book.latex.Page.prototype = {
     return out;
   }
 };
+
+
+/**
+ * Default margin amounts, in inches.
+ */
+gpub.book.latex.Page.defaultMargins = 0.5;
+
+/**
+ * Base bleed amount, in inches. Note: This is not the default, simple the
+ * standard bleed amount. Note that many printers want bleed on only exterior
+ * edges.
+ */
+gpub.book.latex.Page.standardBleed  = 0.125;
 
 /**
  * Mapping from page-size to col-maping.
