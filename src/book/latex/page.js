@@ -1,5 +1,5 @@
 /**
- * (Currently Experimental) Page context wrapper for LaTeX.
+ * (Currently Experimental) Page wrapper.
  *
  * A page is just that: a representation of a page. The page has knowledge of
  * its margins, bleed, trim, and stock size. From that we can determine where
@@ -8,16 +8,25 @@
  * How they work together:
  *  |Bleed |Trim |Margin
  *
- * Bleed: the part that will be cut off.
- * Trim: the part of the book actually shown (not trimmed).
+ * Bleed: the part that will be cut off. Note that bleed should only apply to
+ *    the outside edges.
+ * Trim: the part of the book actually shown (not trimmed). This is also known
+ *    as the 'final size'.
  * Margin: the whitespace border around the text.
+ *
+ * Sometimes you'll see the term 'stock size'.  This simply refers to the paper
+ * size.
  *
  * Note: by default, we don't assume bleed.
  */
-gpub.book.latex.Page = function(pageSize, margin, bleed) {
+
+/**
+ * The paging instance is a factory for pages. In particulary, we don't want
+ */
+gpub.book.latex.Paging = function(pageSize, margin, intersectionSize, bleed) {
   this.buffer = [];
 
-  // TODO(kashomon): Set via page size
+  // TODO(kashomon): Set via page size.  This
   this.rows = 0;
   this.cols = 0;
 
@@ -27,7 +36,23 @@ gpub.book.latex.Page = function(pageSize, margin, bleed) {
   this.margins = margins ||
       gpub.book.latex.Page.defaultMargins;
 
+  this.intersectionSize = intersectionSize;
+
   this.bleed = bleed || 0;
+};
+
+gpub.book.latex.Paging.prototype = {
+  /** Creates a new page */
+  newPage: function() {
+    return new gpub.book.latex.Page();
+  }
+};
+
+
+gpub.book.latex.Page = function(rows, cols) {
+  this.rows = rows;
+
+  this.cols = cols;
 };
 
 gpub.book.latex.Page.prototype = {
