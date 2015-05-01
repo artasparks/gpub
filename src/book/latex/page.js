@@ -21,20 +21,25 @@
  */
 
 /**
- * The paging instance is a factory for pages. In particulary, we don't want
+ * The paging instance is a factory for pages.  We want all pages to share the
+ * same properties.  Thus, the purpose of this factory.
+ *
+ * pageSize: A member of gpub.book.latex.pageSize;
+ * margin: In inches.
+ * intersectionSize: In point-size. Note that 1 pt = 1/72 of an inch.
  */
-gpub.book.latex.Paging = function(pageSize, margin, intersectionSize, bleed) {
+gpub.book.latex.Paging = function(
+    pageSize,
+    margin,
+    intersectionSize,
+    bleed) {
   this.buffer = [];
-
-  // TODO(kashomon): Set via page size.  This
-  this.rows = 0;
-  this.cols = 0;
 
   this.pageSize = pageSize ||
       gpub.book.latex.pageSize.LETTER;
 
   this.margins = margins ||
-      gpub.book.latex.Page.defaultMargins;
+      gpub.book.latex.defaultMargins;
 
   this.intersectionSize = intersectionSize;
 
@@ -45,10 +50,32 @@ gpub.book.latex.Paging.prototype = {
   /** Creates a new page */
   newPage: function() {
     return new gpub.book.latex.Page();
+  },
+
+  /**
+   * returns
+   * {
+   *  rows: X (as float).
+   *  cols: X (as float).
+   * }
+   */
+  calculateUnits: function() {
+    var intPt = this.intersectionSize;
+    var inchesPer = initPt / 72;
+    var sizeObj = gpub.book.latex.sizeMapping[this.pageSize];
+    var interiorWidth = (sizeObj.widthIn - 2 * this.margins) / inchesPer;
+    var interiorHeight  = (sizeObj.heightIn- 2 * this.margins) / inchesPer;
+    return {
+      cols: interiorWidth,
+      rows: interiorHeight
+    };
   }
 };
 
 
+/**
+ * A page instance. Should be crated with the Paging factory.
+ */
 gpub.book.latex.Page = function(rows, cols) {
   this.rows = rows;
 
@@ -72,14 +99,14 @@ gpub.book.latex.Page.prototype = {
 /**
  * Default margin amounts, in inches.
  */
-gpub.book.latex.Page.defaultMargins = 0.5;
+gpub.book.latex.defaultMargins = 0.5;
 
 /**
  * Base bleed amount, in inches. Note: This is not the default, simple the
- * standard bleed amount. Note that many printers want bleed on only exterior
- * edges.
+ * standard bleed amount. Note that printers want bleed on only exterior
+ * edges
  */
-gpub.book.latex.Page.standardBleed  = 0.125;
+gpub.book.latex.standardBleed  = 0.125;
 
 /**
  * Mapping from page-size to col-maping.
