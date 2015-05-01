@@ -40,13 +40,14 @@ keeping them in my head.
   - How is the diagram cropped?
   - Is there text (commentary) shown?
   - How should problem-answers be handled?
+  - Autorotation: probably a GLift feature
 
 - __Contextual Diagram Placement__: Right now, there is no logic around the way
   diagrams are placed within a page. However, being smarter about diagram
-  placement means having 
+  placement means having higher diagram density and lower costs.
 
 - __Smart Go Support__: SmartGo support would be awesome. It only targets iOS
-  and OSX, but it's definitely on my radar.
+  and OSX, but I the integration is much easier than a full PDF.
 
 - __Better Cropping__: Only for game commentary. It would sometimes be nice to
   crop a diagram as tightly as possible (crop based only on the variation, not
