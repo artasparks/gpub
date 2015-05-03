@@ -7,12 +7,13 @@ keeping them in my head.
 
 - __Frontmatter__: The LaTeX book generator needs to support frontmatter before
   we can consider LaTeXU generation complete. Frontmatter support is required
-  before publishing
+  before publishing. This will most like be a series of LaTeX includes.
 
-- __Validation__: To publish in placese, PDF/X-1a:2001 or PDF/X-3:2002 is often
+- __Validation__: To publish, PDF/X-1a:2001 or PDF/X-3:2002 is often
   required. Can we ensure that is the case?
   http://stackoverflow.com/questions/569129/how-can-i-test-a-pdf-document-if-it-is-pdf-a-compliant
-  There's also a LaTeX package called pdfx
+  There's also a LaTeX package called pdfx. It has some problems, but might be
+  able to adapt it. Might be able to hack it manually,
 
 - __Book Interface__: The interface for book should probably be changed from
   returning string to returning a more complex data type. Right now we can
