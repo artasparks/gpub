@@ -20,11 +20,11 @@ keeping them in my head.
   probably just get away with a string return, but it won't work for
   externalized diagrams like PDFs, SVGs, PNGs, etc.
 
-  For example, we'll want something like
+  For example, we'll want something like this:
 
 ```javascript
 {
-  book: <string>,
+  contents: <string>,
   name: <string>,
   diagrams: [
     {

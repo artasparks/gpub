@@ -6,7 +6,7 @@
 /**
  * Create a 'book' output from SGFs.
  *
- * options: A book options array. See gpub.defaultOptions for the format.
+  options: A book options array. See gpub.defaultOptions for the format.
  *
  * Returns: The completed book or document.
  */
@@ -25,6 +25,7 @@ gpub.create = function(options) {
   // Create the finished book (or whatever that means).
   var book = gpub.book.create(spec, options)
 
+  // TODO(kashomon): return { contents: ..., diagrams: ... }
   return book;
 };
 
