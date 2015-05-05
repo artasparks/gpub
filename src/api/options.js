@@ -91,7 +91,7 @@ gpub.defaultOptions = {
       epigraph: null, // AKA Quote Page
       /** Generate the Table of Contents or just 'Contents'. */
       generateToc: true,
-      forward: null, // Author or unrelated person
+      foreward: null, // Author or unrelated person
       preface: null, // Author
       acknowledgements: null,
       introduction: null
