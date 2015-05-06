@@ -43,7 +43,11 @@ gpub.book.Gen = {
    *  spec: The glift spec.
    *  options: The gpub options.
    *
-   * Returns a string: the completed book.
+   * Returns:
+   * {
+   *  content: ...
+   *  diagrams:...
+   * }
    */
   generate: function(spec) {},
 
