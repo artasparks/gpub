@@ -2,11 +2,11 @@
 
 var glift = require('./defs/glift.js');
 var gpub = require('./defs/gpub.js');
-var flagz = require('./defs/flagz.js')
-var filez = require('./defs/filez.js')
+var flagz = require('./defs/flagz.js');
+var filez = require('./defs/filez.js');
 
 var fs = require('fs');
-var path = require('path')
+var path = require('path');
 
 var flags = flagz.init(
   'A script for generating books from book specs!',
@@ -19,7 +19,7 @@ var flags = flagz.init(
 var def = filez.readFromDirAndArgs(
     flags.processed.directory, flags.args, '', '\\.sgf');
 
-var sgfArr = [] ;
+var sgfArr = [];
 for (var i = 0; i < def.collection.length; i++) {
   sgfArr.push(def.contents[def.collection[i]]);
 }
