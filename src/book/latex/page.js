@@ -53,7 +53,25 @@ gpub.book.latex.Paging.prototype = {
   },
 
   /**
-   * returns
+   * Sets the page size for the memoir class. I.e., returns the relevant latex
+   * command.
+   */
+  setPageSize: function() {
+    var size = gpub.boox.latex.sizeMapping[this.pageSize];
+    return '\\setstocksize' +
+      '{' + size.heightIn + 'in}' +
+      '{' + size.widthIn + 'in}';
+  },
+
+  /**
+   * Sets the margins on the page.
+   */
+  setMargins: function() {
+    // TODO(kashomon): Finish this
+  },
+
+  /**
+   * Returns
    * {
    *  rows: X (as float).
    *  cols: X (as float).

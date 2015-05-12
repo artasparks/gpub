@@ -20,7 +20,7 @@ glift.global = {
   /**
    * Semantic versioning is used to determine API behavior.
    * See: http://semver.org/
-   * Currently in alpha.
+   * Currently on stable.
    */
   version: '1.0.5',
 
@@ -939,7 +939,7 @@ GliftPoint.prototype = {
    * boardsize: Typically 19, but 9 and 13 are possible.  Note that points are
    * typically 0-indexed.
    *
-   * Note: This is an immutable on points.
+   * Note: This is an immutable transformation on the point.
    */
   rotate: function(maxIntersections, rotation) {
     var rotations = glift.enums.rotations;
@@ -5919,9 +5919,14 @@ glift.displays.icons.svg = {
 
   // From Iconmonstr: http://iconmonstr.com/loading-14-icon/
   // Show current move number.  Part of the status bar.
-  'move-indicator': {
+  'old-move-indicator': {
     string: "M256,50C142.23,50,50,142.23,50,256s92.23,206,206,206s206-92.23,206-206S369.77,50,256,50z M256.001,124.6c72.568,0,131.399,58.829,131.399,131.401c0,72.568-58.831,131.398-131.399,131.398 c-72.572,0-131.401-58.83-131.401-131.398C124.6,183.429,183.429,124.6,256.001,124.6z M70,256 c0-49.682,19.348-96.391,54.479-131.521S206.318,70,256,70v34.6c-83.482,0.001-151.4,67.918-151.4,151.401 c0,41.807,17.035,79.709,44.526,107.134l-24.269,24.757c-0.125-0.125-0.254-0.245-0.379-0.37C89.348,352.391,70,305.682,70,256z",
     bbox: {"x":50,"y":50,"x2":462,"y2":462,"width":412,"height":412}
+  },
+
+  'move-indicator': {
+    string: "M 121.40625 65.5625 C 120.45721 65.5625 119.6875 66.18524 119.6875 66.96875 L 119.6875 68.0625 C 119.6875 68.846 120.45721 69.46875 121.40625 69.46875 L 178.5625 69.46875 C 179.51154 69.46875 180.28125 68.846 180.28125 68.0625 L 180.28125 66.96875 C 180.28125 66.18524 179.51154 65.5625 178.5625 65.5625 L 121.40625 65.5625 z M 121.40625 103.4375 C 120.45721 103.4375 119.6875 104.06024 119.6875 104.84375 L 119.6875 105.9375 C 119.6875 106.721 120.45721 107.375 121.40625 107.375 L 178.5625 107.375 C 179.51154 107.375 180.28125 106.721 180.28125 105.9375 L 180.28125 104.84375 C 180.28125 104.06024 179.51154 103.4375 178.5625 103.4375 L 121.40625 103.4375 z",
+    bbox: {"x":119.6875,"y":65.5625,"x2":180.28125,"y2":107.375,"width":60.59375,"height":41.8125}
   },
 
   // Fullscreen Glift!
@@ -6610,15 +6615,16 @@ glift.displays.statusbar._StatusBar.prototype = {
 
   /** Sets the move number for the current move */
   setMoveNumber: function(number) {
+    // TODO(kashomon): Note: This hardcodes the move-indicator name.
     if (!this.iconBar.hasIcon('move-indicator')) { return; }
     var num = (number || '0') + ''; // Force to be a string.
     var color = this.theme.statusBar.icons.DEFAULT.fill
-    var mod = num.length > 2 ? 0.35 : null;
+    // var mod = num.length > 2 ? 0.35 : null;
     this.iconBar.addTempText(
         'move-indicator',
         num,
         { fill: color, stroke: color },
-        mod);
+        null /* size modifier, as float */);
   },
 
   /** Sets the page number for the current move */
@@ -8189,7 +8195,7 @@ glift.rules._MoveTree.prototype = {
   /** Get the intersections number of the go board, by looking at the props. */
   getIntersections: function() {
     var mt = this.getTreeFromRoot(),
-        allProperties = glift.sgf.allProperties;
+        allProperties = glift.rules.allProperties;
     if (mt.properties().contains(allProperties.SZ)) {
       var ints = parseInt(mt.properties().getAllValues(allProperties.SZ));
       return ints;
@@ -8383,7 +8389,7 @@ glift.rules._MoveTree.prototype = {
    */
   _setIntersections: function(intersections) {
     var mt = this.getTreeFromRoot(),
-        allProperties = glift.sgf.allProperties;
+        allProperties = glift.rules.allProperties;
     if (!mt.properties().contains(allProperties.SZ)) {
       this.properties().add(allProperties.SZ, intersections + "");
     }
@@ -8527,6 +8533,51 @@ glift.rules.properties = function(map) {
   return new Properties(map);
 };
 
+/**
+ * Properties that accept point values. This is here mostly for full-board
+ * modifications (e.g., rotations). It may also be useful for identifying boards
+ *
+ * Notes: There are several ways to represent points in SGFs.
+ *  [ab] - Simple point at 0,1 (origin=upper left. oriented down-right)
+ *  [aa:cc] - Point Rectangle (all points from 0,0 to 2,2 in a rect)
+ *
+ * Additionally Labels (LB) have the format
+ *  [lbl
+ *
+ */
+glift.rules.propertiesWithPts = {
+  // Marks
+  CR: true, LB: true, MA: true, SQ: true, TR: true,
+  // Stones
+  B: true, W: true, AW: true, AB: true,
+  // Clear Stones
+  AE: true,
+  // Misc. These properties are very rare, and usually can be ignored.
+  // Still, they're here for completeness.
+  AR: true, // arrow
+  DD: true, // gray area
+  LN: true, // line
+  TB: true, // black area/territory
+  TW: true // white area
+};
+
+/** All the SGF Properties plus some things. */
+//  TODO(kashomon): Comment these.
+glift.rules.allProperties = {
+AB: 'AB', AE: 'AE', AN: 'AN', AP: 'AP', AR: 'AR', AS: 'AS', AW: 'AW', B: 'B',
+BL: 'BL', BM: 'BM', BR: 'BR', BS: 'BS', BT: 'BT', C: 'C', CA: 'CA', CH: 'CH',
+CP: 'CP', CR: 'CR', DD: 'DD', DM: 'DM', DO: 'DO', DT: 'DT', EL: 'EL', EV: 'EV',
+EX: 'EX', FF: 'FF', FG: 'FG', GB: 'GB', GC: 'GC', GM: 'GM', GN: 'GN', GW: 'GW',
+HA: 'HA', HO: 'HO', ID: 'ID', IP: 'IP', IT: 'IT', IY: 'IY', KM: 'KM', KO: 'KO',
+L: 'L', LB: 'LB', LN: 'LN', LT: 'LT', M: 'M', MA: 'MA', MN: 'MN', N: 'N', OB:
+'OB', OH: 'OH', OM: 'OM', ON: 'ON', OP: 'OP', OT: 'OT', OV: 'OV', OW: 'OW', PB:
+'PB', PC: 'PC', PL: 'PL', PM: 'PM', PW: 'PW', RE: 'RE', RG: 'RG', RO: 'RO', RU:
+'RU', SC: 'SC', SE: 'SE', SI: 'SI', SL: 'SL', SO: 'SO', SQ: 'SQ', ST: 'ST', SU:
+'SU', SZ: 'SZ', TB: 'TB', TC: 'TC', TE: 'TE', TM: 'TM', TR: 'TR', TW: 'TW', UC:
+'UC', US: 'US', V: 'V', VW: 'VW', W: 'W', WL: 'WL', WR: 'WR', WS: 'WS', WT: 'WT',
+MU: 'MU'
+};
+
 var Properties = function(map) {
   this.propMap = map || {};
 };
@@ -8549,7 +8600,7 @@ Properties.prototype = {
    */
   add: function(prop, value) {
     // Return if the property is not string or a real property
-    if (!glift.sgf.allProperties[prop]) {
+    if (!glift.rules.allProperties[prop]) {
       glift.util.logz('Warning! The property [' + prop + ']' +
           ' is not valid and is not recognized in the SGF spec.');
     }
@@ -8572,7 +8623,8 @@ Properties.prototype = {
           glift.util.typeOf(value) + ' for item ' + item);
     }
 
-    // Convert any point rectangles...
+    // Convert any point rectangles. We do not allow point rectangles in our
+    // SGF property data, since it makes everything much more complex.
     var pointRectangleRegex = /^[a-z][a-z]:[a-z][a-z]$/;
     var finished = [];
     for (var i = 0; i < value.length; i++) {
@@ -8603,7 +8655,7 @@ Properties.prototype = {
    * If the property doesn't exist, returns null.
    */
   getAllValues: function(strProp) {
-    if (glift.sgf.allProperties[strProp] === undefined) {
+    if (glift.rules.allProperties[strProp] === undefined) {
       return null; // Not a valid Property
     } else if (this.propMap[strProp]) {
       return this.propMap[strProp].slice(); // Return a shallow copy.
@@ -8645,6 +8697,37 @@ Properties.prototype = {
     } else {
       return out;
     }
+  },
+
+  /**
+   * Rotates an SGF Property. Note: This only applies to stone-properties.
+   *
+   * Recall that in the SGF, we should have already converted any point
+   * rectangles, so there shouldn't be any issues here with converting point
+   * rectangles.
+   */
+  rotate: function(strProp, size, rotation) {
+    if (!glift.rules.propertiesWithPts.hasOwnProperty(strProp)) {
+      return null;
+    }
+    if (!glift.enums.rotations[rotation] ||
+        rotation === glift.enums.rotations.NO_ROTATION) {
+      return null;
+    }
+    var regex = /([a-z][a-z])/g;
+    if (strProp === glift.rules.allProperties.LB) {
+      // We handle labels specially since labels have a unqiue format
+      regex = /([a-z][a-z])(?=:)/g;
+    }
+    var vals = this.getAllValues(strProp);
+    for (var i = 0; i < vals.length; i++) {
+      vals[i] = vals[i].replace(regex, function(sgfPoint) {
+        return glift.util.pointFromSgfCoord(sgfPoint)
+            .rotate(size, rotation)
+            .toSgfCoord();
+      });
+    }
+    this.propMap[strProp] = vals;
   },
 
   /**
@@ -8734,9 +8817,9 @@ Properties.prototype = {
   getPlacementsAsPoints: function(color) {
     var prop = '';
     if (color === glift.enums.states.BLACK) {
-      prop = glift.sgf.allProperties.AB;
+      prop = glift.rules.allProperties.AB;
     } else if (color === glift.enums.states.WHITE) {
-      prop = glift.sgf.allProperties.AW;
+      prop = glift.rules.allProperties.AW;
     }
     if (prop === '' || !this.contains(prop)) {
       return [];
@@ -9277,7 +9360,7 @@ glift.sgf = {
    *          FOO => null
    */
   markToProperty: function(mark)  {
-    var allProps = glift.sgf.allProperties;
+    var allProps = glift.rules.allProperties;
     var markToPropertyMap = {
       LABEL_ALPHA: allProps.LB,
       LABEL_NUMERIC: allProps.LB,
@@ -9341,23 +9424,6 @@ glift.sgf = {
     }
     return out;
   }
-};
-// The allProperties object is used to check to make sure that a given property is
-// actually a real property
-// MU (???)
-glift.sgf.allProperties = {
-AB: "AB", AE: "AE", AN: "AN", AP: "AP", AR: "AR", AS: "AS", AW: "AW", B: "B",
-BL: "BL", BM: "BM", BR: "BR", BS: "BS", BT: "BT", C: "C", CA: "CA", CH: "CH",
-CP: "CP", CR: "CR", DD: "DD", DM: "DM", DO: "DO", DT: "DT", EL: "EL", EV: "EV",
-EX: "EX", FF: "FF", FG: "FG", GB: "GB", GC: "GC", GM: "GM", GN: "GN", GW: "GW",
-HA: "HA", HO: "HO", ID: "ID", IP: "IP", IT: "IT", IY: "IY", KM: "KM", KO: "KO",
-L: "L", LB: "LB", LN: "LN", LT: "LT", M: "M", MA: "MA", MN: "MN", N: "N", OB:
-"OB", OH: "OH", OM: "OM", ON: "ON", OP: "OP", OT: "OT", OV: "OV", OW: "OW", PB:
-"PB", PC: "PC", PL: "PL", PM: "PM", PW: "PW", RE: "RE", RG: "RG", RO: "RO", RU:
-"RU", SC: "SC", SE: "SE", SI: "SI", SL: "SL", SO: "SO", SQ: "SQ", ST: "ST", SU:
-"SU", SZ: "SZ", TB: "TB", TC: "TC", TE: "TE", TM: "TM", TR: "TR", TW: "TW", UC:
-"UC", US: "US", V: "V", VW: "VW", W: "W", WL: "WL", WR: "WR", WS: "WS", WT: "WT",
-MU: "MU"
 };
 /**
  * Glift parsing
@@ -9553,7 +9619,7 @@ glift.parse.sgf = function(sgfString) {
             // lengths, even though all standard SGF properties are 1-2 chars.
           } else if (curchar === syn.LBRACE) {
             curProp = flushCharBuffer();
-            if (glift.sgf.allProperties[curProp] === undefined) {
+            if (glift.rules.allProperties[curProp] === undefined) {
               pwarn('Unknown property: ' + curProp);
             }
             curstate = states.PROP_DATA;
@@ -10084,7 +10150,7 @@ glift.controllers.BoardEditorMethods = {
    * this._ptTolabelMap: A map from pt (string) to {label + optional data}.
    */
   _initLabelTrackers: function() {
-    var allProps = glift.sgf.allProperties;
+    var allProps = glift.rules.allProperties;
     var marks = glift.enums.marks;
     var numericLabelMap = {}; // number-string to 'true'
     var alphaLabelMap = {}; // alphabetic label to 'true'
@@ -10780,6 +10846,7 @@ glift.bridge._getRegionFromTracker = function(tracker, numstones) {
   }
   return glift.enums.boardRegions.ALL;
 };
+
 /*
  * Intersection Data is the precise set of information necessary to display the
  * Go Board, which is to say, it is the set of stones and display information.
@@ -10933,7 +11000,7 @@ glift.bridge.intersections = {
         var marksToAdd = [];
         var data = movetree.properties().getAllValues(prop);
         for (var i = 0; i < data.length; i++) {
-          if (prop === glift.sgf.allProperties.LB) {
+          if (prop === glift.rules.allProperties.LB) {
             // Labels have the form { point: pt, value: 'A' }
             marksToAdd.push(glift.sgf.convertFromLabelData(data[i]));
           } else {
@@ -10952,6 +11019,68 @@ glift.bridge.intersections = {
     }
     return outMarks;
   }
+};
+/**
+ * Rotates a movetree so that it's canonical, given some cropbox
+ */
+glift.bridge.autorotateMovetree = function(movetree, regionOrdering) {
+  var rotation = glift.bridge.findCanonicalRotation(movetree, regionOrdering);
+  movetree.recurse(function(mt) {
+    for (var key in mt.properties().propMap) {
+    }
+  });
+};
+
+/**
+ * Calculates the desired rotation. Returns one of
+ * glift.enums.rotations.
+ */
+glift.bridge.findCanonicalRotation = function(movetree, regionOrdering) {
+  var boardRegions = glift.enums.boardRegions;
+  var rotations = glift.enums.rotations;
+  var cornerRegions = {
+    TOP_LEFT: 0,
+    BOTTOM_LEFT: 90,
+    BOTTOM_RIGHT: 180,
+    TOP_RIGHT: 270
+  };
+  var sideRegions = {
+    TOP: 0,
+    LEFT: 90,
+    BOTTOM: 180,
+    RIGHT: 270
+  };
+
+  if (!regionOrdering) {
+    regionOrdering = {
+      corner: boardRegions.TOP_RIGHT,
+      side: boardRegions.TOP
+    };
+  }
+
+  var region = glift.bridge.getQuadCropFromMovetree(movetree);
+
+  if (cornerRegions[region] !== undefined ||
+      sideRegions[region] !== undefined) {
+    var start = 0, end = 0;
+    if (cornerRegions[region] !== undefined) {
+      start = cornerRegions[region];
+      end = cornerRegions[regionOrdering.corner];
+    }
+
+    if (sideRegions[region] !== undefined) {
+      start = sideRegions[region];
+      end = sideRegions[regionOrdering.side];
+    }
+
+    var rot = (360 + start - end) % 360;
+    if (rot === 0) { return rotations.NO_ROTATION; }
+    return 'CLOCKWISE_' + rot;
+  }
+
+  // No rotations. We only rotate when the quad crop region is either a corner
+  // or a side.
+  return rotations.NO_ROTATION;
 };
 /**
  * Helps flatten a go board into a diagram definition.
@@ -11131,7 +11260,7 @@ glift.flattener = {
       if (movetree.properties().contains(prop)) {
         var data = movetree.properties().getAllValues(prop);
         for (var i = 0; i < data.length; i++) {
-          if (prop === glift.sgf.allProperties.LB) {
+          if (prop === glift.rules.allProperties.LB) {
             var lblPt = glift.sgf.convertFromLabelData(data[i]);
             var key = lblPt.point.toString();
             out.marks[key] = symbol;
@@ -13303,6 +13432,8 @@ glift.widgets.options.baseOptions = {
       tooltip: 'Show the game info'
     },
 
+    // TODO(kashomon): The 'move-indicator' is harded somewhere and needs to be
+    // fixed.
     'move-indicator': {
       click: function() {},
       mouseover: function() {},
