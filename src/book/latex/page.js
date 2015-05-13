@@ -43,6 +43,7 @@ gpub.book.latex.Paging = function(
 
   this.intersectionSize = intersectionSize;
 
+  /** The bleed amount in inches. Exterior edges only. */
   this.bleed = bleed || 0;
 };
 
@@ -52,11 +53,21 @@ gpub.book.latex.Paging.prototype = {
     return new gpub.book.latex.Page();
   },
 
+  /** Returns the relevant latex preamble. */
+  pagePreamble: function() {
+    return [
+      this._pageSizeSetting(),
+      this._marginSetting(),
+      this.bleed ? this._trimSetting() : '',
+      '\\fixpdflayout'
+    ].join('\n');
+  },
+
   /**
    * Sets the page size for the memoir class. I.e., returns the relevant latex
    * command.
    */
-  setPageSize: function() {
+  _pageSizeSetting: function() {
     var size = gpub.boox.latex.sizeMapping[this.pageSize];
     return '\\setstocksize' +
       '{' + size.heightIn + 'in}' +
@@ -64,10 +75,23 @@ gpub.book.latex.Paging.prototype = {
   },
 
   /**
-   * Sets the margins on the page.
+   * Sets the margins on the page: Returns the relevant latex command.
    */
-  setMargins: function() {
+  _marginSetting: function() {
     // TODO(kashomon): Finish this
+    return ''
+  },
+
+  /**
+   * Set the trims/bleeds. This is the amount that's cut (or trimmed) from the
+   * page and thus doesn't show up in the finished product.
+   *
+   * Since professional printers can print at trim (no bleed), we
+   */
+  _trimSetting: function() {
+    // For now we assume that we're printing at trim. In otherwords, that we're
+    // not using bleed.
+    return '\\settrims{' + this.bleed + 'in}{' + this.bleed + 'in}';
   },
 
   /**
