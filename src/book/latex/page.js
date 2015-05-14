@@ -53,6 +53,11 @@ gpub.book.latex.Paging.prototype = {
     return new gpub.book.latex.Page();
   },
 
+  /** Flush the buffer as a string. */
+  flush: function() {
+    return this.buffer.join('\n');
+  },
+
   /** Returns the relevant latex preamble. */
   pagePreamble: function() {
     return [
@@ -101,7 +106,7 @@ gpub.book.latex.Paging.prototype = {
    *  cols: X (as float).
    * }
    */
-  calculateUnits: function() {
+  _calculateUnits: function() {
     var intPt = this.intersectionSize;
     var inchesPer = initPt / 72;
     var sizeObj = gpub.book.latex.sizeMapping[this.pageSize];
