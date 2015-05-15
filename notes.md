@@ -5,17 +5,19 @@
 This is an unordered collection of things to work on since I had a hard time
 keeping them in my head.
 
-- __Frontmatter__: The LaTeX book generator needs to support frontmatter before
-  we can consider LaTeXU generation complete. Frontmatter support is required
+* __Frontmatter__: The LaTeX book generator needs to support frontmatter before
+  we can consider LaTeX generation complete. Frontmatter support is required
   before publishing. This will most like be a series of LaTeX includes.
 
-- __Validation__: To publish, PDF/X-1a:2001 or PDF/X-3:2002 is often
+    * **Done!**
+
+* __Validation__: To publish, PDF/X-1a:2001 or PDF/X-3:2002 is often
   required. Can we ensure that is the case?
   http://stackoverflow.com/questions/569129/how-can-i-test-a-pdf-document-if-it-is-pdf-a-compliant
   There's also a LaTeX package called pdfx. It has some problems, but might be
   able to adapt it. Might be able to hack it manually,
 
-- __Book Interface__: The interface for book should probably be changed from
+* __Book Interface__: The interface for book should probably be changed from
   returning string to returning a more complex data type. Right now we can
   probably just get away with a string return, but it won't work for
   externalized diagrams like PDFs, SVGs, PNGs, etc.
@@ -38,10 +40,10 @@ keeping them in my head.
 - __Problem Support__: There's no support for problem books right now. I don't
   think it should be terribly hard, but I'll need to think pretty deeply about
   how to place problems within a page. There are three things to consider
-  - How is the diagram cropped?
-  - Is there text (commentary) shown?
-  - How should problem-answers be handled?
-  - Autorotation: probably a GLift feature
+    - How is the diagram cropped?
+    - Is there text (commentary) shown?
+    - How should problem-answers be handled?
+    - Autorotation: probably a GLift feature. **Done!**
 
 - __Contextual Diagram Placement__: Right now, there is no logic around the way
   diagrams are placed within a page. However, being smarter about diagram
