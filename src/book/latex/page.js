@@ -36,7 +36,7 @@ gpub.book.latex.Paging = function(
   this.buffer = [];
 
   this.pageSize = pageSize ||
-      gpub.book.latex.pageSize.LETTER;
+      gpub.book.page.pageSize.LETTER;
 
   this.margins = margins ||
       gpub.book.latex.defaultMargins;
@@ -95,7 +95,7 @@ gpub.book.latex.Paging.prototype = {
    * command.
    */
   _pageSizeSetting: function() {
-    var size = gpub.boox.latex.sizeMapping[this.pageSize];
+    var size = gpub.boox.page.sizeMapping[this.pageSize];
     return '\\setstocksize' +
       '{' + size.heightIn + 'in}' +
       '{' + size.widthIn + 'in}';
@@ -131,7 +131,7 @@ gpub.book.latex.Paging.prototype = {
   _calculateUnits: function() {
     var intPt = this.intersectionSize;
     var inchesPer = initPt / 72;
-    var sizeObj = gpub.book.latex.sizeMapping[this.pageSize];
+    var sizeObj = gpub.book.page.sizeMapping[this.pageSize];
     var interiorWidth = (sizeObj.widthIn - 2 * this.margins) / inchesPer;
     var interiorHeight  = (sizeObj.heightIn- 2 * this.margins) / inchesPer;
     return {
@@ -183,48 +183,3 @@ gpub.book.latex.defaultMargins = 0.5;
  */
 gpub.book.latex.standardBleed  = 0.125;
 
-/**
- * Mapping from page-size to col-maping.
- *
- * Note: height and width in mm.
- */
-gpub.book.latex.sizeMapping = {
-  A4: {
-    heightMm: 297,
-    widthMm: 210,
-    widthIn: 8.268,
-    heightIn: 11.693
-  },
-  LETTER: {
-    heightMm: 280,
-    widthMm: 210,
-    heightIn: 11,
-    widthIn: 8.5
-  },
-  OCTAVO: {
-    heightMm: 229,
-    widthMm: 152,
-    heightIn: 9,
-    widthIn: 6
-  },
-  NOTECARD: {
-    heightMm: 178,
-    widthMm: 127,
-    heightIn: 7,
-    widthIn: 5
-  }
-};
-
-gpub.book.latex.pageSize = {
-  A4: 'A4',
-  A5: 'A5',
-  LETTER: 'LETTER',
-
-  // http://en.wikipedia.org/wiki/Book_size
-  QUARTO: 'QUARTO',
-  OCTAVO: 'OCTAVO',
-
-  NOTECARD: 'NOTECARD',
-
-  TWELVEMO: 'TWELVEMO'
-};
