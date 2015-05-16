@@ -45,6 +45,12 @@ gpub.book.latex.Paging = function(
 
   /** The bleed amount in inches. Exterior edges only. */
   this.bleed = bleed || 0;
+
+  /** The current page, for the purposes of adding diagrams */
+  this.currentPage = null;
+
+  /** Total pages, minus the current page*/
+  this.pages = [];
 };
 
 gpub.book.latex.Paging.prototype = {
@@ -54,8 +60,24 @@ gpub.book.latex.Paging.prototype = {
   },
 
   /** Flush the buffer as a string. */
-  flush: function() {
-    return this.buffer.join('\n');
+  flushPage: function() {
+    if (!this.currentPage) {
+      return;
+    }
+    this.pages.push(this.currentPage);
+    this.currentPage = this.newPage();
+  },
+
+  /** Flush the buffer as a string. */
+  flushAll: function() {
+    if (this.currentPage && !this.currentPage.isEmpty()) {
+      this.flushPage();
+    }
+    var out = [];
+    for (var i = 0; i < this.pages.length; i++) {
+      out.push(pages[i].flush());
+    }
+    return out.join('\n');
   },
 
   /** Returns the relevant latex preamble. */
@@ -127,6 +149,8 @@ gpub.book.latex.Page = function(rows, cols) {
   this.rows = rows;
 
   this.cols = cols;
+
+  this.buffer = [];
 };
 
 gpub.book.latex.Page.prototype = {
@@ -139,6 +163,10 @@ gpub.book.latex.Page.prototype = {
     var out = this.buffer.join('\n');
     this.buffer = [];
     return out;
+  },
+
+  isEmpty: function() {
+    return this.buffer.length != 0;
   }
 };
 
