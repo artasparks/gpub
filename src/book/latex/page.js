@@ -24,23 +24,29 @@
  * The paging instance is a factory for pages.  We want all pages to share the
  * same properties.  Thus, the purpose of this factory.
  *
- * pageSize: A member of gpub.book.latex.pageSize;
+ * pageType: A member of gpub.book.page.type;
  * margin: In inches.
  * intersectionSize: In point-size. Note that 1 pt = 1/72 of an inch.
  */
 gpub.book.latex.Paging = function(
-    pageSize,
+    pageType,
     margin,
     intersectionSize,
     bleed) {
   this.buffer = [];
 
+  /** Size of the pages produced by the paging factory. */
   this.pageSize = pageSize ||
-      gpub.book.page.pageSize.LETTER;
+      gpub.book.page.type.LETTER;
 
+  // TODO(kashomon): Support margins.
   this.margins = margins ||
       gpub.book.latex.defaultMargins;
 
+  /**
+   * Size of the intersections in pt. For font-based diagrams, this will be the
+   * pt-size, but may need to be calculated.
+   */
   this.intersectionSize = intersectionSize;
 
   /** The bleed amount in inches. Exterior edges only. */
