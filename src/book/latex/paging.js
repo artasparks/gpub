@@ -44,8 +44,7 @@ gpub.book.latex.Paging = function(
       gpub.book.latex.defaultMargins;
 
   /**
-   * Size of the intersections in pt. For font-based diagrams, this will be the
-   * pt-size, but may need to be calculated.
+   * Size of the go-board intersections in pt.
    */
   this.intersectionSize = intersectionSize;
 
