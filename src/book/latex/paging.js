@@ -25,12 +25,12 @@
  * same properties.  Thus, the purpose of this factory.
  *
  * pageType: A member of gpub.book.page.type;
- * margin: In inches.
+ * rlMargins: In inches. Currently pretty crude.
  * intersectionSize: In point-size. Note that 1 pt = 1/72 of an inch.
  */
 gpub.book.latex.Paging = function(
     pageType,
-    margin,
+    margins,
     intersectionSize,
     bleed) {
   this.buffer = [];
@@ -40,7 +40,7 @@ gpub.book.latex.Paging = function(
       gpub.book.page.type.LETTER;
 
   // TODO(kashomon): Support margins.
-  this.margins = margins ||
+  this.margins = rlMargins ||
       gpub.book.latex.defaultMargins;
 
   /**
@@ -64,7 +64,7 @@ gpub.book.latex.Paging.prototype = {
     return new gpub.book.latex.Page();
   },
 
-  /** Flush the buffer as a string. */
+  /** Flush the page to the finished 'pages'. */
   flushPage: function() {
     if (!this.currentPage) {
       return;
@@ -73,7 +73,7 @@ gpub.book.latex.Paging.prototype = {
     this.currentPage = this.newPage();
   },
 
-  /** Flush the buffer as a string. */
+  /** Flush the pages buffer as a string. */
   flushAll: function() {
     if (this.currentPage && !this.currentPage.isEmpty()) {
       this.flushPage();
@@ -85,13 +85,16 @@ gpub.book.latex.Paging.prototype = {
     return out.join('\n');
   },
 
-  /** Returns the relevant latex preamble. */
+  /**
+   * Returns the relevant latex preamble. Should be added to the document
+   * before page construction.
+   */
   pagePreamble: function() {
     return [
       this._pageSizeSetting(),
       this._marginSetting(),
       this.bleed ? this._trimSetting() : '',
-      '\\fixpdflayout'
+      '\\checkandfixthelayout', // Do we need this here?
     ].join('\n');
   },
 
@@ -108,10 +111,14 @@ gpub.book.latex.Paging.prototype = {
 
   /**
    * Sets the margins on the page: Returns the relevant latex command.
+   * Note: this is probably the least elegant way of setting the margins. The
+   * memoir class has lots of machinery for set margins using a ratio setting.
    */
   _marginSetting: function() {
-    // TODO(kashomon): Finish this
-    return ''
+    // Currently we don't set the vertical margin, but could be set with
+    // \setulmarginsandblock
+    return '\\setlrmarginsandblock{' + this.rlMargins + 'in}{' +
+        this.rlMargins + 'in}{*}';
   },
 
   /**
