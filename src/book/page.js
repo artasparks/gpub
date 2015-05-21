@@ -17,7 +17,9 @@ gpub.book.page.type = {
   A4: 'A4',
   LETTER: 'LETTER',
   OCTAVO: 'OCTAVO',
-  NOTECARD: 'NOTECARD'
+  NOTECARD: 'NOTECARD',
+  EIGHT_TEN: 'EIGHT_TEN',
+  FIVEFIVE_EIGHTFIVE: 'FIVEFIVE_EIGHTFIVE'
 };
 
 /**
@@ -58,5 +60,18 @@ gpub.book.page.size = {
     widthMm: 127,
     heightIn: 7,
     widthIn: 5
+  },
+  // Miscellaneous sizes
+  EIGHT_TEN: {
+    heightMm: 254,
+    widthMm: 203,
+    heightIn: 10,
+    widthIn: 8
+  }
+  FIVEFIVE_EIGHTFIVE: {
+    heightMm: 216,
+    widthMm: 140,
+    heightIn: 8.5,
+    widthIn: 5.3
   }
 };
