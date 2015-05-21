@@ -67,7 +67,7 @@ gpub.book.page.size = {
     widthMm: 203,
     heightIn: 10,
     widthIn: 8
-  }
+  },
   FIVEFIVE_EIGHTFIVE: {
     heightMm: 216,
     widthMm: 140,
