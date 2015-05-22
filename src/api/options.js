@@ -10,7 +10,7 @@ gpub.defaultOptions = {
 
   /**
    * The format of the 'book' output that is produced by GPub.
-   * See gpub.bookFormat.
+   * See gpub.outputFormat.
    */
   outputFormat: 'LATEX',
 
@@ -40,9 +40,14 @@ gpub.defaultOptions = {
    *  - PDF,
    *  - EPS
    *
-   * See glift.diagrams.diagramType.
+   * See gpub.diagrams.diagramType.
    */
   diagramType: 'GNOS',
+
+  /**
+   * The size of the page. Element of gpub.book.page.type.
+   */
+  pageSize: 'LETTER',
 
   /** Skip the first N diagrams. Allows users to generate parts of a book. */
   skipDiagrams: 0,
@@ -185,5 +190,43 @@ gpub.processOptions = function(options) {
   if (newo.maxDiagrams < 0) {
     throw new Error('maxDiagrams cannot be less than 0');
   }
+
+  gpub.validateOptions(newo);
+
+  return newo;
+};
+
+/**
+ * Validate some options.
+ */
+gpub.validateOptions = function(newo) {
+  var keys = [
+    'outputFormat',
+    'bookPurpose',
+    'boardRegion',
+    'diagramType',
+    'pageSize'
+  ];
+
+  var parentObjs = [
+    gpub.outputFormat,
+    gpub.bookPurpose,
+    glift.enums.boardRegions,
+    gpub.diagrams.diagramType,
+    gpub.book.page.type
+  ];
+
+  if (keys.length !== parentObjs.length) {
+    throw new Error('Programming error! Keys and parent objs not same length');
+  }
+
+  for (var i = 0; i < keys.length; i++) {
+    var k = keys[i];
+    var value = newo[k];
+    if (!parentObjs[i].hasOwnProperty(value)) {
+      throw new Error('Value: ' + value + ' for property ' + k + ' unrecognized'); 
+    }
+  }
+
   return newo;
 };
