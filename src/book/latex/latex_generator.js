@@ -9,16 +9,15 @@ gpub.book.latex.generator = {
 
     view.init = gpub.diagrams.getInit(opts.diagramType, 'LATEX');
 
-    var content = [];
+    var pages = new gpub.book.latex.Paging(
+      opts.pageSize);
 
     this.forEachSgf(spec, function(idx, mt, flattened, ctx) {
       var diagram = gpub.diagrams.create(flattened, opts.diagramType);
-      var contextualized = gpub.book.latex.context.typeset(
-          opts.diagramType, diagram, ctx, flattened);
-      content.push(contextualized);
+      pages.addDiagram(opts.diagramType, diagram, ctx, flattened);
     }.bind(this));
 
-    view.content = content.join('\n');
+    view.content = paging.flushAll();
 
     return gpub.Mustache.render(this.template(), view);
   },

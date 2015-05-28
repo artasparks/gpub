@@ -25,13 +25,14 @@
  * same properties.  Thus, the purpose of this factory.
  *
  * pageType: A member of gpub.book.page.type;
- * rlMargins: In inches. Currently pretty crude.
  * intersectionSize: In point-size. Note that 1 pt = 1/72 of an inch.
+ * rlMargins: Optional. In inches. Currently pretty crude.
+ * bleed: Optional. Not used at the moment.
  */
 gpub.book.latex.Paging = function(
     pageType,
-    margins,
     intersectionSize,
+    margins,
     bleed) {
   this.buffer = [];
 
@@ -59,8 +60,28 @@ gpub.book.latex.Paging = function(
 };
 
 gpub.book.latex.Paging.prototype = {
+  /**
+   * Adds a diagram to the paging tracker.
+   */
+  addDiagram: function(
+      diagramType,
+      diagramString,
+      context,
+      flattened) {
+    var contextualized = gpub.book.latex.context.typeset(
+        opts.diagramType, diagram, ctx, flattened);
+    if (!this.currentPage) {
+      this.currentPage = this.newPage();
+    }
+    if (this.currentPage.isFull()) {
+      this.flushPage();
+    }
+    this.currentPage.addDiagram(contextualized);
+  },
+
   /** Creates a new page */
   newPage: function() {
+    // TODO(kashomon): Pass in page details
     return new gpub.book.latex.Page();
   },
 
@@ -162,12 +183,24 @@ gpub.book.latex.Page = function(rows, cols) {
 
   this.cols = cols;
 
+  this.diagramCount = 0;
+
   this.buffer = [];
 };
 
 gpub.book.latex.Page.prototype = {
   /** Add a diagram to the page. */
-  addDiagram: function(flattened) {
+  addDiagram: function(str) {
+    this.buffer.push(str);
+    this.diagramCount++;
+    return this;
+  },
+
+  /** Returns whether or not the page thinks it's full. */
+  isFull: function() {
+    // TODO(kashomon): This is a hack to preserve the current behavior while we
+    // figure out how this should work.
+    return this.diagramCount >= 2
   },
 
   /** Clear the page lines */

@@ -13,7 +13,8 @@ var flags = flagz.init(
   ['<json-book-definition>'],
   {
     outputFormat: ['string', 'LATEX', 'The output format for the book.'],
-    directory: ['string', '', 'The directory from which to process SGFs.']
+    directory: ['string', '', 'The directory from which to process SGFs.'],
+    pageSize: ['gpub.book.page.type', 'LETTER', 'Size of the output page.']
   }).process();
 
 var def = filez.readFromDirAndArgs(
