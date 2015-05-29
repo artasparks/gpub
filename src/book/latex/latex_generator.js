@@ -9,8 +9,9 @@ gpub.book.latex.generator = {
 
     view.init = gpub.diagrams.getInit(opts.diagramType, 'LATEX');
 
+    // TODO(kashomon): Add in the gpub font size..
     var pages = new gpub.book.latex.Paging(
-      opts.pageSize);
+      opts.pageSize, opts);
 
     this.forEachSgf(spec, function(idx, mt, flattened, ctx) {
       var diagram = gpub.diagrams.create(flattened, opts.diagramType);
