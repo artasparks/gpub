@@ -9,7 +9,7 @@ var sgfRegex = /.*\.sgf$/;
 /**
  * Returns
  *  {
- *    collection: <glift collection>
+ *    collection: <glift collection (array)>
  *    contents: {
  *      <filename> : contents
  *    }
