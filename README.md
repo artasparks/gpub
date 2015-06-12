@@ -176,3 +176,23 @@ gpub.create([sgf1, sgf2, ...], {
   }
 });
 ```
+
+
+## Miscellaneous Scripts 
+
+To enable all the scripts, it's convenient ta have something like
+
+```shell
+PATH=/Users/kashomon/inprogress/gpub/scripts:$PATH
+```
+
+in your `.bashrc` or `.bash_profile`
+
+### Converting Tygem files to SGF
+
+`convert_tygem.sh` converts .gib files into .sgfs (automatically making new sgf
+files).
+
+```shell
+convert_tygem.sh *.gib
+```
