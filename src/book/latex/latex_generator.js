@@ -11,7 +11,7 @@ gpub.book.latex.generator = {
     var diagOpt = {
       // Intersection size in pt.
       // TODO(kashomon): Pass this in rather than hardcoding.
-      size: 12
+      size: opts.gnosFontSize
     };
 
     var pages = new gpub.book.latex.Paging(

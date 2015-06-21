@@ -14,7 +14,9 @@ var flags = flagz.init(
   {
     outputFormat: ['string', 'LATEX', 'The output format for the book.'],
     directory: ['string', '', 'The directory from which to process SGFs.'],
-    pageSize: ['gpub.book.page.type', 'LETTER', 'Size of the output page.']
+    pageSize: ['gpub.book.page.type', 'LETTER',
+        'Size of the output page (stock/trim size).'],
+    gnosFontSize: ['gpub.diagrams.gnos.sizes', '12', 'Size of gnos diagram.']
   }).process();
 
 var def = filez.readFromDirAndArgs(
@@ -27,7 +29,8 @@ for (var i = 0; i < def.collection.length; i++) {
 
 var book = gpub.create({
   sgfs: sgfArr,
-  pageSize: flags.processed.pageSize
+  pageSize: flags.processed.pageSize,
+  gnosFontSize: flags.processed.gnosFontSize
 });
 
 console.log(book);

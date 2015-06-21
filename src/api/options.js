@@ -64,6 +64,18 @@ gpub.defaultOptions = {
    */
   template: null,
 
+  ////////////////////////////
+  // DiagramSpecificOptions //
+  ////////////////////////////
+
+  /** Size of the gnos font */
+  gnosFontSize: '12',
+
+
+  //////////////////
+  // Book Options //
+  //////////////////
+
   /** Options specifically for book processors */
   bookOptions: {
     /**
@@ -79,6 +91,7 @@ gpub.defaultOptions = {
       'You!'
     ],
     year: null,
+
 
     /**
      * Frontmatter is text supporting the bulk of the the work that comes

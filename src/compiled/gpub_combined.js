@@ -1333,7 +1333,7 @@ gpub.book.latex.generator = {
     var diagOpt = {
       // Intersection size in pt.
       // TODO(kashomon): Pass this in rather than hardcoding.
-      size: 12
+      size: opts.gnosFontSize
     };
 
     var pages = new gpub.book.latex.Paging(
@@ -3025,6 +3025,18 @@ gpub.defaultOptions = {
    */
   template: null,
 
+  ////////////////////////////
+  // DiagramSpecificOptions //
+  ////////////////////////////
+
+  /** Size of the gnos font */
+  gnosFontSize: '12',
+
+
+  //////////////////
+  // Book Options //
+  //////////////////
+
   /** Options specifically for book processors */
   bookOptions: {
     /**
@@ -3040,6 +3052,7 @@ gpub.defaultOptions = {
       'You!'
     ],
     year: null,
+
 
     /**
      * Frontmatter is text supporting the bulk of the the work that comes
