@@ -70,13 +70,17 @@ gpub.book.latex.defaultTemplate = [
 // other options for chapter styles:
 // bringhurst,crosshead,default,dowding,memman,komalike,ntglike,tandh,wilsondob
 '\\chapterstyle{madsen}',
-'\\pagestyle{companion}',
 
 // openany, openright, openleft
 '\\openany',
 '\\makepagestyle{headings}',
+'\\setlength{\\headwidth}{\\textwidth}',
 '\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
 '\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}',
+'\\makerunningwidth{headings}[\\textwidth]{\\textwidth}',
+
+'\\pagestyle{companion}',
+'\\makerunningwidth{companion}{\\headwidth}',
 //'\\renewcommand{\\printchapternum}{\\space}', -- Force no chapter nums
 
 '',

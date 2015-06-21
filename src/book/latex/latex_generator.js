@@ -7,18 +7,27 @@ gpub.book.latex.generator = {
     var view = this.view(spec);
     var opts = this.options();
 
-    view.init = gpub.diagrams.getInit(opts.diagramType, 'LATEX');
+    // Diagram Options
+    var diagOpt = {
+      // Intersection size in pt.
+      // TODO(kashomon): Pass this in rather than hardcoding.
+      size: 12
+    };
 
-    // TODO(kashomon): Add in the gpub font size..
     var pages = new gpub.book.latex.Paging(
-      opts.pageSize, opts);
+      opts.pageSize, diagOpt.size);
+
+    view.init = [
+      gpub.diagrams.getInit(opts.diagramType, 'LATEX'),
+      pages.pagePreamble()
+    ].join('\n');
 
     this.forEachSgf(spec, function(idx, mt, flattened, ctx) {
-      var diagram = gpub.diagrams.create(flattened, opts.diagramType);
+      var diagram = gpub.diagrams.create(flattened, opts.diagramType, diagOpt);
       pages.addDiagram(opts.diagramType, diagram, ctx, flattened);
     }.bind(this));
 
-    view.content = paging.flushAll();
+    view.content = pages.flushAll();
 
     return gpub.Mustache.render(this.template(), view);
   },

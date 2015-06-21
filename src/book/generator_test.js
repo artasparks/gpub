@@ -101,4 +101,12 @@
       zeed: 'freed' // Default
     });
   });
+
+  test('Generator Options: (LATEX)', function() {
+    var opts = gpub.processOptions({
+      pageSize: 'EIGHT_TEN'
+    });
+    var gen = gpub.book.generator('LATEX', opts);
+    deepEqual(gen.options().pageSize, 'EIGHT_TEN');
+  });
 })();

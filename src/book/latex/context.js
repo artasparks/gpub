@@ -3,9 +3,21 @@
  */
 gpub.book.latex.context = {
   /**
-   * Typeset the diagram into LaTeX
+   * Typeset the diagram into LaTeX. This expects the diagrams to have already
+   * been rendered. These methods are meant to provide page context.
+   *
+   * diagramType: member of gpub.diagrams.diagramType
+   * diagram: The core diagram string. Needs to already have been rendered. This
+   * ctx: Context object.
+   *    {contextType: <gpub.book.contextType>, isChapter: <boolean>}
+   * flattened: The flattened diagram object from Glift.
+   *    Note: it seems a little weird to pass in the diagram and the flattened
+   *    obj, since the flattened obj can regenerate the diagram. Probably should
+   *    be rectified at some point.
+   * intSize: Size of an intersection in Point. (1/72 of an inch)
+   * pageSize: size of the page (see gpub.book.page.size).
    */
-  typeset: function(diagramType, diagram, ctx, flattened) {
+  typeset: function(diagramType, diagram, ctx, flattened, intSize, pageSize) {
     comment = flattened.comment() || '';
     label = gpub.diagrams.createLabel(flattened);
 
@@ -27,8 +39,13 @@ gpub.book.latex.context = {
     if (!renderer) {
       renderer = gpub.book.latex.context.rendering[DESCRIPTION];
     }
+    if (!intSize) {
+      throw new Error('Intersection size in points not defined. Was' +
+          intSize);
+    }
 
-    return renderer(diagram, ctx, processedComment, processedLabel);
+    return renderer(
+        diagram, ctx, processedComment, processedLabel, intSize, pageSize);
   },
 
   /** Process the label to make it appropriate for LaTeX. */
@@ -62,7 +79,11 @@ gpub.book.latex.context = {
 
   /** Render the specific digaram context. */
   rendering: {
-    EXAMPLE: function(diagram, ctx, pcomment, label) {
+    EXAMPLE: function(diagram, ctx, pcomment, label, pts, pageSize) {
+      if (!pageSize) {
+        throw new Error('Page size must be defined. Was:' + pageSize);
+      }
+      var widthPt = gpub.book.page.inToPt(pageSize.widthIn);
       if (pcomment.preamble) {
         return [
           pcomment.preamble,
@@ -78,11 +99,11 @@ gpub.book.latex.context = {
           '',
           '\\rule{\\textwidth}{0.5pt}',
           '',
-          '\\begin{minipage}[t]{0.5\\textwidth}',
+          '\\begin{minipage}[t]{' + 20*pts + 'pt}',
           diagram,
           label,
           '\\end{minipage}',
-          '\\begin{minipage}[t]{0.5\\textwidth}',
+          '\\begin{minipage}[t]{' + (0.85*widthPt - 21*pts) +'pt}',
           '\\setlength{\\parskip}{0.5em}',
           pcomment.text,
           '\\end{minipage}',
@@ -90,7 +111,7 @@ gpub.book.latex.context = {
       }
     },
 
-    DESCRIPTION: function(diagram, ctx, pcomment, label) {
+    DESCRIPTION: function(diagram, ctx, pcomment, label, pts) {
       return [
         pcomment.preamble,
         pcomment.text,
@@ -98,7 +119,7 @@ gpub.book.latex.context = {
       ].join('\n');
     },
 
-    PROBLEM: function(diagram, ctx, pcomment, label) {
+    PROBLEM: function(diagram, ctx, pcomment, label, pts) {
       // TODO(kashomon): implement.
     }
   }

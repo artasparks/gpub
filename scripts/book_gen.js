@@ -26,7 +26,8 @@ for (var i = 0; i < def.collection.length; i++) {
 }
 
 var book = gpub.create({
-  sgfs: sgfArr
+  sgfs: sgfArr,
+  pageSize: flags.processed.pageSize
 });
 
 console.log(book);

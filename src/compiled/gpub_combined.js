@@ -842,7 +842,11 @@ gpub.book.Gen = {
    *  spec: The glift spec.
    *  options: The gpub options.
    *
-   * Returns a string: the completed book.
+   * Returns:
+   * {
+   *  content: ...
+   *  diagrams:...
+   * }
    */
   generate: function(spec) {},
 
@@ -1019,6 +1023,83 @@ gpub.book._Generator.prototype = {
     return sgf.substring(0, 50) + sgf.substring(sgf.length - 50, sgf.length);
   }
 };
+gpub.book.page = {
+  /** Various conversion helpers. */
+  ptToIn: function(ptSize) { return ptSize * (1 / 72); },
+  ptToMm: function(ptSize) { return ptSize * 0.3528; },
+
+  mmToPt: function(mmSize) { return mmSize * 1 / 0.3528; },
+  inToPt: function(inSize) { return inSize * 72 ; },
+
+  inToMm: function(inSize) { return inSize * 25.4; },
+  mmToIn: function(mmSize) { return mmSize * (1 / 25.4); }
+};
+
+/**
+ * Enum-like type enumerating the supported page sizes
+ */
+gpub.book.page.type = {
+  A4: 'A4',
+  LETTER: 'LETTER',
+  OCTAVO: 'OCTAVO',
+  NOTECARD: 'NOTECARD',
+  EIGHT_TEN: 'EIGHT_TEN',
+  FIVEFIVE_EIGHTFIVE: 'FIVEFIVE_EIGHTFIVE'
+};
+
+/**
+ * Mapping from page-size to col-maping.
+ *
+ * Note: height and width in mm.
+ */
+gpub.book.page.size = {
+  A4: {
+    heightMm: 297,
+    widthMm: 210,
+    widthIn: 8.268,
+    heightIn: 11.693
+  },
+  /** Standard printer paper. */
+  LETTER: {
+   heightMm: 280,
+    widthMm: 210,
+    heightIn: 11,
+    widthIn: 8.5
+  },
+  /**
+   * 6x9. Octavo is probably the most common size for professionally printed go
+   * books.
+   */
+  OCTAVO: {
+    heightMm: 229,
+    widthMm: 152,
+    heightIn: 9,
+    widthIn: 6
+  },
+  /**
+   * 5x7 paper. Doesn't have an official name, as far as I know, so we'll call
+   * it Notecard.
+   */
+  NOTECARD: {
+    heightMm: 178,
+    widthMm: 127,
+    heightIn: 7,
+    widthIn: 5
+  },
+  // Miscellaneous sizes
+  EIGHT_TEN: {
+    heightMm: 254,
+    widthMm: 203,
+    heightIn: 10,
+    widthIn: 8
+  },
+  FIVEFIVE_EIGHTFIVE: {
+    heightMm: 216,
+    widthMm: 140,
+    heightIn: 8.5,
+    widthIn: 5.3
+  }
+};
 /**
  * Generate an ASCII book.
  */
@@ -1118,9 +1199,21 @@ gpub.book.latex = {};
  */
 gpub.book.latex.context = {
   /**
-   * Typeset the diagram into LaTeX
+   * Typeset the diagram into LaTeX. This expects the diagrams to have already
+   * been rendered. These methods are meant to provide page context.
+   *
+   * diagramType: member of gpub.diagrams.diagramType
+   * diagram: The core diagram string. Needs to already have been rendered. This
+   * ctx: Context object.
+   *    {contextType: <gpub.book.contextType>, isChapter: <boolean>}
+   * flattened: The flattened diagram object from Glift.
+   *    Note: it seems a little weird to pass in the diagram and the flattened
+   *    obj, since the flattened obj can regenerate the diagram. Probably should
+   *    be rectified at some point.
+   * intSize: Size of an intersection in Point. (1/72 of an inch)
+   * pageSize: size of the page (see gpub.book.page.size).
    */
-  typeset: function(diagramType, diagram, ctx, flattened) {
+  typeset: function(diagramType, diagram, ctx, flattened, intSize, pageSize) {
     comment = flattened.comment() || '';
     label = gpub.diagrams.createLabel(flattened);
 
@@ -1142,8 +1235,13 @@ gpub.book.latex.context = {
     if (!renderer) {
       renderer = gpub.book.latex.context.rendering[DESCRIPTION];
     }
+    if (!intSize) {
+      throw new Error('Intersection size in points not defined. Was' +
+          intSize);
+    }
 
-    return renderer(diagram, ctx, processedComment, processedLabel);
+    return renderer(
+        diagram, ctx, processedComment, processedLabel, intSize, pageSize);
   },
 
   /** Process the label to make it appropriate for LaTeX. */
@@ -1177,7 +1275,11 @@ gpub.book.latex.context = {
 
   /** Render the specific digaram context. */
   rendering: {
-    EXAMPLE: function(diagram, ctx, pcomment, label) {
+    EXAMPLE: function(diagram, ctx, pcomment, label, pts, pageSize) {
+      if (!pageSize) {
+        throw new Error('Page size must be defined. Was:' + pageSize);
+      }
+      var widthPt = gpub.book.page.inToPt(pageSize.widthIn);
       if (pcomment.preamble) {
         return [
           pcomment.preamble,
@@ -1193,11 +1295,11 @@ gpub.book.latex.context = {
           '',
           '\\rule{\\textwidth}{0.5pt}',
           '',
-          '\\begin{minipage}[t]{0.5\\textwidth}',
+          '\\begin{minipage}[t]{' + 20*pts + 'pt}',
           diagram,
           label,
           '\\end{minipage}',
-          '\\begin{minipage}[t]{0.5\\textwidth}',
+          '\\begin{minipage}[t]{' + (0.85*widthPt - 21*pts) +'pt}',
           '\\setlength{\\parskip}{0.5em}',
           pcomment.text,
           '\\end{minipage}',
@@ -1205,7 +1307,7 @@ gpub.book.latex.context = {
       }
     },
 
-    DESCRIPTION: function(diagram, ctx, pcomment, label) {
+    DESCRIPTION: function(diagram, ctx, pcomment, label, pts) {
       return [
         pcomment.preamble,
         pcomment.text,
@@ -1213,7 +1315,7 @@ gpub.book.latex.context = {
       ].join('\n');
     },
 
-    PROBLEM: function(diagram, ctx, pcomment, label) {
+    PROBLEM: function(diagram, ctx, pcomment, label, pts) {
       // TODO(kashomon): implement.
     }
   }
@@ -1226,17 +1328,28 @@ gpub.book.latex.generator = {
   generate: function(spec) {
     var view = this.view(spec);
     var opts = this.options();
-    view.init = gpub.diagrams.getInit(opts.diagramType, 'LATEX');
-    var content = [];
+
+    // Diagram Options
+    var diagOpt = {
+      // Intersection size in pt.
+      // TODO(kashomon): Pass this in rather than hardcoding.
+      size: 12
+    };
+
+    var pages = new gpub.book.latex.Paging(
+      opts.pageSize, diagOpt.size);
+
+    view.init = [
+      gpub.diagrams.getInit(opts.diagramType, 'LATEX'),
+      pages.pagePreamble()
+    ].join('\n');
 
     this.forEachSgf(spec, function(idx, mt, flattened, ctx) {
-      var diagram = gpub.diagrams.create(flattened, opts.diagramType);
-      var contextualized = gpub.book.latex.context.typeset(
-          opts.diagramType, diagram, ctx, flattened);
-      content.push(contextualized);
+      var diagram = gpub.diagrams.create(flattened, opts.diagramType, diagOpt);
+      pages.addDiagram(opts.diagramType, diagram, ctx, flattened);
     }.bind(this));
 
-    view.content = content.join('\n');
+    view.content = pages.flushAll();
 
     return gpub.Mustache.render(this.template(), view);
   },
@@ -1321,13 +1434,17 @@ gpub.book.latex.defaultTemplate = [
 // other options for chapter styles:
 // bringhurst,crosshead,default,dowding,memman,komalike,ntglike,tandh,wilsondob
 '\\chapterstyle{madsen}',
-'\\pagestyle{companion}',
 
 // openany, openright, openleft
 '\\openany',
 '\\makepagestyle{headings}',
+'\\setlength{\\headwidth}{\\textwidth}',
 '\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
 '\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}',
+'\\makerunningwidth{headings}[\\textwidth]{\\textwidth}',
+
+'\\pagestyle{companion}',
+'\\makerunningwidth{companion}{\\headwidth}',
 //'\\renewcommand{\\printchapternum}{\\space}', -- Force no chapter nums
 
 '',
@@ -1344,8 +1461,24 @@ gpub.book.latex.defaultTemplate = [
 '',
 '',
 '\\newpage',
+'', // TODO(kashomon): Flag guard content generation.
 '\\tableofcontents',
 '',
+'<%#frontmatter.foreward%>',
+'\\include{<%frontmatter.foreward%>}',
+'<%/frontmatter.foreward%>',
+'',
+'<%#frontmatter.preface%>',
+'\\include{<%frontmatter.preface%>}',
+'<%/frontmatter.preface%>',
+'',
+'<%#frontmatter.acknowledgements%>',
+'\\include{<%frontmatter.acknowledgements%>}',
+'<%/frontmatter.acknowledgements%>',
+'',
+'<%#frontmatter.introduction%>',
+'\\include{<%frontmatter.introduction%>}',
+'<%/frontmatter.introduction%>',
 '',
 '%%% The content. %%%',
 '\\mainmatter',
@@ -1504,7 +1637,7 @@ gpub.book.latex.markdown = {
   del: function(text) { return text; }
 };
 /**
- *
+ * Latex options defaults.
  */
 gpub.book.latex.options = function() {
   return {
@@ -1513,32 +1646,221 @@ gpub.book.latex.options = function() {
     }
   }
 }
-///////////////////
-// Experimental! //
-///////////////////
+/**
+ * (Currently Experimental) Page wrapper.
+ *
+ * A page is just that: a representation of a page. The page has knowledge of
+ * its margins, bleed, trim, and stock size. From that we can determine where
+ * to place text and go diagrams.
+ *
+ * How they work together:
+ *  |Bleed |Trim |Margin
+ *
+ * Bleed: the part that will be cut off. Note that bleed should only apply to
+ *    the outside edges.
+ * Trim: the part of the book actually shown (not trimmed). This is also known
+ *    as the 'final size'.
+ * Margin: the whitespace border around the text.
+ *
+ * Sometimes you'll see the term 'stock size'.  This simply refers to the paper
+ * size.
+ *
+ * Note: by default, we don't assume bleed.
+ */
 
 /**
- * Page context wrapper. I think this will probably -- at least for now -- be a
- * LaTeX consideration.
+ * The paging instance is a factory for pages.  We want all pages to share the
+ * same properties.  Thus, the purpose of this factory.
+ *
+ * pageType: A member of gpub.book.page.type;
+ * intersectionSize: In point-size. Note that 1 pt = 1/72 of an inch. Note: Not
+ *    all diagram styles support all point sizes.
+ * margins: Optional. Right/Left margin in inches. Currently pretty crude.
+ * bleed: Optional. Not used at the moment.
  */
-gpub.book.latex.Page = function(pageSize) {
+gpub.book.latex.Paging = function(
+    pageType,
+    intersectionSize,
+    margins,
+    bleed) {
   this.buffer = [];
 
-  // TODO(kashomon): Set via page size
-  this.rows = 0;
-  this.cols = 0;
+  /** Size of the pages produced by the paging factory. */
+  this.pageSize = pageType ||
+      gpub.book.page.type.LETTER;
 
-  this.bleed = 0.125;
+  if (!gpub.book.page.type[this.pageSize] ||
+      !gpub.book.page.size[this.pageSize]) {
+    throw new Error('Unknown page size: ' + this.pageSize);
+  }
 
-  this.margins = 0.25;
+  // TODO(kashomon): Support margins.
+  this.margins = margins ||
+      gpub.book.latex.defaultMargins;
 
-  this.pageSize = pageSize;
+  /** Size of the go-board intersections in pt. */
+  this.intSize = intersectionSize;
+
+  /** The bleed amount in inches. Exterior edges only. */
+  this.bleed = bleed || 0;
+
+  /** The current page, for the purposes of adding diagrams */
+  // CURRENTLY UNUSED
+  this.currentPage = null;
+
+  /** Total pages, minus the current page*/
+  // CURRENTLY UNUSED
+  this.pages = [];
+};
+
+gpub.book.latex.Paging.prototype = {
+  /**
+   * Adds a diagram to the paging tracker.
+   */
+  addDiagram: function(
+      diagramType,
+      diagramString,
+      context,
+      flattened) {
+    var contextualized = gpub.book.latex.context.typeset(
+        diagramType, diagramString, context, flattened, this.intSize,
+        gpub.book.page.size[this.pageSize]);
+    this.buffer.push(contextualized);
+  },
+
+  /** Flush the page to the finished 'pages'. */
+  _flushPage: function() {
+    if (!this.currentPage) {
+      return;
+    }
+    this.pages.push(this.currentPage);
+    this.currentPage = this.newPage();
+  },
+
+  /** Flush the pages buffer as a string. */
+  flushAll: function() {
+    return this.buffer.join('\n');
+  },
+
+  /**
+   * Returns the relevant latex preamble. Should be added to the document
+   * before page construction.
+   */
+  pagePreamble: function() {
+    var size = gpub.book.page.size[this.pageSize];
+    return [
+      '%%% Page Settings Preamble %%%',
+      // this.bleed ? this._trimSetting() : '',
+      '\\setstocksize{' + size.heightIn + 'in}{' + size.widthIn + 'in}',
+      '\\settrimmedsize{\\stockheight}{\\stockwidth}{*}',
+      '\\settypeblocksize{0.85\\stockheight}{0.85\\stockwidth}{*}',
+      '\\setulmargins{*}{*}{1.618}',
+      '\\setlrmargins{*}{*}{1}',
+      '\\setheaderspaces{*}{*}{1.618}',
+      '\\checkandfixthelayout', // Must be last
+
+      '%%% End Page Settings Preamble %%%'
+    ].join('\n');
+  },
+
+  /**
+   * Sets the page size for the memoir class. I.e., returns the relevant latex
+   * command.
+   */
+  _pageSizeSetting: function() {
+    var size = gpub.book.page.size[this.pageSize];
+    return '\\setstocksize' +
+      '{' + size.heightIn + 'in}' +
+      '{' + size.widthIn + 'in}';
+  },
+
+  /**
+   * Sets the margins on the page: Returns the relevant latex command.
+   * Note: this is probably the least elegant way of setting the margins. The
+   * memoir class has lots of machinery for set margins using a ratio setting.
+   */
+  _marginSetting: function() {
+    // Currently we don't set the vertical margin, but could be set with
+    // \setulmarginsandblock
+    return '\\setlrmarginsandblock{' + this.margins + 'in}{' +
+        this.margins + 'in}{*}';
+  },
+
+  /**
+   * Set the trims/bleeds. This is the amount that's cut (or trimmed) from the
+   * page and thus doesn't show up in the finished product.
+   *
+   * Since professional printers can print at trim (no bleed), we
+   */
+  _trimSetting: function() {
+    // For now we assume that we're printing at trim. In otherwords, that we're
+    // not using bleed.
+    return '\\settrims{' + this.bleed + 'in}{' + this.bleed + 'in}';
+  },
+
+  /**
+   * Returns
+   * {
+   *  rows: X (as float).
+   *  cols: X (as float).
+   * }
+   */
+  _calculateUnits: function() {
+    var intPt = this.intersectionSize;
+    var inchesPer = initPt / 72;
+    var sizeObj = gpub.book.page.sizeMapping[this.pageSize];
+    var interiorWidth = (sizeObj.widthIn - 2 * this.margins) / inchesPer;
+    var interiorHeight  = (sizeObj.heightIn- 2 * this.margins) / inchesPer;
+    return {
+      cols: interiorWidth,
+      rows: interiorHeight
+    };
+  }
+};
+
+
+/**
+ * Default margin amounts, in inches.
+ */
+gpub.book.latex.defaultMargins = 0.5;
+
+/**
+ * Base bleed amount, in inches. Note: This is not the default, simple the
+ * standard bleed amount. Note that printers want bleed on only exterior
+ * edges
+ */
+gpub.book.latex.standardBleed  = 0.125;
+
+///
+// NOTE: Page is speculative/experimental and is not currently used.
+///
+
+/**
+ * A page instance. Should be crated with the Paging factory.
+ */
+gpub.book.latex.Page = function(rows, cols) {
+  this.rows = rows;
+
+  this.cols = cols;
+
+  this.diagramCount = 0;
+
+  this.buffer = [];
 };
 
 gpub.book.latex.Page.prototype = {
   /** Add a diagram to the page. */
-  addDiagram: function(flattened) {
+  addDiagram: function(str) {
+    this.buffer.push(str);
+    this.diagramCount++;
+    return this;
+  },
 
+  /** Returns whether or not the page thinks it's full. */
+  isFull: function() {
+    // TODO(kashomon): This is a hack to preserve the current behavior while we
+    // figure out how this should work.
+    return this.diagramCount >= 2
   },
 
   /** Clear the page lines */
@@ -1546,54 +1868,14 @@ gpub.book.latex.Page.prototype = {
     var out = this.buffer.join('\n');
     this.buffer = [];
     return out;
+  },
+
+  isEmpty: function() {
+    return this.buffer.length != 0;
   }
 };
 
-/**
- * Mapping from page-size to col-maping.
- *
- * Note: height and width in mm.
- */
-gpub.book.latex.sizeMapping = {
-  A4: {
-    heightMm: 297,
-    widthMm: 210,
-    widthIn: 8.268,
-    heightIn: 11.693
-  },
-  LETTER: {
-    heightMm: 280,
-    widthMm: 210,
-    heightIn: 11,
-    widthIn: 8.5
-  },
-  OCTAVO: {
-    heightMm: 229,
-    widthMm: 152,
-    heightIn: 9,
-    widthIn: 6
-  },
-  NOTECARD: {
-    heightMm: 178,
-    widthMm: 127,
-    heightIn: 7,
-    widthIn: 5
-  }
-};
 
-gpub.book.latex.pageSize = {
-  A4: 'A4',
-  A5: 'A5',
-  LETTER: 'LETTER',
-
-  // http://en.wikipedia.org/wiki/Book_size
-  QUARTO: 'QUARTO',
-  OCTAVO: 'OCTAVO',
-
-  NOTECARD: 'NOTECARD',
-
-  TWELVEMO: 'TWELVEMO'
-};
 /**
  * Sanitizes latex input. This isn't particularly robust, but it is meant to
  * protect us against accidental problematic characters rather than malicious
@@ -2633,7 +2915,7 @@ gpub.api = {};
 /**
  * Create a 'book' output from SGFs.
  *
- * options: A book options array. See gpub.defaultOptions for the format.
+  options: A book options array. See gpub.defaultOptions for the format.
  *
  * Returns: The completed book or document.
  */
@@ -2652,6 +2934,7 @@ gpub.create = function(options) {
   // Create the finished book (or whatever that means).
   var book = gpub.book.create(spec, options)
 
+  // TODO(kashomon): return { contents: ..., diagrams: ... }
   return book;
 };
 
@@ -2688,7 +2971,7 @@ gpub.defaultOptions = {
 
   /**
    * The format of the 'book' output that is produced by GPub.
-   * See gpub.bookFormat.
+   * See gpub.outputFormat.
    */
   outputFormat: 'LATEX',
 
@@ -2718,9 +3001,14 @@ gpub.defaultOptions = {
    *  - PDF,
    *  - EPS
    *
-   * See glift.diagrams.diagramType.
+   * See gpub.diagrams.diagramType.
    */
   diagramType: 'GNOS',
+
+  /**
+   * The size of the page. Element of gpub.book.page.type.
+   */
+  pageSize: 'LETTER',
 
   /** Skip the first N diagrams. Allows users to generate parts of a book. */
   skipDiagrams: 0,
@@ -2769,7 +3057,7 @@ gpub.defaultOptions = {
       epigraph: null, // AKA Quote Page
       /** Generate the Table of Contents or just 'Contents'. */
       generateToc: true,
-      forward: null, // Author or unrelated person
+      foreward: null, // Author or unrelated person
       preface: null, // Author
       acknowledgements: null,
       introduction: null
@@ -2863,5 +3151,43 @@ gpub.processOptions = function(options) {
   if (newo.maxDiagrams < 0) {
     throw new Error('maxDiagrams cannot be less than 0');
   }
+
+  gpub.validateOptions(newo);
+
+  return newo;
+};
+
+/**
+ * Validate some options.
+ */
+gpub.validateOptions = function(newo) {
+  var keys = [
+    'outputFormat',
+    'bookPurpose',
+    'boardRegion',
+    'diagramType',
+    'pageSize'
+  ];
+
+  var parentObjs = [
+    gpub.outputFormat,
+    gpub.bookPurpose,
+    glift.enums.boardRegions,
+    gpub.diagrams.diagramType,
+    gpub.book.page.type
+  ];
+
+  if (keys.length !== parentObjs.length) {
+    throw new Error('Programming error! Keys and parent objs not same length');
+  }
+
+  for (var i = 0; i < keys.length; i++) {
+    var k = keys[i];
+    var value = newo[k];
+    if (!parentObjs[i].hasOwnProperty(value)) {
+      throw new Error('Value: ' + value + ' for property ' + k + ' unrecognized'); 
+    }
+  }
+
   return newo;
 };

@@ -36,7 +36,7 @@ gpub.book.page.size = {
   },
   /** Standard printer paper. */
   LETTER: {
-    heightMm: 280,
+   heightMm: 280,
     widthMm: 210,
     heightIn: 11,
     widthIn: 8.5

@@ -25,8 +25,9 @@
  * same properties.  Thus, the purpose of this factory.
  *
  * pageType: A member of gpub.book.page.type;
- * intersectionSize: In point-size. Note that 1 pt = 1/72 of an inch.
- * rlMargins: Optional. In inches. Currently pretty crude.
+ * intersectionSize: In point-size. Note that 1 pt = 1/72 of an inch. Note: Not
+ *    all diagram styles support all point sizes.
+ * margins: Optional. Right/Left margin in inches. Currently pretty crude.
  * bleed: Optional. Not used at the moment.
  */
 gpub.book.latex.Paging = function(
@@ -37,25 +38,30 @@ gpub.book.latex.Paging = function(
   this.buffer = [];
 
   /** Size of the pages produced by the paging factory. */
-  this.pageSize = pageSize ||
+  this.pageSize = pageType ||
       gpub.book.page.type.LETTER;
 
+  if (!gpub.book.page.type[this.pageSize] ||
+      !gpub.book.page.size[this.pageSize]) {
+    throw new Error('Unknown page size: ' + this.pageSize);
+  }
+
   // TODO(kashomon): Support margins.
-  this.margins = rlMargins ||
+  this.margins = margins ||
       gpub.book.latex.defaultMargins;
 
-  /**
-   * Size of the go-board intersections in pt.
-   */
-  this.intersectionSize = intersectionSize;
+  /** Size of the go-board intersections in pt. */
+  this.intSize = intersectionSize;
 
   /** The bleed amount in inches. Exterior edges only. */
   this.bleed = bleed || 0;
 
   /** The current page, for the purposes of adding diagrams */
+  // CURRENTLY UNUSED
   this.currentPage = null;
 
   /** Total pages, minus the current page*/
+  // CURRENTLY UNUSED
   this.pages = [];
 };
 
@@ -69,24 +75,13 @@ gpub.book.latex.Paging.prototype = {
       context,
       flattened) {
     var contextualized = gpub.book.latex.context.typeset(
-        opts.diagramType, diagram, ctx, flattened);
-    if (!this.currentPage) {
-      this.currentPage = this.newPage();
-    }
-    if (this.currentPage.isFull()) {
-      this.flushPage();
-    }
-    this.currentPage.addDiagram(contextualized);
-  },
-
-  /** Creates a new page */
-  newPage: function() {
-    // TODO(kashomon): Pass in page details
-    return new gpub.book.latex.Page();
+        diagramType, diagramString, context, flattened, this.intSize,
+        gpub.book.page.size[this.pageSize]);
+    this.buffer.push(contextualized);
   },
 
   /** Flush the page to the finished 'pages'. */
-  flushPage: function() {
+  _flushPage: function() {
     if (!this.currentPage) {
       return;
     }
@@ -96,14 +91,7 @@ gpub.book.latex.Paging.prototype = {
 
   /** Flush the pages buffer as a string. */
   flushAll: function() {
-    if (this.currentPage && !this.currentPage.isEmpty()) {
-      this.flushPage();
-    }
-    var out = [];
-    for (var i = 0; i < this.pages.length; i++) {
-      out.push(pages[i].flush());
-    }
-    return out.join('\n');
+    return this.buffer.join('\n');
   },
 
   /**
@@ -111,11 +99,19 @@ gpub.book.latex.Paging.prototype = {
    * before page construction.
    */
   pagePreamble: function() {
+    var size = gpub.book.page.size[this.pageSize];
     return [
-      this._pageSizeSetting(),
-      this._marginSetting(),
-      this.bleed ? this._trimSetting() : '',
-      '\\checkandfixthelayout', // Do we need this here?
+      '%%% Page Settings Preamble %%%',
+      // this.bleed ? this._trimSetting() : '',
+      '\\setstocksize{' + size.heightIn + 'in}{' + size.widthIn + 'in}',
+      '\\settrimmedsize{\\stockheight}{\\stockwidth}{*}',
+      '\\settypeblocksize{0.85\\stockheight}{0.85\\stockwidth}{*}',
+      '\\setulmargins{*}{*}{1.618}',
+      '\\setlrmargins{*}{*}{1}',
+      '\\setheaderspaces{*}{*}{1.618}',
+      '\\checkandfixthelayout', // Must be last
+
+      '%%% End Page Settings Preamble %%%'
     ].join('\n');
   },
 
@@ -124,7 +120,7 @@ gpub.book.latex.Paging.prototype = {
    * command.
    */
   _pageSizeSetting: function() {
-    var size = gpub.boox.page.sizeMapping[this.pageSize];
+    var size = gpub.book.page.size[this.pageSize];
     return '\\setstocksize' +
       '{' + size.heightIn + 'in}' +
       '{' + size.widthIn + 'in}';
@@ -138,8 +134,8 @@ gpub.book.latex.Paging.prototype = {
   _marginSetting: function() {
     // Currently we don't set the vertical margin, but could be set with
     // \setulmarginsandblock
-    return '\\setlrmarginsandblock{' + this.rlMargins + 'in}{' +
-        this.rlMargins + 'in}{*}';
+    return '\\setlrmarginsandblock{' + this.margins + 'in}{' +
+        this.margins + 'in}{*}';
   },
 
   /**
@@ -174,6 +170,22 @@ gpub.book.latex.Paging.prototype = {
   }
 };
 
+
+/**
+ * Default margin amounts, in inches.
+ */
+gpub.book.latex.defaultMargins = 0.5;
+
+/**
+ * Base bleed amount, in inches. Note: This is not the default, simple the
+ * standard bleed amount. Note that printers want bleed on only exterior
+ * edges
+ */
+gpub.book.latex.standardBleed  = 0.125;
+
+///
+// NOTE: Page is speculative/experimental and is not currently used.
+///
 
 /**
  * A page instance. Should be crated with the Paging factory.
@@ -215,16 +227,4 @@ gpub.book.latex.Page.prototype = {
   }
 };
 
-
-/**
- * Default margin amounts, in inches.
- */
-gpub.book.latex.defaultMargins = 0.5;
-
-/**
- * Base bleed amount, in inches. Note: This is not the default, simple the
- * standard bleed amount. Note that printers want bleed on only exterior
- * edges
- */
-gpub.book.latex.standardBleed  = 0.125;
 
