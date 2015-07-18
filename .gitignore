@@ -1,6 +1,11 @@
+# GPub Gitignore
 .DS_Store
 *.swp
 *.swo
 *.log
 *sandbox/*
 README.md.html
+
+# LaTeX Files
+*.aux
+*.out

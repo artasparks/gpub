@@ -29,6 +29,14 @@ gpub.book.latex.generator = {
 
     view.content = pages.flushAll();
 
+    // Convert all frontmatter to markdown
+    for (var key in view.frontmatter) {
+      if (view.frontmatter[key]) {
+        view.frontmatter[key] =
+            gpub.book.latex.renderMarkdown(view.frontmatter[key]);
+      }
+    }
+
     return gpub.Mustache.render(this.template(), view);
   },
 

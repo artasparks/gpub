@@ -5,6 +5,9 @@ gpub.book.latex.defaultTemplate = [
 '\\usepackage{wrapfig}',
 '\\usepackage{setspace}',
 '\\usepackage{graphicx}',
+'\\usepackage{hyperref}',
+'\\usepackage{xmpincl}',
+// '\\usepackage[a-1a]{pdfx}',  // Experimental
 '\\usepackage[margin=1in]{geometry}',
 
 '%%% Define any extra packages %%%',
@@ -95,13 +98,13 @@ gpub.book.latex.defaultTemplate = [
 '\\include{<%frontmatter.copyright%>}',
 '<%/frontmatter.copyright%>',
 '',
-'',
 '\\newpage',
 '', // TODO(kashomon): Flag guard content generation.
 '\\tableofcontents',
 '',
 '<%#frontmatter.foreward%>',
-'\\include{<%frontmatter.foreward%>}',
+'\\chapter{forward}',
+'<%frontmatter.foreward%>',
 '<%/frontmatter.foreward%>',
 '',
 '<%#frontmatter.preface%>',

@@ -7,6 +7,7 @@ var filez = require('./defs/filez.js')
 
 var fs = require('fs');
 var path = require('path')
+var child_process = require('child_process')
 
 var flags = flagz.init(
   'A script for generating books from book specs!',
@@ -16,21 +17,72 @@ var flags = flagz.init(
     directory: ['string', '', 'The directory from which to process SGFs.'],
     pageSize: ['gpub.book.page.type', 'LETTER',
         'Size of the output page (stock/trim size).'],
-    gnosFontSize: ['gpub.diagrams.gnos.sizes', '12', 'Size of gnos diagram.']
+    gnosFontSize: ['gpub.diagrams.gnos.sizes', '12', 'Size of gnos diagram.'],
+    autoCompile: ['boolean', 'false',
+        'Automatically compile books with the relevant external programs. ' +
+        'For example, compile LaTeX with pdfetx'],
+
+    // Extra book parts
+    foreward: ['file (markdown)', 'foreward.md', 'The foreward, rendered as markdown.'],
+    preface: ['file (markdown)', 'preface.md', 'The preface, rendered as markdown.']
   }).process();
 
+var workingDir = flags.processed.directory;
+if (flags.args.length === 0 &&
+    flags.processed.directory == '') {
+  // Both directory was unset and the args were empty. Assume that the user
+  // wants to work from the current directory.
+  workingDir = process.cwd();
+}
+
 var def = filez.readFromDirAndArgs(
-    flags.processed.directory, flags.args, '', '\\.sgf');
+    workingDir, flags.args, '', '\\.sgf');
 
 var sgfArr = [] ;
 for (var i = 0; i < def.collection.length; i++) {
   sgfArr.push(def.contents[def.collection[i]]);
 }
 
-var book = gpub.create({
+var options = {
   sgfs: sgfArr,
   pageSize: flags.processed.pageSize,
-  gnosFontSize: flags.processed.gnosFontSize
-});
+  gnosFontSize: flags.processed.gnosFontSize,
+  bookOptions: {
+    frontmatter: {}
+  }
+};
 
-console.log(book);
+// Process frontmatter
+var bookPartsKeys = [
+  'foreward'
+];
+
+for (var i = 0; i < bookPartsKeys.length; i++) {
+  var key = bookPartsKeys[i];
+  var fname = flags.processed.foreward;
+  var fpath = fname;
+  if (flags.processed.directory) {
+    path = path.join(flags.processed.directory, fname);
+  }
+  if (fs.existsSync(fname)) {
+    var content = fs.readFileSync(fpath, {encoding: 'utf8'});
+    // Note: The text still needs to be converted from mardown to LaTeX.
+    options.bookOptions.frontmatter[key] = content;
+  }
+}
+
+var book = gpub.create(options);
+
+if (workingDir) {
+  if (flags.processed.outputFormat === 'LATEX') {
+    var fname = workingDir + '.tex';
+    fs.writeFileSync(workingDir + '.tex', book);
+    if (flags.processed.autoCompile) {
+      child_process.execSync('pdflatex ' + fname);
+    }
+  } else {
+    console.log(book);
+  }
+} else {
+  console.log(book);
+}

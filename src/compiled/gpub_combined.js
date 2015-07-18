@@ -1351,6 +1351,14 @@ gpub.book.latex.generator = {
 
     view.content = pages.flushAll();
 
+    // Convert all frontmatter to markdown
+    for (var key in view.frontmatter) {
+      if (view.frontmatter[key]) {
+        view.frontmatter[key] =
+            gpub.book.latex.renderMarkdown(view.frontmatter[key]);
+      }
+    }
+
     return gpub.Mustache.render(this.template(), view);
   },
 
@@ -1369,6 +1377,9 @@ gpub.book.latex.defaultTemplate = [
 '\\usepackage{wrapfig}',
 '\\usepackage{setspace}',
 '\\usepackage{graphicx}',
+'\\usepackage{hyperref}',
+'\\usepackage{xmpincl}',
+// '\\usepackage[a-1a]{pdfx}',  // Experimental
 '\\usepackage[margin=1in]{geometry}',
 
 '%%% Define any extra packages %%%',
@@ -1459,13 +1470,13 @@ gpub.book.latex.defaultTemplate = [
 '\\include{<%frontmatter.copyright%>}',
 '<%/frontmatter.copyright%>',
 '',
-'',
 '\\newpage',
 '', // TODO(kashomon): Flag guard content generation.
 '\\tableofcontents',
 '',
 '<%#frontmatter.foreward%>',
-'\\include{<%frontmatter.foreward%>}',
+'\\chapter{forward}',
+'<%frontmatter.foreward%>',
 '<%/frontmatter.foreward%>',
 '',
 '<%#frontmatter.preface%>',
@@ -3049,10 +3060,12 @@ gpub.defaultOptions = {
     subtitle: null,
     publisher: 'GPub',
     authors: [
-      'You!'
+      // 'Created by GPub'
     ],
     year: null,
 
+    /** Generate the Table of Contents or just 'Contents'. */
+    generateToc: true,
 
     /**
      * Frontmatter is text supporting the bulk of the the work that comes
@@ -3068,8 +3081,6 @@ gpub.defaultOptions = {
     frontmatter: {
       copyright: null, // AKA Colophon Page
       epigraph: null, // AKA Quote Page
-      /** Generate the Table of Contents or just 'Contents'. */
-      generateToc: true,
       foreward: null, // Author or unrelated person
       preface: null, // Author
       acknowledgements: null,

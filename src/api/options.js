@@ -88,10 +88,12 @@ gpub.defaultOptions = {
     subtitle: null,
     publisher: 'GPub',
     authors: [
-      'You!'
+      // 'Created by GPub'
     ],
     year: null,
 
+    /** Generate the Table of Contents or just 'Contents'. */
+    generateToc: true,
 
     /**
      * Frontmatter is text supporting the bulk of the the work that comes
@@ -107,8 +109,6 @@ gpub.defaultOptions = {
     frontmatter: {
       copyright: null, // AKA Colophon Page
       epigraph: null, // AKA Quote Page
-      /** Generate the Table of Contents or just 'Contents'. */
-      generateToc: true,
       foreward: null, // Author or unrelated person
       preface: null, // Author
       acknowledgements: null,

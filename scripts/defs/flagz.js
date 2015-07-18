@@ -71,9 +71,10 @@ FlagzDef.prototype = {
     var scriptpath = process.argv[1] || 'script';
     var scriptname = scriptpath.replace(/([^\/]*\/)+/g, '');
     this._scriptname = scriptname;
-    if (process.argv.length <= 2) {
-      return this.displayHelp();
-    }
+    // It's sometimes advantageous to have scripts just 'work'
+    // if (process.argv.length <= 2) {
+      // return this.displayHelp();
+    // }
 
     var processed = {};
     // Set defaults
