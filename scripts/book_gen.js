@@ -18,9 +18,10 @@ var flags = flagz.init(
     pageSize: ['gpub.book.page.type', 'LETTER',
         'Size of the output page (stock/trim size).'],
     gnosFontSize: ['gpub.diagrams.gnos.sizes', '12', 'Size of gnos diagram.'],
-    autoCompile: ['boolean', 'false',
+    autoCompile: ['boolean', 'true',
         'Automatically compile books with the relevant external programs. ' +
-        'For example, compile LaTeX with pdfetx'],
+        'For example, compile LaTeX with pdflatex. Note: Only works ' +
+        'for logical combinations'],
 
     // Extra book parts
     foreward: ['file (markdown)', 'foreward.md', 'The foreward, rendered as markdown.'],
@@ -78,7 +79,7 @@ if (workingDir) {
     var fname = workingDir + '.tex';
     fs.writeFileSync(workingDir + '.tex', book);
     if (flags.processed.autoCompile) {
-      child_process.execSync('pdflatex ' + fname);
+      child_process.execSync('which pdflatex && pdflatex ' + fname);
     }
   } else {
     console.log(book);

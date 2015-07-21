@@ -105,6 +105,7 @@ FlagzDef.prototype = {
         }
         var flagtype = flagarr[0];
 
+        // What is this doing?
         if (flagtype !== 'boolean' &&
             i + 1 < process.argv.length &&
             value === null) {
@@ -115,6 +116,7 @@ FlagzDef.prototype = {
           }
           i++;
         }
+        // TODO(kashomon): Really support booleans!
         this.validateFlag(itemkey, value);
         processed[itemkey] = value
 
