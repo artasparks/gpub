@@ -75,9 +75,11 @@ for (var i = 0; i < bookPartsKeys.length; i++) {
 var book = gpub.create(options);
 
 if (workingDir) {
+  var parts = workingDir.split(path.sep)
+  var lastPart = parts[parts.length -1];
   if (flags.processed.outputFormat === 'LATEX') {
-    var fname = workingDir + '.tex';
-    fs.writeFileSync(workingDir + '.tex', book);
+    var fname = path.join(workingDir, lastPart) + '.tex';
+    fs.writeFileSync(fname, book);
     if (flags.processed.autoCompile) {
       child_process.execSync('which pdflatex && pdflatex ' + fname);
     }
