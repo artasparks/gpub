@@ -1,0 +1,135 @@
+\documentclass[letterpaper,12pt]{memoir}
+\usepackage{color}
+\usepackage{wrapfig}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{xmpincl}
+\usepackage[margin=1in]{geometry}
+%%% Define any extra packages %%%
+\usepackage{gnos}
+%%% Page Settings Preamble %%%
+\setstocksize{11in}{8.5in}
+\settrimmedsize{\stockheight}{\stockwidth}{*}
+\settypeblocksize{0.85\stockheight}{0.85\stockwidth}{*}
+\setulmargins{*}{*}{1.618}
+\setlrmargins{*}{*}{1}
+\setheaderspaces{*}{*}{1.618}
+\checkandfixthelayout
+%%% End Page Settings Preamble %%%
+
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+%%% Diagram Figure defs.
+% Must expose two commands
+%  \gofigure  (mainline diagrams)
+%  \godiagram (variation diagrams)
+% Mainline Diagrams. reset at parts
+\newcounter{GoFigure}[part]
+
+\newcommand{\gofigure}{%
+ \stepcounter{GoFigure}
+ \centerline{\textit{Diagram.\thinspace\arabic{GoFigure}}}
+}
+% Variation Diagrams. reset at parts.
+\newcounter{GoVariation}[part]
+
+\newcommand{\govariation}[1][]{%
+ \stepcounter{GoVariation}
+ \centerline{\textit{Variation.\thinspace\arabic{GoVariation}#1}}
+}
+
+\newcommand{\subtext}[1]{\centerline{\textit{#1}}}
+
+%%% Define the main title %%%
+\definecolor{light-gray}{gray}{0.55}
+\newcommand*{\mainBookTitle}{\begingroup
+  \raggedleft
+  \vspace*{5 em}
+  {\textcolor{light-gray}{\Huge{My Book}}}\\
+  \vspace*{\baselineskip}
+  \vfill
+  {\Large{GPub}}\par
+  \vspace*{2\baselineskip}
+\endgroup}
+ %%% Chapter settings %%%
+\chapterstyle{madsen}
+\openany
+\makepagestyle{headings}
+\setlength{\headwidth}{\textwidth}
+\makeevenhead{headings}{\thepage}{}{\slshape\leftmark}
+\makeoddhead{headings}{\slshape\rightmark}{}{\thepage}
+\makerunningwidth{headings}[\textwidth]{\textwidth}
+\pagestyle{companion}
+\makerunningwidth{companion}{\headwidth}
+
+\begin{document}
+%%% The Frontmatter. %%%
+\begin{titlingpage}
+\mainBookTitle
+\end{titlingpage}
+\frontmatter*
+
+
+\newpage
+
+\tableofcontents
+
+
+
+
+
+%%% The content. %%%
+\mainmatter
+\chapter{9th Samsung Cup - Game One}
+{\centering
+\gnosfontsize{12}
+{\gnos
+<(((((((((((((((((>\\
+\char91+++++++++++++++++]\\
+\char91+{\gnoswi\char64}{\gnosbi\char79}{\gnoswi\char92}+++++++++\gnosOverlap{!}{\small{4}}{\gnoswii\char22}{\gnoswii\char6}{\gnoswii\char20}]\\
+\char91{\gnoswi\char66}{\gnosbi\char63}\gnosOverlap{!}{\small{2}}{\gnosbi\char77}{\gnoswi\char62}{\gnosbii\char1}+\gnosOverlap{!}{\footnotesize{72}}*\gnosOverlap{@}{\color{white}\footnotesize{71}}+\gnosOverlap{!}{\small{8}}+{\gnosbii\char21}*\gnosOverlap{@}{\color{white}\small{1}}{\gnosbii\char19}{\gnoswii\char28}\\
+\char91+{\gnoswi\char78}{\gnosbi\char65}{\gnoswi\char80}{\gnosbi\char99}{\gnosbi\char49}++++\gnosOverlap{@}{\color{white}\footnotesize{77}}{\gnosbii\char23}++\gnosOverlap{@}{\color{white}\small{7}}++]\\
+{\gnoswi\char98}{\gnoswi\char94}\gnosOverlap{@}{\color{white}\footnotesize{79}}{\gnosbi\char91}+{\gnosbi\char41}{\gnoswi\char40}{\gnoswi\char50}\gnosOverlap{!}{\footnotesize{70}}{\gnoswi\char82}\gnosOverlap{@}{\color{white}\footnotesize{69}}+\gnosOverlap{!}{\footnotesize{50}}+\gnosOverlap{!}{\footnotesize{78}}+{\gnoswii\char4}{\gnosbii\char5}]\\
+{\gnoswi\char96}{\gnosbi\char95}+{\gnosbi\char93}+{\gnosbi\char39}\gnosOverlap{!}{\footnotesize{84}}\gnosOverlap{@}{\color{white}\footnotesize{81}}{\gnosbi\char57}{\gnosbi\char55}{\gnosbi\char83}\gnosOverlap{@}{\color{white}\footnotesize{47}}\gnosOverlap{!}{\footnotesize{46}}+{\gnoswii\char14}+{\gnoswii\char2}{\gnosbii\char3}]\\
+{\gnosbi\char97}{\gnoswii\char0}+\gnosOverlap{!}{\footnotesize{80}}+\gnosOverlap{@}{\color{white}\footnotesize{85}}\gnosOverlap{@}{\color{white}\footnotesize{83}}\gnosOverlap{!}{\footnotesize{82}}\gnosOverlap{!}{\footnotesize{66}}\gnosOverlap{!}{\footnotesize{64}}+\gnosOverlap{@}{\color{white}\footnotesize{45}}\gnosOverlap{!}{\footnotesize{44}}{\gnoswii\char24}{\gnosbii\char13}+\gnosOverlap{@}{\color{white}\footnotesize{31}}+]\\
+\char91{\gnoswi\char76}{\gnoswi\char74}+{\gnosbi\char85}\gnosOverlap{@}{\color{white}\footnotesize{89}}\gnosOverlap{!}{\footnotesize{88}}\gnosOverlap{!}{\footnotesize{86}}+\gnosOverlap{@}{\color{white}\footnotesize{65}}++\gnosOverlap{@}{\color{white}\footnotesize{43}}\gnosOverlap{!}{\footnotesize{42}}{\gnosbii\char15}+{\gnosbii\char9}{\gnosbii\char17}{\gnosbii\char25}\\
+\char91{\gnosbi\char73}{\gnoswi\char72}{\gnoswi\char86}{\gnoswi\char4}\gnosOverlap{@}{\color{white}\footnotesize{73}}\gnosOverlap{!}{\footnotesize{90}}\gnosOverlap{@}{\color{white}\footnotesize{67}}+\gnosOverlap{@}{\color{white}\footnotesize{53}}++\gnosOverlap{@}{\color{white}\footnotesize{41}}\gnosOverlap{!}{\footnotesize{34}}{\gnoswii\char16}\gnosOverlap{!}{\footnotesize{30}}{\gnosbii\char11}{\gnoswii\char10}]\\
+\char91+\gnosOverlap{@}{\color{white}\footnotesize{75}}+{\gnoswi\char68}\gnosOverlap{!}{\footnotesize{92}}\gnosOverlap{@}{\color{white}\footnotesize{91}}{\gnosbi\char53}\gnosOverlap{@}{\color{white}\footnotesize{87}}+\gnosOverlap{!}{\footnotesize{76}}+\gnosOverlap{@}{\color{white}\footnotesize{35}}\gnosOverlap{@}{\color{white}\footnotesize{33}}\gnosOverlap{!}{\footnotesize{32}}+{\gnoswii\char12}{\gnosbii\char7}{\gnoswii\char18}\\
+\char91++{\gnosbi\char67}+\gnosOverlap{!}{\footnotesize{94}}\gnosOverlap{@}{\color{white}\footnotesize{93}}{\gnoswi\char52}{\gnosbi\char3}++++\gnosOverlap{@}{\color{white}\footnotesize{61}}\gnosOverlap{@}{\color{white}\footnotesize{29}}\gnosOverlap{!}{\footnotesize{26}}\gnosOverlap{!}{\footnotesize{24}}{\gnoswii\char8}]\\
+\char91{\gnosbi\char75}{\gnosbi\char69}\gnosOverlap{!}{\footnotesize{74}}+\gnosOverlap{!}{\footnotesize{68}}\gnosOverlap{@}{\color{white}\footnotesize{95}}\gnosOverlap{!}{\footnotesize{98}}\gnosOverlap{!}{\footnotesize{54}}{\gnoswi\char6}\gnosOverlap{!}{\footnotesize{52}}+\gnosOverlap{!}{\footnotesize{38}}\gnosOverlap{@}{\color{white}\footnotesize{27}}\gnosOverlap{@}{\color{white}\footnotesize{49}}\gnosOverlap{@}{\color{white}\footnotesize{25}}\gnosOverlap{@}{\color{white}\small{9}}\gnosOverlap{!}{\footnotesize{20}}]\\
+\char91{\gnoswi\char70}++{\gnoswi\char42}\gnosOverlap{@}{\color{white}\footnotesize{99}}\gnosOverlap{!}{\footnotesize{96}}\gnosOverlap{@}{\color{white}\footnotesize{97}}{\gnosbi\char7}{\gnosbi\char5}{\gnoswi\char14}+\gnosOverlap{!}{\footnotesize{40}}\gnosOverlap{@}{\color{white}\footnotesize{39}}\gnosOverlap{!}{\footnotesize{48}}\gnosOverlap{@}{\color{white}\footnotesize{15}}\gnosOverlap{!}{\footnotesize{14}}\gnosOverlap{!}{\footnotesize{16}}]\\
+{\gnoswii\char26}{\gnosbii\char27}{\gnoswi\char46}{\gnoswi\char44}{\gnosbi\char43}{\gnosbi\char1}{\gnoswi\char0}{\gnoswi\char2}{\gnosbi\char11}{\gnoswi\char10}{\gnosbi\char13}\gnosOverlap{!}{\footnotesize{62}}+\gnosOverlap{!}{\footnotesize{60}}+\gnosOverlap{!}{\small{6}}\gnosOverlap{@}{\color{white}\footnotesize{13}}\gnosOverlap{@}{\color{white}\footnotesize{19}}\gnosOverlap{!}{\footnotesize{36}}\\
+{\gnosbi\char89}{\gnoswi\char60}{\gnosbi\char59}\gnosOverlap{@}{\color{white}\small{5}}{\gnosbi\char45}{\gnoswi\char22}\gnosOverlap{@}{\color{white}\footnotesize{63}}{\gnoswi\char8}{\gnoswi\char12}\gnosOverlap{@}{\color{white}\footnotesize{51}}{\gnosbi\char17}\gnosOverlap{@}{\color{white}\footnotesize{55}}{\gnoswi\char38}\gnosOverlap{!}{\footnotesize{22}}\gnosOverlap{!}{\footnotesize{28}}\gnosOverlap{!}{\footnotesize{12}}\gnosOverlap{@}{\color{white}\footnotesize{11}}\gnosOverlap{@}{\color{white}\footnotesize{37}}]\\
+\char91{\gnosbi\char71}{\gnoswi\char58}+{\gnosbi\char25}{\gnosbi\char23}{\gnosbi\char9}{\gnoswi\char34}{\gnosbi\char33}{\gnoswi\char16}{\gnosbi\char31}{\gnoswi\char30}{\gnoswi\char32}\gnosOverlap{!}{\footnotesize{56}}\gnosOverlap{@}{\color{white}\footnotesize{21}}\gnosOverlap{@}{\color{white}\small{3}}\gnosOverlap{!}{\footnotesize{10}}\gnosOverlap{@}{\color{white}\footnotesize{17}}]\\
+\char91{\gnosbi\char61}{\gnoswi\char88}+{\gnosbi\char27}{\gnoswi\char24}{\gnoswi\char20}{\gnoswi\char18}{\gnoswi\char26}{\gnosbi\char21}{\gnosbi\char19}{\gnoswi\char28}{\gnosbi\char29}+\gnosOverlap{!}{\footnotesize{58}}\gnosOverlap{@}{\color{white}\footnotesize{57}}\gnosOverlap{!}{\footnotesize{18}}\gnosOverlap{@}{\color{white}\footnotesize{23}}]\\
+,)))){\gnosbi\char35}{\gnosbi\char47}){\gnosbi\char37}{\gnoswi\char56}{\gnoswi\char36})))))\gnosOverlap{@}{\color{white}\footnotesize{59}}).\\
+}
+}
+\gofigure
+
+\subtext{(Moves: 1-228)}
+
+\subtext{{\raisebox{-.17em}{\textnormal{{\gnosbi\char15}}}} at 110, {\raisebox{-.17em}{\textnormal{{\gnoswi\char48}}}} at 116, {\raisebox{-.17em}{\textnormal{{\gnosbi\char51}}}} at 133}
+
+\subtext{{\raisebox{-.17em}{\textnormal{{\gnoswi\char54}}}} at 116, {\raisebox{-.17em}{\textnormal{{\gnosbi\char81}}}} at 163, {\raisebox{-.17em}{\textnormal{{\gnoswi\char84}}}} at 2}
+
+\subtext{{\raisebox{-.17em}{\textnormal{{\gnosbi\char87}}}} at 163, {\raisebox{-.17em}{\textnormal{{\gnoswi\char90}}}} at 2.}
+
+\textbf{November 16 2004, Ulsan, Korea: 9th Samsung Cup Semifinals, Game One}
+
+\textit{Gu Li 7d (black) vs Lee Sedol 9d}
+
+{\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\footnotesize{38}}}}} was painful for Black.
+
+{\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\footnotesize{76}}}}} was a mistake.
+
+{\raisebox{-.17em}{\textnormal{{\gnosbi\char25}}}} was the losing move. Black should have played {\raisebox{-.17em}{\textnormal{{\gnosbi\char25}}}} at {\raisebox{-.17em}{\textnormal{{\gnosbi\char45}}}} instead.
+
+\textbf{228 moves: White won by resignation.}
+
+
+\vfill
+
+\end{document}

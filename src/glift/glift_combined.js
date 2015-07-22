@@ -9078,15 +9078,28 @@ glift.rules.treepath = {
     for (var i = 0; i < sect.length; i++) {
       // 4.1 => [4,1+]
       var v = sect[i].split('\.');
-      // Handle the first number (e.g., 4);
-      for (var j = 0; j < v[0] - lastNum; j++) {
+      // Handle the first number (e.g., 4); We necessitate this to be a move
+      // number, so we push 0s until we get to the move number.
+      var firstNum = parseInt(v[0])
+      for (var j = 0; j < firstNum - lastNum; j++) {
         out.push(0);
       }
-      var lastNum = v[0];
-      // Handle the rest of the numbers (e.g., 1+)
+
+      // If there's only one number, we add 500 those zeroes and break.
+      if (/\+/.test(v[0])) {
+        if (v.length !== 1 || i !== sect.length - 1) {
+          throw new Error('Improper use of + at ' + v[0] + 
+              ':  The + character can only occur at the end.');
+        }
+        out = out.concat(glift.rules.treepath.toEnd());
+        return out;
+      }
+
+      var lastNum = firstNum;
+      // Handle the rest of the numbers. These must be variations.
       for (var j = 1; j < v.length; j++) {
-        // Handle the last number. 1+
         var testNum = v[j];
+        // Handle the last number. 1+
         if (testNum.charAt(testNum.length - 1) === '+') {
           testNum = testNum.slice(0, testNum.length - 1);
           out.push(parseInt(testNum));
@@ -9207,7 +9220,7 @@ glift.rules.treepath = {
    *        variation.  Defaults to true
    *
    * returns: on object with three keys
-   *    movetree: an update movetree
+   *    movetree: an updated movetree
    *    treepath: a new treepath that says how to get to this position
    *    nextMoves: A nextMovesTreepath, used to apply for the purpose of
    *        crafting moveNumbers.
@@ -9217,7 +9230,7 @@ glift.rules.treepath = {
     var initTreepath = initTreepath || movetree.treepathToHere();
     var breakOnComment = breakOnComment === false ? false : true;
     var mt = movetree.getTreeFromRoot(initTreepath);
-    var minusMoves = minusMovesOverride || 40;
+    var minusMoves = minusMovesOverride || 1000;
     var nextMovesTreepath = [];
     var startMainline = mt.onMainline();
     for (var i = 0; mt.node().getParent() && i < minusMoves; i++) {
@@ -9466,6 +9479,8 @@ glift.parse = {
  * Parse a pandanet SGF.  Pandanet SGFs, are the same as normal SGFs except that
  * they contain invalid SGF properties.
  */
+// TODO(kashomon): Delete and fold into SGF parsing. this is really a special
+// case of FF3, which should be supported by Glift.
 glift.parse.pandanet = function(string) {
   var replaceRegex = /CoPyright\[[^\]]*\]/;
   var repl = string.replace(replaceRegex, '');
@@ -11369,11 +11384,6 @@ glift.flattener = {
       var stone = stones[i];
       var ptStr = stone.point.toString();
       var nextMoveNum = i + startingMoveNum;
-      if (nextMoveNum % 100 !== 0) {
-        // We don't truncate the 100 moves, e.g., 100, 200, etc.,
-        // but otherwise, 3 digit labels are awkward.
-        nextMoveNum = nextMoveNum % 100;
-      }
 
       // This is a collision stone. Perform collision labeling.
       if (stone.hasOwnProperty('collision')) {
@@ -11386,9 +11396,6 @@ glift.flattener = {
           col.label = labels[ptStr];
         } else if (glift.util.typeOf(stone.collision) === 'number') {
           var collisionNum = stone.collision + startingMoveNum;
-          if (collisionNum % 100 !== 0) {
-            collisionNum = collisionNum % 100;
-          }
           col.label = (collisionNum) + ''; // label is idx.
         } else { // should be null
           var lbl = extraLabs.charAt(labsIdx);
@@ -11644,10 +11651,39 @@ glift.flattener.Flattened.prototype = {
   mainlineMove: function() { return this._mainlineMove; },
 
   /** Returns the stone map. */
-  stoneMap: function() { return this._stoneMap; }
+  stoneMap: function() { return this._stoneMap; },
+
+  /**
+   * Helper for truncating labels if the labels are numbers > 100, which
+   * is typically helpful for diagram-display. A no-op for all other labels
+   * This used to be done automatically, but there are cases where users may
+   * wish to preserve full 3 digit labels.
+   *
+   * Note: This helper only truncates when branchLength = endNum - startNum <
+   * 100.
+   *
+   * numOrString: The number represented either as a string or a number
+   *    (probably the former, but who are we to judge?).
+   * return: The processed string label.
+   */
+  autoTruncateLabel: function(numOrString) {
+    var num = numOrString;
+    if (typeof numOrString === 'number') {
+      // noop
+    } else if (typeof numOrString === 'string' && /\d+/.test(numOrString)) {
+      num = parseInt(numOrString);
+    } else {
+      return numOrString;
+    }
+    var branchLength = this.endingMoveNum() - this.startingMoveNum();
+    if (num > 100 && branchLength < 100 && num % 100 !== 0) {
+      // Truncation time!
+      num = num % 100;
+    }
+    return num + '';
+  }
 };
 glift.flattener.intersection = {
-
   /**
    * Creates an intersection obj.
    *
@@ -12218,6 +12254,11 @@ glift.widgets.BaseWidget.prototype = {
     }
   },
 
+  /** Gets the initialized hooks or set them */
+  hooks: function() {
+    return this.sgfOptions.hooks;
+  },
+
   /**
    * Apply the BoardData to both the comments box and the board. Uses
    * glift.bridge to communicate with the display.
@@ -12695,6 +12736,7 @@ glift.widgets.options = {
     var templateKeys = [
         'sgfDefaults',
         'display',
+        'hooks',
         'iconActions',
         'stoneActions'];
     for (var i = 0; i < templateKeys.length; i++) {
@@ -12927,12 +12969,6 @@ glift.widgets.options.baseOptions = {
     rotation: glift.enums.rotations.NO_ROTATION,
 
     /**
-     * Callback to perform once a problem is considered correct / incorrect.
-     * @api(beta)
-     */
-    problemCallback: function() {},
-
-    /**
      * Conditions for determing whether a branch of a movetree is correct.  A
      * map from property-keys, to an array of substring values.  If the array is
      * empty, then we only test to see if the property exists at the current
@@ -13131,6 +13167,19 @@ glift.widgets.options.baseOptions = {
    * @api(experimental)
    */
   metadata: undefined,
+
+  /**
+   * Hooks are places where users can provide custom functions to 'hook' into
+   * Glift behavior.
+   * @api(experimental)
+   */
+  hooks: {
+    // Fires when user gets a problem correct
+    problemCorrect: function() {},
+
+    // Fires when user gets a problem wrong.
+    problemIncorrect: function() {}
+  },
 
   /**
    * Miscellaneous options for display.
@@ -13736,7 +13785,7 @@ glift.widgets.options.REDUCED_GAME_VIEWER = {
  * Additional Options for the GameViewers
  */
 glift.widgets.options.STANDARD_PROBLEM = {
-  stoneClick: function(event, widget, pt) {
+  stoneClick: function(event, widget, pt, hooks) {
     var currentPlayer = widget.controller.getCurrentPlayer();
     var data = widget.controller.addStone(pt, currentPlayer);
     var problemResults = glift.enums.problemResults;
@@ -13746,16 +13795,15 @@ glift.widgets.options.STANDARD_PROBLEM = {
       return;
     }
     widget.applyBoardData(data);
-    var callback = widget.sgfOptions.problemCallback;
     if (data.result === problemResults.CORRECT) {
         widget.iconBar.setCenteredTempIcon('multiopen-boxonly', 'check', '#0CC');
         widget.correctness = problemResults.CORRECT;
-        callback(problemResults.CORRECT);
+        widget.hooks().problemCorrect();
     } else if (data.result === problemResults.INCORRECT) {
       widget.iconBar.destroyTempIcons();
       widget.iconBar.setCenteredTempIcon('multiopen-boxonly', 'cross', 'red');
       widget.correctness = problemResults.INCORRECT;
-      callback(problemResults.INCORRECT);
+      widget.hooks().problemIncorrect();
     }
   },
 

@@ -2732,7 +2732,10 @@ gpub.diagrams.gnos = {
     return header;
   },
 
-  /** Returns a flattener-symbol-board. */
+  /**
+   * Returns a flattener-symbol-board that's been transformed for into a
+   * series of latex/gnos symbols.
+   */
   gnosBoard: function(flattened, size) {
     var size = size || '12';
     var toStr = glift.flattener.symbolStr;
@@ -2741,7 +2744,8 @@ gpub.diagrams.gnos = {
       var symbol = toStr(i.base()); // By default: Show the base symbol
       if (i.textLabel() && i.mark() &&
           i.mark() === glift.flattener.symbols.TEXTLABEL) {
-        symbol = gpub.diagrams.gnos.getLabelDef(i.textLabel(), i.stone(), size);
+        symbol = gpub.diagrams.gnos.getLabelDef(
+            flattened.autoTruncateLabel(i.textLabel()), i.stone(), size);
       } else if (i.mark() && i.stone()) {
         symbol = toStr(i.stone()) + '_' + toStr(i.mark());
       } else if (i.stone()) {
@@ -2755,7 +2759,7 @@ gpub.diagrams.gnos = {
       } else {
         out = symbolMap.EMPTY;
       }
-      var lbl = i.textLabel();
+      var lbl = flattened.autoTruncateLabel(i.textLabel());
       if (lbl) {
         out = gpub.diagrams.gnos._processTextLabel(
             symbol, out, lbl, size, true);
@@ -2803,18 +2807,23 @@ gpub.diagrams.gnos = {
   },
 
   /**
-   * Apply the label to the symbol value. Note: We shouldn't ever need 3 digit
-   * number-strings, since we have special fonts (gnosbi,gnoswii, etc.) that
-   * use the format \\gnosbi\char\d\d.
+   * Apply the label to the symbol value. There are two cases:
+   *
+   * (1) Numbers using built-in Gnos NUMBLABEL fonts
+   * We have special fonts for (gnosbi,gnoswii, etc.) that use the format
+   * \\gnosbi\char{2}\d. Tho Gnos fonts accept precisely two characters.
+   *
+   * (2) Everything else. In this case, the characters are just overlayed
+   * on the stone directly.
    */
   _processTextLabel: function(symbol, symbolVal, label, size) {
     if (/^\d+$/.test(label) && /NUMLABEL/.test(symbol)) {
+      // NUMLABEL are  a special categories of number-labeling where we use the
+      // built-in font.  Each of these NUMLABEL fonts accept two characters.
       lbl = parseInt(label) % 100;
       return symbolVal.replace('%s', lbl);
     } else {
-      // TODO(kashomon): This looks like dead code, except for if the label is a
-      // non-number.
-
+      // Here, we just overlay text on a stone.
       // Make smaller for labels 2+ characters long
       var sizeIdx = gpub.diagrams.gnos.singleCharSizeAtTen[size] || 3;
       if (label.length > 1) {
