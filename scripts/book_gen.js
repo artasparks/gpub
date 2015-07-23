@@ -39,6 +39,7 @@ if (flags.args.length === 0 &&
 var def = filez.readFromDirAndArgs(
     workingDir, flags.args, '', '\\.sgf');
 
+// Create an array of SGFs to process.
 var sgfArr = [] ;
 for (var i = 0; i < def.collection.length; i++) {
   sgfArr.push(def.contents[def.collection[i]]);
@@ -53,11 +54,10 @@ var options = {
   }
 };
 
-// Process frontmatter
+// Process frontmatter into the book options.
 var bookPartsKeys = [
   'foreward'
 ];
-
 for (var i = 0; i < bookPartsKeys.length; i++) {
   var key = bookPartsKeys[i];
   var fname = flags.processed.foreward;

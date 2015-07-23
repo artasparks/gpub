@@ -1476,7 +1476,7 @@ gpub.book.latex.defaultTemplate = [
 '',
 '<%#frontmatter.foreward%>',
 '\\chapter{forward}',
-'<%frontmatter.foreward%>',
+'<%frontmatter.foreward.text%>',
 '<%/frontmatter.foreward%>',
 '',
 '<%#frontmatter.preface%>',
