@@ -34,12 +34,11 @@ var flags = flagz.init(
         'The introduction, rendered as markdown.']
   }).process();
 
-var workingDir = flags.processed.directory;
-if (flags.args.length === 0 &&
-    flags.processed.directory == '') {
+var workingDir = process.cwd();
+if (flags.processed.directory) {
   // Both directory was unset and the args were empty. Assume that the user
   // wants to work from the current directory.
-  workingDir = process.cwd();
+  workingDir = path.resolve(flags.processed.directory);
 }
 
 var def = filez.readFromDirAndArgs(
@@ -68,11 +67,8 @@ var bookPartsKeys = [
 for (var i = 0; i < bookPartsKeys.length; i++) {
   var key = bookPartsKeys[i];
   var fname = flags.processed[key];
-  var fpath = fname;
-  if (flags.processed.directory) {
-    path = path.join(flags.processed.directory, fname);
-  }
-  if (fs.existsSync(fname)) {
+  var fpath = path.join(workingDir, fname);
+  if (fs.existsSync(fpath)) {
     var content = fs.readFileSync(fpath, {encoding: 'utf8'});
     if (content) {
       // Note: The text still needs to be converted from mardown to LaTeX.
@@ -90,7 +86,8 @@ if (workingDir) {
     var fname = path.join(workingDir, lastPart) + '.tex';
     fs.writeFileSync(fname, book);
     if (flags.processed.autoCompile) {
-      child_process.execSync('which pdflatex && pdflatex ' + fname);
+      console.log('Compiling with pdflatex');
+      child_process.execSync('cd ' + workingDir + ' && which pdflatex && pdflatex ' + fname);
     }
   } else {
     console.log(book);
