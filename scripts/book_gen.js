@@ -24,8 +24,14 @@ var flags = flagz.init(
         'for logical combinations'],
 
     // Extra book parts
-    foreward: ['file (markdown)', 'foreward.md', 'The foreward, rendered as markdown.'],
-    preface: ['file (markdown)', 'preface.md', 'The preface, rendered as markdown.']
+    foreward: ['file (markdown)', 'foreward.md', 
+        'The foreward, rendered as markdown.'],
+    preface: ['file (markdown)', 'preface.md', 
+        'The preface, rendered as markdown.'],
+    acknowledgements: ['file (markdown)', 'acknowledgements.md',
+        'The acknowledgements, rendered as markdown.'],
+    introduction: ['file (markdown)', 'introduction.md',
+        'The introduction, rendered as markdown.']
   }).process();
 
 var workingDir = flags.processed.directory;
@@ -56,19 +62,22 @@ var options = {
 
 // Process frontmatter into the book options.
 var bookPartsKeys = [
-  'foreward'
+  'foreward', 'preface', 'acknowledgements', 'introduction'
 ];
+
 for (var i = 0; i < bookPartsKeys.length; i++) {
   var key = bookPartsKeys[i];
-  var fname = flags.processed.foreward;
+  var fname = flags.processed[key];
   var fpath = fname;
   if (flags.processed.directory) {
     path = path.join(flags.processed.directory, fname);
   }
   if (fs.existsSync(fname)) {
     var content = fs.readFileSync(fpath, {encoding: 'utf8'});
-    // Note: The text still needs to be converted from mardown to LaTeX.
-    options.bookOptions.frontmatter[key] = content;
+    if (content) {
+      // Note: The text still needs to be converted from mardown to LaTeX.
+      options.bookOptions.frontmatter[key] = content;
+    }
   }
 }
 
