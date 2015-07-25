@@ -71,13 +71,14 @@ FlagzDef.prototype = {
     var scriptpath = process.argv[1] || 'script';
     var scriptname = scriptpath.replace(/([^\/]*\/)+/g, '');
     this._scriptname = scriptname;
-    // It's sometimes advantageous to have scripts just 'work'
+    // It's sometimes advantageous to have scripts that work without any
+    // arguments
     // if (process.argv.length <= 2) {
       // return this.displayHelp();
     // }
 
     var processed = {};
-    // Set defaults
+    // Set defaults set in the init function by the user.
     for (var key in this.flagdefs) {
       processed[key] = this.flagdefs[key][1];
     }
@@ -88,37 +89,51 @@ FlagzDef.prototype = {
     for (var i = 2; i < process.argv.length; i++) {
       var item = process.argv[i];
       if (helpregex.test(item)) {
+        // If at any point we see help flag, we immediately terminate and
+        // display the help text.
         return this.displayHelp();
       }
       if (flagregex.test(item)) {
-        // The item is attempting to be a flag.
-        var itemkey = item.replace(flagregex, '')
+        // The argument is attempting to be a flag. We know this because the
+        // value on the command line looks like --foo or -foo. Thus, we need to
+        // get the flag 'value'. The value will have the form --foo=bar or -f
+        // bar.
+        var flagname = item.replace(flagregex, '')
         var value = null;
-        if (/^[a-zA-Z_]+=/.test(itemkey)) {
-          var splat = itemkey.split('=', 2);
-          itemkey = splat[0];
+        if (/^[a-zA-Z_]+=/.test(flagname)) {
+          // This flag has the form --foo=. So, split on = and the second part
+          // is the value.
+          var splat = flagname.split('=', 2);
+          flagname = splat[0];
           value = splat[1];
         }
-        var flagarr = this.flagdefs[itemkey];
-        if (flagarr === undefined) {
-          return this.unknownFlag(itemkey);
-        }
-        var flagtype = flagarr[0];
 
-        // What is this doing?
-        if (flagtype !== 'boolean' &&
-            i + 1 < process.argv.length &&
-            value === null) {
+        // var flagname = flagname.replace(
+
+        // Recall that the flag arr has the format
+        //  [type, default value, description]
+        var flagarr = this.flagdefs[flagname];
+        if (flagarr === undefined) {
+          // if (/^no.*$/.test
+          return this.unknownFlag(flagname);
+        }
+
+        var flagtype = flagarr[0];
+        if (i + 1 < process.argv.length && value === null) {
+          // The flag value is still null. We need to peek at the next value in
+          // the process args. Ideally, the flag has the format --foo bar
           value = process.argv[i + 1];
+          if (flagtype === 'boolean') {
+            // Boolean values are special. We allow --foo as truthy and --no
+          }
           if (flagregex.test(value)) {
             // The next value is a flag value. This is an error.
-            return this.unknownFlag(itemkey);
+            return this.unknownFlag(flagname);
           }
           i++;
         }
-        // TODO(kashomon): Really support booleans!
-        this.validateFlag(itemkey, value);
-        processed[itemkey] = value
+        this.validateFlag(flagname, value);
+        processed[flagname] = value
 
       } else {
         unprocessed.push(item);

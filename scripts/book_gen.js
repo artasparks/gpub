@@ -24,15 +24,16 @@ var flags = flagz.init(
         'for logical combinations'],
 
     // Extra book parts
-    foreward: ['file (markdown)', 'foreward.md', 
+    foreward: ['file name (must be in markdown)', 'foreward.md', 
         'The foreward, rendered as markdown.'],
-    preface: ['file (markdown)', 'preface.md', 
+    preface: ['file name (must be in markdown)', 'preface.md', 
         'The preface, rendered as markdown.'],
-    acknowledgements: ['file (markdown)', 'acknowledgements.md',
+    acknowledgements: ['file name (must be in markdown)', 'acknowledgements.md',
         'The acknowledgements, rendered as markdown.'],
-    introduction: ['file (markdown)', 'introduction.md',
+    introduction: ['file name (must be in markdown)', 'introduction.md',
         'The introduction, rendered as markdown.']
   }).process();
+return;
 
 var workingDir = process.cwd();
 if (flags.processed.directory) {
