@@ -33,7 +33,6 @@ var flags = flagz.init(
     introduction: ['file name (must be in markdown)', 'introduction.md',
         'The introduction, rendered as markdown.']
   }).process();
-return;
 
 var workingDir = process.cwd();
 if (flags.processed.directory) {
