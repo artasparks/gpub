@@ -31,7 +31,10 @@ var flags = flagz.init(
     acknowledgements: ['file name (must be in markdown)', 'acknowledgements.md',
         'The acknowledgements, rendered as markdown.'],
     introduction: ['file name (must be in markdown)', 'introduction.md',
-        'The introduction, rendered as markdown.']
+        'The introduction, rendered as markdown.'],
+
+    copyright: ['Copyright file name (must be in JSON)', 'copyright.json',
+        'The copyright file, specified as JSON.']
   }).process();
 
 var workingDir = process.cwd();
@@ -61,7 +64,7 @@ var options = {
 
 // Process frontmatter into the book options.
 var bookPartsKeys = [
-  'foreward', 'preface', 'acknowledgements', 'introduction'
+  'foreward', 'preface', 'acknowledgements', 'introduction', 'copyright',
 ];
 
 for (var i = 0; i < bookPartsKeys.length; i++) {
@@ -70,6 +73,9 @@ for (var i = 0; i < bookPartsKeys.length; i++) {
   var fpath = path.join(workingDir, fname);
   if (fs.existsSync(fpath)) {
     var content = fs.readFileSync(fpath, {encoding: 'utf8'});
+    if (key === 'copyright') {
+      content = JSON.parse(content);
+    }
     if (content) {
       // Note: The text still needs to be converted from mardown to LaTeX.
       options.bookOptions.frontmatter[key] = content;

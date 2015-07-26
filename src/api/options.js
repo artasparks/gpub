@@ -92,27 +92,52 @@ gpub.defaultOptions = {
     ],
     year: null,
 
-    /** Generate the Table of Contents or just 'Contents'. */
-    generateToc: true,
-
     /**
      * Frontmatter is text supporting the bulk of the the work that comes
      * before/after the mainmatter of the book.
      *
-     * Note: The format isn't specified here for the frontmatter. The relevant
-     * book generator may wish to do includes or direct text insertion.
+     * Note: It's expected that the frontmatter (except for the copyright page)
+     * will be specified as a markdown-string.
      *
      * Not all of these will be supported by all the book-generators. For those
      * that do support the relevant sections, the frontmatter and backmatter are
      * dumped into the book options.
      */
     frontmatter: {
-      copyright: null, // AKA Colophon Page
-      epigraph: null, // AKA Quote Page
+      // copyright: null, // AKA Colophon Page
+      // epigraph: null, // AKA Quote Page
       foreward: null, // Author or unrelated person
       preface: null, // Author
       acknowledgements: null,
-      introduction: null
+      introduction: null,
+
+      /** Generate the Table of Contents or just 'Contents'. */
+      generateToc: true,
+
+      /**
+       * Generates the copyright page. Copyright should be an object with the
+       * format listed below:
+       *
+       *
+       *  {
+       *     "publisher": "Foo Publisher",
+       *     "license": "All rights reserved.",
+       *     "publishYear": 2015,
+       *     "firstEditionYear": 2015,
+       *     "isbn": "1-1-123-123456-1",
+       *     "issn": "1-123-12345-1",
+       *     "addressLines": [
+       *        "PO #1111",
+       *        "1111 Mainville Road Rd, Ste 120",
+       *        "Fooville",
+       *        "CA 90001",
+       *        "www.fooblar.com"
+       *     ],
+       *     "showPermanenceOfPaper": true,
+       *     "printingNum": 1
+       *  }
+       */
+      copyright: null
     }
   }
 };

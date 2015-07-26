@@ -29,15 +29,50 @@ gpub.book.latex.generator = {
 
     view.content = pages.flushAll();
 
-    // Convert all frontmatter to markdown
-    for (var key in view.frontmatter) {
-      if (view.frontmatter[key]) {
-        view.frontmatter[key] =
-            gpub.book.latex.renderMarkdown(view.frontmatter[key]);
-      }
-    }
+    this._processFrontmatter(view.frontmatter);
 
     return gpub.Mustache.render(this.template(), view);
+  },
+
+  _processFrontmatter: function(frontmatter) {
+    var escape = function(val) {
+      return val.replace(/([${%}&#\\])/g, function(m, g1) { return '\\' + g1 });
+    };
+
+    // Convert all frontmatter from markdown to LaTeX.
+    for (var key in frontmatter) {
+      if (frontmatter[key]
+          && key !== 'copyright'
+          && key !== 'generateToc' ) {
+        frontmatter[key] =
+            gpub.book.latex.renderMarkdown(frontmatter[key]);
+      } else if (key === 'copyright') {
+        for (var ckey in frontmatter.copyright) {
+          var val = frontmatter.copyright[ckey];
+          if (ckey === 'addressLines') {
+            var publisher = frontmatter.copyright.publisher ?
+                [frontmatter.copyright.publisher] : [];
+            var constructed = publisher.concat(val);
+            frontmatter.copyright.constructedAddress = constructed
+                .map(escape)
+                .join('\n\\\\');
+          } else if (ckey === 'printingNum' &&
+              glift.util.typeOf(val) === 'number') {
+            var out = [];
+            var end = 10;
+            if (end - val < 5) {
+              end = val + 5;
+            }
+            for (var i = val; i <= end; i++) {
+              out.push(i);
+            }
+            frontmatter.copyright.constructedPrintingNum = out.join(' ');
+          } else if (glift.util.typeOf(val) === 'string') {
+            frontmatter.copyright[ckey] = escape(val);
+          }
+        }
+      }
+    }
   },
 
   defaultTemplate: function() {
