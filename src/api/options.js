@@ -134,7 +134,7 @@ gpub.defaultOptions = {
        *        "www.fooblar.com"
        *     ],
        *     "showPermanenceOfPaper": true,
-       *     "printingNum": 1
+       *     "printingRunNum": 1
        *  }
        */
       copyright: null

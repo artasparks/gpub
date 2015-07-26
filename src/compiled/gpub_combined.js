@@ -1378,7 +1378,7 @@ gpub.book.latex.generator = {
             frontmatter.copyright.constructedAddress = constructed
                 .map(escape)
                 .join('\n\\\\');
-          } else if (ckey === 'printingNum' &&
+          } else if (ckey === 'printingRunNum' &&
               glift.util.typeOf(val) === 'number') {
             var out = [];
             var end = 10;
@@ -1388,7 +1388,7 @@ gpub.book.latex.generator = {
             for (var i = val; i <= end; i++) {
               out.push(i);
             }
-            frontmatter.copyright.constructedPrintingNum = out.join(' ');
+            frontmatter.copyright.constructedPrintingRun = out.join(' ');
           } else if (glift.util.typeOf(val) === 'string') {
             frontmatter.copyright[ckey] = escape(val);
           }
@@ -1515,9 +1515,9 @@ gpub.book.latex.defaultTemplate = [
 '\\\\',
 '<%frontmatter.copyright.constructedAddress%>\\\\',
 '\\\\',
-'<%#frontmatter.copyright.constructedPrintingNum%>',
-'<%frontmatter.copyright.constructedPrintingNum%>\\\\',
-'<%/frontmatter.copyright.constructedPrintingNum%>',
+'<%#frontmatter.copyright.constructedPrintingRun%>',
+'<%frontmatter.copyright.constructedPrintingRun%>\\\\',
+'<%/frontmatter.copyright.constructedPrintingRun%>',
 '\\\\',
 '<%#frontmatter.copyright.isbn%>',
 'ISBN: <%frontmatter.copyright.isbn%> \\\\',
@@ -3193,7 +3193,7 @@ gpub.defaultOptions = {
        *        "www.fooblar.com"
        *     ],
        *     "showPermanenceOfPaper": true,
-       *     "printingNum": 1
+       *     "printingRunNum": 1
        *  }
        */
       copyright: null
