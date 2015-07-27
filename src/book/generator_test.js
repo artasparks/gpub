@@ -109,4 +109,11 @@
     var gen = gpub.book.generator('LATEX', opts);
     deepEqual(gen.options().pageSize, 'EIGHT_TEN');
   });
+
+  test('Testing getSgfId', function() {
+    var gen = new gpub.book._Generator();
+
+    deepEqual(gen.getSgfId({alias: 'fooo'}), 'fooo');
+    deepEqual(gen.getSgfId({sgfString: 'zed'}), 'zed');
+  });
 })();

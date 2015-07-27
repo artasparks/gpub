@@ -17,7 +17,13 @@ gpub.book.latex.context = {
    * intSize: Size of an intersection in Point. (1/72 of an inch)
    * pageSize: size of the page (see gpub.book.page.size).
    */
-  typeset: function(diagramType, diagram, ctx, flattened, intSize, pageSize) {
+  typeset: function(
+      diagramType,
+      diagram,
+      ctx,
+      flattened,
+      intSize,
+      pageSize) {
     comment = flattened.comment() || '';
     label = gpub.diagrams.createLabel(flattened);
 
@@ -55,6 +61,8 @@ gpub.book.latex.context = {
     // TODO(kashomon): Why would the mainMove be null? In anycase, if this is
     // not here, we occasionally get errors.
     if (!flattened.isOnMainPath() && mainMove !== null) {
+      // We're on a variation. Add a comment below the diagram and create a
+      // reference label.
       baseLabel = '\\govariation'
       var mainMoveNum = flattened.mainlineMoveNum();
       var readableColor = null;
@@ -68,6 +76,7 @@ gpub.book.latex.context = {
       }
     }
     if (label) {
+      // Convert newlines into latex-y newlines
       var splat = label.split('\n');
       for (var i = 0; i < splat.length; i++ ) {
         baseLabel += '\n\n\\subtext{' + splat[i] + '}';

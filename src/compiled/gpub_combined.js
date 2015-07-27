@@ -925,20 +925,25 @@ gpub.book._Generator.prototype = {
   /**
    * Helper function for looping over each SGF in the SGF collection.
    *
-   * The function fn should expect four params:
+   * The function fn should expect five params:
    *  - the index
    *  - The movetree.
    *  - The 'flattened' object.
+   *  - The context
+   *  - A unique name for the SGF (usually the sgf alias).
    */
   forEachSgf: function(spec, fn) {
     var mgr = this.manager(spec);
     var opts = this.options();
-    // 1 million diagrams should be enough for anybody ;)
+    // 1 million diagrams should be enough for anybody ;). Users can override if
+    // they really must, but millions of diagrams would imply hundreds of
+    // thousands of pages.
     var max = opts.maxDiagrams ? opts.maxDiagrams : 1000000;
     for (var i = opts.skipDiagrams;
         i < mgr.sgfCollection.length && i < max; i++) {
       var sgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(i));
-      var mt = this.getMovetree(sgfObj);
+      var sgfId = this.getSgfId(sgfObj);
+      var mt = this.getMovetree(sgfObj, sgfId);
 
       var flattened = glift.flattener.flatten(mt, {
           nextMovesTreepath: sgfObj.nextMovesPath,
@@ -947,21 +952,37 @@ gpub.book._Generator.prototype = {
 
       var ctx = gpub.book.getDiagramContext(mt, flattened, sgfObj);
 
-      fn(i, mt, flattened, ctx);
+      fn(i, mt, flattened, ctx, sgfId);
     }
+  },
+
+  /**
+   * Given an SGF Object, returns the SGF ID. If the alias exists, just use the
+   * alias as the ID. Otherwise, use parts of the SGF String as the ID.
+   */
+  getSgfId: function(sgfObj) {
+    var alias = sgfObj.alias;
+    if (alias) {
+      return alias;
+    }
+    var signature = this._sgfSignature(sgfObj.sgfString);
+    if (signature) {
+      return signature
+    }
+    throw new Error('SGF Object contains neither alias nor an SGF String. ' + 
+        'Cannot generate an SGF Id.');
   },
 
   /**
    * Get a movetree. SGF Parsing is cached for efficiency.
    */
-  getMovetree: function(sgfObj) {
-    var signature = this._sgfSignature(sgfObj.sgfString);
-    if (!this._parseCache[signature]) {
-      this._parseCache[signature] =
+  getMovetree: function(sgfObj, id) {
+    if (!this._parseCache[id]) {
+      this._parseCache[id] =
           glift.rules.movetree.getFromSgf(sgfObj.sgfString);
     }
     var initPos = glift.rules.treepath.parsePath(sgfObj.initialPosition);
-    return this._parseCache[signature].getTreeFromRoot(initPos);
+    return this._parseCache[id].getTreeFromRoot(initPos);
   },
 
   /**
@@ -1014,6 +1035,9 @@ gpub.book._Generator.prototype = {
    * 50 bytes.
    */
   _sgfSignature: function(sgf) {
+    if (sgf === undefined) {
+      throw new Error('Cannot create signature. SGF is undefined!');
+    }
     if (typeof sgf !== 'string') {
       throw new Error('Improper type for SGF: ' + sgf);
     }
@@ -1213,7 +1237,13 @@ gpub.book.latex.context = {
    * intSize: Size of an intersection in Point. (1/72 of an inch)
    * pageSize: size of the page (see gpub.book.page.size).
    */
-  typeset: function(diagramType, diagram, ctx, flattened, intSize, pageSize) {
+  typeset: function(
+      diagramType,
+      diagram,
+      ctx,
+      flattened,
+      intSize,
+      pageSize) {
     comment = flattened.comment() || '';
     label = gpub.diagrams.createLabel(flattened);
 
@@ -1251,6 +1281,8 @@ gpub.book.latex.context = {
     // TODO(kashomon): Why would the mainMove be null? In anycase, if this is
     // not here, we occasionally get errors.
     if (!flattened.isOnMainPath() && mainMove !== null) {
+      // We're on a variation. Add a comment below the diagram and create a
+      // reference label.
       baseLabel = '\\govariation'
       var mainMoveNum = flattened.mainlineMoveNum();
       var readableColor = null;
@@ -1264,6 +1296,7 @@ gpub.book.latex.context = {
       }
     }
     if (label) {
+      // Convert newlines into latex-y newlines
       var splat = label.split('\n');
       for (var i = 0; i < splat.length; i++ ) {
         baseLabel += '\n\n\\subtext{' + splat[i] + '}';
@@ -1356,6 +1389,10 @@ gpub.book.latex.generator = {
     return gpub.Mustache.render(this.template(), view);
   },
 
+  /**
+   * Processes the frontmatter. In otherwords, does escaping and, in
+   * particular for the copyright object, constructs a couple new fields.
+   */
   _processFrontmatter: function(frontmatter) {
     var escape = function(val) {
       return val.replace(/([${%}&#\\])/g, function(m, g1) { return '\\' + g1 });
@@ -1817,15 +1854,6 @@ gpub.book.latex.Paging.prototype = {
     this.buffer.push(contextualized);
   },
 
-  /** Flush the page to the finished 'pages'. */
-  _flushPage: function() {
-    if (!this.currentPage) {
-      return;
-    }
-    this.pages.push(this.currentPage);
-    this.currentPage = this.newPage();
-  },
-
   /** Flush the pages buffer as a string. */
   flushAll: function() {
     return this.buffer.join('\n');
@@ -1919,52 +1947,6 @@ gpub.book.latex.defaultMargins = 0.5;
  * edges
  */
 gpub.book.latex.standardBleed  = 0.125;
-
-///
-// NOTE: Page is speculative/experimental and is not currently used.
-///
-
-/**
- * A page instance. Should be crated with the Paging factory.
- */
-gpub.book.latex.Page = function(rows, cols) {
-  this.rows = rows;
-
-  this.cols = cols;
-
-  this.diagramCount = 0;
-
-  this.buffer = [];
-};
-
-gpub.book.latex.Page.prototype = {
-  /** Add a diagram to the page. */
-  addDiagram: function(str) {
-    this.buffer.push(str);
-    this.diagramCount++;
-    return this;
-  },
-
-  /** Returns whether or not the page thinks it's full. */
-  isFull: function() {
-    // TODO(kashomon): This is a hack to preserve the current behavior while we
-    // figure out how this should work.
-    return this.diagramCount >= 2
-  },
-
-  /** Clear the page lines */
-  flush: function() {
-    var out = this.buffer.join('\n');
-    this.buffer = [];
-    return out;
-  },
-
-  isEmpty: function() {
-    return this.buffer.length != 0;
-  }
-};
-
-
 /**
  * Sanitizes latex input. This isn't particularly robust, but it is meant to
  * protect us against accidental problematic characters rather than malicious

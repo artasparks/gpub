@@ -1,2 +1,1 @@
-\contentsline {chapter}{Contents}{1}{section*.1}
 \contentsline {chapter}{\chapternumberline {1}23rd Fujitsu Cup}{1}{chapter.1}

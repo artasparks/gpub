@@ -80,15 +80,6 @@ gpub.book.latex.Paging.prototype = {
     this.buffer.push(contextualized);
   },
 
-  /** Flush the page to the finished 'pages'. */
-  _flushPage: function() {
-    if (!this.currentPage) {
-      return;
-    }
-    this.pages.push(this.currentPage);
-    this.currentPage = this.newPage();
-  },
-
   /** Flush the pages buffer as a string. */
   flushAll: function() {
     return this.buffer.join('\n');
@@ -182,49 +173,3 @@ gpub.book.latex.defaultMargins = 0.5;
  * edges
  */
 gpub.book.latex.standardBleed  = 0.125;
-
-///
-// NOTE: Page is speculative/experimental and is not currently used.
-///
-
-/**
- * A page instance. Should be crated with the Paging factory.
- */
-gpub.book.latex.Page = function(rows, cols) {
-  this.rows = rows;
-
-  this.cols = cols;
-
-  this.diagramCount = 0;
-
-  this.buffer = [];
-};
-
-gpub.book.latex.Page.prototype = {
-  /** Add a diagram to the page. */
-  addDiagram: function(str) {
-    this.buffer.push(str);
-    this.diagramCount++;
-    return this;
-  },
-
-  /** Returns whether or not the page thinks it's full. */
-  isFull: function() {
-    // TODO(kashomon): This is a hack to preserve the current behavior while we
-    // figure out how this should work.
-    return this.diagramCount >= 2
-  },
-
-  /** Clear the page lines */
-  flush: function() {
-    var out = this.buffer.join('\n');
-    this.buffer = [];
-    return out;
-  },
-
-  isEmpty: function() {
-    return this.buffer.length != 0;
-  }
-};
-
-

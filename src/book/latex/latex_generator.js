@@ -34,6 +34,10 @@ gpub.book.latex.generator = {
     return gpub.Mustache.render(this.template(), view);
   },
 
+  /**
+   * Processes the frontmatter. In otherwords, does escaping and, in
+   * particular for the copyright object, constructs a couple new fields.
+   */
   _processFrontmatter: function(frontmatter) {
     var escape = function(val) {
       return val.replace(/([${%}&#\\])/g, function(m, g1) { return '\\' + g1 });
