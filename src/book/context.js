@@ -27,6 +27,7 @@ gpub.book.contextType = {
    * Go diagram + text + variations. A 'Variations' needs further processing.
    * It's a 'game' that hasn't been turned into a series of examples.
    */
+  // TODO(kashomon): Do we need this?
   VARIATIONS: 'VARIATIONS',
 
   /**

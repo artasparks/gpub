@@ -16,6 +16,7 @@ gpub.book.latex.context = {
    *    be rectified at some point.
    * intSize: Size of an intersection in Point. (1/72 of an inch)
    * pageSize: size of the page (see gpub.book.page.size).
+   * ref: Reference for using in the diagram for hyperlinking
    */
   typeset: function(
       diagramType,
@@ -23,7 +24,8 @@ gpub.book.latex.context = {
       ctx,
       flattened,
       intSize,
-      pageSize) {
+      pageSize,
+      ref) {
     comment = flattened.comment() || '';
     label = gpub.diagrams.createLabel(flattened);
 
@@ -34,12 +36,11 @@ gpub.book.latex.context = {
       preamble: '',
       text: ''
     };
-
     processedComment.text = gpub.diagrams.renderInline(
         diagramType, processedComment.text);
 
     var processedLabel = gpub.book.latex.context._processLabel(
-        diagramType, label, ctx, flattened);
+        diagramType, label, ctx, flattened, ref);
 
     var renderer = gpub.book.latex.context.rendering[ctx.contextType];
     if (!renderer) {
@@ -55,7 +56,7 @@ gpub.book.latex.context = {
   },
 
   /** Process the label to make it appropriate for LaTeX. */
-  _processLabel: function(diagramType, label, ctx, flattened) {
+  _processLabel: function(diagramType, label, ctx, flattened, ref) {
     var baseLabel = '\\gofigure';
     var mainMove = flattened.mainlineMove();
     // TODO(kashomon): Why would the mainMove be null? In anycase, if this is
@@ -63,7 +64,8 @@ gpub.book.latex.context = {
     if (!flattened.isOnMainPath() && mainMove !== null) {
       // We're on a variation. Add a comment below the diagram and create a
       // reference label.
-      baseLabel = '\\govariation'
+      baseLabel = '';
+      baseLabel = '\\centerline{\\govariation'
       var mainMoveNum = flattened.mainlineMoveNum();
       var readableColor = null;
       if (mainMove.color === 'BLACK') {
@@ -72,14 +74,29 @@ gpub.book.latex.context = {
         readableColor = 'White'
       }
       if (mainMove) {
-        baseLabel += '[ from ' + readableColor + ' ' + mainMoveNum + ']';
+        if (ref) {
+          baseLabel += '\\hyperref[' + ref + ']{'
+        }
+        baseLabel += '\\textit{from move} '
+        if (ref) {
+          baseLabel += '\\ref{' + ref  + '}}'
+        }
+        baseLabel += readableColor + ' ' + mainMoveNum + '';
       }
+      baseLabel += '}';
+    }
+    if (flattened.isOnMainPath() && ref) {
+      baseLabel += '\\label{' + ref + '}';
     }
     if (label) {
       // Convert newlines into latex-y newlines
       var splat = label.split('\n');
       for (var i = 0; i < splat.length; i++ ) {
-        baseLabel += '\n\n\\subtext{' + splat[i] + '}';
+        if (i == 0) {
+          baseLabel += '\n\\subtext{' + splat[i] + '}';
+        } else {
+          baseLabel += '\n\n\\subtext{' + splat[i] + '}';
+        }
       }
     }
     baseLabel = gpub.diagrams.renderInline(diagramType, baseLabel);
@@ -96,6 +113,7 @@ gpub.book.latex.context = {
       if (pcomment.preamble) {
         return [
           pcomment.preamble,
+          '\\phantomsection',
           '{\\centering',
           diagram,
           '}',

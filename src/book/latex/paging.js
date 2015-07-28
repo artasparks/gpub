@@ -63,6 +63,12 @@ gpub.book.latex.Paging = function(
   /** Total pages, minus the current page*/
   // CURRENTLY UNUSED
   this.pages = [];
+
+  /**
+   * Map from some key to some reference value. For games this might be
+   * movenumber > diagram Id
+   */
+  this._diagramRefMap = {};
 };
 
 gpub.book.latex.Paging.prototype = {
@@ -73,11 +79,52 @@ gpub.book.latex.Paging.prototype = {
       diagramType,
       diagramString,
       context,
-      flattened) {
+      flattened,
+      sgfId) {
+    this._populateRefMap(flattened, sgfId, context);
+    var ref = this._getReference(flattened, context);
     var contextualized = gpub.book.latex.context.typeset(
-        diagramType, diagramString, context, flattened, this.intSize,
-        gpub.book.page.size[this.pageSize]);
+        diagramType,
+        diagramString,
+        context,
+        flattened,
+        this.intSize,
+        gpub.book.page.size[this.pageSize],
+        ref);
     this.buffer.push(contextualized);
+  },
+
+  /** Populate the reference map based on the context type. */
+  _populateRefMap: function(flattened, sgfId, context) {
+    sgfId = gpub.book.latex.sanitize(sgfId);
+    if (context.contextType === gpub.book.contextType.EXAMPLE) {
+      if (flattened.isOnMainPath()) {
+        // We have to choose some move number to represent the diagram. Might as
+        // well be the starting number.
+        var label = sgfId + ':mainmove-' + flattened.startingMoveNum();
+        for (var i = flattened.startingMoveNum();
+            i <= flattened.endingMoveNum();
+            i++) {
+          this._diagramRefMap[i] = label;
+        }
+      }
+    }
+  },
+
+  /** Gete the reference label for latex. Return null if no ref can be found. */
+  _getReference: function(flattened, context) {
+    if (context.contextType === gpub.book.contextType.EXAMPLE) {
+      var mainMove = flattened.mainlineMove();
+      if (!flattened.isOnMainPath() && mainMove !== null) {
+        return this._diagramRefMap[flattened.mainlineMoveNum()] || null;
+      } else if (flattened.isOnMainPath()) {
+        return this._diagramRefMap[flattened.startingMoveNum()] || null;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
   },
 
   /** Flush the pages buffer as a string. */

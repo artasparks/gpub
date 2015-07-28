@@ -10,7 +10,6 @@ gpub.book.latex.generator = {
     // Diagram Options
     var diagOpt = {
       // Intersection size in pt.
-      // TODO(kashomon): Pass this in rather than hardcoding.
       size: opts.gnosFontSize
     };
 
@@ -22,9 +21,9 @@ gpub.book.latex.generator = {
       pages.pagePreamble()
     ].join('\n');
 
-    this.forEachSgf(spec, function(idx, mt, flattened, ctx) {
+    this.forEachSgf(spec, function(idx, mt, flattened, ctx, sgfId) {
       var diagram = gpub.diagrams.create(flattened, opts.diagramType, diagOpt);
-      pages.addDiagram(opts.diagramType, diagram, ctx, flattened);
+      pages.addDiagram(opts.diagramType, diagram, ctx, flattened, sgfId);
     }.bind(this));
 
     view.content = pages.flushAll();
