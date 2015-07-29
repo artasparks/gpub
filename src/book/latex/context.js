@@ -39,6 +39,8 @@ gpub.book.latex.context = {
     processedComment.text = gpub.diagrams.renderInline(
         diagramType, processedComment.text);
 
+    var latexLabel = gpub.book.latex.context._createLatexLabel(ctx, flattened, ref);
+
     var processedLabel = gpub.book.latex.context._processLabel(
         diagramType, label, ctx, flattened, ref);
 
@@ -52,7 +54,16 @@ gpub.book.latex.context = {
     }
 
     return renderer(
-        diagram, ctx, processedComment, processedLabel, intSize, pageSize);
+        diagram, ctx, processedComment, processedLabel, intSize, pageSize,
+        latexLabel);
+  },
+
+  /** Create a latex label for cross-referencing */
+  _createLatexLabel: function(ctx, flattened, ref) {
+    if (flattened.isOnMainPath() && ref) {
+      return '\\phantomsection\n\\label{' + ref + '}';
+    }
+    return '';
   },
 
   /** Process the label to make it appropriate for LaTeX. */
@@ -77,16 +88,13 @@ gpub.book.latex.context = {
         if (ref) {
           baseLabel += '\\hyperref[' + ref + ']{'
         }
-        baseLabel += '\\textit{from move} '
+        baseLabel += '\\textit{from} '
+        baseLabel += readableColor + ' ' + mainMoveNum + '';
         if (ref) {
           baseLabel += '\\ref{' + ref  + '}}'
         }
-        baseLabel += readableColor + ' ' + mainMoveNum + '';
       }
       baseLabel += '}';
-    }
-    if (flattened.isOnMainPath() && ref) {
-      baseLabel += '\\label{' + ref + '}';
     }
     if (label) {
       // Convert newlines into latex-y newlines
@@ -105,7 +113,8 @@ gpub.book.latex.context = {
 
   /** Render the specific digaram context. */
   rendering: {
-    EXAMPLE: function(diagram, ctx, pcomment, label, pts, pageSize) {
+    EXAMPLE: function(
+        diagram, ctx, pcomment, label, pts, pageSize, latexLabel) {
       if (!pageSize) {
         throw new Error('Page size must be defined. Was:' + pageSize);
       }
@@ -113,7 +122,7 @@ gpub.book.latex.context = {
       if (pcomment.preamble) {
         return [
           pcomment.preamble,
-          '\\phantomsection',
+          latexLabel,
           '{\\centering',
           diagram,
           '}',
@@ -127,6 +136,7 @@ gpub.book.latex.context = {
           '\\rule{\\textwidth}{0.5pt}',
           '',
           '\\begin{minipage}[t]{' + 20*pts + 'pt}',
+          latexLabel,
           diagram,
           label,
           '\\end{minipage}',
@@ -138,7 +148,8 @@ gpub.book.latex.context = {
       }
     },
 
-    DESCRIPTION: function(diagram, ctx, pcomment, label, pts) {
+    DESCRIPTION: function(
+        diagram, ctx, pcomment, label, pts, pageSize, latexLabel) {
       return [
         pcomment.preamble,
         pcomment.text,
@@ -146,7 +157,8 @@ gpub.book.latex.context = {
       ].join('\n');
     },
 
-    PROBLEM: function(diagram, ctx, pcomment, label, pts) {
+    PROBLEM: function(
+        diagram, ctx, pcomment, label, pts, pageSize, latexLabel) {
       // TODO(kashomon): implement.
     }
   }
