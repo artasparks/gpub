@@ -108,7 +108,12 @@ FlagzDef.prototype = {
           value = splat[1];
         }
 
-        // var flagname = flagname.replace(
+        // convert under_score_delimited to camelCase
+        var flagname = flagname.replace(/(_[a-z])/g, function(m) {
+          return m.slice(1).toUpperCase();
+        });
+
+        // TODO(kashomon): support arrays and booleans
 
         // Recall that the flag arr has the format
         //  [type, default value, description]

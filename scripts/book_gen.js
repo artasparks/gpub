@@ -18,10 +18,12 @@ var flags = flagz.init(
     pageSize: ['gpub.book.page.type', 'LETTER',
         'Size of the output page (stock/trim size).'],
     gnosFontSize: ['gpub.diagrams.gnos.sizes', '12', 'Size of gnos diagram.'],
-    autoCompile: ['boolean', 'true',
+    autoCompile: ['boolean', true,
         'Automatically compile books with the relevant external programs. ' +
         'For example, compile LaTeX with pdflatex. Note: Only works ' +
         'for logical combinations'],
+    autocropPref: ['Array<glift.enums.boardRegions>', [],
+        'Array of preferred boardregions for cropping purposes'],
 
     // Extra book parts
     foreward: ['file name (must be in markdown)', 'foreward.md', 
