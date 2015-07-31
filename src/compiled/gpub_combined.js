@@ -3182,6 +3182,14 @@ gpub.defaultOptions = {
    */
   template: null,
 
+  /**
+   * List of autocropping preferences. Each element in the array should be a
+   * member of glift.enums.boardRegions.
+   *
+   * Note: this may change if we ever support close-cropping.
+   */
+  autocropPrefs: [],
+
   ////////////////////////////
   // DiagramSpecificOptions //
   ////////////////////////////

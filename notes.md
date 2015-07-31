@@ -47,7 +47,9 @@ keeping them in my head.
 
 - __Contextual Diagram Placement__: Right now, there is no logic around the way
   diagrams are placed within a page. However, being smarter about diagram
-  placement means having higher diagram density and lower costs.
+  placement means having higher diagram density and lower printing costs.
+
+    - Sort of Done.
 
 - __Smart Go Support__: SmartGo support would be awesome. It only targets iOS
   and OSX, but I the integration is much easier than a full PDF.
