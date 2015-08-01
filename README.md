@@ -42,17 +42,28 @@ Structure of the options object in the API
   // based on the output format
   template: null,
 
-  // Options specificaly for book processors.  These options are generally
-  // specified within the template.
-  bookOptions: {}
+  // Options specificaly for book processors.  These options are generally 
+  // specified within the template. Note: This is also where the frontmatter
+  // is specified.
+  bookOptions: {
+    introduction: 'This is **my** introduction' // Input in markdown.
+  }
 };
 ```
 
 ### Installation
 
-For font-installation instructions, [Kashomon/go-type1](www.github.com/Kashomon/go-type1). The recommended font is gnos.
+1. Install [LaTeX](http://www.latex-project.org/)
+2. Install the GNos Font. For font-installation instructions,
+   [Kashomon/go-type1](www.github.com/Kashomon/go-type1). The recommended font
+   is gnos.
+3. Install [NodeJS](https://nodejs.org/)
+3. Download this repository and in your `.bashrc` or `.bash_profile` (whichever
+   makes most sense), set 
 
-_TODO(kashomon): Discuss how to install GPub once it is more stable._
+```shell
+PATH=/Users/kashomon/inprogress/gpub/scripts:$PATH
+```
 
 ### The Glift Spec
 
@@ -68,7 +79,8 @@ Currently gpub supports two book purposes:
 
 ###  Book Generation
 
-Once we have generated the Glift Spec, we can proceed with the task of generating a book.   Book generation is configured by the following parameters:
+Once we have generated the Glift Spec, we can proceed with the task of
+generating a book.   Book generation is configured by the following parameters:
 
 #### Output Format
 
@@ -86,6 +98,7 @@ The __`Output Format`__ represents type of data that GPub produces.  Some curren
     rasterized images.
 
 #### Diagram Type
+
 __`Diagram Type`__ indicates how diagrams should be rendered. Note that most diagrams
 have an intended target output format. It is left as future work to indicate to
 the user how the diagram types are restricted.
