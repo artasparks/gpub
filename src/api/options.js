@@ -65,10 +65,15 @@ gpub.defaultOptions = {
   template: null,
 
   /**
+   * Whether or not to perform box-cropping on variations.
+   */
+  autoBoxCropOnVariation: false,
+
+  /**
    * List of autocropping preferences. Each element in the array should be a
    * member of glift.enums.boardRegions.
    *
-   * Note: this may change if we ever support close-cropping.
+   * Note: this may change if we ever support minimal/close-cropping.
    */
   autocropPrefs: [],
 

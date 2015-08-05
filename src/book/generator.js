@@ -140,15 +140,18 @@ gpub.book._Generator.prototype = {
     // they really must, but millions of diagrams would imply hundreds of
     // thousands of pages.
     var max = opts.maxDiagrams ? opts.maxDiagrams : 1000000;
+    var autoCropVar = opts.autoBoxCropOnVariation;
     for (var i = opts.skipDiagrams;
         i < mgr.sgfCollection.length && i < max; i++) {
       var sgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(i));
       var sgfId = this.getSgfId(sgfObj);
       var mt = this.getMovetree(sgfObj, sgfId);
+      var performAutoCrop = autoCropVar && !mt.onMainline();
 
       var flattened = glift.flattener.flatten(mt, {
           nextMovesTreepath: sgfObj.nextMovesPath,
-          boardRegion: sgfObj.boardRegion
+          boardRegion: sgfObj.boardRegion,
+          autoBoxCropOnNextMoves: performAutoCrop
       });
 
       var ctx = gpub.book.getDiagramContext(mt, flattened, sgfObj);
