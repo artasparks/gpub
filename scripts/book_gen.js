@@ -104,7 +104,7 @@ if (workingDir) {
   if (flags.processed.outputFormat === 'LATEX') {
     var fname = 'mybook.tex';
     if (flags.processed.outputFileName) {
-      fname = path.join(flags.processed.outputFileName, lastPart) + '.tex';
+      fname = path.join(workingDir, flags.processed.outputFileName) + '.tex';
     } else {
       fname = path.join(workingDir, lastPart) + '.tex';
     }

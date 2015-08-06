@@ -1,0 +1,141 @@
+\documentclass[letterpaper,12pt]{memoir}
+\usepackage{color}
+\usepackage{wrapfig}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{xmpincl}
+\usepackage[margin=1in]{geometry}
+%%% Define any extra packages %%%
+\usepackage{gnos}
+%%% Page Settings Preamble %%%
+\setstocksize{11in}{8.5in}
+\settrimmedsize{\stockheight}{\stockwidth}{*}
+\settypeblocksize{0.85\stockheight}{0.85\stockwidth}{*}
+\setulmargins{*}{*}{1.618}
+\setlrmargins{*}{*}{1}
+\setheaderspaces{*}{*}{1.618}
+\checkandfixthelayout
+%%% End Page Settings Preamble %%%
+
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+%%% Diagram Figure defs.
+% Must expose two commands
+%  \gofigure  (mainline diagrams)
+%  \godiagram (variation diagrams)
+% Mainline Diagrams. reset at parts
+\newcounter{GoFigure}[part]
+
+\newcommand{\gofigure}{%
+ \stepcounter{GoFigure}
+ \centerline{\textit{Diagram.\thinspace\arabic{GoFigure}}}
+}
+% Variation Diagrams. reset at parts.
+\newcounter{GoVariation}[part]
+
+\newcommand{\govariation}{%
+ \stepcounter{GoVariation}
+ \textit{Variation.\thinspace\arabic{GoVariation}}
+}
+
+\newcommand{\subtext}[1]{\centerline{\textit{#1}}}
+
+%%% Define the main title %%%
+\definecolor{light-gray}{gray}{0.55}
+\newcommand*{\mainBookTitle}{\begingroup
+  \raggedleft
+  \vspace*{5 em}
+  {\textcolor{light-gray}{\Huge{My Book}}}\\
+  \vspace*{\baselineskip}
+  \vfill
+  {\Large{GPub}}\par
+  \vspace*{2\baselineskip}
+\endgroup}
+ %%% Chapter settings %%%
+\chapterstyle{madsen}
+\openany
+\makepagestyle{headings}
+\setlength{\headwidth}{\textwidth}
+\makeevenhead{headings}{\thepage}{}{\slshape\leftmark}
+\makeoddhead{headings}{\slshape\rightmark}{}{\thepage}
+\makerunningwidth{headings}[\textwidth]{\textwidth}
+\pagestyle{companion}
+\makerunningwidth{companion}{\headwidth}
+
+\begin{document}
+%%% The Frontmatter. %%%
+\begin{titlingpage}
+\mainBookTitle
+\end{titlingpage}
+
+
+\newpage
+\frontmatter
+
+\tableofcontents*
+
+
+
+
+
+%%% The content. %%%
+\mainmatter
+\chapter{9th Samsung Cup - Game Two}
+\phantomsection
+\label{11-20041118:mainmove-1}
+{\centering
+\gnosfontsize{12}
+{\gnos
+<((((((((\gnosOverlap{@}{\color{white}\footnotesize{49}}(((\gnosOverlap{@}{\color{white}\footnotesize{65}}\gnosOverlap{!}{\footnotesize{56}}\gnosOverlap{@}{\color{white}\footnotesize{61}}\gnosOverlap{!}{\footnotesize{60}}\gnosOverlap{!}{\footnotesize{62}}>\\
+\char91+\gnosOverlap{@}{\color{white}\footnotesize{75}}\gnosOverlap{@}{\color{white}\footnotesize{69}}\gnosOverlap{!}{\footnotesize{74}}++\gnosOverlap{@}{\color{white}\footnotesize{73}}\gnosOverlap{@}{\color{white}\footnotesize{47}}\gnosOverlap{!}{\footnotesize{46}}\gnosOverlap{!}{\footnotesize{50}}\gnosOverlap{!}{\footnotesize{48}}\gnosOverlap{!}{\footnotesize{66}}\gnosOverlap{!}{\footnotesize{32}}\gnosOverlap{@}{\color{white}\footnotesize{31}}\gnosOverlap{@}{\color{white}\footnotesize{33}}+\gnosOverlap{@}{\color{white}\footnotesize{57}}\gnosOverlap{@}{\color{white}\footnotesize{59}}\\
+\char91{\gnosbi\char11}\gnosOverlap{@}{\color{white}\footnotesize{67}}\gnosOverlap{!}{\footnotesize{68}}\gnosOverlap{@}{\color{white}\footnotesize{93}}\gnosOverlap{@}{\color{white}\small{7}}\gnosOverlap{@}{\color{white}\footnotesize{83}}\gnosOverlap{!}{\footnotesize{72}}\gnosOverlap{!}{\footnotesize{70}}\gnosOverlap{@}{\color{white}\footnotesize{45}}\gnosOverlap{!}{\footnotesize{44}}+\gnosOverlap{!}{\footnotesize{64}}\gnosOverlap{@}{\color{white}\footnotesize{63}}\gnosOverlap{!}{\footnotesize{30}}\gnosOverlap{@}{\color{white}\footnotesize{19}}\gnosOverlap{@}{\color{white}\footnotesize{15}}\gnosOverlap{@}{\color{white}\footnotesize{17}}\gnosOverlap{!}{\footnotesize{58}}\\
+\char91{\gnoswi\char12}\gnosOverlap{!}{\footnotesize{92}}\gnosOverlap{!}{\small{2}}+\gnosOverlap{@}{\color{white}\footnotesize{79}}\gnosOverlap{!}{\footnotesize{78}}\gnosOverlap{!}{\footnotesize{76}}\gnosOverlap{@}{\color{white}\footnotesize{71}}\gnosOverlap{@}{\color{white}\small{9}}++\gnosOverlap{!}{\footnotesize{34}}+\gnosOverlap{!}{\footnotesize{18}}\gnosOverlap{@}{\color{white}\small{1}}\gnosOverlap{!}{\footnotesize{14}}\gnosOverlap{!}{\footnotesize{52}}]\\
+\char91\gnosOverlap{!}{\footnotesize{96}}\gnosOverlap{@}{\color{white}\footnotesize{91}}\gnosOverlap{!}{\footnotesize{90}}\gnosOverlap{!}{\footnotesize{88}}\gnosOverlap{@}{\color{white}\footnotesize{81}}\gnosOverlap{!}{\footnotesize{80}}\gnosOverlap{@}{\color{white}\footnotesize{77}}+{\gnoswi\char10}++\gnosEmptyLbl{\small{A}}+\gnosOverlap{!}{\footnotesize{22}}\gnosOverlap{@}{\color{white}\footnotesize{23}}\gnosOverlap{!}{\footnotesize{16}}\gnosOverlap{@}{\color{white}\footnotesize{11}}]\\
+\char91+\gnosOverlap{!}{\small{8}}\gnosOverlap{@}{\color{white}\footnotesize{89}}\gnosOverlap{@}{\color{white}\footnotesize{85}}\gnosOverlap{!}{\footnotesize{84}}\gnosOverlap{!}{\footnotesize{82}}++++\gnosOverlap{@}{\color{white}\footnotesize{35}}+\gnosOverlap{@}{\color{white}\footnotesize{27}}\gnosOverlap{@}{\color{white}\footnotesize{25}}\gnosOverlap{!}{\footnotesize{24}}\gnosOverlap{!}{\footnotesize{10}}\gnosOverlap{!}{\footnotesize{12}}]\\
+{\gnoswi\char24}\gnosOverlap{!}{\footnotesize{98}}\gnosOverlap{@}{\color{white}\footnotesize{95}}\gnosOverlap{@}{\color{white}\footnotesize{87}}\gnosOverlap{!}{\footnotesize{86}}{\gnoswi\char4}++++++\gnosOverlap{@}{\color{white}\footnotesize{37}}\gnosOverlap{!}{\footnotesize{36}}\gnosOverlap{!}{\footnotesize{26}}\gnosOverlap{!}{\footnotesize{54}}\gnosOverlap{@}{\color{white}\footnotesize{53}}+]\\
+{\gnoswi\char0}\gnosOverlap{@}{\color{white}\footnotesize{99}}+\gnosEmptyLbl{\small{B}}\gnosOverlap{!}{\footnotesize{94}}+{\gnosbi\char1}+++\gnosOverlap{@}{\color{white}\footnotesize{43}}\gnosOverlap{@}{\color{white}\footnotesize{39}}\gnosOverlap{!}{\footnotesize{38}}\gnosOverlap{!}{\footnotesize{42}}+\gnosOverlap{!}{\footnotesize{20}}\gnosOverlap{@}{\color{white}\footnotesize{13}}+]\\
+{\gnosbi\char23}{\gnosbi\char9}+\gnosOverlap{@}{\color{white}\footnotesize{97}}{\gnoswi\char2}+++++\gnosOverlap{@}{\color{white}\footnotesize{55}}\gnosOverlap{!}{\footnotesize{40}}\gnosOverlap{@}{\color{white}\footnotesize{41}}{\gnoswi\char14}\gnosOverlap{!}{\footnotesize{28}}\gnosOverlap{@}{\color{white}\footnotesize{21}}++]\\
+\char91++{\gnosbi\char3}+++++*+\gnosOverlap{@}{\color{white}\footnotesize{51}}+++\gnosOverlap{@}{\color{white}\footnotesize{29}}++]\\
+\char91++++++++++++{\gnoswi\char68}{\gnosbi\char65}+\gnosOverlap{@}{\color{white}\small{5}}+]\\
+\char91++++++++{\gnosbi\char63}+{\gnoswi\char60}+{\gnoswi\char64}{\gnosbi\char35}+++]\\
+\char91{\gnosbi\char21}{\gnosbi\char15}{\gnoswi\char22}++++{\gnoswi\char62}{\gnosbi\char61}{\gnosbi\char57}{\gnoswi\char54}+{\gnoswi\char34}{\gnoswi\char66}{\gnoswi\char32}++]\\
+\char91{\gnosbi\char25}{\gnoswi\char20}{\gnosbi\char51}+++{\gnosbi\char55}{\gnosbi\char71}{\gnoswi\char50}{\gnoswi\char58}{\gnosbi\char59}++++{\gnosbi\char33}+]\\
+{\gnosbi\char53}{\gnoswi\char18}{\gnoswi\char52}++++{\gnosbi\char69}{\gnoswi\char56}++{\gnosbi\char43}{\gnosbi\char39}++{\gnoswi\char26}{\gnosbi\char31}+]\\
+\char91{\gnosbi\char17}{\gnoswi\char6}\gnosOverlap{!}{\small{4}}{\gnoswi\char8}++{\gnoswi\char70}{\gnoswi\char72}*{\gnoswi\char44}{\gnoswi\char38}{\gnosbi\char29}{\gnosbi\char67}{\gnoswi\char28}*{\gnosbi\char27}+]\\
+\char91{\gnosbi\char19}{\gnosbi\char5}{\gnosbi\char7}{\gnoswi\char16}+\gnosOverlap{!}{\small{6}}+{\gnosbi\char13}+{\gnoswi\char40}{\gnosbi\char37}{\gnoswi\char36}{\gnosbi\char45}{\gnoswi\char30}\gnosOverlap{@}{\color{white}\small{3}}++]\\
+\char91+++++++++{\gnoswi\char42}{\gnosbi\char41}{\gnoswi\char46}{\gnosbi\char47}{\gnosbi\char49}+++]\\
+,)))))))))){\gnoswi\char48})))))).\\
+}
+}
+\gofigure
+\subtext{(Moves: 1-172)}
+
+\textbf{November 18 2004, Ulsan, Korea: 9th Samsung Cup Semifinals, Game Two}
+
+\textit{Lee Sedol 9d (black) vs Gu Li 7d}
+
+{\raisebox{-.17em}{\textnormal{\gnosOverlap{@}{\color{white}\footnotesize{11}}}}} and {\raisebox{-.17em}{\textnormal{\gnosOverlap{@}{\color{white}\footnotesize{13}}}}} were unusual, and {\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\footnotesize{14}}}}} to {\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\footnotesize{18}}}}} were good followups.
+{\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\footnotesize{20}}}}} was too much, but {\raisebox{-.17em}{\textnormal{\gnosOverlap{@}{\color{white}\footnotesize{21}}}}} was a mistake (should be at 22 or 25).
+ {\raisebox{-.17em}{\textnormal{\gnosOverlap{@}{\color{white}\footnotesize{29}}}}} was also slack, and that should be at A instead.
+White was happy to have a nice shape at the top with {\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\footnotesize{34}}}}}, and that was hard for Black to attack.
+{\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\footnotesize{38}}}}} and {\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\footnotesize{40}}}}} were strong and nice to take sente, and White was happy to settle at the top up to {\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\footnotesize{50}}}}}.
+
+{\raisebox{-.17em}{\textnormal{\gnosOverlap{@}{\color{white}\footnotesize{51}}}}} would have been better at {\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\footnotesize{52}}}}}.
+{\raisebox{-.17em}{\textnormal{\gnosOverlap{@}{\color{white}\footnotesize{55}}}}} was a wrong decision. Black sacrificed the top right corner, but actually that's a bit too big to give away.
+{\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\footnotesize{70}}}}} was well timed, and the game up to {\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\footnotesize{84}}}}} was still good for White.
+{\raisebox{-.17em}{\textnormal{\gnosOverlap{@}{\color{white}\footnotesize{87}}}}} and {\raisebox{-.17em}{\textnormal{\gnosOverlap{@}{\color{white}\footnotesize{89}}}}} were aggressive, and {\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\footnotesize{88}}}}} and {\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\footnotesize{90}}}}} were nice responses.
+{\raisebox{-.17em}{\textnormal{\gnosOverlap{@}{\color{white}\footnotesize{91}}}}} was inevitable to prevent the ladder from B, but {\raisebox{-.17em}{\textnormal{\gnosOverlap{@}{\color{white}\footnotesize{95}}}}} (should be at 98) and {\raisebox{-.17em}{\textnormal{\gnosOverlap{@}{\color{white}\footnotesize{97}}}}} (should still be at 98) were mistakes.
+The result up to {\raisebox{-.17em}{\textnormal{{\gnoswi\char0}}}} was too easy for White.
+
+Black played aggressively to catch up from {\raisebox{-.17em}{\textnormal{{\gnosbi\char5}}}} to {\raisebox{-.17em}{\textnormal{{\gnosbi\char25}}}}, but White was still leading with {\raisebox{-.17em}{\textnormal{{\gnoswi\char26}}}}.
+{\raisebox{-.17em}{\textnormal{{\gnoswi\char40}}}} and {\raisebox{-.17em}{\textnormal{{\gnoswi\char42}}}} were good choice to simplify the game.
+{\raisebox{-.17em}{\textnormal{{\gnosbi\char57}}}} and 159 were Black's last hope to attack, but White managed to save the group without a big trouble up to {\raisebox{-.17em}{\textnormal{{\gnoswi\char68}}}}, and the game was decided.
+
+\textbf{172 moves: White won by resignation.}
+
+
+\vfill
+
+\end{document}
