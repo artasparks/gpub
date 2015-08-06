@@ -35,9 +35,9 @@
 % Variation Diagrams. reset at parts.
 \newcounter{GoVariation}[part]
 
-\newcommand{\govariation}[1][]{%
+\newcommand{\govariation}{%
  \stepcounter{GoVariation}
- \centerline{\textit{Variation.\thinspace\arabic{GoVariation}#1}}
+ \textit{Variation.\thinspace\arabic{GoVariation}}
 }
 
 \newcommand{\subtext}[1]{\centerline{\textit{#1}}}
@@ -83,6 +83,8 @@
 %%% The content. %%%
 \mainmatter
 \chapter{9th Samsung Cup - Game One}
+\phantomsection
+\label{sgf:0:mainmove-1}
 {\centering
 \gnosfontsize{12}
 {\gnos
@@ -108,7 +110,6 @@
 }
 }
 \gofigure
-
 \subtext{(Moves: 1-228)}
 
 \subtext{{\raisebox{-.17em}{\textnormal{{\gnosbi\char15}}}} at 110, {\raisebox{-.17em}{\textnormal{{\gnoswi\char48}}}} at 116, {\raisebox{-.17em}{\textnormal{{\gnosbi\char51}}}} at 133}

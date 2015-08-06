@@ -15,6 +15,7 @@ var flags = flagz.init(
   {
     outputFormat: ['string', 'LATEX', 'The output format for the book.'],
     directory: ['string', '', 'The directory from which to process SGFs.'],
+    outputFileName: ['string', '', 'Defaults to directory name'],
     pageSize: ['gpub.book.page.type', 'LETTER',
         'Size of the output page (stock/trim size).'],
     gnosFontSize: ['gpub.diagrams.gnos.sizes', '12', 'Size of gnos diagram.'],
@@ -49,8 +50,14 @@ if (flags.processed.directory) {
   workingDir = path.resolve(flags.processed.directory);
 }
 
+var workingDirForFilez = workingDir
+if (flags.args.length) {
+  // Assume the user doesn't want the entire directory processed
+  workingDirForFilez = '';
+}
+
 var def = filez.readFromDirAndArgs(
-    workingDir, flags.args, '', '\\.sgf');
+    workingDirForFilez, flags.args, '', '\\.sgf');
 
 // Create an array of SGFs to process.
 var sgfArr = [] ;
@@ -95,7 +102,12 @@ if (workingDir) {
   var parts = workingDir.split(path.sep)
   var lastPart = parts[parts.length -1];
   if (flags.processed.outputFormat === 'LATEX') {
-    var fname = path.join(workingDir, lastPart) + '.tex';
+    var fname = 'mybook.tex';
+    if (flags.processed.outputFileName) {
+      fname = path.join(flags.processed.outputFileName, lastPart) + '.tex';
+    } else {
+      fname = path.join(workingDir, lastPart) + '.tex';
+    }
     fs.writeFileSync(fname, book);
     if (flags.processed.autoCompile) {
       console.log('Compiling with pdflatex');
