@@ -1620,7 +1620,7 @@ gpub.book.latex.defaultTemplate = [
 '<%/frontmatter.generateToc%>',
 '',
 '<%#frontmatter.foreward%>',
-'\\chapter{Forward}',
+'\\chapter{Foreward}',
 '<%frontmatter.foreward.text%>',
 '<%/frontmatter.foreward%>',
 '',
