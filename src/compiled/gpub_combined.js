@@ -1508,7 +1508,7 @@ gpub.book.latex.defaultTemplate = [
 '',
 '\\newcommand{\\gofigure}{%',
 ' \\stepcounter{GoFigure}',
-' \\centerline{\\textit{Diagram.\\thinspace\\arabic{GoFigure}}}',
+' \\centerline{\\textit{Diagram \\thinspace\\arabic{GoFigure}}}',
 '}',
 
 '% Variation Diagrams. reset at parts.',
@@ -1516,7 +1516,7 @@ gpub.book.latex.defaultTemplate = [
 '',
 '\\newcommand{\\govariation}{%',
 ' \\stepcounter{GoVariation}',
-' \\textit{Variation.\\thinspace\\arabic{GoVariation}}',
+' \\textit{Variation \\thinspace\\arabic{GoVariation}}',
 '}',
 '',
 '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
