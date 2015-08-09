@@ -1314,9 +1314,10 @@ gpub.book.latex.context = {
         }
         baseLabel += '\\textit{from} '
         baseLabel += readableColor + ' ' + mainMoveNum + '';
-        if (ref) {
-          baseLabel += '\\ref{' + ref  + '}}'
-        }
+        // if (ref) {
+          // baseLabel += '\\ref*{' + ref  + '}}'
+        // }
+        baseLabel += '}';
       }
       baseLabel += '}';
     }
