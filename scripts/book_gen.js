@@ -23,10 +23,10 @@ var flags = flagz.init(
         'Automatically compile books with the relevant external programs. ' +
         'For example, compile LaTeX with pdflatex. Note: Only works ' +
         'for logical combinations'],
+
     autoBoxCropOnVariation: ['boolean', false,
         'Automatically perform box crop on the variation'],
-
-    autoCropPref: ['Array<glift.enums.boardRegions>', [],
+    regionRestrictions: ['Array<glift.enums.boardRegions>', null,
         'Array of preferred boardregions for cropping purposes'],
 
     // Extra book parts
@@ -70,6 +70,7 @@ var options = {
   pageSize: flags.processed.pageSize,
   gnosFontSize: flags.processed.gnosFontSize,
   autoBoxCropOnVariation: flags.processed.autoBoxCropOnVariation,
+  regionRestrictions: flags.processed.regionRestrictions,
   bookOptions: {
     frontmatter: {}
   }

@@ -75,7 +75,7 @@ gpub.defaultOptions = {
    *
    * Note: this may change if we ever support minimal/close-cropping.
    */
-  autocropPrefs: [],
+  regionRestrictions: [],
 
   ////////////////////////////
   // DiagramSpecificOptions //

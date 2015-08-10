@@ -64,6 +64,22 @@ var FlagzDef = function(helptext, args, flagdefs) {
 };
 
 FlagzDef.prototype = {
+  /** Processes a flag's type. */
+  _processFlagType: function(value, flagarr) {
+    var flagtype = flagarr[0];
+    if (flagtype === 'boolean') {
+      if (value === 'false' || value === '0') {
+        value = false;
+      } else {
+        value = true;
+      }
+    }
+    if (/Array.*/.test(flagtype)) {
+      value = value.split(',');
+    }
+    return value;
+  },
+
   /**
    * Process command line flags and arguments based on the flag definition.
    */
@@ -99,42 +115,41 @@ FlagzDef.prototype = {
         // get the flag 'value'. The value will have the form --foo=bar or -f
         // bar.
         var flagname = item.replace(flagregex, '')
-        var value = null;
+        var origFlagName = flagname; // for testing --blah=bif patterns below
         if (/^[a-zA-Z_]+=/.test(flagname)) {
-          // This flag has the form --foo=. So, split on = and the second part
-          // is the value.
-          var splat = flagname.split('=', 2);
-          flagname = splat[0];
-          value = splat[1];
+          flagname = flagname.split('=')[0];
         }
-
         // convert under_score_delimited to camelCase
-        var flagname = flagname.replace(/(_[a-z])/g, function(m) {
+        flagname = flagname.replace(/(_[a-z])/g, function(m) {
           return m.slice(1).toUpperCase();
         });
-
-        // TODO(kashomon): support arrays and booleans
 
         // Recall that the flag arr has the format
         //  [type, default value, description]
         var flagarr = this.flagdefs[flagname];
         if (flagarr === undefined) {
-          // if (/^no.*$/.test
           return this.unknownFlag(flagname);
         }
 
-        var flagtype = flagarr[0];
-        if (i + 1 < process.argv.length && value === null) {
+        var value = null;
+        if (/^[a-zA-Z_]+=/.test(origFlagName)) {
+          // This flag has the form --foo=. So, split on = and the second part
+          // is the value.
+          var splat = origFlagName.split('=', 2);
+          value = splat[1];
+          value = this._processFlagType(value, flagarr);
+        }
+
+        // Assume the flag has the pattern --foo bar
+        if (i + 1 < process.argv.length && value == null) {
           // The flag value is still null. We need to peek at the next value in
           // the process args. Ideally, the flag has the format --foo bar
-          value = process.argv[i + 1];
-          if (flagtype === 'boolean') {
-            // Boolean values are special. We allow --foo as truthy and --no
-          }
+          value = process.argv[i + 1]; // peek!
           if (flagregex.test(value)) {
             // The next value is a flag value. This is an error.
             return this.unknownFlag(flagname);
           }
+          value = this._processFlagType(value, flagarr);
           i++;
         }
         this.validateFlag(flagname, value);
