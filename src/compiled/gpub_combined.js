@@ -940,19 +940,19 @@ gpub.book._Generator.prototype = {
     // they really must, but millions of diagrams would imply hundreds of
     // thousands of pages.
     var max = opts.maxDiagrams ? opts.maxDiagrams : 1000000;
-    var autoCropVar = opts.autoBoxCropOnVariation;
     var regionRestrictions = opts.regionRestrictions;
     for (var i = opts.skipDiagrams;
         i < mgr.sgfCollection.length && i < max; i++) {
       var sgfObj = mgr.loadSgfStringSync(mgr.getSgfObj(i));
+      var nextMoves = glift.rules.treepath.parseFragment(sgfObj.nextMovesPath);
       var sgfId = this.getSgfId(sgfObj);
       var mt = this.getMovetree(sgfObj, sgfId);
-      var performAutoCrop = autoCropVar && !mt.onMainline();
+      var autoVarCrop = this._shouldPerformAutoCropOnVar(mt, nextMoves)
 
       var flattened = glift.flattener.flatten(mt, {
-          nextMovesTreepath: sgfObj.nextMovesPath,
+          nextMovesTreepath: nextMoves,
           boardRegion: sgfObj.boardRegion,
-          autoBoxCropOnNextMoves: performAutoCrop,
+          autoBoxCropOnNextMoves: autoVarCrop,
           regionRestrictions: regionRestrictions
       });
 
@@ -960,6 +960,26 @@ gpub.book._Generator.prototype = {
 
       fn(i, mt, flattened, ctx, sgfId);
     }
+  },
+
+  /**
+   * Whether autocropping on variations should be performed.
+   */
+  _shouldPerformAutoCropOnVar: function(mt, nextMoves) {
+    var performAutoCrop = this.options().autoBoxCropOnVariation;
+    nextMoves = nextMoves || [];
+    if (performAutoCrop && mt.onMainline()) {
+      if (nextMoves.length == 0) {
+        performAutoCrop = false;
+      } else {
+        // It's possible that the next moves path continues on the mainline for
+        // a while and then diverts to a branch, but this doesn't currently
+        // happen due to the way specs are generated. Thus, we only check the
+        // first move in the nextMoves path.
+        performAutoCrop = nextMoves[0] > 0;
+      }
+    }
+    return performAutoCrop;
   },
 
   /**

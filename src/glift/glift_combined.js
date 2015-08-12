@@ -11046,8 +11046,8 @@ glift.orientation.getQuadCropFromMovetree = function(movetree, nextMovesPath) {
     // the variation.  I.e., it the first move we want to consider is when the
     // movetree + the first variation in the nextMovesPath.
     for (var i = 0; i < nextMovesPath.length; i++) {
-      movetree.moveDown(nextMovesPath[i]);
       tracker(movetree);
+      movetree.moveDown(nextMovesPath[i]);
     }
   } else {
     movetree.recurseFromRoot(tracker);
@@ -11296,8 +11296,10 @@ glift.flattener = {
       }
       // The user has decided to manuall specify a set of region restrictions.
       for (var i = 0; i < regionRestrictions.length; i++) {
-        if (regionRestrictions[i] === boardRegion) {
-          return boardRegion;
+        // We return the first region that matches. The order of the array
+        // should give the preference of regions.
+        if (boardRegion.indexOf(regionRestrictions[i]) > -1) {
+          return regionRestrictions[i];
         }
       }
       return glift.enums.boardRegions.ALL;
