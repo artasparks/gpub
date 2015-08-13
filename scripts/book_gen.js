@@ -57,7 +57,7 @@ if (flags.args.length) {
 }
 
 var def = filez.readFromDirAndArgs(
-    workingDirForFilez, flags.args, '', '\\.sgf');
+    workingDirForFilez, flags.args, '', '\\.sgf$');
 
 // Create an array of SGFs to process.
 var sgfArr = [] ;
