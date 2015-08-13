@@ -126,34 +126,59 @@ gpub.diagrams = {
    */
   _constructLabel: function(collisions, isOnMainline, startNum, endNum) {
     var baseLabel = '';
-    var breakLineNum = 3;
+
     if (isOnMainline) {
+      // If we're on the mainline branch, construct a label that's like:
+      // (Moves: 1-12)
+      // or 
+      // (Move: 32)
       var nums = [startNum];
       if (startNum !== endNum) {
+        // Note: Currently the API is such that if there's only one move, then
+        // startNum == endNum.
         nums.push(endNum);
       }
       var moveLabel = nums.length > 1 ? 'Moves: ' : 'Move: ';
       baseLabel += '(' + moveLabel + nums.join('-') + ')';
     }
 
-    if (collisions && collisions.length) {
-      var buffer = [];
-      for (var i = 0; i < collisions.length; i++) {
-        var c = collisions[i];
-        var col = c.color === glift.enums.states.BLACK ? 'Black' : 'White';
-        buffer.push(col + ' ' + c.mvnum + ' at ' + c.label);
-        if ((i + 1) % breakLineNum === 0 || i === collisions.length - 1) {
-          // Flush the buffer
-          if (baseLabel) {
-            baseLabel += '\n';
-          }
-          baseLabel += buffer.join(', ');
-          buffer = [];
-        }
-      }
-      baseLabel += '.';
+    // No Collisions! Woohoo
+    if (collisions == null || collisions.length === 0) {
+      return baseLabel;
     }
 
+    // First we collect all the labels by type, being careful to perserve the
+    // ordering in which the labels came in.
+    var labelToColArr = {};
+    var labelOrdering = [];
+    for (var i = 0; i < collisions.length; i++) {
+      var c = collisions[i];
+      if (!labelToColArr[c.label]) {
+        labelOrdering.push(c.label);
+        labelToColArr[c.label] = [];
+      }
+      labelToColArr[c.label].push(c);
+    }
+
+    // Now we construct rows that look like:
+    //
+    // Black 13, White 16, Black 19 at a
+    // Black 14, White 17, Black 21 at 3
+    var allRows = []
+    for (var k = 0; k < labelOrdering.length; k++) {
+      var label = labelOrdering[k];
+      var colArr = labelToColArr[label];
+      var row = [];
+      for (var i = 0; i < colArr.length; i++) {
+        var c = colArr[i];
+        var color = c.color === glift.enums.states.BLACK ? 'Black' : 'White';
+        row.push(color + ' ' + c.mvnum);
+      }
+      var rowString = row.join(', ') + ' at ' + label;
+      allRows.push(rowString);
+    }
+    if (baseLabel) { baseLabel += '\n'; }
+    baseLabel += allRows.join(',\n') + '.';
     return baseLabel;
   }
 };
