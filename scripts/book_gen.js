@@ -112,7 +112,8 @@ if (workingDir) {
     fs.writeFileSync(fname, book);
     if (flags.processed.autoCompile) {
       console.log('Compiling with pdflatex');
-      child_process.execSync('cd ' + workingDir + ' && which pdflatex && pdflatex ' + fname);
+      var outputDirectory = path.dirname(fname);
+      child_process.execSync('cd ' + outputDirectory + ' && which pdflatex && pdflatex ' + fname);
     }
   } else {
     console.log(book);
