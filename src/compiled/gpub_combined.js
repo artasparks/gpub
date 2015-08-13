@@ -2781,8 +2781,8 @@ gpub.diagrams.gooe.symbolMap = {
    * single symbol. Also, if we display a symbol or stone, we don't display the
    * base layer.
    */
-  BSTONE_TRIANGLE: '\\0??S',
-  WSTONE_TRIANGLE: '\\0??s',
+  BSTONE_TRIANGLE: '\\0??T',
+  WSTONE_TRIANGLE: '\\0??t',
   TRIANGLE: '\\0??3',
   BSTONE_SQUARE: '\\0??S',
   WSTONE_SQUARE: '\\0??s',
@@ -3044,8 +3044,8 @@ gpub.diagrams.gnos.symbolMap = {
    * single symbol. Also, if we display a symbol or stone, we don't display the
    * base layer.
    */
-  BSTONE_TRIANGLE: 'S',
-  WSTONE_TRIANGLE: 's',
+  BSTONE_TRIANGLE: 'T',
+  WSTONE_TRIANGLE: 't',
   TRIANGLE: '3',
   BSTONE_SQUARE: 'S',
   WSTONE_SQUARE: 's',
