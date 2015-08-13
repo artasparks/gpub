@@ -2108,9 +2108,18 @@ gpub.spec = {
    * Creates a glift spec from an array of sgf data. At this point, we assume
    * the validity of the options passed in. In other words, we expect that the
    * options have been processed by the API.
+   *
+   * sgfs: Array of SGF strings.
+   * options: Options object.
+   *
+   * - bookPurpose: required
+   * - boardRegion: required. Usually AUTO or ALL.
    */
   create: function(sgfs, options) {
     var spec = glift.util.simpleClone(gpub.spec._defaultSpec);
+    if (!options.bookPurpose) {
+      throw new Error('Book Purpose must be defined');
+    }
     var processor = gpub.spec._getSpecProcessor(options.bookPurpose);
 
     spec.sgfDefaults = glift.util.simpleClone(
@@ -2120,7 +2129,10 @@ gpub.spec = {
     for (var i = 0; sgfs && i < sgfs.length; i++) {
       var sgfStr = sgfs[i];
       var mt = glift.parse.fromString(sgfStr);
-      var alias = mt.properties().getOneValue('GN') || 'sgf:' + i;
+      var alias = 'sgf:' + i;
+      if (mt.properties().contains('GN')) {
+        alias = mt.properties().getOneValue('GN') + ':' + i;
+      }
       if (!spec.sgfMapping[alias]) {
         spec.sgfMapping[alias] = sgfStr;
       }
