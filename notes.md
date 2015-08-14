@@ -8,7 +8,6 @@ keeping them in my head.
 * __Frontmatter__: The LaTeX book generator needs to support frontmatter before
   we can consider LaTeX generation complete. Frontmatter support is required
   before publishing. This will most like be a series of LaTeX includes.
-
     * **Done!**
 
 * __Validation__: To publish, PDF/X-1a:2001 or PDF/X-3:2002 is often
@@ -16,6 +15,8 @@ keeping them in my head.
   http://stackoverflow.com/questions/569129/how-can-i-test-a-pdf-document-if-it-is-pdf-a-compliant
   There's also a LaTeX package called pdfx. It has some problems, but might be
   able to adapt it. Might be able to hack it manually,
+
+http://tex.stackexchange.com/questions/242303/pdf-x-1a-on-tex-live-2014-for-publishing-with-pod-lightining-source
 
 * __Book Interface__: The interface for book should probably be changed from
   returning string to returning a more complex data type. Right now we can
@@ -48,7 +49,6 @@ keeping them in my head.
 - __Contextual Diagram Placement__: Right now, there is no logic around the way
   diagrams are placed within a page. However, being smarter about diagram
   placement means having higher diagram density and lower printing costs.
-
     - Sort of Done.
 
 - __Smart Go Support__: SmartGo support would be awesome. It only targets iOS
@@ -57,3 +57,4 @@ keeping them in my head.
 - __Better Cropping__: Only for game commentary. It would sometimes be nice to
   crop a diagram as tightly as possible (crop based only on the variation, not
   on the existing stones).
+    - Sort of Done.
