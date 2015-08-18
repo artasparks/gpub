@@ -13,7 +13,7 @@ var flags = flagz.init(
   }).process();
 
 var def = filez.readFromDirAndArgs(
-    flags.processed.directory, flags.args, '', '\\.gib');
+    flags.processed.directory, flags.args, null, '\\.gib$');
 
 for (var fname in def.contents) {
   var outFname = fname.replace(/.gib$/, '.sgf');

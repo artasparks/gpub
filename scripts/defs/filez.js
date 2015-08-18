@@ -7,6 +7,9 @@ var glift = require('./glift')
 var sgfRegex = /.*\.sgf$/;
 
 /**
+ * Dir: a directory path
+ * Args: the left over args (we assume these are files
+ *
  * Returns
  *  {
  *    collection: <glift collection (array)>
@@ -16,7 +19,7 @@ var sgfRegex = /.*\.sgf$/;
  *  }
  */
 var readFromDirAndArgs = function(dir, args, collectionFile, filter) {
-  var filter = filter || '.*';
+  var filter = filter || '\\.sgf$';
   var filterType = typeof filter;
   if (filter && filterType === 'string') {
     filter = new RegExp(filter);

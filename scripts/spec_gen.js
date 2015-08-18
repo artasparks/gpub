@@ -23,7 +23,7 @@ var flags = flagz.init(
 var collection = flags.processed.collection || null;
 
 var fileDef = filez.readFromDirAndArgs(
-    flags.processed.directory, flags.args, collection, '\\.sgf');
+    flags.processed.directory, flags.args, collection);
 
 var options = {};
 if (flags.processed.region) {

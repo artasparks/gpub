@@ -19,15 +19,20 @@ gpub.create = function(options) {
   // Process the options and fill in any missing values or defaults.
   options = gpub.processOptions(options);
 
+  // Ensure debugging mode reflects the options mode. Also ensure that debug is
+  // boolean.
+  gpub.global.debug = !!options.debug;
+
   // Create the glift specification.
   var spec = gpub.spec.create(sgfs, options);
 
   // Create the finished book (or whatever that means).
-  var book = gpub.book.create(spec, options)
+  var book = gpub.book.create(spec, options);
 
   // TODO(kashomon): return { contents: ..., diagrams: ... }
   return book;
 };
+
 
 /////////////
 // Private //

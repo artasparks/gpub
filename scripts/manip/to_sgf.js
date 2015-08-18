@@ -19,7 +19,7 @@ var flags = flagz.init(
   }).process();
 
 var filedef = filez.readFromDirAndArgs(
-    flags.processed.directory, flags.args, '.*');
+    flags.processed.directory, flags.args, null, '.*');
 
 var outSgf = [];
 for (var i = 0; i < filedef.contents.length; i++) {

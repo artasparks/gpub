@@ -131,7 +131,6 @@ gpub.defaultOptions = {
        * Generates the copyright page. Copyright should be an object with the
        * format listed below:
        *
-       *
        *  {
        *     "publisher": "Foo Publisher",
        *     "license": "All rights reserved.",
@@ -152,7 +151,12 @@ gpub.defaultOptions = {
        */
       copyright: null
     }
-  }
+  },
+
+  /**
+   * Whether or not debug information should be displayed.
+   */
+  debug: false
 };
 
 
@@ -198,8 +202,7 @@ gpub.outputFormat = {
  * Process the incoming options and set any missing values.
  */
 gpub.processOptions = function(options) {
-  var newo = {
-  };
+  var newo = {};
   var options = options || {};
 
   var simpleTemplate = function(target, base, template) {
@@ -248,7 +251,7 @@ gpub.processOptions = function(options) {
 };
 
 /**
- * Validate some options.
+ * Validate the options and return the passed-in obj.
  */
 gpub.validateOptions = function(newo) {
   var keys = [

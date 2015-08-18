@@ -1,5 +1,6 @@
 (function() {
   module('glift.api.endToEndTest');
+  var sgfs = testdata.sgfs;
   var sgf = testdata.gogameguru_commentary;
 
   test('Setup', function() {
@@ -24,5 +25,19 @@
       maxDiagrams: 20
     })
     ok(output, 'Output should be defined');
+  });
+
+  test('Testing debug mode', function() {
+    gpub.create({
+      sgfs: [sgfs.base],
+      debug: true
+    })
+    ok(gpub.global.debug, 'Debug should be enabled');
+
+    var output = gpub.create({
+      sgfs: [sgfs.base],
+      debug: false
+    })
+    ok(!gpub.global.debug, 'Debug should be enabled');
   });
 })();

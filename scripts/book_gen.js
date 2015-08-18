@@ -40,7 +40,9 @@ var flags = flagz.init(
         'The introduction, rendered as markdown.'],
 
     copyright: ['Copyright file name (must be in JSON)', 'copyright.json',
-        'The copyright file, specified as JSON.']
+        'The copyright file, specified as JSON.'],
+
+    debug: ['boolean', false, 'Whether or not debugging information is enabled.']
   }).process();
 
 var workingDir = process.cwd();
@@ -50,17 +52,16 @@ if (flags.processed.directory) {
   workingDir = path.resolve(flags.processed.directory);
 }
 
-var workingDirForFilez = workingDir
+var workingDirForFilez = workingDir;
 if (flags.args.length) {
   // Assume the user doesn't want the entire directory processed
   workingDirForFilez = '';
 }
 
-var def = filez.readFromDirAndArgs(
-    workingDirForFilez, flags.args, '', '\\.sgf$');
+var def = filez.readFromDirAndArgs(workingDirForFilez, flags.args);
 
 // Create an array of SGFs to process.
-var sgfArr = [] ;
+var sgfArr = [];
 for (var i = 0; i < def.collection.length; i++) {
   sgfArr.push(def.contents[def.collection[i]]);
 }
@@ -73,7 +74,8 @@ var options = {
   regionRestrictions: flags.processed.regionRestrictions,
   bookOptions: {
     frontmatter: {}
-  }
+  },
+  debug: !!flags.processed.debug
 };
 
 // Process frontmatter into the book options.
