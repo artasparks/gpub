@@ -43,7 +43,7 @@ gpub.diagrams.gnos = {
   /**
    * The create method!
    * 
-   * We expect flattened and options to be edfined
+   * We expect flattened and options to be defined.
    */
   create: function(flattened, options) {
     options.size = options.size || gpub.diagrams.gnos.sizes['12'];
@@ -52,7 +52,12 @@ gpub.diagrams.gnos = {
 
   _inlineWrapper: '{\\raisebox{-.17em}{\\textnormal{%s}}}',
 
-  /** Render go stones that exist in a block of text. */
+  /**
+   * Render go stones that exist in a block of text.
+   *
+   * In particular, replace the phrases Black \d+ and White \d+ with
+   * the relevant stone symbols i.e. Black 123 => \\gnosbi\\char23
+   */
   renderInline: function(text, options) {
     var options = options || {}; // TODO(kashomon): Remove hack. Push up a level.
     var fontsize = options.size || gpub.diagrams.gnos.sizes['12'];
