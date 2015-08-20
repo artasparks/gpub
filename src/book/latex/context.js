@@ -46,12 +46,17 @@ gpub.book.latex.context = {
 
     var renderer = gpub.book.latex.context.rendering[ctx.contextType];
     if (!renderer) {
+      // Should this check be removed? Why do we need it?
       renderer = gpub.book.latex.context.rendering[DESCRIPTION];
     }
     if (!intSize) {
       throw new Error('Intersection size in points not defined. Was' +
           intSize);
     }
+
+    // Add in debug info to the comment-text.
+    processedComment.text = processedComment.text +
+        gpub.book.latex.context._debugInfo(ctx.debug);
 
     return renderer(
         diagram, ctx, processedComment, processedLabel, intSize, pageSize,
@@ -64,6 +69,21 @@ gpub.book.latex.context = {
       return '\\phantomsection\n\\label{' + ref + '}';
     }
     return '';
+  },
+
+  _debugInfo: function(debug) {
+    if (!gpub.global.debug) {
+      return '';
+    }
+    var base = [
+        '', // for extra spacing between original comment.
+        '{\\scriptsize']
+    if (debug.initialPosition) {
+      base.push('ip:'+debug.initialPosition);
+    }
+
+    base.push('}');
+    return base.join('\n');
   },
 
   /** Process the label to make it appropriate for LaTeX. */
@@ -114,12 +134,14 @@ gpub.book.latex.context = {
 
   /** Render the specific digaram context. */
   rendering: {
+
     EXAMPLE: function(
         diagram, ctx, pcomment, label, pts, pageSize, latexLabel) {
       if (!pageSize) {
         throw new Error('Page size must be defined. Was:' + pageSize);
       }
       var widthPt = gpub.book.page.inToPt(pageSize.widthIn);
+      var debug = this.renderDebug
       if (pcomment.preamble) {
         return [
           pcomment.preamble,

@@ -1,5 +1,6 @@
 (function() {
-  module('gpub.boo k.latex.templateTest');
+  module('gpub.book.latex.contextTest');
+
   var diagramTypes = gpub.diagrams.diagramType;
 
   var fakeFlattened = {

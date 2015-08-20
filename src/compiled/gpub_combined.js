@@ -18,7 +18,12 @@ gpub.global = {
    * See: http://semver.org/
    * Currently in alpha.
    */
-  version: '0.1.0'
+  version: '0.1.0',
+
+  /**
+   * Whether or not debugging information is enabled.
+   */
+  debug: false
 };
 /**
  * GPub utilities.
@@ -724,12 +729,15 @@ gpub.book = {
   }
 };
 /**
- * Constructs a new Diagram Context.
+ * Constructs a new Diagram Context, which contains information about the
+ * diagram context in which this diagram should be typeset.  It also contains
+ * debug information
  */
-gpub.book.newDiagramContext = function(ctype, isChapter) {
+gpub.book.newDiagramContext = function(ctype, isChapter, debug) {
   return {
     contextType: ctype,
-    isChapter: isChapter
+    isChapter: isChapter,
+    debug: debug
   };
 };
 
@@ -770,7 +778,7 @@ gpub.book._headingRegex = /(^|\n)#+\s*\w+/;
  *
  * This method uses a bunch of heuristics and is somewhat brittle.
  */
-gpub.book.getDiagramContext = function(mt, flattened, sgfObj) {
+gpub.book.getDiagramContext = function(mt, flattened, sgfObj, debugCtx) {
   var ctx = gpub.book.contextType;
   var wtypes = glift.enums.widgetTypes;
   var wt = sgfObj.widgetType;
@@ -796,7 +804,7 @@ gpub.book.getDiagramContext = function(mt, flattened, sgfObj) {
   } else {
     ctxType = ctx.EXAMPLE;
   }
-  return gpub.book.newDiagramContext(ctxType, isChapter);
+  return gpub.book.newDiagramContext(ctxType, isChapter, debugCtx);
 };
 /**
  * Constructs a book generator.
@@ -956,10 +964,25 @@ gpub.book._Generator.prototype = {
           regionRestrictions: regionRestrictions
       });
 
-      var ctx = gpub.book.getDiagramContext(mt, flattened, sgfObj);
+      var debugCtx = this._getDebugCtx(mt);
+      var ctx = gpub.book.getDiagramContext(mt, flattened, sgfObj, debugCtx);
 
       fn(i, mt, flattened, ctx, sgfId);
     }
+  },
+
+  /**
+   * Returns the debug context. This info typically gets put directly into the
+   * book for, well, debugging.
+   */
+  _getDebugCtx: function(mt) {
+    var base = {};
+    if (!gpub.global.debug) {
+      return base;
+    }
+    base.initialPosition = glift.rules.treepath.toInitPathString(
+        mt.treepathToHere());
+    return base;
   },
 
   /**
@@ -1292,12 +1315,17 @@ gpub.book.latex.context = {
 
     var renderer = gpub.book.latex.context.rendering[ctx.contextType];
     if (!renderer) {
+      // Should this check be removed? Why do we need it?
       renderer = gpub.book.latex.context.rendering[DESCRIPTION];
     }
     if (!intSize) {
       throw new Error('Intersection size in points not defined. Was' +
           intSize);
     }
+
+    // Add in debug info to the comment-text.
+    processedComment.text = processedComment.text +
+        gpub.book.latex.context._debugInfo(ctx.debug);
 
     return renderer(
         diagram, ctx, processedComment, processedLabel, intSize, pageSize,
@@ -1310,6 +1338,21 @@ gpub.book.latex.context = {
       return '\\phantomsection\n\\label{' + ref + '}';
     }
     return '';
+  },
+
+  _debugInfo: function(debug) {
+    if (!gpub.global.debug) {
+      return '';
+    }
+    var base = [
+        '', // for extra spacing between original comment.
+        '{\\scriptsize']
+    if (debug.initialPosition) {
+      base.push('ip:'+debug.initialPosition);
+    }
+
+    base.push('}');
+    return base.join('\n');
   },
 
   /** Process the label to make it appropriate for LaTeX. */
@@ -1360,12 +1403,14 @@ gpub.book.latex.context = {
 
   /** Render the specific digaram context. */
   rendering: {
+
     EXAMPLE: function(
         diagram, ctx, pcomment, label, pts, pageSize, latexLabel) {
       if (!pageSize) {
         throw new Error('Page size must be defined. Was:' + pageSize);
       }
       var widthPt = gpub.book.page.inToPt(pageSize.widthIn);
+      var debug = this.renderDebug
       if (pcomment.preamble) {
         return [
           pcomment.preamble,
@@ -2879,7 +2924,7 @@ gpub.diagrams.gnos = {
   /**
    * The create method!
    * 
-   * We expect flattened and options to be edfined
+   * We expect flattened and options to be defined.
    */
   create: function(flattened, options) {
     options.size = options.size || gpub.diagrams.gnos.sizes['12'];
@@ -2888,7 +2933,12 @@ gpub.diagrams.gnos = {
 
   _inlineWrapper: '{\\raisebox{-.17em}{\\textnormal{%s}}}',
 
-  /** Render go stones that exist in a block of text. */
+  /**
+   * Render go stones that exist in a block of text.
+   *
+   * In particular, replace the phrases Black \d+ and White \d+ with
+   * the relevant stone symbols i.e. Black 123 => \\gnosbi\\char23
+   */
   renderInline: function(text, options) {
     var options = options || {}; // TODO(kashomon): Remove hack. Push up a level.
     var fontsize = options.size || gpub.diagrams.gnos.sizes['12'];
@@ -3148,15 +3198,20 @@ gpub.create = function(options) {
   // Process the options and fill in any missing values or defaults.
   options = gpub.processOptions(options);
 
+  // Ensure debugging mode reflects the options mode. Also ensure that debug is
+  // boolean.
+  gpub.global.debug = !!options.debug;
+
   // Create the glift specification.
   var spec = gpub.spec.create(sgfs, options);
 
   // Create the finished book (or whatever that means).
-  var book = gpub.book.create(spec, options)
+  var book = gpub.book.create(spec, options);
 
   // TODO(kashomon): return { contents: ..., diagrams: ... }
   return book;
 };
+
 
 /////////////
 // Private //
@@ -3312,7 +3367,6 @@ gpub.defaultOptions = {
        * Generates the copyright page. Copyright should be an object with the
        * format listed below:
        *
-       *
        *  {
        *     "publisher": "Foo Publisher",
        *     "license": "All rights reserved.",
@@ -3333,7 +3387,12 @@ gpub.defaultOptions = {
        */
       copyright: null
     }
-  }
+  },
+
+  /**
+   * Whether or not debug information should be displayed.
+   */
+  debug: false
 };
 
 
@@ -3379,8 +3438,7 @@ gpub.outputFormat = {
  * Process the incoming options and set any missing values.
  */
 gpub.processOptions = function(options) {
-  var newo = {
-  };
+  var newo = {};
   var options = options || {};
 
   var simpleTemplate = function(target, base, template) {
@@ -3429,7 +3487,7 @@ gpub.processOptions = function(options) {
 };
 
 /**
- * Validate some options.
+ * Validate the options and return the passed-in obj.
  */
 gpub.validateOptions = function(newo) {
   var keys = [

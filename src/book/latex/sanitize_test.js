@@ -1,5 +1,5 @@
 (function() {
-  module('gpub.book.latex.sanitize');
+  module('gpub.book.latex.sanitizeTest');
 
   test('Test sanitize LaTeX', function() {
     deepEqual(gpub.book.latex.sanitize('foo bar #${}%&'),

@@ -156,10 +156,25 @@ gpub.book._Generator.prototype = {
           regionRestrictions: regionRestrictions
       });
 
-      var ctx = gpub.book.getDiagramContext(mt, flattened, sgfObj);
+      var debugCtx = this._getDebugCtx(mt);
+      var ctx = gpub.book.getDiagramContext(mt, flattened, sgfObj, debugCtx);
 
       fn(i, mt, flattened, ctx, sgfId);
     }
+  },
+
+  /**
+   * Returns the debug context. This info typically gets put directly into the
+   * book for, well, debugging.
+   */
+  _getDebugCtx: function(mt) {
+    var base = {};
+    if (!gpub.global.debug) {
+      return base;
+    }
+    base.initialPosition = glift.rules.treepath.toInitPathString(
+        mt.treepathToHere());
+    return base;
   },
 
   /**
