@@ -1263,7 +1263,8 @@ glift.dom.Element.prototype = {
 
   /** Remove the current element from the dom. */
   remove: function() {
-    this.el.parentElement && this.el.parentElement.removeChild(this.el);
+    var parent = this.el.parentNode;
+    if (parent) parent.removeChild(this.el);
   },
 
   /** Empty out the children. */
@@ -5325,8 +5326,9 @@ glift.displays.icons._IconBar.prototype = {
   },
 
   clearTempText: function(iconName) {
-    this.svg.rmChild(this.idGen.tempIconText(iconName));
-    var el = glift.dom.elem(this.idGen.tempIconText(iconName));
+    var iconId = this.idGen.tempIconText(iconName);
+    this.svg.rmChild(iconId);
+    var el = glift.dom.elem(iconId);
     el && el.remove();
   },
 
@@ -7455,7 +7457,9 @@ glift.rules.goban = {
         movetree = mt.getTreeFromRoot(),
         captures = []; // array of captures.
     goban.loadStonesFromMovetree(movetree); // Load root placements.
-    for (var i = 0; i < treepath.length; i++) {
+    for (var i = 0; 
+        i < treepath.length && movetree.node().numChildren() > 0;
+        i++) {
       movetree.moveDown(treepath[i]);
       captures.push(goban.loadStonesFromMovetree(movetree));
     }
@@ -9162,8 +9166,12 @@ glift.rules.treepath = {
 
   /**
    * Converts a treepath back to an initial path string. This is like the
-   * toFragmentString, except that long strings of zeroes are converted to move
-   * numbers.  I.e, 0,0,0,0 => 3
+   * toFragmentString, except that long strings of -initial- zeroes are
+   * converted to move numbers.
+   *
+   * I.e,
+   *   0,0,0 => 3
+   *   0,0,0.1 => 3.1
    *
    * Note: Once we're on a variation, we don't collapse the path
    */
@@ -9180,11 +9188,13 @@ glift.rules.treepath = {
         }
         // ignore otherwise
       } else if (elem > 0) {
-        out.push(i);
-        out.push(elem);
+        // Since elem is non-zero, it's a variation indicator.
         if (onMainLine) {
           onMainLine = false;
+          // Note: We only want to push the initial-move-number part *once*
+          out.push(i);
         }
+        out.push(elem);
       }
     }
     return out.join('.');
@@ -11046,8 +11056,8 @@ glift.orientation.getQuadCropFromMovetree = function(movetree, nextMovesPath) {
     // the variation.  I.e., it the first move we want to consider is when the
     // movetree + the first variation in the nextMovesPath.
     for (var i = 0; i < nextMovesPath.length; i++) {
-      tracker(movetree);
       movetree.moveDown(nextMovesPath[i]);
+      tracker(movetree);
     }
   } else {
     movetree.recurseFromRoot(tracker);
@@ -13749,8 +13759,8 @@ glift.widgets.options.CORRECT_VARIATIONS_PROBLEM = {
       // an illegal move.
       return;
     }
+    var hooks = widget.hooks();
     widget.applyBoardData(data);
-    var callback = widget.sgfOptions.problemCallback;
     if (widget.correctness === undefined) {
       if (data.result === problemResults.CORRECT) {
         widget.iconBar.destroyTempIcons();
@@ -13763,7 +13773,7 @@ glift.widgets.options.CORRECT_VARIATIONS_PROBLEM = {
                 'multiopen-boxonly',
                 widget.numCorrectAnswers + '/' + widget.totalCorrectAnswers,
                 { fill: '#0CC', stroke: '#0CC'});
-            callback(problemResults.CORRECT);
+            hooks.problemCorrect();
           } else {
             widget.iconBar.addTempText(
                 'multiopen-boxonly',
@@ -13780,7 +13790,7 @@ glift.widgets.options.CORRECT_VARIATIONS_PROBLEM = {
         widget.iconBar.setCenteredTempIcon('multiopen-boxonly', 'cross', 'red');
         widget.iconBar.clearTempText('multiopen-boxonly');
         widget.correctness = problemResults.INCORRECT;
-        callback(problemResults.INCORRECT);
+        hooks.problemIncorrect();
       }
     }
   },
