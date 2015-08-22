@@ -65,16 +65,19 @@ var FlagzDef = function(helptext, args, flagdefs) {
 
 FlagzDef.prototype = {
   /** Processes a flag's type. */
-  _processFlagType: function(value, flagarr) {
+  _processFlagType: function(value, flagarr, origFlagName) {
     var flagtype = flagarr[0];
     if (flagtype === 'boolean') {
       if (value === 'false' || value === '0') {
         value = false;
       } else {
+        // Note: this catches the undefined case. However, for booleans,
+        // specifying a flag like blah.js --foo_bool shoulb be considered true.
         value = true;
       }
-    }
-    if (/Array.*/.test(flagtype)) {
+    } else if (value === null || value === undefined) {
+      value = null;
+    } else if (/Array.*/.test(flagtype)) {
       value = value.split(',');
     }
     return value;
@@ -100,6 +103,7 @@ FlagzDef.prototype = {
     }
 
     var unprocessed = [];
+    // TODO(kashomon): Remove the single dash (-foo) form of flags.
     var flagregex = /^-(-)?/;
     var helpregex = /^-(-)?h(elp)?$/;
     for (var i = 2; i < process.argv.length; i++) {
@@ -137,19 +141,19 @@ FlagzDef.prototype = {
           // is the value.
           var splat = origFlagName.split('=', 2);
           value = splat[1];
-          value = this._processFlagType(value, flagarr);
+          value = this._processFlagType(value, flagarr, origFlagName);
         }
 
-        // Assume the flag has the pattern --foo bar
-        if (i + 1 < process.argv.length && value == null) {
+        // Asume the flag has the pattern --foo bar
+        if (value == null) {
           // The flag value is still null. We need to peek at the next value in
           // the process args. Ideally, the flag has the format --foo bar
-          value = process.argv[i + 1]; // peek!
-          if (flagregex.test(value)) {
+          value = process.argv[i + 1]; // peek! Could be undefined!
+          if (value !== undefined && flagregex.test(value)) {
             // The next value is a flag value. This is an error.
             return this.unknownFlag(flagname);
           }
-          value = this._processFlagType(value, flagarr);
+          value = this._processFlagType(value, flagarr, origFlagName);
           i++;
         }
         this.validateFlag(flagname, value);
