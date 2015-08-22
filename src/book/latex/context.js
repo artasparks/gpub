@@ -79,7 +79,25 @@ gpub.book.latex.context = {
         '', // for extra spacing between original comment.
         '{\\scriptsize']
     if (debug.initialPosition) {
-      base.push('ip:'+debug.initialPosition);
+      base.push('ip:' + debug.initialPosition);
+    }
+    if (debug.nextMoves) {
+      base.push('nm:' + debug.nextMoves);
+    }
+    if (debug.boardRegion ||
+        debug.autoBoxCrop ||
+        debug.regionRestrictions) {
+      var buf = [];
+      if (debug.boardRegion) {
+        buf.push('inrg:' + debug.boardRegion)
+      }
+      if (debug.autoBoxCrop) {
+        buf.push('boxcp:' + debug.autoBoxCrop)
+      }
+      if (debug.regionRestrictions) {
+        buf.push('regres:' + JSON.stringify(debug.regionRestrictions));
+      }
+      base.push(buf.join(';'));
     }
 
     base.push('}');

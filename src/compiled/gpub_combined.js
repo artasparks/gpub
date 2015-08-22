@@ -964,7 +964,8 @@ gpub.book._Generator.prototype = {
           regionRestrictions: regionRestrictions
       });
 
-      var debugCtx = this._getDebugCtx(mt);
+      var debugCtx = this._getDebugCtx(
+          mt, nextMoves, sgfObj.boardRegion, autoVarCrop, regionRestrictions);
       var ctx = gpub.book.getDiagramContext(mt, flattened, sgfObj, debugCtx);
 
       fn(i, mt, flattened, ctx, sgfId);
@@ -975,13 +976,19 @@ gpub.book._Generator.prototype = {
    * Returns the debug context. This info typically gets put directly into the
    * book for, well, debugging.
    */
-  _getDebugCtx: function(mt) {
-    var base = {};
+  _getDebugCtx: function(
+      mt, nextMoves, boardRegion, autoBoxCrop, regRestrict) {
     if (!gpub.global.debug) {
-      return base;
+      return {};
     }
-    base.initialPosition = glift.rules.treepath.toInitPathString(
-        mt.treepathToHere());
+    var base = {
+      initialPosition:
+          glift.rules.treepath.toInitPathString(mt.treepathToHere()),
+      nextMoves: glift.rules.treepath.toFragmentString(nextMoves),
+      boardRegion: boardRegion,
+      autoBoxCrop: autoBoxCrop,
+      regionRestrictions: regRestrict
+    };
     return base;
   },
 
@@ -1348,7 +1355,25 @@ gpub.book.latex.context = {
         '', // for extra spacing between original comment.
         '{\\scriptsize']
     if (debug.initialPosition) {
-      base.push('ip:'+debug.initialPosition);
+      base.push('ip:' + debug.initialPosition);
+    }
+    if (debug.nextMoves) {
+      base.push('nm:' + debug.nextMoves);
+    }
+    if (debug.boardRegion ||
+        debug.autoBoxCrop ||
+        debug.regionRestrictions) {
+      var buf = [];
+      if (debug.boardRegion) {
+        buf.push('inrg:' + debug.boardRegion)
+      }
+      if (debug.autoBoxCrop) {
+        buf.push('boxcp:' + debug.autoBoxCrop)
+      }
+      if (debug.regionRestrictions) {
+        buf.push('regres:' + JSON.stringify(debug.regionRestrictions));
+      }
+      base.push(buf.join(';'));
     }
 
     base.push('}');
