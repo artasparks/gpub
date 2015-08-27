@@ -21,7 +21,8 @@
 
   var fakeContext = {
     contextType: gpub.book.contextType.EXAMPLE,
-    isChapter: true
+    isChapter: true,
+    pdfx1a: false
   };
 
   test('Round trip: Exceptionless', function() {

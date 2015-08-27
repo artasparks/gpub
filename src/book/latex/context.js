@@ -63,9 +63,12 @@ gpub.book.latex.context = {
         latexLabel);
   },
 
-  /** Create a latex label for cross-referencing */
+  /**
+   * Create a latex label for cross-referencing. Note: Labels are considered
+   * annotations and thus illegal for PDF/X-1a purposes.
+   */
   _createLatexLabel: function(ctx, flattened, ref) {
-    if (flattened.isOnMainPath() && ref) {
+    if (flattened.isOnMainPath() && ref && !ctx.pdfx1a) {
       return '\\phantomsection\n\\label{' + ref + '}';
     }
     return '';
@@ -128,10 +131,9 @@ gpub.book.latex.context = {
         }
         baseLabel += '\\textit{from} '
         baseLabel += readableColor + ' ' + mainMoveNum + '';
-        // if (ref) {
-          // baseLabel += '\\ref*{' + ref  + '}}'
-        // }
-        baseLabel += '}';
+        if (ref) {
+          baseLabel += '}';
+        }
       }
       baseLabel += '}';
     }

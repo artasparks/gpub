@@ -2,7 +2,10 @@
   module('glift.book.contextTest');
   var wtypes = glift.enums.widgetTypes;
   var ctx = gpub.book.contextType;
-  var newCtx = gpub.book.newDiagramContext;
+  var newCtx = function(type, isChapter) {
+    return gpub.book.newDiagramContext(
+        type, isChapter, false /* PDF/X-1a */, {} /* debug */)
+  };
 
   var constructSpec = function(objs) {
     var spec = { sgfCollection: [] };
@@ -28,8 +31,8 @@
       { widgetType: wtypes.STANDARD_PROBLEM, sgfString: '(;GM[1]C[### foo])' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.PROBLEM, false, {}),
-      newCtx(ctx.PROBLEM, true, {}),
+      newCtx(ctx.PROBLEM, false),
+      newCtx(ctx.PROBLEM, true)
     ]);
   });
 
@@ -39,8 +42,8 @@
       { widgetType: wtypes.GAME_VIEWER, sgfString: '(;GM[1]C[### foo])' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.VARIATIONS, false, {}),
-      newCtx(ctx.VARIATIONS, true, {}),
+      newCtx(ctx.VARIATIONS, false),
+      newCtx(ctx.VARIATIONS, true)
     ]);
   });
 
@@ -50,8 +53,8 @@
       { widgetType: wtypes.EXAMPLE, sgfString: '(;GM[1]C[## foo])' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.DESCRIPTION, false, {}),
-      newCtx(ctx.DESCRIPTION, true, {}),
+      newCtx(ctx.DESCRIPTION, false),
+      newCtx(ctx.DESCRIPTION, true)
     ]);
   });
 
@@ -63,9 +66,9 @@
       { widgetType: wtypes.EXAMPLE, sgfString: '(;GM[1]AB[aa]C[## foo])' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.EXAMPLE, false, {}),
-      newCtx(ctx.EXAMPLE, false, {}),
-      newCtx(ctx.EXAMPLE, true, {}),
+      newCtx(ctx.EXAMPLE, false),
+      newCtx(ctx.EXAMPLE, false),
+      newCtx(ctx.EXAMPLE, true)
     ]);
   });
 
@@ -75,7 +78,7 @@
           initialPosition: '0.1' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.EXAMPLE, false, {}),
+      newCtx(ctx.EXAMPLE, false)
     ]);
   });
 
@@ -85,7 +88,7 @@
           initialPosition: '', nextMovesPath: '0' },
     ]);
     deepEqual(getCtxFromSpec(spec), [
-      newCtx(ctx.EXAMPLE, false, {}),
+      newCtx(ctx.EXAMPLE, false)
     ]);
   })
 })();

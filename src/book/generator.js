@@ -158,50 +158,11 @@ gpub.book._Generator.prototype = {
 
       var debugCtx = this._getDebugCtx(
           mt, nextMoves, sgfObj.boardRegion, autoVarCrop, regionRestrictions);
-      var ctx = gpub.book.getDiagramContext(mt, flattened, sgfObj, debugCtx);
+      var ctx = gpub.book.getDiagramContext(
+          mt, flattened, sgfObj, this.pdfx1a(), debugCtx);
 
       fn(i, mt, flattened, ctx, sgfId);
     }
-  },
-
-  /**
-   * Returns the debug context. This info typically gets put directly into the
-   * book for, well, debugging.
-   */
-  _getDebugCtx: function(
-      mt, nextMoves, boardRegion, autoBoxCrop, regRestrict) {
-    if (!gpub.global.debug) {
-      return {};
-    }
-    var base = {
-      initialPosition:
-          glift.rules.treepath.toInitPathString(mt.treepathToHere()),
-      nextMoves: glift.rules.treepath.toFragmentString(nextMoves),
-      boardRegion: boardRegion,
-      autoBoxCrop: autoBoxCrop,
-      regionRestrictions: regRestrict
-    };
-    return base;
-  },
-
-  /**
-   * Whether autocropping on variations should be performed.
-   */
-  _shouldPerformAutoCropOnVar: function(mt, nextMoves) {
-    var performAutoCrop = this.options().autoBoxCropOnVariation;
-    nextMoves = nextMoves || [];
-    if (performAutoCrop && mt.onMainline()) {
-      if (nextMoves.length == 0) {
-        performAutoCrop = false;
-      } else {
-        // It's possible that the next moves path continues on the mainline for
-        // a while and then diverts to a branch, but this doesn't currently
-        // happen due to the way specs are generated. Thus, we only check the
-        // first move in the nextMoves path.
-        performAutoCrop = nextMoves[0] > 0;
-      }
-    }
-    return performAutoCrop;
   },
 
   /**
@@ -246,6 +207,56 @@ gpub.book._Generator.prototype = {
     }
   },
 
+  /** Returns the current options */
+  options: function() {
+    return this._opts;
+  },
+
+  /** Whether the doc should be generated as a PDF/X-1a compatible doc */
+  pdfx1a: function() {
+    return this._opts.pdfx1a;
+  },
+
+  /**
+   * Returns the debug context. This info typically gets put directly into the
+   * book for, well, debugging.
+   */
+  _getDebugCtx: function(
+      mt, nextMoves, boardRegion, autoBoxCrop, regRestrict) {
+    if (!gpub.global.debug) {
+      return {};
+    }
+    var base = {
+      initialPosition:
+          glift.rules.treepath.toInitPathString(mt.treepathToHere()),
+      nextMoves: glift.rules.treepath.toFragmentString(nextMoves),
+      boardRegion: boardRegion,
+      autoBoxCrop: autoBoxCrop,
+      regionRestrictions: regRestrict
+    };
+    return base;
+  },
+
+  /**
+   * Whether autocropping on variations should be performed.
+   */
+  _shouldPerformAutoCropOnVar: function(mt, nextMoves) {
+    var performAutoCrop = this.options().autoBoxCropOnVariation;
+    nextMoves = nextMoves || [];
+    if (performAutoCrop && mt.onMainline()) {
+      if (nextMoves.length == 0) {
+        performAutoCrop = false;
+      } else {
+        // It's possible that the next moves path continues on the mainline for
+        // a while and then diverts to a branch, but this doesn't currently
+        // happen due to the way specs are generated. Thus, we only check the
+        // first move in the nextMoves path.
+        performAutoCrop = nextMoves[0] > 0;
+      }
+    }
+    return performAutoCrop;
+  },
+
   /**
    * Set the options for the Generator. Note: The generator defensively makes
    * a copy of the options.
@@ -270,11 +281,6 @@ gpub.book._Generator.prototype = {
     // Note: We explicitly don't drill down into the bookOptions / view so that
     // the passed-in bookOptions have the ability to take precedence.
     return this;
-  },
-
-  /** Returns the current options */
-  options: function() {
-    return this._opts;
   },
 
   /**

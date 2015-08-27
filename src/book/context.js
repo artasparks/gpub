@@ -3,10 +3,11 @@
  * diagram context in which this diagram should be typeset.  It also contains
  * debug information
  */
-gpub.book.newDiagramContext = function(ctype, isChapter, debug) {
+gpub.book.newDiagramContext = function(ctype, isChapter, pdfx1a, debug) {
   return {
     contextType: ctype,
     isChapter: isChapter,
+    pdfx1a: pdfx1a,
     debug: debug
   };
 };
@@ -48,7 +49,8 @@ gpub.book._headingRegex = /(^|\n)#+\s*\w+/;
  *
  * This method uses a bunch of heuristics and is somewhat brittle.
  */
-gpub.book.getDiagramContext = function(mt, flattened, sgfObj, debugCtx) {
+gpub.book.getDiagramContext = function(
+    mt, flattened, sgfObj, pdfx1a, debugCtx) {
   var ctx = gpub.book.contextType;
   var wtypes = glift.enums.widgetTypes;
   var wt = sgfObj.widgetType;
@@ -74,5 +76,5 @@ gpub.book.getDiagramContext = function(mt, flattened, sgfObj, debugCtx) {
   } else {
     ctxType = ctx.EXAMPLE;
   }
-  return gpub.book.newDiagramContext(ctxType, isChapter, debugCtx);
+  return gpub.book.newDiagramContext(ctxType, isChapter, pdfx1a, debugCtx);
 };

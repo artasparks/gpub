@@ -5,13 +5,14 @@ gpub.book.latex.defaultTemplate = [
 '\\usepackage{wrapfig}',
 '\\usepackage{setspace}',
 '\\usepackage{graphicx}',
+'<%^pdfx1a%>',
 '\\usepackage{hyperref}',
+'<%/pdfx1a%>',
 '\\usepackage{xmpincl}',
 '<%#frontmatter.copyright.showPermanenceOfPaper%>',
 '\\usepackage{tikz}',
 '<%/frontmatter.copyright.showPermanenceOfPaper%>',
 
-// '\\usepackage[a-1a]{pdfx}',  // Experimental
 '\\usepackage[margin=1in]{geometry}',
 
 '%%% Define any extra packages %%%',

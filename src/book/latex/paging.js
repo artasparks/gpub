@@ -113,6 +113,9 @@ gpub.book.latex.Paging.prototype = {
 
   /** Gete the reference label for latex. Return null if no ref can be found. */
   _getReference: function(flattened, context) {
+    if (context.pdfx1a) {
+      return null;
+    }
     if (context.contextType === gpub.book.contextType.EXAMPLE) {
       var mainMove = flattened.mainlineMove();
       if (!flattened.isOnMainPath() && mainMove !== null) {

@@ -733,10 +733,11 @@ gpub.book = {
  * diagram context in which this diagram should be typeset.  It also contains
  * debug information
  */
-gpub.book.newDiagramContext = function(ctype, isChapter, debug) {
+gpub.book.newDiagramContext = function(ctype, isChapter, pdfx1a, debug) {
   return {
     contextType: ctype,
     isChapter: isChapter,
+    pdfx1a: pdfx1a,
     debug: debug
   };
 };
@@ -778,7 +779,8 @@ gpub.book._headingRegex = /(^|\n)#+\s*\w+/;
  *
  * This method uses a bunch of heuristics and is somewhat brittle.
  */
-gpub.book.getDiagramContext = function(mt, flattened, sgfObj, debugCtx) {
+gpub.book.getDiagramContext = function(
+    mt, flattened, sgfObj, pdfx1a, debugCtx) {
   var ctx = gpub.book.contextType;
   var wtypes = glift.enums.widgetTypes;
   var wt = sgfObj.widgetType;
@@ -804,7 +806,7 @@ gpub.book.getDiagramContext = function(mt, flattened, sgfObj, debugCtx) {
   } else {
     ctxType = ctx.EXAMPLE;
   }
-  return gpub.book.newDiagramContext(ctxType, isChapter, debugCtx);
+  return gpub.book.newDiagramContext(ctxType, isChapter, pdfx1a, debugCtx);
 };
 /**
  * Constructs a book generator.
@@ -966,50 +968,11 @@ gpub.book._Generator.prototype = {
 
       var debugCtx = this._getDebugCtx(
           mt, nextMoves, sgfObj.boardRegion, autoVarCrop, regionRestrictions);
-      var ctx = gpub.book.getDiagramContext(mt, flattened, sgfObj, debugCtx);
+      var ctx = gpub.book.getDiagramContext(
+          mt, flattened, sgfObj, this.pdfx1a(), debugCtx);
 
       fn(i, mt, flattened, ctx, sgfId);
     }
-  },
-
-  /**
-   * Returns the debug context. This info typically gets put directly into the
-   * book for, well, debugging.
-   */
-  _getDebugCtx: function(
-      mt, nextMoves, boardRegion, autoBoxCrop, regRestrict) {
-    if (!gpub.global.debug) {
-      return {};
-    }
-    var base = {
-      initialPosition:
-          glift.rules.treepath.toInitPathString(mt.treepathToHere()),
-      nextMoves: glift.rules.treepath.toFragmentString(nextMoves),
-      boardRegion: boardRegion,
-      autoBoxCrop: autoBoxCrop,
-      regionRestrictions: regRestrict
-    };
-    return base;
-  },
-
-  /**
-   * Whether autocropping on variations should be performed.
-   */
-  _shouldPerformAutoCropOnVar: function(mt, nextMoves) {
-    var performAutoCrop = this.options().autoBoxCropOnVariation;
-    nextMoves = nextMoves || [];
-    if (performAutoCrop && mt.onMainline()) {
-      if (nextMoves.length == 0) {
-        performAutoCrop = false;
-      } else {
-        // It's possible that the next moves path continues on the mainline for
-        // a while and then diverts to a branch, but this doesn't currently
-        // happen due to the way specs are generated. Thus, we only check the
-        // first move in the nextMoves path.
-        performAutoCrop = nextMoves[0] > 0;
-      }
-    }
-    return performAutoCrop;
   },
 
   /**
@@ -1054,6 +1017,56 @@ gpub.book._Generator.prototype = {
     }
   },
 
+  /** Returns the current options */
+  options: function() {
+    return this._opts;
+  },
+
+  /** Whether the doc should be generated as a PDF/X-1a compatible doc */
+  pdfx1a: function() {
+    return this._opts.pdfx1a;
+  },
+
+  /**
+   * Returns the debug context. This info typically gets put directly into the
+   * book for, well, debugging.
+   */
+  _getDebugCtx: function(
+      mt, nextMoves, boardRegion, autoBoxCrop, regRestrict) {
+    if (!gpub.global.debug) {
+      return {};
+    }
+    var base = {
+      initialPosition:
+          glift.rules.treepath.toInitPathString(mt.treepathToHere()),
+      nextMoves: glift.rules.treepath.toFragmentString(nextMoves),
+      boardRegion: boardRegion,
+      autoBoxCrop: autoBoxCrop,
+      regionRestrictions: regRestrict
+    };
+    return base;
+  },
+
+  /**
+   * Whether autocropping on variations should be performed.
+   */
+  _shouldPerformAutoCropOnVar: function(mt, nextMoves) {
+    var performAutoCrop = this.options().autoBoxCropOnVariation;
+    nextMoves = nextMoves || [];
+    if (performAutoCrop && mt.onMainline()) {
+      if (nextMoves.length == 0) {
+        performAutoCrop = false;
+      } else {
+        // It's possible that the next moves path continues on the mainline for
+        // a while and then diverts to a branch, but this doesn't currently
+        // happen due to the way specs are generated. Thus, we only check the
+        // first move in the nextMoves path.
+        performAutoCrop = nextMoves[0] > 0;
+      }
+    }
+    return performAutoCrop;
+  },
+
   /**
    * Set the options for the Generator. Note: The generator defensively makes
    * a copy of the options.
@@ -1078,11 +1091,6 @@ gpub.book._Generator.prototype = {
     // Note: We explicitly don't drill down into the bookOptions / view so that
     // the passed-in bookOptions have the ability to take precedence.
     return this;
-  },
-
-  /** Returns the current options */
-  options: function() {
-    return this._opts;
   },
 
   /**
@@ -1339,9 +1347,12 @@ gpub.book.latex.context = {
         latexLabel);
   },
 
-  /** Create a latex label for cross-referencing */
+  /**
+   * Create a latex label for cross-referencing. Note: Labels are considered
+   * annotations and thus illegal for PDF/X-1a purposes.
+   */
   _createLatexLabel: function(ctx, flattened, ref) {
-    if (flattened.isOnMainPath() && ref) {
+    if (flattened.isOnMainPath() && ref && !ctx.pdfx1a) {
       return '\\phantomsection\n\\label{' + ref + '}';
     }
     return '';
@@ -1404,10 +1415,9 @@ gpub.book.latex.context = {
         }
         baseLabel += '\\textit{from} '
         baseLabel += readableColor + ' ' + mainMoveNum + '';
-        // if (ref) {
-          // baseLabel += '\\ref*{' + ref  + '}}'
-        // }
-        baseLabel += '}';
+        if (ref) {
+          baseLabel += '}';
+        }
       }
       baseLabel += '}';
     }
@@ -1575,13 +1585,14 @@ gpub.book.latex.defaultTemplate = [
 '\\usepackage{wrapfig}',
 '\\usepackage{setspace}',
 '\\usepackage{graphicx}',
+'<%^pdfx1a%>',
 '\\usepackage{hyperref}',
+'<%/pdfx1a%>',
 '\\usepackage{xmpincl}',
 '<%#frontmatter.copyright.showPermanenceOfPaper%>',
 '\\usepackage{tikz}',
 '<%/frontmatter.copyright.showPermanenceOfPaper%>',
 
-// '\\usepackage[a-1a]{pdfx}',  // Experimental
 '\\usepackage[margin=1in]{geometry}',
 
 '%%% Define any extra packages %%%',
@@ -2013,6 +2024,9 @@ gpub.book.latex.Paging.prototype = {
 
   /** Gete the reference label for latex. Return null if no ref can be found. */
   _getReference: function(flattened, context) {
+    if (context.pdfx1a) {
+      return null;
+    }
     if (context.contextType === gpub.book.contextType.EXAMPLE) {
       var mainMove = flattened.mainlineMove();
       if (!flattened.isOnMainPath() && mainMove !== null) {
@@ -2120,6 +2134,33 @@ gpub.book.latex.defaultMargins = 0.5;
  * edges
  */
 gpub.book.latex.standardBleed  = 0.125;
+/**
+ * Package for Pdf/X-1a:2001 compatibility.
+ *
+ * This is a package to add support for the above mentioned compatibility, which
+ * is required by some professional printers.
+ *
+ * Requirements (from http://www.prepressure.com/pdf/basics/pdfx-1a):
+ *
+ * Requirements that we care about:
+ * - PDF/X-1a files are regular PDF 1.3 or PDF 1.4
+ * - All color data must be grayscale, CMYK or named spot colors. The file should not contain any RGB, LAB,… data.
+ *
+ * Requirements should be taken care of
+ * - All fonts must be embedded in the file. -- Handled by LaTeX by default
+ * - OPI is not allowed in PDF/X-1a files.
+ *
+ * Should be irrelevant:
+ * - If there are annotations (sticky notes) in the PDF, they should be located outside the bleed area.
+ * - The file should not contain forms or Javascript code.
+ * - Compliant files cannot contain music, movies or non-printable annotations.
+ * - Only a limited number of compression algorithms are supported.
+ * - Encryption cannot be used.
+ * - Transfer curves cannot be used.
+ */
+gpub.book.latex.pdfx = {
+
+};
 /**
  * Sanitizes latex input. This isn't particularly robust, but it is meant to
  * protect us against accidental problematic characters rather than malicious
@@ -3345,6 +3386,11 @@ gpub.defaultOptions = {
   /** Size of the gnos font */
   gnosFontSize: '12',
 
+  /**
+   * Whether or not to generate PDF/X-1a compatibile PDFs. Note: this only
+   * applies to output formats that generate PDFs (latex).
+   */
+  pdfx1a: false,
 
   //////////////////
   // Book Options //
