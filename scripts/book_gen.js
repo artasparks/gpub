@@ -39,9 +39,10 @@ var flags = flagz.init(
     introduction: ['file name (must be in markdown)', 'introduction.md',
         'The introduction, rendered as markdown.'],
 
-    copyright: ['Copyright file name (must be in JSON)', 'copyright.json',
+    copyright: ['file name (must be in JSON)', 'copyright.json',
         'The copyright file, specified as JSON.'],
 
+    pdfx1a: ['boolean', false, 'Whether or not to generate PDF/X-1a valid PDFs'],
     debug: ['boolean', false, 'Whether or not debugging information is enabled.']
   }).process();
 
@@ -75,7 +76,8 @@ var options = {
   bookOptions: {
     frontmatter: {}
   },
-  debug: !!flags.processed.debug
+  pdfx1a: flags.processed.pdfx1a,
+  debug: flags.processed.debug
 };
 
 // Process frontmatter into the book options.
@@ -115,7 +117,8 @@ if (workingDir) {
     if (flags.processed.autoCompile) {
       console.log('Compiling with pdflatex');
       var outputDirectory = path.dirname(fname);
-      child_process.execSync('cd ' + outputDirectory + ' && which pdflatex && pdflatex ' + fname);
+      child_process.execSync('cd ' + outputDirectory + 
+          ' && which pdflatex && pdflatex ' + fname);
     }
   } else {
     console.log(book);

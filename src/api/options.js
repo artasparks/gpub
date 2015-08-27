@@ -84,6 +84,11 @@ gpub.defaultOptions = {
   /** Size of the gnos font */
   gnosFontSize: '12',
 
+  /**
+   * Whether or not to generate PDF/X-1a compatibile PDFs. Note: this only
+   * applies to output formats that generate PDFs (latex).
+   */
+  pdfx1a: false
 
   //////////////////
   // Book Options //
