@@ -21,6 +21,11 @@ gpub.book.latex.generator = {
       pages.pagePreamble()
     ].join('\n');
 
+    if (this.pdfx1a()) {
+      view.pdfx1a = this.pdfx1a();
+      view.pdfxHeader = gpub.book.latex.pdfx.header();
+    }
+
     this.forEachSgf(spec, function(idx, mt, flattened, ctx, sgfId) {
       var diagram = gpub.diagrams.create(flattened, opts.diagramType, diagOpt);
       pages.addDiagram(opts.diagramType, diagram, ctx, flattened, sgfId);

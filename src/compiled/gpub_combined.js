@@ -1513,6 +1513,11 @@ gpub.book.latex.generator = {
       pages.pagePreamble()
     ].join('\n');
 
+    if (this.pdfx1a()) {
+      view.pdfx1a = this.pdfx1a();
+      view.pdfxHeader = gpub.book.latex.pdfx.header();
+    }
+
     this.forEachSgf(spec, function(idx, mt, flattened, ctx, sgfId) {
       var diagram = gpub.diagrams.create(flattened, opts.diagramType, diagOpt);
       pages.addDiagram(opts.diagramType, diagram, ctx, flattened, sgfId);
@@ -1594,6 +1599,13 @@ gpub.book.latex.defaultTemplate = [
 '<%/frontmatter.copyright.showPermanenceOfPaper%>',
 
 '\\usepackage[margin=1in]{geometry}',
+
+'',
+'<%#pdfx1a%>',
+'%%% PDF/X-1a Header',
+'<%&pdfxHeader%>',
+'<%/pdfx1a%>',
+'',
 
 '%%% Define any extra packages %%%',
 '<%init%>',
@@ -2145,6 +2157,8 @@ gpub.book.latex.standardBleed  = 0.125;
  * Requirements that we care about:
  * - PDF/X-1a files are regular PDF 1.3 or PDF 1.4
  * - All color data must be grayscale, CMYK or named spot colors. The file should not contain any RGB, LAB,… data.
+ * - Can't use hyperref annotations.
+ * - Have to change the stream compression to 0.
  *
  * Requirements should be taken care of
  * - All fonts must be embedded in the file. -- Handled by LaTeX by default
@@ -2157,9 +2171,22 @@ gpub.book.latex.standardBleed  = 0.125;
  * - Only a limited number of compression algorithms are supported.
  * - Encryption cannot be used.
  * - Transfer curves cannot be used.
+ *
+ * For details, see https://github.com/Kashomon/gpub/issues/23
  */
 gpub.book.latex.pdfx = {
+  /**
+   * Fixes this error:
+   * "Compressed object streams used"
+   */
+  compressLevel: '\\pdfobjcompresslevel=0',
 
+  header: function() {
+    var pdfx = gpub.book.latex.pdfx;
+    return [
+      pdfx.compressLevel
+    ].join('\n');
+  }
 };
 /**
  * Sanitizes latex input. This isn't particularly robust, but it is meant to

@@ -15,6 +15,13 @@ gpub.book.latex.defaultTemplate = [
 
 '\\usepackage[margin=1in]{geometry}',
 
+'',
+'<%#pdfx1a%>',
+'%%% PDF/X-1a Header',
+'<%&pdfxHeader%>',
+'',
+'<%/pdfx1a%>',
+
 '%%% Define any extra packages %%%',
 '<%init%>',
 
