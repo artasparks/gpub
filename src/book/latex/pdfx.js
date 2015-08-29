@@ -43,11 +43,29 @@ gpub.book.latex.pdfx = {
    */
   pdfMinorVersion: '\\pdfminorversion=3',
 
-  header: function() {
+
+  /**
+   *
+   * Return the PDF Info. Fixes:
+   *  - "Document title empty/missing",
+   *  - "PDF/X version key (GTS_PDFXVersion) missing"
+   */
+  pdfInfo: function(title) {
+    return [
+      '\\pdfinfo{%',
+      '/Title(' + title + ')%',
+      '/GTS_PDFXVersion (PDF/X-1:2001)%',
+      '/GTS_PDFXConformance (PDF/X-1a:2001)%',
+      '}'
+    ];
+  },
+
+  header: function(title) {
     var pdfx = gpub.book.latex.pdfx;
     return [
       pdfx.pdfMinorVersion,
       pdfx.compressLevel
-    ].join('\n');
+    ].concat(pdfx.pdfInfo(title))
+        .join('\n');
   }
 };

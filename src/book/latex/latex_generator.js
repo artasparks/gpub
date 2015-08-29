@@ -22,7 +22,7 @@ gpub.book.latex.generator = {
     ].join('\n');
 
     if (this.pdfx1a()) {
-      view.pdfx1a = this.pdfx1a();
+      view.pdfx1a = this.pdfx1a(view.title);
       view.pdfxHeader = gpub.book.latex.pdfx.header();
     }
 
