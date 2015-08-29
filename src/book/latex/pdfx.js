@@ -6,9 +6,12 @@
  *
  * Requirements (from http://www.prepressure.com/pdf/basics/pdfx-1a):
  *
+ * http://tex.stackexchange.com/questions/242303/pdf-x-1a-on-tex-live-2014-for-publishing-with-pod-lightining-source
+ *
  * Requirements that we care about:
  * - PDF/X-1a files are regular PDF 1.3 or PDF 1.4
- * - All color data must be grayscale, CMYK or named spot colors. The file should not contain any RGB, LAB,… data.
+ * - All color data must be grayscale, CMYK or named spot colors. The file
+ *   should not contain any RGB, LAB,… data.
  * - Can't use hyperref annotations.
  * - Have to change the stream compression to 0.
  *
@@ -17,7 +20,8 @@
  * - OPI is not allowed in PDF/X-1a files.
  *
  * Should be irrelevant:
- * - If there are annotations (sticky notes) in the PDF, they should be located outside the bleed area.
+ * - If there are annotations (sticky notes) in the PDF, they should be located
+ *   outside the bleed area.
  * - The file should not contain forms or Javascript code.
  * - Compliant files cannot contain music, movies or non-printable annotations.
  * - Only a limited number of compression algorithms are supported.
@@ -33,9 +37,16 @@ gpub.book.latex.pdfx = {
    */
   compressLevel: '\\pdfobjcompresslevel=0',
 
+  /**
+   * Fixes this error:
+   * "PDF version is newer than 1.3"
+   */
+  pdfMinorVersion: '\\pdfminorversion=3',
+
   header: function() {
     var pdfx = gpub.book.latex.pdfx;
     return [
+      pdfx.pdfMinorVersion,
       pdfx.compressLevel
     ].join('\n');
   }
