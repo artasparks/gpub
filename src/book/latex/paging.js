@@ -38,6 +38,7 @@ gpub.book.latex.Paging = function(
   this.buffer = [];
 
   /** Size of the pages produced by the paging factory. */
+  // TODO(kashomon): why is this guarded?
   this.pageSize = pageType ||
       gpub.book.page.type.LETTER;
 

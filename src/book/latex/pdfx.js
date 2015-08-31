@@ -68,8 +68,8 @@ gpub.book.latex.pdfx = {
   },
 
   /**
-   *
-   * Return the PDF Info. Fixes:
+   * Returns the PDF Info, which contains the title and spec (PDF/X-1a:2101)
+   * Fixes:
    *  - "Document title empty/missing",
    *  - "PDF/X version key (GTS_PDFXVersion) missing"
    */
@@ -83,12 +83,33 @@ gpub.book.latex.pdfx = {
     ];
   },
 
-  header: function(title, colorProfile) {
+  /**
+   * Returns the relevant page boxes.
+   */
+  pageBoxes: function(pageSize) {
+    var pageObj  = gpub.book.page.size[pageSize];
+    var hpt = gpub.book.page.mmToPt(pageObj.heightMm);
+    var wpt = gpub.book.page.mmToPt(pageObj.widthMm);
+    return [
+      '\\pdfpageattr{/MediaBox[0 0 ' + wpt + ' ' + hpt + ']',
+      '              /BleedBox[0 0 ' + wpt + ' ' + hpt + ']',
+      '              /TrimBox[0 0 ' + wpt + ' ' + hpt + ']}'
+    ];
+  },
+
+  header: function(title, colorProfile, pageSize) {
     var pdfx = gpub.book.latex.pdfx;
+    if (!colorProfile) {
+      throw new Error('Color profile file path not specified:' + colorProfile);
+    }
+    if (!pageSize || !gpub.book.page.size[pageSize]) {
+      throw new Error('Pagesize not defined or invalid:' + pageSize);
+    }
     return [
       pdfx.pdfMinorVersion,
       pdfx.compressLevel
     ]
+      .concat(pdfx.pageBoxes(pageSize))
       .concat(pdfx.pdfInfo(title))
       .concat(pdfx.outputIntent(colorProfile))
       .join('\n');

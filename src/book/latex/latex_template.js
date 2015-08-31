@@ -4,6 +4,7 @@ gpub.book.latex.defaultTemplate = [
 '\\usepackage{color}',
 '\\usepackage{wrapfig}',
 '\\usepackage{setspace}',
+'\\usepackage[cmyk]{xcolor}',
 '\\usepackage{graphicx}',
 '<%^pdfx1a%>',
 '\\usepackage{hyperref}',

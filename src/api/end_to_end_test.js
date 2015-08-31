@@ -34,10 +34,26 @@
     })
     ok(gpub.global.debug, 'Debug should be enabled');
 
-    var output = gpub.create({
+    // reset so we don't affect other tests.
+    gpub.create({
       sgfs: [sgfs.base],
       debug: false
     })
-    ok(!gpub.global.debug, 'Debug should be enabled');
+    ok(!gpub.global.debug, 'Debug should be disabled');
+  });
+
+  test('Testing PDF/X-1a:2001 compatibility (no exceptions)', function() {
+    var output = gpub.create({
+      sgfs: [sgfs.base],
+      colorProfileFilePath: 'ISOcoated_v2_300_eci.icc',
+      pdfx1a: true
+    });
+
+    ok(/\/MediaBox/.test(output), 'Media box must be defined');
+    ok(/\/GTS_PDFXVersion/.test(output), 'PDFXVersion must be specified');
+    ok(/\/Title/.test(output), 'Title must be specified');
+    ok(/\\pdfminorversion=3/.test(output), 'PDF version be 1.3');
+    ok(/\\pdfobjcompresslevel=0/.test(output), 'Compression should be off');
+    ok(/\/OutputIntent/.test(output), 'OutputIntent must be specified');
   });
 })();

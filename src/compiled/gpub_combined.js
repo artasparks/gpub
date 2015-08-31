@@ -969,7 +969,7 @@ gpub.book._Generator.prototype = {
       var debugCtx = this._getDebugCtx(
           mt, nextMoves, sgfObj.boardRegion, autoVarCrop, regionRestrictions);
       var ctx = gpub.book.getDiagramContext(
-          mt, flattened, sgfObj, this.pdfx1a(), debugCtx);
+          mt, flattened, sgfObj, this.usePdfx1a(), debugCtx);
 
       fn(i, mt, flattened, ctx, sgfId);
     }
@@ -1022,8 +1022,12 @@ gpub.book._Generator.prototype = {
     return this._opts;
   },
 
-  /** Whether the doc should be generated as a PDF/X-1a compatible doc */
-  pdfx1a: function() {
+  /**
+   * Whether the doc should be generated as a PDF/X-1a compatible doc. This
+   * should be moved to the latex stuff if possible. It's only ever going to be
+   * used for latex.
+   */
+  usePdfx1a: function() {
     return this._opts.pdfx1a;
   },
 
@@ -1124,14 +1128,19 @@ gpub.book.page = {
 };
 
 /**
- * Enum-like type enumerating the supported page sizes
+ * Enum-like type enumerating the supported page sizes.
  */
 gpub.book.page.type = {
   A4: 'A4',
+  /** 8.5 x 11 */
   LETTER: 'LETTER',
+  /** 6 x 9 */
   OCTAVO: 'OCTAVO',
+  /** 5 x 7 */
   NOTECARD: 'NOTECARD',
+  /** 8 x 10 */
   EIGHT_TEN: 'EIGHT_TEN',
+  /** 5.5 x 8.5 */
   FIVEFIVE_EIGHTFIVE: 'FIVEFIVE_EIGHTFIVE'
 };
 
@@ -1174,6 +1183,7 @@ gpub.book.page.size = {
     heightIn: 7,
     widthIn: 5
   },
+
   // Miscellaneous sizes
   EIGHT_TEN: {
     heightMm: 254,
@@ -1513,10 +1523,10 @@ gpub.book.latex.generator = {
       pages.pagePreamble()
     ].join('\n');
 
-    if (this.pdfx1a()) {
-      view.pdfx1a = this.pdfx1a();
+    if (this.usePdfx1a()) {
+      view.pdfx1a = this.usePdfx1a();
       view.pdfxHeader = gpub.book.latex.pdfx.header(
-          view.title, opts.colorProfileFilePath);
+          view.title, opts.colorProfileFilePath, opts.pageSize);
     }
 
     this.forEachSgf(spec, function(idx, mt, flattened, ctx, sgfId) {
@@ -1590,6 +1600,7 @@ gpub.book.latex.defaultTemplate = [
 '\\usepackage{color}',
 '\\usepackage{wrapfig}',
 '\\usepackage{setspace}',
+'\\usepackage[cmyk]{xcolor}',
 '\\usepackage{graphicx}',
 '<%^pdfx1a%>',
 '\\usepackage{hyperref}',
@@ -1962,6 +1973,7 @@ gpub.book.latex.Paging = function(
   this.buffer = [];
 
   /** Size of the pages produced by the paging factory. */
+  // TODO(kashomon): why is this guarded?
   this.pageSize = pageType ||
       gpub.book.page.type.LETTER;
 
@@ -2217,8 +2229,8 @@ gpub.book.latex.pdfx = {
   },
 
   /**
-   *
-   * Return the PDF Info. Fixes:
+   * Returns the PDF Info, which contains the title and spec (PDF/X-1a:2101)
+   * Fixes:
    *  - "Document title empty/missing",
    *  - "PDF/X version key (GTS_PDFXVersion) missing"
    */
@@ -2232,12 +2244,33 @@ gpub.book.latex.pdfx = {
     ];
   },
 
-  header: function(title, colorProfile) {
+  /**
+   * Returns the relevant page boxes.
+   */
+  pageBoxes: function(pageSize) {
+    var pageObj  = gpub.book.page.size[pageSize];
+    var hpt = gpub.book.page.mmToPt(pageObj.heightMm);
+    var wpt = gpub.book.page.mmToPt(pageObj.widthMm);
+    return [
+      '\\pdfpageattr{/MediaBox[0 0 ' + wpt + ' ' + hpt + ']',
+      '              /BleedBox[0 0 ' + wpt + ' ' + hpt + ']',
+      '              /TrimBox[0 0 ' + wpt + ' ' + hpt + ']}'
+    ];
+  },
+
+  header: function(title, colorProfile, pageSize) {
     var pdfx = gpub.book.latex.pdfx;
+    if (!colorProfile) {
+      throw new Error('Color profile file path not specified:' + colorProfile);
+    }
+    if (!pageSize || !gpub.book.page.size[pageSize]) {
+      throw new Error('Pagesize not defined or invalid:' + pageSize);
+    }
     return [
       pdfx.pdfMinorVersion,
       pdfx.compressLevel
     ]
+      .concat(pdfx.pageBoxes(pageSize))
       .concat(pdfx.pdfInfo(title))
       .concat(pdfx.outputIntent(colorProfile))
       .join('\n');

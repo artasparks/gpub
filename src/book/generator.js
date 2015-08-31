@@ -159,7 +159,7 @@ gpub.book._Generator.prototype = {
       var debugCtx = this._getDebugCtx(
           mt, nextMoves, sgfObj.boardRegion, autoVarCrop, regionRestrictions);
       var ctx = gpub.book.getDiagramContext(
-          mt, flattened, sgfObj, this.pdfx1a(), debugCtx);
+          mt, flattened, sgfObj, this.usePdfx1a(), debugCtx);
 
       fn(i, mt, flattened, ctx, sgfId);
     }
@@ -212,8 +212,12 @@ gpub.book._Generator.prototype = {
     return this._opts;
   },
 
-  /** Whether the doc should be generated as a PDF/X-1a compatible doc */
-  pdfx1a: function() {
+  /**
+   * Whether the doc should be generated as a PDF/X-1a compatible doc. This
+   * should be moved to the latex stuff if possible. It's only ever going to be
+   * used for latex.
+   */
+  usePdfx1a: function() {
     return this._opts.pdfx1a;
   },
 

@@ -21,10 +21,10 @@ gpub.book.latex.generator = {
       pages.pagePreamble()
     ].join('\n');
 
-    if (this.pdfx1a()) {
-      view.pdfx1a = this.pdfx1a();
+    if (this.usePdfx1a()) {
+      view.pdfx1a = this.usePdfx1a();
       view.pdfxHeader = gpub.book.latex.pdfx.header(
-          view.title, opts.colorProfileFilePath);
+          view.title, opts.colorProfileFilePath, opts.pageSize);
     }
 
     this.forEachSgf(spec, function(idx, mt, flattened, ctx, sgfId) {
