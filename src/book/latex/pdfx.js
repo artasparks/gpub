@@ -43,6 +43,29 @@ gpub.book.latex.pdfx = {
    */
   pdfMinorVersion: '\\pdfminorversion=3',
 
+  /**
+   * Fixes the error:
+   * "OutputIntent for PDF/X missing"
+   *
+   * typicacally, the colorProfileFilePath should be something like:
+   * 'ISOcoated_v2_300_eci.icc'
+   */
+  outputIntent: function(colorProfileFilePath) {
+    colorProfileFilePath = colorProfileFilePath || 'ISOcoated_v2_300_eci.icc';
+    return [
+      '\\immediate\\pdfobj stream attr{/N 4} file{' + colorProfileFilePath + '}',
+      '\\pdfcatalog{%',
+      '/OutputIntents [ <<',
+      '/Type /OutputIntent',
+      '/S/GTS_PDFX',
+      '/DestOutputProfile \\the\\pdflastobj\\space 0 R',
+      '/OutputConditionIdentifier (ISO Coated v2 300 (ECI))',
+      '/Info(ISO Coated v2 300 (ECI))',
+      '/RegistryName (http://www.color.org/)',
+      '>> ]',
+      '}'
+    ];
+  },
 
   /**
    *
@@ -60,12 +83,14 @@ gpub.book.latex.pdfx = {
     ];
   },
 
-  header: function(title) {
+  header: function(title, colorProfile) {
     var pdfx = gpub.book.latex.pdfx;
     return [
       pdfx.pdfMinorVersion,
       pdfx.compressLevel
-    ].concat(pdfx.pdfInfo(title))
-        .join('\n');
+    ]
+      .concat(pdfx.pdfInfo(title))
+      .concat(pdfx.outputIntent(colorProfile))
+      .join('\n');
   }
 };

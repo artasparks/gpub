@@ -9,6 +9,9 @@ var fs = require('fs');
 var path = require('path')
 var child_process = require('child_process')
 
+var scriptDir = path.dirname(require.main.filename);
+var resourcesDir = path.join(scriptDir, '..', 'resources');
+
 var flags = flagz.init(
   'A script for generating books from book specs!',
   ['<json-book-definition>'],
@@ -43,6 +46,10 @@ var flags = flagz.init(
         'The copyright file, specified as JSON.'],
 
     pdfx1a: ['boolean', false, 'Whether or not to generate PDF/X-1a valid PDFs'],
+    colorProfileFilePath: ['file name',
+        path.join(resourcesDir, 'ISOcoated_v2_300_eci.icc'),
+        'Color profile file. Defaults to ISOcoated_v2_300_eci.icc in ' +
+        'GPub\'s resources.'],
     debug: ['boolean', false, 'Whether or not debugging information is enabled.']
   }).process();
 
@@ -77,6 +84,7 @@ var options = {
     frontmatter: {}
   },
   pdfx1a: flags.processed.pdfx1a,
+  colorProfileFilePath: flags.processed.colorProfileFilePath,
   debug: flags.processed.debug
 };
 

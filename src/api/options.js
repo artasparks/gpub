@@ -90,6 +90,12 @@ gpub.defaultOptions = {
    */
   pdfx1a: false,
 
+  /**
+   * An option only for PDF/X-1a. For this spceification, you must specify a
+   * color profile file (e.g., ISOcoated_v2_300_eci.icc).
+   */
+  colorProfileFilePath: null,
+
   //////////////////
   // Book Options //
   //////////////////

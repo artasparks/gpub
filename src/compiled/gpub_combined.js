@@ -1514,8 +1514,9 @@ gpub.book.latex.generator = {
     ].join('\n');
 
     if (this.pdfx1a()) {
-      view.pdfx1a = this.pdfx1a(view.title);
-      view.pdfxHeader = gpub.book.latex.pdfx.header();
+      view.pdfx1a = this.pdfx1a();
+      view.pdfxHeader = gpub.book.latex.pdfx.header(
+          view.title, opts.colorProfileFilePath);
     }
 
     this.forEachSgf(spec, function(idx, mt, flattened, ctx, sgfId) {
@@ -2191,6 +2192,29 @@ gpub.book.latex.pdfx = {
    */
   pdfMinorVersion: '\\pdfminorversion=3',
 
+  /**
+   * Fixes the error:
+   * "OutputIntent for PDF/X missing"
+   *
+   * typicacally, the colorProfileFilePath should be something like:
+   * 'ISOcoated_v2_300_eci.icc'
+   */
+  outputIntent: function(colorProfileFilePath) {
+    colorProfileFilePath = colorProfileFilePath || 'ISOcoated_v2_300_eci.icc';
+    return [
+      '\\immediate\\pdfobj stream attr{/N 4} file{' + colorProfileFilePath + '}',
+      '\\pdfcatalog{%',
+      '/OutputIntents [ <<',
+      '/Type /OutputIntent',
+      '/S/GTS_PDFX',
+      '/DestOutputProfile \\the\\pdflastobj\\space 0 R',
+      '/OutputConditionIdentifier (ISO Coated v2 300 (ECI))',
+      '/Info(ISO Coated v2 300 (ECI))',
+      '/RegistryName (http://www.color.org/)',
+      '>> ]',
+      '}'
+    ];
+  },
 
   /**
    *
@@ -2208,13 +2232,15 @@ gpub.book.latex.pdfx = {
     ];
   },
 
-  header: function(title) {
+  header: function(title, colorProfile) {
     var pdfx = gpub.book.latex.pdfx;
     return [
       pdfx.pdfMinorVersion,
       pdfx.compressLevel
-    ].concat(pdfx.pdfInfo(title))
-        .join('\n');
+    ]
+      .concat(pdfx.pdfInfo(title))
+      .concat(pdfx.outputIntent(colorProfile))
+      .join('\n');
   }
 };
 /**
@@ -3447,6 +3473,12 @@ gpub.defaultOptions = {
    * applies to output formats that generate PDFs (latex).
    */
   pdfx1a: false,
+
+  /**
+   * An option only for PDF/X-1a. For this spceification, you must specify a
+   * color profile file (e.g., ISOcoated_v2_300_eci.icc).
+   */
+  colorProfileFilePath: null,
 
   //////////////////
   // Book Options //
