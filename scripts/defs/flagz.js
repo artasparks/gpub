@@ -200,12 +200,15 @@ FlagzDef.prototype = {
         this.args.join(' ') + ' <optional flags>';
     var argData = '\n\n' +
         ':::Flags:::\n' +
-        'flag_name: <expected type>, <default value> :: Help Text\n' +
+        '--flag_name: <expected type>, <default value> :: Help Text\n' +
         '--------------------------------------------------------\n';
     for (var flag in this.flagdefs) {
       var farr = this.flagdefs[flag];
+      var underScoreFlag = flag.replace(/[A-Z]/g, function(m) {
+        return "_" + m.toLowerCase();
+      });
       var helpText = farr[2] || '';
-      argData += flag + ': <'
+      argData += '--' + underScoreFlag + ': <'
           + farr[0] + '>, <' + farr[1] + '>, ' + helpText + '\n';
     }
     argData += '--------------------------------------------------------';
