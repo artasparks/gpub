@@ -1771,6 +1771,9 @@ gpub.book.latex.defaultTemplate = [
 '\\mainmatter',
 '<%&content%>',
 '',
+'% We clear to recto to ensure an even number of pages',
+'\\cleartorecto',
+'',
 '\\end{document}'].join('\n');
 /** Creates a marked-Markdown renderer for LaEeX */
 gpub.book.latex.renderer = function() {
