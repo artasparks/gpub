@@ -2,7 +2,7 @@
 RU[Japanese]SZ[19]KM[0.00]
 GN[Fujisawa-Hosai-vs-Go-Seigen-19430225]PW[Go Seigen]PB[Fujisawa Hosai]WR[8d]BR[6d]DT[1943-02-25]GC[{
   "title": "Go vs Fujisawa",
-  "authors": ["Josh Hoak"\]
+  "authors": ["Josh Hoak", "Younggil An", "David Ormerod"\]
 }]SO[http://gogameguru.com/]AN[An Younggil 8p]C[### Introduction
 
 This was the second game in a ten game match between Fujisawa Hosai 9p and Go Seigen 9p. It was played on February 25 and 26, 1943.
@@ -68,7 +68,9 @@ Black should double approach in the top left next and there are several options 
 ;B[kd]
 ;W[ke]
 ;B[je]C[This was black's plan, but]
-(;W[pc]C[This peep was brilliant!]
+(;W[pc]C[A Brilliant Peep
+
+This peep was brilliant!]
 (;B[qc]C[Black played here in the game, but now]
 ;W[jc]TR[pc][qc]C[The marked exchange will help white with the fighting at the top.]
 ;B[nb]
@@ -166,7 +168,9 @@ White caught up a bit here, but black's still slightly ahead on the board and wh
 ;B[sb]C[Black lived in the corner. It appeared to be very sucessful for black, but white had a plan at the top.]
 ;W[re]C[The timing of this forcing exchange was exquisite.]
 ;B[rd]LB[rc:C][sc:B][sd:A]C[Black has to answer, otherwise white can capture black's top right group with A (which makes miai of B and C).]
-;W[kb]C[This is what white was aiming at. ]
+;W[kb]C[### White fights back
+
+This is what white was aiming at. ]
 ;B[lb]
 ;W[la]C[This double hane was brilliant, and white created a big ko.]
 ;B[jb]

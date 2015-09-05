@@ -5,14 +5,6 @@
 This is an unordered collection of things to work on since I had a hard time
 keeping them in my head.
 
-* __Validation__: To publish, PDF/X-1a:2001 or PDF/X-3:2002 is often
-  required. Can we ensure that is the case?
-  http://stackoverflow.com/questions/569129/how-can-i-test-a-pdf-document-if-it-is-pdf-a-compliant
-  There's also a LaTeX package called pdfx. It has some problems, but might be
-  able to adapt it. Might be able to hack it manually,
-
-http://tex.stackexchange.com/questions/242303/pdf-x-1a-on-tex-live-2014-for-publishing-with-pod-lightining-source
-
 * __Book Interface__: The interface for book should probably be changed from
   returning string to returning a more complex data type. Right now we can
   probably just get away with a string return, but it won't work for

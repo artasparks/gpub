@@ -21,7 +21,7 @@ This returns the string output of the book.
 
 ### Options
 
-Structure of the options object in the API
+The rough structure of the options object in the API
 
 ```javascript
 {
@@ -190,10 +190,10 @@ gpub.create([sgf1, sgf2, ...], {
 });
 ```
 
+## Scripts
 
-## Miscellaneous Scripts 
-
-To enable all the scripts, it's convenient ta have something like
+GPub comes with a numeber of scripts to help with book generation and
+renversion. It's usually convenient ta have something like:
 
 ```shell
 PATH=/Users/kashomon/inprogress/gpub/scripts:$PATH
@@ -201,11 +201,33 @@ PATH=/Users/kashomon/inprogress/gpub/scripts:$PATH
 
 in your `.bashrc` or `.bash_profile`
 
+This will enable you to use:
+
+* `book_gen.js` A script to generate go books.
+* `convert_tygem.js` A script to convert Tygem `.gib` files to SGF. Not terribly
+  robust; relies on Glift functionality.
+
+### Flags
+
+GPub has a custom flag parsing library (sorry). The format for flags is as follows:
+
+```
+--flag_name=value
+--foo (boolean only, equivalent to --foo=true)
+--nofoo (boolean only, equivalent to --foo=false)
+```
+
+*Examples*
+```
+--debug -- turn debugging on
+--nodebug -- turn debugging on
+```
+
 ### Converting Tygem files to SGF
 
-`convert_tygem.sh` converts .gib files into .sgfs (automatically making new sgf
+`convert_tygem.js` converts .gib files into .sgfs (automatically making new sgf
 files).
 
 ```shell
-convert_tygem.sh *.gib
+convert_tygem.js *.gib
 ```

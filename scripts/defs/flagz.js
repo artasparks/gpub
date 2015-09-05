@@ -19,8 +19,8 @@ var init = function(helptext, args, flagkeys) {
  *  flagdefs: The flag object is where the magic happens. It's a mapping from
  *      flag name to a flag array.
  *
- *      Flag names have have the format: 
- *          foo_bar_biff
+ *      Flag names (keys) have have the format: fooBarBiff. However, when flags
+ *          are passed in, --foo_bar_biff gets converted into fooBarBiff
  *      Flag arrays (the values in the obj) have the format:
  *          ['flagtype', <default value>, helptext]
  *
@@ -70,10 +70,12 @@ FlagzDef.prototype = {
     if (flagtype === 'boolean') {
       if (value === 'false' || value === '0') {
         value = false;
-      } else {
+      } else if (value === 'true' || value === '1') {
         // Note: this catches the undefined case. However, for booleans,
         // specifying a flag like blah.js --foo_bool shoulb be considered true.
         value = true;
+      } else  {
+        return null;
       }
     } else if (value === null || value === undefined) {
       value = null;
@@ -85,27 +87,39 @@ FlagzDef.prototype = {
 
   /**
    * Process command line flags and arguments based on the flag definition.
+   *
+   * Note: We only support flags with the following syntax:
+   *
+   * --foo (boolean). Equivalent to --foo=true
+   * --nofoo (boolean). Equivalent to --foo=false
+   * --bar=value
+   * --bar="some complicated value"
    */
   process: function() {
     var scriptpath = process.argv[1] || 'script';
     var scriptname = scriptpath.replace(/([^\/]*\/)+/g, '');
     this._scriptname = scriptname;
-    // It's sometimes advantageous to have scripts that work without any
-    // arguments
+    // It's sometimes advantageous to have scripts that just work without any
+    // arguments. Thus, don't do this:
     // if (process.argv.length <= 2) {
       // return this.displayHelp();
     // }
 
+    // Processed is a copy of all the flags.
     var processed = {};
-    // Set defaults set in the init function by the user.
+
+    // Set defaults set in the init function by the user. Currently, we only use
+    // assignment. Thus 
     for (var key in this.flagdefs) {
       processed[key] = this.flagdefs[key][1];
     }
 
     var unprocessed = [];
+
     // TODO(kashomon): Remove the single dash (-foo) form of flags.
-    var flagregex = /^-(-)?/;
-    var helpregex = /^-(-)?h(elp)?$/;
+    var flagregex = /^--/;
+    var helpregex = /^--h(elp)?$/;
+    var flagKeyValuePattern = /^[a-zA-Z0-9_]+=.*/;
     for (var i = 2; i < process.argv.length; i++) {
       var item = process.argv[i];
       if (helpregex.test(item)) {
@@ -113,50 +127,52 @@ FlagzDef.prototype = {
         // display the help text.
         return this.displayHelp();
       }
+
       if (flagregex.test(item)) {
         // The argument is attempting to be a flag. We know this because the
-        // value on the command line looks like --foo or -foo. Thus, we need to
-        // get the flag 'value'. The value will have the form --foo=bar or -f
-        // bar.
+        // value on the command line looks like --foo or Thus, we need to
+        // get the flag 'value'. The value will have the form --foo=bar
         var flagname = item.replace(flagregex, '')
-        var origFlagName = flagname; // for testing --blah=bif patterns below
-        if (/^[a-zA-Z_]+=/.test(flagname)) {
+        var origFlagName = flagname; // Store this original value
+
+        if (flagKeyValuePattern.test(flagname)) {
           flagname = flagname.split('=')[0];
         }
+
         // convert under_score_delimited to camelCase
         flagname = flagname.replace(/(_[a-z])/g, function(m) {
           return m.slice(1).toUpperCase();
         });
 
+        // The user-specified value of the flag;
+        var value = null;
+
         // Recall that the flag arr has the format
         //  [type, default value, description]
         var flagarr = this.flagdefs[flagname];
         if (flagarr === undefined) {
-          return this.unknownFlag(flagname);
+          var alternateFlag = flagname.replace(/^no/, '');
+          var flagarr = this.flagdefs[alternateFlag];
+          if (flagarr && flagarr[0] === 'boolean') {
+            value = false;
+          } else {
+            return this.unknownFlag(item);
+          }
         }
 
-        var value = null;
-        if (/^[a-zA-Z_]+=/.test(origFlagName)) {
+        if (flagKeyValuePattern.test(origFlagName)) {
           // This flag has the form --foo=. So, split on = and the second part
           // is the value.
           var splat = origFlagName.split('=', 2);
           value = splat[1];
           value = this._processFlagType(value, flagarr, origFlagName);
+        } else if (flagarr[0] === 'boolean' && value === null) {
+          value = true;
         }
 
-        // Asume the flag has the pattern --foo bar
-        if (value == null) {
-          // The flag value is still null. We need to peek at the next value in
-          // the process args. Ideally, the flag has the format --foo bar
-          value = process.argv[i + 1]; // peek! Could be undefined!
-          if (value !== undefined && flagregex.test(value)) {
-            // The next value is a flag value. This is an error.
-            return this.unknownFlag(flagname);
-          }
-          value = this._processFlagType(value, flagarr, origFlagName);
-          i++;
+        if (!this.validateFlag(flagarr, value)) {
+          return this.unknownFlag(item);
         }
-        this.validateFlag(flagname, value);
         processed[flagname] = value
 
       } else {
@@ -171,8 +187,11 @@ FlagzDef.prototype = {
     this.displayHelp()
   },
 
-  validateFlag: function(argname, argvalue) {
-    // TODO(kashomon): I should probably do this at some point.
+  validateFlag: function(flagarr, argvalue) {
+    if (flagarr[0] === 'boolean' && typeof argvalue !== 'boolean') {
+      return false;
+    }
+    return true;
   },
 
   /** Display the help text. */
