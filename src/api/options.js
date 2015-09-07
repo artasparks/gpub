@@ -82,6 +82,7 @@ gpub.defaultOptions = {
   ////////////////////////////
 
   /** Size of the gnos font */
+  // TODO(kashomon): Make this diagram-agnostic.
   gnosFontSize: '12',
 
   /**
