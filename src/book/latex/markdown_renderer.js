@@ -130,7 +130,10 @@ gpub.book.latex.markdown = {
 
   /** href: string, title: string, text: string */
   // requires: \usepackage{hyperref}
-  // link: function(href, title, text) {},
+  link: function(href, title, text) {
+    // For new, we just return the url.
+    return href;
+  },
 
   /** image: string, title: string, text: string */
   // might not be necessary
