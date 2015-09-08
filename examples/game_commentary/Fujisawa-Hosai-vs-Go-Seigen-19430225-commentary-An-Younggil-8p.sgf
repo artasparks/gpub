@@ -37,7 +37,9 @@ Compared to today's games, star point openings appeared much less often back the
 ;W[pm]
 (;B[on]
 ;W[pn]
-;B[op]LB[on:A]C[Even though it makes white's stones heavy, the peep at A is aji keshi (reduces black's future opportunities). Peeping like that is uncommon in modern games.]
+;B[op]LB[on:A]C[### An Old Fuseki
+
+Even though it makes white's stones heavy, the peep at A is aji keshi (reduces black's future opportunities). Peeping like that is uncommon in modern games.]
 ;W[qi]LB[ql:C][on:A][pn:B][rn:D]C[If black hadn't exchanged A for B, he could aim to invade at C, planning to connect under at D or run away later. The forcing move at A reduced black's future potential for invading.]
 ;B[ce]
 ;W[cn]LB[fc:A][gc:C][fd:B][gd:D][dh:E]C[This large knight's enclosure was Go Seigen's favorite. You can see this enclosure a lot in his games. Since there's no komi, white should play more actively, to lead things towards a complicated game.
@@ -68,7 +70,7 @@ Black should double approach in the top left next and there are several options 
 ;B[kd]
 ;W[ke]
 ;B[je]C[This was black's plan, but]
-(;W[pc]C[A Brilliant Peep
+(;W[pc]C[### The Brilliant Peep
 
 This peep was brilliant!]
 (;B[qc]C[Black played here in the game, but now]
@@ -131,7 +133,9 @@ White caught up a bit here, but black's still slightly ahead on the board and wh
 ;W[qq]
 ;B[rq]
 ;W[qr]
-(;B[rn]C[This hane showed fighting spirit, but it was too much.]
+(;B[rn]C[### A Small Mistake
+
+This hane showed fighting spirit, but it was too much.]
 ;W[rr]C[White seized a good chance here. Go Seigen doesn't miss his opponent's tiny mistakes.]
 (;B[rm]C[This is the only choice for black. ]
 ;W[rp]
@@ -159,7 +163,9 @@ White caught up a bit here, but black's still slightly ahead on the board and wh
 ;W[km]
 (;B[lo]C[This move looks small and slow, but it was necessary.]
 ;W[jk]C[This knight's move was very good, and it's hard for black to make territory in the center now. The game's still slightly better for white.]
-;B[pa]C[This hane was a probe, but it was premature, and it became the losing move. ]
+;B[pa]C[### The Losing Move
+
+This hane was a probe, but it was premature, and it became the losing move. ]
 ;W[qa]LB[qb:A]C[White doesn't want to pull back at A, because the game's very close.]
 ;B[qb]LB[oa:A]C[Black can't connect at A, because he'd lose two points, so he cut here. ]
 ;W[oa]
@@ -278,7 +284,7 @@ This is what white was aiming at. ]
 ;B[dh]
 ;W[df]
 ;B[cf]
-;W[qf]LB[pa:D][mc:A][fl:B][rn:C]C[Black resigned here. 
+;W[qf]LB[pa:D][mc:A][fl:B][rn:C]C[### Black resigns
 
 It was an interesting game.
 
