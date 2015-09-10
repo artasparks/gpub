@@ -29,7 +29,11 @@ gpub.diagrams = {
      * Native PDF generation
      * >> Not Currently Supported, but here for illustration.
      */
-    PDF: 'PDF'
+    PDF: 'PDF',
+    /**
+     * Generate SVG Diagrams.
+     */
+    SVG: 'SVG'
   },
 
   /**
