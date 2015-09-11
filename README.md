@@ -65,6 +65,28 @@ The rough structure of the options object in the API
 PATH=/Users/kashomon/inprogress/gpub/scripts:$PATH
 ```
 
+
+### Book Generation
+
+The easiest way to generate a book is to use `scripts/book_gen.js` script
+
+```shell
+book_gen.js foo.sgf bar.sgf
+```
+
+Book generation proceeds in two phases:
+
+1. Determine which digarams should be generate for the relevant SGFs. The output
+   of this step is a Glift Spec, although most users won't deal with this phase.
+2. Generate the Diagrams.
+3. Insert the diagrams into the relevant book template.
+
+Note: There are some caveats to this process.
+
+1. All number-marks are removed and replaced with the actual move number marks.
+   This might be unintuitive for some users, but this process removes a
+   significant amount of human error.
+
 ### The Glift Spec
 
 The Glift Spec is an options definition that is consumable by Glift, and is the
