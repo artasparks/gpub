@@ -27,6 +27,7 @@ DIR_ORDER = [
   'book/ascii',
   'book/htmlpage',
   'book/latex',
+  'book/epub',
 
   'spec',
   'diagrams',
@@ -35,6 +36,7 @@ DIR_ORDER = [
   'diagrams/gnos',
   'diagrams/igo',
   'diagrams/pdf',
+  'diagrams/svg',
   'templates',
 
   # Last but hardly least.

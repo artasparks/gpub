@@ -192,14 +192,17 @@ gpub.bookPurpose = {
  * The format for gpub output.
  */
 gpub.outputFormat = {
-  /** Construct a book with a LaTeX format. */
-  LATEX: 'LATEX',
+  /** Construct a book in ASCII format. */
+  ASCII: 'ASCII',
+
+  /** Constructs a EPub book. */
+  EPUB: 'EPUB',
 
   /** Constructs a full HTML page. This is often useful for testing. */
   HTMLPAGE: 'HTMLPAGE',
 
-  /** Construct a book in ASCII format. */
-  ASCII: 'ASCII'
+  /** Construct a book with a LaTeX format. */
+  LATEX: 'LATEX'
 
   /** Construct a book in Smart Go format. */
   // SMART_GO: 'SMART_GO'
