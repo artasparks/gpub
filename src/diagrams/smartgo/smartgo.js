@@ -1,5 +1,7 @@
 /**
  * Create a smartgo diagram
+ *
+ * Spec: http://www.smartgo.com/pdf/gobookformat.pdf
  */
 gpub.smartgo = {
   /**
