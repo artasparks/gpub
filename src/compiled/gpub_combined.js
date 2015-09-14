@@ -1682,6 +1682,14 @@ gpub.book.latex.defaultTemplate = [
 // other options for chapter styles:
 // bringhurst,crosshead,default,dowding,memman,komalike,ntglike,tandh,wilsondob
 '\\chapterstyle{madsen}',
+// Muck with the chapter number. The standard madsen style has the numbers off
+// the edge of the header box. That works fine until you want to print at
+// smaller sizes (e.g., 6x9).
+'\\renewcommand*{\\printchapternum}{%',
+'  \\resizebox{!}{3ex}{%',
+'      {\\hspace{0.2em}\\chapnamefont\\bfseries\\sffamily\\thechapter}%',
+'  }%',
+'}%',
 
 // openany, openright, openleft
 '\\openany',
@@ -2290,6 +2298,39 @@ gpub.book.latex.sanitize = function(text) {
     .replace(/[$}{%&]/g, function(match) {
       return '\\' + match;
     });
+};
+/**
+ * Generate an EPub book.
+ *
+ * A Hello-World EPub Book is a zip file that has the following structure:
+ *
+ * mimetype
+ * META-INF/container.xml
+ * Content/HelloWorld.opf
+ * Content/HelloWorld.xhtml
+ *
+ * EPUb Overview: http://www.idpf.org/epub/30/spec/epub30-overview.html
+ * See http://www.idpf.org/epub/301/spec/ for more details.
+ *
+ * Notes:
+ * - EPub 3 supports fixed layouts: http://www.idpf.org/epub/301/spec/#sec-fxl
+ */
+gpub.book.epub = {};
+
+/**
+ * Generator methods for the EPub page.
+ */
+gpub.book.epub.generator = {
+  generate: function(spec, options) {
+  },
+
+  defaultTemplate: function() {
+    return gpub.book.htmlBook._template;
+  },
+
+  defaultOptions: function() {
+    return {};
+  }
 };
 /**
  * Methods for processing and creating Glift specifications.
@@ -3361,6 +3402,46 @@ gpub.diagrams.pdf = {
   }
 };
 /**
+ * Generate SVG go diagrams.
+ *
+ * The primary reason we support SVG is so that we can support images in EPub
+ * books. As of writing this (2015-9-12), eReaders usually disable JavaScript,
+ * so that precludes the use of Canvas and Glift directly. However, Glift relies
+ * on SVG, so we can piggyback on the existing SVG generation.
+ *
+ * Notes about generation:
+ * It's usually useful to print a viewbox:
+ *
+ * <svg xmlns="http://www.w3.org/2000/svg"
+ *      version="1.1" width="100%" height="100%"
+ *      viewBox="0 0 844 1200">
+ *    …
+ * </svg>
+ *
+ * Restrictions:
+ * - SVG for Ebooks must be static SVG -- no animation.
+ * - svg:foreignObject element must contain either [HTML5] flow content or
+ *   exactly one [HTML5] body element.
+ * - The [SVG] svg:title element must contain only valid XHTML.
+ *
+ * Some Resources:
+ * - EPub SVG Spec: http://www.idpf.org/epub/301/spec/epub-contentdocs.html#sec-svg
+ * - EPub Standard: http://idpf.org/epub
+ * - EPub 3.0.1 standard: http://idpf.org/epub/301
+ * - http://svgmagazine.com/oct2014/Adventures%20With%20SVG%20In%20ePub.html
+ */
+gpub.diagrams.svg = {
+  create: function(flattened, options) {
+
+  },
+
+  /** Render go stones that exist in a block of text. */
+  renderInline: function(text) {
+    // We probably don't want to modifify inline go stones for SVG rendering.
+    return text;
+  }
+};
+/**
  * Stub namespace. Not really used because all the API should exist at the top
  * level.
  */
@@ -3616,14 +3697,17 @@ gpub.bookPurpose = {
  * The format for gpub output.
  */
 gpub.outputFormat = {
-  /** Construct a book with a LaTeX format. */
-  LATEX: 'LATEX',
+  /** Construct a book in ASCII format. */
+  ASCII: 'ASCII',
+
+  /** Constructs a EPub book. */
+  EPUB: 'EPUB',
 
   /** Constructs a full HTML page. This is often useful for testing. */
   HTMLPAGE: 'HTMLPAGE',
 
-  /** Construct a book in ASCII format. */
-  ASCII: 'ASCII'
+  /** Construct a book with a LaTeX format. */
+  LATEX: 'LATEX'
 
   /** Construct a book in Smart Go format. */
   // SMART_GO: 'SMART_GO'

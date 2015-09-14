@@ -64,6 +64,11 @@
 \endgroup}
  %%% Chapter settings %%%
 \chapterstyle{madsen}
+\renewcommand*{\printchapternum}{%
+  \resizebox{!}{3ex}{%
+      {\hspace{0.2em}\chapnamefont\bfseries\sffamily\thechapter}%
+  }%
+}%
 \openany
 \makepagestyle{headings}
 \setlength{\headwidth}{\textwidth}
@@ -11600,8 +11605,5 @@ http://gogameguru.com/
 
 
 \vfill
-
-% We clear to recto to ensure an even number of pages
-\cleartorecto
 
 \end{document}

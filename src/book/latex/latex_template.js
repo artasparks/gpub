@@ -86,6 +86,14 @@ gpub.book.latex.defaultTemplate = [
 // other options for chapter styles:
 // bringhurst,crosshead,default,dowding,memman,komalike,ntglike,tandh,wilsondob
 '\\chapterstyle{madsen}',
+// Muck with the chapter number. The standard madsen style has the numbers off
+// the edge of the header box. That works fine until you want to print at
+// smaller sizes (e.g., 6x9).
+'\\renewcommand*{\\printchapternum}{%',
+'  \\resizebox{!}{3ex}{%',
+'      {\\hspace{0.2em}\\chapnamefont\\bfseries\\sffamily\\thechapter}%',
+'  }%',
+'}%',
 
 // openany, openright, openleft
 '\\openany',
