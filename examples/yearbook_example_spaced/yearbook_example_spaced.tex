@@ -2,10 +2,12 @@
 \usepackage{color}
 \usepackage{wrapfig}
 \usepackage{setspace}
+\usepackage[cmyk]{xcolor}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{xmpincl}
 \usepackage[margin=1in]{geometry}
+
 %%% Define any extra packages %%%
 \usepackage{gnos}
 %%% Page Settings Preamble %%%
@@ -30,8 +32,9 @@
 
 \newcommand{\gofigure}{%
  \stepcounter{GoFigure}
- \centerline{\textit{Diagram \arabic{GoFigure}}}
+ \centerline{\textit{\textbf{Diagram \arabic{GoFigure}}}}
 }
+
 % Variation Diagrams. reset at parts.
 \newcounter{GoVariation}[part]
 
@@ -55,6 +58,11 @@
 \endgroup}
  %%% Chapter settings %%%
 \chapterstyle{madsen}
+\renewcommand*{\printchapternum}{%
+  \resizebox{!}{3ex}{%
+      {\hspace{0.2em}\chapnamefont\bfseries\sffamily\thechapter}%
+  }%
+}%
 \openany
 \makepagestyle{headings}
 \setlength{\headwidth}{\textwidth}
