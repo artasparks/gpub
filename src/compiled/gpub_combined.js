@@ -1435,7 +1435,7 @@ gpub.book.latex.context = {
         if (ref) {
           baseLabel += '\\hyperref[' + ref + ']{'
         }
-        baseLabel += '\\textit{instead of} '
+        baseLabel += '\\textit{for} '
         baseLabel += readableColor + ' ' + moveNum;
         if (ref) {
           baseLabel += '}';
