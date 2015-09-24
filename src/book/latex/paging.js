@@ -120,7 +120,7 @@ gpub.book.latex.Paging.prototype = {
     if (context.contextType === gpub.book.contextType.EXAMPLE) {
       var mainMove = flattened.mainlineMove();
       if (!flattened.isOnMainPath() && mainMove !== null) {
-        return this._diagramRefMap[flattened.mainlineMoveNum()] || null;
+        return this._diagramRefMap[flattened.nextMainlineMoveNum()] || null;
       } else if (flattened.isOnMainPath()) {
         return this._diagramRefMap[flattened.startingMoveNum()] || null;
       } else {

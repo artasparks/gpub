@@ -1368,6 +1368,10 @@ gpub.book.latex.context = {
     return '';
   },
 
+  /**
+   * When the debug option is set, we attach diagram-level debugging into the
+   * comments.
+   */
   _debugInfo: function(debug) {
     if (!gpub.global.debug) {
       return '';
@@ -1401,36 +1405,45 @@ gpub.book.latex.context = {
     return base.join('\n');
   },
 
-  /** Process the label to make it appropriate for LaTeX. */
+  /**
+   * Process the label to make it appropriate for LaTeX.
+   */
   _processLabel: function(diagramType, label, ctx, flattened, ref) {
+    // By default we use gofigure -- which is a mainline-digaram style label.
     var baseLabel = '\\gofigure';
-    var mainMove = flattened.mainlineMove();
-    // TODO(kashomon): Why would the mainMove be null? In anycase, if this is
-    // not here, we occasionally get errors.
-    if (!flattened.isOnMainPath() && mainMove !== null) {
+
+    if (!flattened.isOnMainPath()) {
+      // We use the next main move for variations: in terms of tree-structure,
+      // variations are usually commentary on their directly siblings (in the
+      // 0th/top position) rather than commentary on their parents.
+      //
+      // Note: that this can be null if we're at the end of the tree.
+      var nextMove = flattened.nextMainlineMove();
       // We're on a variation. Add a comment below the diagram and create a
       // reference label.
       baseLabel = '';
       baseLabel = '\\centerline{\\govariation'
-      var mainMoveNum = flattened.mainlineMoveNum();
-      var readableColor = null;
-      if (mainMove.color === 'BLACK') {
-        readableColor = 'Black'
-      } else {
-        readableColor = 'White'
-      }
-      if (mainMove) {
+
+      if (nextMove) {
+        var moveNum = flattened.nextMainlineMoveNum();
+        var readableColor = '';
+        if (nextMove.color && nextMove.color === 'BLACK') {
+          readableColor = 'Black';
+        } else if (nextMove.color && nextMove.color === 'WHITE') {
+          readableColor = 'White';
+        }
         if (ref) {
           baseLabel += '\\hyperref[' + ref + ']{'
         }
-        baseLabel += '\\textit{from} '
-        baseLabel += readableColor + ' ' + mainMoveNum + '';
+        baseLabel += '\\textit{instead of} '
+        baseLabel += readableColor + ' ' + moveNum;
         if (ref) {
           baseLabel += '}';
         }
       }
       baseLabel += '}';
     }
+
     if (label) {
       // Convert newlines into latex-y newlines
       var splat = label.split('\n');
@@ -1636,9 +1649,9 @@ gpub.book.latex.defaultTemplate = [
 '',
 '\\newcommand{\\gofigure}{%',
 ' \\stepcounter{GoFigure}',
-' \\centerline{\\textit{Diagram \\arabic{GoFigure}}}',
+' \\centerline{\\textit{\\textbf{Diagram \\arabic{GoFigure}}}}',
 '}',
-
+'',
 '% Variation Diagrams. reset at parts.',
 '\\newcounter{GoVariation}[part]',
 '',
@@ -1649,7 +1662,6 @@ gpub.book.latex.defaultTemplate = [
 '',
 '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
 '',
-
 '%%% Define the main title %%%',
 '\\definecolor{light-gray}{gray}{0.55}',
 '\\newcommand*{\\mainBookTitle}{\\begingroup',
@@ -2066,7 +2078,7 @@ gpub.book.latex.Paging.prototype = {
     if (context.contextType === gpub.book.contextType.EXAMPLE) {
       var mainMove = flattened.mainlineMove();
       if (!flattened.isOnMainPath() && mainMove !== null) {
-        return this._diagramRefMap[flattened.mainlineMoveNum()] || null;
+        return this._diagramRefMap[flattened.nextMainlineMoveNum()] || null;
       } else if (flattened.isOnMainPath()) {
         return this._diagramRefMap[flattened.startingMoveNum()] || null;
       } else {

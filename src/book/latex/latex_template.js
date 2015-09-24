@@ -40,9 +40,9 @@ gpub.book.latex.defaultTemplate = [
 '',
 '\\newcommand{\\gofigure}{%',
 ' \\stepcounter{GoFigure}',
-' \\centerline{\\textit{Diagram \\arabic{GoFigure}}}',
+' \\centerline{\\textit{\\textbf{Diagram \\arabic{GoFigure}}}}',
 '}',
-
+'',
 '% Variation Diagrams. reset at parts.',
 '\\newcounter{GoVariation}[part]',
 '',
@@ -53,7 +53,6 @@ gpub.book.latex.defaultTemplate = [
 '',
 '\\newcommand{\\subtext}[1]{\\centerline{\\textit{#1}}}',
 '',
-
 '%%% Define the main title %%%',
 '\\definecolor{light-gray}{gray}{0.55}',
 '\\newcommand*{\\mainBookTitle}{\\begingroup',
