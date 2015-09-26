@@ -33,8 +33,8 @@ var flags = flagz.init(
         'Array of preferred boardregions for cropping purposes'],
 
     // Extra book parts
-    foreward: ['file name (must be in markdown)', 'foreward.md', 
-        'The foreward, rendered as markdown.'],
+    foreword: ['file name (must be in markdown)', 'foreword.md', 
+        'The foreword, rendered as markdown.'],
     preface: ['file name (must be in markdown)', 'preface.md', 
         'The preface, rendered as markdown.'],
     acknowledgements: ['file name (must be in markdown)', 'acknowledgements.md',
@@ -90,7 +90,7 @@ var options = {
 
 // Process frontmatter into the book options.
 var bookPartsKeys = [
-  'foreward', 'preface', 'acknowledgements', 'introduction', 'copyright',
+  'foreword', 'preface', 'acknowledgements', 'introduction', 'copyright',
 ];
 
 for (var i = 0; i < bookPartsKeys.length; i++) {

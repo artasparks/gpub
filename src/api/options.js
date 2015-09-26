@@ -131,7 +131,7 @@ gpub.defaultOptions = {
     frontmatter: {
       // copyright: null, // AKA Colophon Page
       // epigraph: null, // AKA Quote Page
-      foreward: null, // Author or unrelated person
+      foreword: null, // Author or unrelated person
       preface: null, // Author
       acknowledgements: null,
       introduction: null,
