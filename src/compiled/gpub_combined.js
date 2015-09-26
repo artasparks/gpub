@@ -1767,10 +1767,10 @@ gpub.book.latex.defaultTemplate = [
 '\\tableofcontents*',
 '<%/frontmatter.generateToc%>',
 '',
-'<%#frontmatter.foreward%>',
+'<%#frontmatter.foreword%>',
 '\\chapter{Foreward}',
-'<%frontmatter.foreward.text%>',
-'<%/frontmatter.foreward%>',
+'<%frontmatter.foreword.text%>',
+'<%/frontmatter.foreword%>',
 '',
 '<%#frontmatter.preface%>',
 '\\chapter{Preface}',
@@ -3648,7 +3648,7 @@ gpub.defaultOptions = {
     frontmatter: {
       // copyright: null, // AKA Colophon Page
       // epigraph: null, // AKA Quote Page
-      foreward: null, // Author or unrelated person
+      foreword: null, // Author or unrelated person
       preface: null, // Author
       acknowledgements: null,
       introduction: null,
