@@ -31,11 +31,12 @@ DIR_ORDER = [
 
   'spec',
   'diagrams',
-  'diagrams/senseis_ascii',
   'diagrams/gooe',
+  'diagrams/gpub_ascii',
   'diagrams/gnos',
   'diagrams/igo',
   'diagrams/pdf',
+  'diagrams/senseis_ascii',
   'diagrams/svg',
   'templates',
 

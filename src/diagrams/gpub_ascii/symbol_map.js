@@ -1,4 +1,4 @@
-gpub.diagrams.senseisAscii.symbolMap = {
+gpub.diagrams.gpubAscii.symbolMap = {
   /** Placeholder symbol. */
   EMPTY: '_',
 
@@ -15,33 +15,27 @@ gpub.diagrams.senseisAscii.symbolMap = {
   CENTER_STARPOINT: '+',
 
   /**
-   * Stone layer. We don't display the base layer if a stone layer exists.
-   */
-  BSTONE: 'X',
-  WSTONE: 'O',
-
-  /**
    * Marks and StoneMarks layer.
    */
-  BSTONE_TRIANGLE: 'Y',
-  WSTONE_TRIANGLE: 'Q',
+  BSTONE_TRIANGLE: 'D',
+  WSTONE_TRIANGLE: 'd',
   TRIANGLE: 'T',
 
-  BSTONE_SQUARE: '#',
-  WSTONE_SQUARE: '@',
+  BSTONE_SQUARE: 'Q',
+  WSTONE_SQUARE: 'q',
   SQUARE: 'S',
 
-  BSTONE_CIRCLE: 'B',
-  WSTONE_CIRCLE: 'W',
+  BSTONE_CIRCLE: 'E',
+  WSTONE_CIRCLE: 'e',
   CIRCLE: 'C',
 
-  BSTONE_XMARK: 'Z',
-  WSTONE_XMARK: 'P',
+  BSTONE_XMARK: 'A',
+  WSTONE_XMARK: 'a',
   XMARK: 'M',
 
   // Note: BStone and WStone text labels don't really work and should be ignored
   // and just rendered as stones, unless they're numbers between 1-10
-  BSTONE_TEXTLABEL: '%s',
-  WSTONE_TEXTLABEL: '%s',
-  TEXTLABEL: '%s'
+  BSTONE_TEXTLABEL: '#',
+  WSTONE_TEXTLABEL: '*',
+  TEXTLABEL: '@'
 };

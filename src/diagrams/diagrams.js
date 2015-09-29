@@ -5,13 +5,14 @@ gpub.diagrams = {
   // TODO(kashomon): Make part of the API (gpub.api)
   diagramType: {
     /**
-     * ASCII. Generate an ascii diagram.
-     */
-    ASCII: 'ASCII',
-    /**
-     * Sensei's ASCII variant.
+     * Sensei's library ASCII variant.
      */
     SENSEIS_ASCII: 'SENSEIS_ASCII',
+    /**
+     * GPUB's ASCII variant.
+     */
+    GPUB_ASCII: 'GPUB_ASCII',
+
     /**
      * Dan Bump's LaTeX font. Part of the Sgf2Dg script.
      */
