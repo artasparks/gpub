@@ -1,11 +1,11 @@
-\contentsline {chapter}{Foreward}{ii}
-\contentsline {chapter}{Preface}{iii}
-\contentsline {chapter}{Acknowledgments}{iv}
-\contentsline {chapter}{Introduction}{v}
-\contentsline {chapter}{\chapternumberline {1}Introduction}{1}
-\contentsline {chapter}{\chapternumberline {2}An Old Fuseki}{4}
-\contentsline {chapter}{\chapternumberline {3}The Brilliant Peep}{35}
-\contentsline {chapter}{\chapternumberline {4}A Small Mistake}{92}
-\contentsline {chapter}{\chapternumberline {5}The Losing Move}{108}
-\contentsline {chapter}{\chapternumberline {6}White fights back}{112}
-\contentsline {chapter}{\chapternumberline {7}Black resigns}{135}
+\contentsline {chapter}{Foreward}{ii}{chapter*.1}
+\contentsline {chapter}{Preface}{iii}{chapter*.2}
+\contentsline {chapter}{Acknowledgments}{iv}{chapter*.3}
+\contentsline {chapter}{Introduction}{v}{chapter*.4}
+\contentsline {chapter}{\chapternumberline {1}Introduction}{1}{chapter.1}
+\contentsline {chapter}{\chapternumberline {2}An Old Fuseki}{4}{chapter.2}
+\contentsline {chapter}{\chapternumberline {3}The Brilliant Peep}{35}{chapter.3}
+\contentsline {chapter}{\chapternumberline {4}A Small Mistake}{92}{chapter.4}
+\contentsline {chapter}{\chapternumberline {5}The Losing Move}{109}{chapter.5}
+\contentsline {chapter}{\chapternumberline {6}White fights back}{113}{chapter.6}
+\contentsline {chapter}{\chapternumberline {7}Black resigns}{138}{chapter.7}
