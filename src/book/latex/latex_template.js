@@ -19,7 +19,7 @@ gpub.book.latex.defaultTemplate = [
 '',
 '<%#pdfx1a%>',
 '%%% PDF/X-1a Header',
-'<%&pdfxHeader%>',
+'<%ypdfxHeader%>',
 '',
 '<%/pdfx1a%>',
 
@@ -122,7 +122,7 @@ gpub.book.latex.defaultTemplate = [
 '<%frontmatter.copyright.license%> Published <%frontmatter.copyright.publishYear%> \\\\',
 'First edition published <%frontmatter.copyright.firstEditionYear%>.\\\\',
 '\\\\',
-'<%frontmatter.copyright.constructedAddress%>\\\\',
+'<%&frontmatter.copyright.constructedAddress%>\\\\',
 '\\\\',
 '<%#frontmatter.copyright.constructedPrintingRun%>',
 '<%frontmatter.copyright.constructedPrintingRun%>\\\\',

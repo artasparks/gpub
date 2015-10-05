@@ -1628,7 +1628,7 @@ gpub.book.latex.defaultTemplate = [
 '',
 '<%#pdfx1a%>',
 '%%% PDF/X-1a Header',
-'<%&pdfxHeader%>',
+'<%ypdfxHeader%>',
 '',
 '<%/pdfx1a%>',
 
@@ -1731,7 +1731,7 @@ gpub.book.latex.defaultTemplate = [
 '<%frontmatter.copyright.license%> Published <%frontmatter.copyright.publishYear%> \\\\',
 'First edition published <%frontmatter.copyright.firstEditionYear%>.\\\\',
 '\\\\',
-'<%frontmatter.copyright.constructedAddress%>\\\\',
+'<%&frontmatter.copyright.constructedAddress%>\\\\',
 '\\\\',
 '<%#frontmatter.copyright.constructedPrintingRun%>',
 '<%frontmatter.copyright.constructedPrintingRun%>\\\\',
@@ -1919,7 +1919,7 @@ gpub.book.latex.markdown = {
 
   /** code: string */
   br: function() {
-    return '\\newline';
+    return '\\newline{}';
   },
 
   /** href: string, title: string, text: string */
@@ -2619,13 +2619,14 @@ gpub.diagrams = {
   // TODO(kashomon): Make part of the API (gpub.api)
   diagramType: {
     /**
-     * ASCII. Generate an ascii diagram.
-     */
-    ASCII: 'ASCII',
-    /**
-     * Sensei's ASCII variant.
+     * Sensei's library ASCII variant.
      */
     SENSEIS_ASCII: 'SENSEIS_ASCII',
+    /**
+     * GPUB's ASCII variant.
+     */
+    GPUB_ASCII: 'GPUB_ASCII',
+
     /**
      * Dan Bump's LaTeX font. Part of the Sgf2Dg script.
      */
@@ -2811,112 +2812,6 @@ gpub.diagrams.creator = {
 
   /** Renders go stones that exist in a block of text. */
   renderInline: function(text, options) {}
-};
-/**
- * ASCII in the Sensei's library format.  See:
- * http://senseis.xmp.net/?HowDiagramsWork
- *
- * Example:
- * $$ A [joseki] variation
- * $$  ------------------
- * $$ | . . . . . . . . .
- * $$ | . . . . . . . . .
- * $$ | . . 7 3 X d . . .
- * $$ | . . O 1 O 6 . . .
- * $$ | . . 4 2 5 c . . .
- * $$ | . . 8 X a . . . .
- * $$ | . . . b . . . . .
- * $$ | . . . . . . . . .
- * $$ | . . . . . . . . .
- */
-gpub.diagrams.senseisAscii = {
-  create: function(flattened, opts) {
-    var toStr = glift.flattener.symbolStr;
-    var symbolMap = gpub.diagrams.senseisAscii.symbolMap;
-
-    var newBoard = flattened.board().transform(function(i, x, y) {
-      var symbol = toStr(i.base());
-      if (i.textLabel() &&
-          i.mark() &&
-          i.mark() === glift.flattener.symbols.TEXTLABEL) {
-        var label = i.textLabel(); // need to check about.
-      } else if (i.mark() && i.stone()) {
-        symbol = toStr(i.stone()) + '_' + toStr(i.mark());
-      } else if (i.stone()) {
-        symbol = toStr(i.stone());
-      } else if (i.mark()) {
-        symbol = toStr(i.mark());
-      } // default case: symbol is the base.
-
-      var out = symbolMap[symbol];
-      if (!out) {
-        console.log('Could not find symbol str for : ' + symbol);
-      }
-      return out;
-    });
-
-    var outArr = [];
-    for (var i = 0, arr = newBoard.boardArray(); i < arr.length; i++) {
-      outArr.push(arr[i].join(' '));
-    }
-
-    return outArr.join('\n');
-  },
-
-  /** Render go stones that exist in a block of text. */
-  renderInline: function(text) {
-    // We probably don't want to modifify inline go stones for ascii rendering.
-    return text;
-  }
-};
-gpub.diagrams.senseisAscii.symbolMap = {
-  /** Placeholder symbol. */
-  EMPTY: '_',
-
-  /** Base layer. */
-  TL_CORNER: '.',
-  TR_CORNER: '.',
-  BL_CORNER: '.',
-  BR_CORNER: '.',
-  TOP_EDGE: '.',
-  BOT_EDGE: '.',
-  LEFT_EDGE: '.',
-  RIGHT_EDGE: '.',
-  CENTER: '.',
-  CENTER_STARPOINT: '+',
-
-  /**
-   * Stone layer. We don't display the base layer if a stone layer exists.
-   */
-  BSTONE: 'X',
-  WSTONE: 'O',
-
-  /**
-   * Marks and StoneMarks layer. Gooe combines squashes marks and stones into a
-   * single symbol. Also, if we display a symbol or stone, we don't display the
-   * base layer.
-   */
-  BSTONE_TRIANGLE: 'Y',
-  WSTONE_TRIANGLE: 'Q',
-  TRIANGLE: 'T',
-
-  BSTONE_SQUARE: '#',
-  WSTONE_SQUARE: '@',
-  SQUARE: 'S',
-
-  BSTONE_CIRCLE: 'B',
-  WSTONE_CIRCLE: 'W',
-  CIRCLE: 'C',
-
-  BSTONE_XMARK: 'Z',
-  WSTONE_XMARK: 'P',
-  XMARK: 'M',
-
-  // Note: BStone and WStone text labels don't really work and should be ignored
-  // and just rendered as stones, unless they're numbers between 1-10
-  BSTONE_TEXTLABEL: '%s',
-  WSTONE_TEXTLABEL: '%s',
-  TEXTLABEL: '%s'
 };
 /**
  * Create a gooe-font diagram.
@@ -3119,6 +3014,84 @@ gpub.diagrams.gooe.symbolMap = {
   // BSTONE_INLINE: '\goinBsLbl{%s}',
   // WSTONE_INLINE: '\goinWsLbl{%s}',
   // MISC_STONE_INLINE: '\goinChar{%s}',
+};
+gpub.diagrams.gpubAscii = {
+  create: function(flattened, opts) {
+    var toStr = glift.flattener.symbolStr;
+    var symbolMap = gpub.diagrams.gpubAscii.symbolMap;
+
+    var newBoard = flattened.board().transform(function(i, x, y) {
+      var symbol = toStr(i.base());
+      if (i.textLabel() &&
+          i.mark() &&
+          i.mark() === glift.flattener.symbols.TEXTLABEL) {
+        var label = i.textLabel();
+      } else if (i.mark() && i.stone()) {
+        symbol = toStr(i.stone()) + '_' + toStr(i.mark());
+      } else if (i.stone()) {
+        symbol = toStr(i.stone());
+      } else if (i.mark()) {
+        symbol = toStr(i.mark());
+      } // default case: symbol is the base.
+
+      var out = symbolMap[symbol];
+      if (!out) {
+        console.log('Could not find symbol str for : ' + symbol);
+      }
+    });
+
+    var out = [];
+    for (var i = 0, arr = newBoard.boardArray(); i < arr.length; i++) {
+    }
+    return out;
+  },
+
+  /** Render go stones that exist in a block of text. */
+  renderInline: function(text) {
+    // We probably don't want to modifify inline go stones for ascii rendering.
+    return text;
+  }
+};
+gpub.diagrams.gpubAscii.symbolMap = {
+  /** Placeholder symbol. */
+  EMPTY: '_',
+
+  /** Base layer. */
+  TL_CORNER: '.',
+  TR_CORNER: '.',
+  BL_CORNER: '.',
+  BR_CORNER: '.',
+  TOP_EDGE: '.',
+  BOT_EDGE: '.',
+  LEFT_EDGE: '.',
+  RIGHT_EDGE: '.',
+  CENTER: '.',
+  CENTER_STARPOINT: '+',
+
+  /**
+   * Marks and StoneMarks layer.
+   */
+  BSTONE_TRIANGLE: 'D',
+  WSTONE_TRIANGLE: 'd',
+  TRIANGLE: 'T',
+
+  BSTONE_SQUARE: 'Q',
+  WSTONE_SQUARE: 'q',
+  SQUARE: 'S',
+
+  BSTONE_CIRCLE: 'E',
+  WSTONE_CIRCLE: 'e',
+  CIRCLE: 'C',
+
+  BSTONE_XMARK: 'A',
+  WSTONE_XMARK: 'a',
+  XMARK: 'M',
+
+  // Note: BStone and WStone text labels don't really work and should be ignored
+  // and just rendered as stones, unless they're numbers between 1-10
+  BSTONE_TEXTLABEL: '#',
+  WSTONE_TEXTLABEL: '*',
+  TEXTLABEL: '@'
 };
 gpub.diagrams.gnos = {
   /** Available sizes. In pt. */
@@ -3412,6 +3385,110 @@ gpub.diagrams.pdf = {
     // We probably don't want to modifify inline go stones for PDF rendering.
     return text;
   }
+};
+/**
+ * ASCII in the Sensei's library format.  See:
+ * http://senseis.xmp.net/?HowDiagramsWork
+ *
+ * Example:
+ * $$ A [joseki] variation
+ * $$  ------------------
+ * $$ | . . . . . . . . .
+ * $$ | . . . . . . . . .
+ * $$ | . . 7 3 X d . . .
+ * $$ | . . O 1 O 6 . . .
+ * $$ | . . 4 2 5 c . . .
+ * $$ | . . 8 X a . . . .
+ * $$ | . . . b . . . . .
+ * $$ | . . . . . . . . .
+ * $$ | . . . . . . . . .
+ */
+gpub.diagrams.senseisAscii = {
+  create: function(flattened, opts) {
+    var toStr = glift.flattener.symbolStr;
+    var symbolMap = gpub.diagrams.senseisAscii.symbolMap;
+
+    var newBoard = flattened.board().transform(function(i, x, y) {
+      var symbol = toStr(i.base());
+      if (i.textLabel() &&
+          i.mark() &&
+          i.mark() === glift.flattener.symbols.TEXTLABEL) {
+        var label = i.textLabel(); // need to check about.
+      } else if (i.mark() && i.stone()) {
+        symbol = toStr(i.stone()) + '_' + toStr(i.mark());
+      } else if (i.stone()) {
+        symbol = toStr(i.stone());
+      } else if (i.mark()) {
+        symbol = toStr(i.mark());
+      } // default case: symbol is the base.
+
+      var out = symbolMap[symbol];
+      if (!out) {
+        console.log('Could not find symbol str for : ' + symbol);
+      }
+      return out;
+    });
+
+    var outArr = [];
+    for (var i = 0, arr = newBoard.boardArray(); i < arr.length; i++) {
+      outArr.push(arr[i].join(' '));
+    }
+
+    return outArr.join('\n');
+  },
+
+  /** Render go stones that exist in a block of text. */
+  renderInline: function(text) {
+    // We probably don't want to modifify inline go stones for ascii rendering.
+    return text;
+  }
+};
+gpub.diagrams.senseisAscii.symbolMap = {
+  /** Placeholder symbol. */
+  EMPTY: '_',
+
+  /** Base layer. */
+  TL_CORNER: '.',
+  TR_CORNER: '.',
+  BL_CORNER: '.',
+  BR_CORNER: '.',
+  TOP_EDGE: '.',
+  BOT_EDGE: '.',
+  LEFT_EDGE: '.',
+  RIGHT_EDGE: '.',
+  CENTER: '.',
+  CENTER_STARPOINT: '+',
+
+  /**
+   * Stone layer. We don't display the base layer if a stone layer exists.
+   */
+  BSTONE: 'X',
+  WSTONE: 'O',
+
+  /**
+   * Marks and StoneMarks layer.
+   */
+  BSTONE_TRIANGLE: 'Y',
+  WSTONE_TRIANGLE: 'Q',
+  TRIANGLE: 'T',
+
+  BSTONE_SQUARE: '#',
+  WSTONE_SQUARE: '@',
+  SQUARE: 'S',
+
+  BSTONE_CIRCLE: 'B',
+  WSTONE_CIRCLE: 'W',
+  CIRCLE: 'C',
+
+  BSTONE_XMARK: 'Z',
+  WSTONE_XMARK: 'P',
+  XMARK: 'M',
+
+  // Note: BStone and WStone text labels don't really work and should be ignored
+  // and just rendered as stones, unless they're numbers between 1-10
+  BSTONE_TEXTLABEL: '%s',
+  WSTONE_TEXTLABEL: '%s',
+  TEXTLABEL: '%s'
 };
 /**
  * Generate SVG go diagrams.

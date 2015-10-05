@@ -6,4 +6,5 @@
   --page_size=OCTAVO \
   --pdfx1a \
   --autoBoxCropOnVariation \
-  --regionRestrictions=TOP,BOTTOM
+  --regionRestrictions=TOP,BOTTOM \
+  && pdflatex game_commentary.tex

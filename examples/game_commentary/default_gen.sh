@@ -2,4 +2,4 @@
 
 # Default way to generate the book.
 
-../../scripts/book_gen.js
+../../scripts/book_gen.js && pdflatex game_commentary.tex

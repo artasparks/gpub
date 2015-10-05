@@ -125,7 +125,7 @@ gpub.book.latex.markdown = {
 
   /** code: string */
   br: function() {
-    return '\\newline';
+    return '\\newline{}';
   },
 
   /** href: string, title: string, text: string */

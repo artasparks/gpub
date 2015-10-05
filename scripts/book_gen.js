@@ -22,7 +22,7 @@ var flags = flagz.init(
     pageSize: ['gpub.book.page.type', 'LETTER',
         'Size of the output page (stock/trim size).'],
     gnosFontSize: ['gpub.diagrams.gnos.sizes', '12', 'Size of gnos diagram.'],
-    autoCompile: ['boolean', true,
+    autoCompile: ['boolean', false,
         'Automatically compile books with the relevant external programs. ' +
         'For example, compile LaTeX with pdflatex. Note: Only works ' +
         'for logical combinations'],

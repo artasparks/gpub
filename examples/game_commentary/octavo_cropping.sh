@@ -5,4 +5,5 @@
 ../../scripts/book_gen.js \
   --page_size=OCTAVO \
   --autoBoxCropOnVariation \
-  --regionRestrictions=TOP,BOTTOM
+  --regionRestrictions=TOP,BOTTOM \
+  && pdflatex game_commentary.tex
