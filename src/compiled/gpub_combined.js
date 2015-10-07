@@ -2737,7 +2737,12 @@ gpub.diagrams = {
    * object, we must extract the collisions and the move numbers.
    *
    * Collisions is an array of collisions objects, having the form:
-   *    {color: <color>, mvnum: <number>, label: <str label>}
+   * {
+   *    color: <color>,
+   *    mvnum: <number>,
+   *    label: <str label>,
+   *    collisionStoneColor: <str label>,
+   * }
    *
    * returns: stringified label format.
    */
@@ -2767,12 +2772,16 @@ gpub.diagrams = {
     // First we collect all the labels by type, being careful to perserve the
     // ordering in which the labels came in.
     var labelToColArr = {};
+    var labelToColStoneColor = {};
     var labelOrdering = [];
     for (var i = 0; i < collisions.length; i++) {
       var c = collisions[i];
       if (!labelToColArr[c.label]) {
         labelOrdering.push(c.label);
         labelToColArr[c.label] = [];
+      }
+      if (!labelToColStoneColor[c.label]) {
+        labelToColStoneColor[c.label] = c.collisionStoneColor;
       }
       labelToColArr[c.label].push(c);
     }
@@ -2791,7 +2800,10 @@ gpub.diagrams = {
         var color = c.color === glift.enums.states.BLACK ? 'Black' : 'White';
         row.push(color + ' ' + c.mvnum);
       }
-      var rowString = row.join(', ') + ' at ' + label;
+      var colStoneColor = labelToColStoneColor[label];
+      colStoneColor = (colStoneColor === glift.enums.states.BLACK ? 'Black' : 'White') + ' ';
+
+      var rowString = row.join(', ') + ' at ' + colStoneColor + label;
       allRows.push(rowString);
     }
     if (baseLabel) { baseLabel += '\n'; }
@@ -3157,7 +3169,7 @@ gpub.diagrams.gnos = {
     // TODO(kashomon): The font size needs to be passed in here so we can select
     // the correct label size. Moreover, we need to use get getLabelDef to be
     // consistent between the diagram and inlined moves.
-    return text.replace(/((Black)|(White)) (([A-Z])|([0-9]+))(?=([^a-z]|$))/g,
+    return text.replace(/((Black)|(White)) (([A-Za-z])|([0-9]+))(?=([^A-Za-z]|$))/g,
         function(fullmatch, p1, xx2, xx3, p4) {
       var stone = null;
       var label = p4;

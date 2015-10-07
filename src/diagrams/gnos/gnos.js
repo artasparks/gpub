@@ -64,7 +64,7 @@ gpub.diagrams.gnos = {
     // TODO(kashomon): The font size needs to be passed in here so we can select
     // the correct label size. Moreover, we need to use get getLabelDef to be
     // consistent between the diagram and inlined moves.
-    return text.replace(/((Black)|(White)) (([A-Z])|([0-9]+))(?=([^a-z]|$))/g,
+    return text.replace(/((Black)|(White)) (([A-Za-z])|([0-9]+))(?=([^A-Za-z]|$))/g,
         function(fullmatch, p1, xx2, xx3, p4) {
       var stone = null;
       var label = p4;

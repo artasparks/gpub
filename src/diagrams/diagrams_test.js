@@ -13,35 +13,35 @@
 
   test('label for collisions', function() {
     var coll = [
-      {color: 'BLACK', mvnum: '1', label: 'a'},
-      {color: 'WHITE', mvnum: '10', label: 'x'}
+      {color: 'BLACK', mvnum: '1', label: 'a', collisionStoneColor: 'BLACK'},
+      {color: 'WHITE', mvnum: '10', label: 'x', collisionStoneColor: 'WHITE'}
     ];
     deepEqual(
         gpub.diagrams._constructLabel(coll),
-        'Black 1 at a,\nWhite 10 at x.');
+        'Black 1 at Black a,\nWhite 10 at White x.');
   });
 
   test('label for collisions: two stones/label', function() {
     var coll = [
       {color: 'BLACK', mvnum: '1', label: 'a'},
-      {color: 'WHITE', mvnum: '2', label: 'a'},
+      {color: 'WHITE', mvnum: '2', label: 'a', collisionStoneColor: 'BLACK'},
       {color: 'WHITE', mvnum: '10', label: 'x'}
     ];
     deepEqual(
         gpub.diagrams._constructLabel(coll),
-        'Black 1, White 2 at a,\nWhite 10 at x.');
+        'Black 1, White 2 at Black a,\nWhite 10 at White x.');
   });
 
   test('label for collisions: two stones/label + moves', function() {
     var coll = [
-      {color: 'BLACK', mvnum: '1', label: 'a'},
-      {color: 'WHITE', mvnum: '2', label: 'a'},
-      {color: 'WHITE', mvnum: '10', label: 'x'}
+      {color: 'BLACK', mvnum: '1', label: 'a', collisionStoneColor: 'BLACK'},
+      {color: 'WHITE', mvnum: '2', label: 'a', collisionStoneColor: 'BLACK'},
+      {color: 'WHITE', mvnum: '10', label: 'x', collisionStoneColor: 'BLACK'}
     ];
     deepEqual(
         gpub.diagrams._constructLabel(coll, true, 1, 10),
         '(Moves: 1-10)\n' +
-        'Black 1, White 2 at a,\nWhite 10 at x.');
+        'Black 1, White 2 at Black a,\nWhite 10 at Black x.');
   });
 
   test('Full Latex Creation', function() {
