@@ -89,7 +89,7 @@ gpub.diagrams = {
   },
 
   /**
-   * A flattener helper.  Returns a Flattened object, which is key for
+   * A flattener helper.  Returns a glift Flattened object, which is key for
    * generating diagrams.
    */
   // TODO(kashomon): Consider deleting this. It's really not doing much at all.
@@ -189,7 +189,8 @@ gpub.diagrams = {
         row.push(color + ' ' + c.mvnum);
       }
       var colStoneColor = labelToColStoneColor[label];
-      colStoneColor = (colStoneColor === glift.enums.states.BLACK ? 'Black' : 'White') + ' ';
+      colStoneColor = (colStoneColor === glift.enums.states.BLACK ? 
+          'Black' : 'White') + ' ';
 
       var rowString = row.join(', ') + ' at ' + colStoneColor + label;
       allRows.push(rowString);
