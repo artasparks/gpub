@@ -13,24 +13,20 @@ gpub.book.latex.defaultTemplate = [
 '<%#frontmatter.copyright.showPermanenceOfPaper%>',
 '\\usepackage{tikz}',
 '<%/frontmatter.copyright.showPermanenceOfPaper%>',
-
+'',
 '\\usepackage[margin=1in]{geometry}',
-
 '',
 '<%#pdfx1a%>',
 '%%% PDF/X-1a Header',
-'<%ypdfxHeader%>',
-'',
+'<%&pdfxHeader%>',
 '<%/pdfx1a%>',
-
+'',
 '%%% Define any extra packages %%%',
 '<%init%>',
-
 '',
 '\\setlength{\\parskip}{0.5em}',
 '\\setlength{\\parindent}{0pt}',
 '',
-
 '%%% Diagram Figure defs.',
 '% Must expose two commands',
 '%  \\gofigure  (mainline diagrams)',
@@ -101,7 +97,7 @@ gpub.book.latex.defaultTemplate = [
 '\\makeevenhead{headings}{\\thepage}{}{\\slshape\\leftmark}',
 '\\makeoddhead{headings}{\\slshape\\rightmark}{}{\\thepage}',
 '\\makerunningwidth{headings}[\\textwidth]{\\textwidth}',
-
+'',
 '\\pagestyle{companion}',
 '\\makerunningwidth{companion}{\\headwidth}',
 //'\\renewcommand{\\printchapternum}{\\space}', -- Force no chapter nums
