@@ -176,8 +176,8 @@ gpub.diagrams = {
 
     // Now we construct rows that look like:
     //
-    // Black 13, White 16, Black 19 at a
-    // Black 14, White 17, Black 21 at 3
+    // Black 13, White 16, Black 19 at White (a)
+    // Black 14, White 17, Black 21 at Black 3
     var allRows = []
     for (var k = 0; k < labelOrdering.length; k++) {
       var label = labelOrdering[k];
@@ -189,10 +189,15 @@ gpub.diagrams = {
         row.push(color + ' ' + c.mvnum);
       }
       var colStoneColor = labelToColStoneColor[label];
-      colStoneColor = (colStoneColor === glift.enums.states.BLACK ? 
-          'Black' : 'White') + ' ';
+      colStoneColor = (colStoneColor === glift.enums.states.BLACK ?
+          'Black' : 'White');
 
-      var rowString = row.join(', ') + ' at ' + colStoneColor + label;
+      // In the rare case where we construct labels, convert 
+      // a to (a) so it can be inline-rendered more easily
+      if (/^[a-z]$/.test(label)) {
+        label = '(' + label + ')';
+      }
+      var rowString = row.join(', ') + ' at ' + colStoneColor + ' ' + label;
       allRows.push(rowString);
     }
     if (baseLabel) { baseLabel += '\n'; }
