@@ -3200,7 +3200,6 @@ gpub.diagrams.gnos = {
   ///////////////////////
   // 'private' helpers //
   ///////////////////////
-
   gnosStringArr: function(flattened, size) {
     var latexNewLine = '\\\\';
     var header = [
