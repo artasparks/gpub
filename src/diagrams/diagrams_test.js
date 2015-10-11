@@ -44,6 +44,19 @@
         'Black 1, White 2 at Black (a),\nWhite 10 at Black (x).');
   });
 
+  test('label for collisions: compactify', function() {
+    var coll = [
+      {color: 'BLACK', mvnum: '1', label: 'a', collisionStoneColor: 'BLACK'},
+      {color: 'WHITE', mvnum: '2', label: 'a', collisionStoneColor: 'BLACK'},
+      {color: 'WHITE', mvnum: '10', label: 'x', collisionStoneColor: 'BLACK'},
+      {color: 'WHITE', mvnum: '12', label: '5', collisionStoneColor: 'BLACK'},
+      {color: 'BLACK', mvnum: '15', label: '5', collisionStoneColor: 'BLACK'},
+      {color: 'BLACK', mvnum: '17', label: '7', collisionStoneColor: 'BLACK'}
+    ];
+    var l =  gpub.diagrams._constructLabel(coll, true, 1, 10);
+    ok(/,\n/.test(l));
+  });
+
   test('Full Latex Creation', function() {
     var f = gpub.diagrams.flatten(basicSgf);
     var out = gpub.diagrams.create(

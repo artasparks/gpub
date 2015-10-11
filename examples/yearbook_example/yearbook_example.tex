@@ -2,10 +2,14 @@
 \usepackage{color}
 \usepackage{wrapfig}
 \usepackage{setspace}
+\usepackage[cmyk]{xcolor}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{xmpincl}
+
 \usepackage[margin=1in]{geometry}
+
+
 %%% Define any extra packages %%%
 \usepackage{gnos}
 %%% Page Settings Preamble %%%
@@ -30,8 +34,9 @@
 
 \newcommand{\gofigure}{%
  \stepcounter{GoFigure}
- \centerline{\textit{Diagram \arabic{GoFigure}}}
+ \centerline{\textit{\textbf{Diagram \arabic{GoFigure}}}}
 }
+
 % Variation Diagrams. reset at parts.
 \newcounter{GoVariation}[part]
 
@@ -55,26 +60,32 @@
 \endgroup}
  %%% Chapter settings %%%
 \chapterstyle{madsen}
+\renewcommand*{\printchapternum}{%
+  \resizebox{!}{3ex}{%
+      {\hspace{0.2em}\chapnamefont\bfseries\sffamily\thechapter}%
+  }%
+}%
 \openany
 \makepagestyle{headings}
 \setlength{\headwidth}{\textwidth}
 \makeevenhead{headings}{\thepage}{}{\slshape\leftmark}
 \makeoddhead{headings}{\slshape\rightmark}{}{\thepage}
 \makerunningwidth{headings}[\textwidth]{\textwidth}
+
 \pagestyle{companion}
 \makerunningwidth{companion}{\headwidth}
 
 \begin{document}
 %%% The Frontmatter. %%%
-\begin{titlingpage}
+\pagestyle{empty}
 \mainBookTitle
-\end{titlingpage}
+\cleartoverso
 
-
-\newpage
-\frontmatter
+\cleartorecto
 
 \tableofcontents*
+\pagestyle{companion}
+\frontmatter
 
 
 
@@ -112,15 +123,15 @@
 \gofigure
 \subtext{(Moves: 1-228)}
 
-\subtext{{\raisebox{-.17em}{\textnormal{{\gnosbi\char15}}}} at 110,}
+\subtext{{\raisebox{-.17em}{\textnormal{{\gnosbi\char15}}}} at {\raisebox{-.17em}{\textnormal{{\gnoswi\char10}}}},}
 
-\subtext{{\raisebox{-.17em}{\textnormal{{\gnoswi\char48}}}}, {\raisebox{-.17em}{\textnormal{{\gnoswi\char54}}}} at 116,}
+\subtext{{\raisebox{-.17em}{\textnormal{{\gnoswi\char48}}}}, {\raisebox{-.17em}{\textnormal{{\gnoswi\char54}}}} at {\raisebox{-.17em}{\textnormal{{\gnoswi\char16}}}},}
 
-\subtext{{\raisebox{-.17em}{\textnormal{{\gnosbi\char51}}}} at 133,}
+\subtext{{\raisebox{-.17em}{\textnormal{{\gnosbi\char51}}}} at {\raisebox{-.17em}{\textnormal{{\gnosbi\char33}}}},}
 
-\subtext{{\raisebox{-.17em}{\textnormal{{\gnosbi\char81}}}}, {\raisebox{-.17em}{\textnormal{{\gnosbi\char87}}}} at 163,}
+\subtext{{\raisebox{-.17em}{\textnormal{{\gnosbi\char81}}}}, {\raisebox{-.17em}{\textnormal{{\gnosbi\char87}}}} at {\raisebox{-.17em}{\textnormal{{\gnosbi\char63}}}},}
 
-\subtext{{\raisebox{-.17em}{\textnormal{{\gnoswi\char84}}}}, {\raisebox{-.17em}{\textnormal{{\gnoswi\char90}}}} at 2.}
+\subtext{{\raisebox{-.17em}{\textnormal{{\gnoswi\char84}}}}, {\raisebox{-.17em}{\textnormal{{\gnoswi\char90}}}} at {\raisebox{-.17em}{\textnormal{\gnosOverlap{!}{\small{2}}}}}.}
 
 \textbf{November 16 2004, Ulsan, Korea: 9th Samsung Cup Semifinals, Game One}
 

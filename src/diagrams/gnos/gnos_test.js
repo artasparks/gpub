@@ -43,6 +43,7 @@
     var text = 'And then! Black 3 followed by White 4! Destruction. ' +
         'Avoidable with White A. Followed by Black 101';
     var t = g.renderInline(text);
+
     ok(t.indexOf('{\\gnosOverlap{!}') > -1,
         'Exp: overlap !. Rendered Text:' + t);
     ok(t.indexOf('{\\gnosOverlap{@}') > -1,

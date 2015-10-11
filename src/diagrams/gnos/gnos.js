@@ -64,16 +64,11 @@ gpub.diagrams.gnos = {
     // TODO(kashomon): The font size needs to be passed in here so we can select
     // the correct label size. Moreover, we need to use get getLabelDef to be
     // consistent between the diagram and inlined moves.
-    return text.replace(
-        /((Black)|(White)) (([A-Z])|(\(.\))|([0-9]+))(?=([^A-Za-z]|$))/g,
-        function(fullmatch, p1, xx2, xx3, label) {
+    return gpub.diagrams.replaceInline(text, function(full, player, label) {
       var stone = null;
-      if (/^\(.\)$/.test(label)) {
-        label = label.replace(/^\(|\)$/g, '');
-      }
-      if (p1 === 'Black') {
+      if (player === 'Black') {
         stone = glift.flattener.symbols.BSTONE;
-      } else if (p1 === 'White') {
+      } else if (player === 'White') {
         stone = glift.flattener.symbols.WSTONE;
       } else {
         return fullmatch; // Shouldn't ever happen.

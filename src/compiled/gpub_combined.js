@@ -2716,6 +2716,34 @@ gpub.diagrams = {
   },
 
   /**
+   * Regex for determining if a text should be considered an inline label.
+   *
+   * Valid labels
+   * - Black A blah
+   * - White 32
+   * - Black (A)
+   * - White (126)
+   * - Black (x)
+   */
+  inlineLabelRegex: new RegExp(
+      '((Black|White) (([A-Z])|([0-9]{1-3})|(\([A-Z]|[0-9]{1-3}|[.]\))))' +
+      '(?=([^A-Za-z]|$))',
+      'g'),
+
+  /**
+   * Supply a fn to replace stones found within text.
+   *
+   * Functions passed to inlineReplacer should have the form:
+   * - Fullmatch,
+   * - Black/White
+   * - Label
+   *
+   * Returns new text with the relevant replacements.
+   */
+  replaceInline: function(text, fn) {
+  },
+
+  /**
    * Construct the label based on the flattened object. From the flattened
    * object, we must extract the collisions and the move numbers.
    *
@@ -2804,8 +2832,10 @@ gpub.diagrams = {
       colStoneColor = (colStoneColor === glift.enums.states.BLACK ?
           'Black' : 'White');
 
-      // In the rare case where we construct labels, convert 
-      // a to (a) so it can be inline-rendered more easily
+      // In the rare case where we construct labels, convert a to (a) so it can
+      // be inline-rendered more easily. This has the downside that it makes
+      // labels non-uniform, so we may eventually want to make all labels have
+      // the form (<label>).
       if (/^[a-z]$/.test(label)) {
         label = '(' + label + ')';
       }
@@ -2813,8 +2843,56 @@ gpub.diagrams = {
       allRows.push(rowString);
     }
     if (baseLabel) { baseLabel += '\n'; }
+
+    if (allRows.length >= 4) {
+      // This means there are collisions at 4 separate locations, so to reduce
+      // space, concerns, try to squash some of the lines together.  Note that
+      // this is, usually pretty rare. It means that the user is generating
+      // diagrams with lots of moves (see examples/yearbook_example).
+      allRows = gpub.diagrams._compactifyLabels(allRows);
+    }
+
     baseLabel += allRows.join(',\n') + '.';
     return baseLabel;
+  },
+
+  /**
+   * Compactify collision rows from _constructLabel. This is an uncommon
+   * edgecase for the majority of diagrams; it means that there were captures +
+   * plays at many locations.
+   *
+   * To preserve space, this method collapses labels that look like Black 5 at
+   * White 6\n, Black 7, White 10 at Black 3. into one line.
+   */
+  _compactifyLabels: function(collisionRows) {
+    var out = [];
+    var buffer = null;
+    // We define a short label to be a label with only 1 or 2 collisions at a
+    // point. Ex: Black 7, White 10 at Black 3.
+    var shortLabel = /^(Black|White) [^,]*$/g;
+    var shortishLabel = /^(Black|White) [^,]*, (Black|White) [^,]*$/g;
+    for (var i = 0; i < collisionRows.length; i++) {
+      var row = collisionRows[i];
+      var rowIsShort = shortLabel.test(row) || shortishLabel.test(row);
+      if (!buffer && !rowIsShort) {
+        out.push(row);
+        buffer = null;
+      } else if (!buffer && rowIsShort) {
+        buffer = row;
+      } else if (buffer && rowIsShort) {
+        out.push(buffer + ', ' + row);
+        buffer = null;
+      } else if (buffer && !rowIsShort) {
+        out.push(buffer);
+        out.push(row);
+        buffer = null;
+      }
+    }
+    if (buffer) {
+      // Flush any remaining buffer;
+      out.push(buffer);
+    }
+    return out;
   }
 };
 /**
