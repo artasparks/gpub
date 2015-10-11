@@ -2718,6 +2718,12 @@ gpub.diagrams = {
   /**
    * Regex for determining if a text should be considered an inline label.
    *
+   * Roughly we look for Black or White followed by a valid label. Then, we
+   * check to make sure the next character is one of:
+   * 1. The end of the line
+   * 2. Whitespace
+   * 3. Some form of punctuation
+   *
    * Valid labels
    * - Black A blah
    * - White 32
@@ -2726,9 +2732,10 @@ gpub.diagrams = {
    * - Black (x)
    */
   inlineLabelRegex: new RegExp(
-      '((Black|White) (([A-Z])|([0-9]{1-3})|(\([A-Z]|[0-9]{1-3}|[.]\))))' +
-      '(?=([^A-Za-z]|$))',
-      'g'),
+      '(Black|White) ' +
+      '([A-Z]|([0-9]{1,3})|(\\(([A-Za-z]|[0-9]{1,3})\\)))' +
+      '(?=($|\\n|\\r|\\s|["\',:;.$?~`<>!@_-]))',
+      ''),
 
   /**
    * Supply a fn to replace stones found within text.
@@ -2740,7 +2747,19 @@ gpub.diagrams = {
    *
    * Returns new text with the relevant replacements.
    */
+  inlineLabelRegexGlobal_: null,
   replaceInline: function(text, fn) {
+    if (!gpub.diagrams.inlineLabelRegexGlobal_) {
+      gpub.diagrams.inlineLabelRegexGlobal_ = new RegExp(
+          gpub.diagrams.inlineLabelRegex.source, 'g');
+    }
+    var reg = gpub.diagrams.inlineLabelRegexGlobal_;
+    return text.replace(reg, function(full, player, label) {
+      if (/^\(.\)$/.test(label)) {
+        label = label.replace(/^\(|\)$/g, '');
+      }
+      return fn(full, player, label);
+    });
   },
 
   /**
@@ -2867,20 +2886,31 @@ gpub.diagrams = {
   _compactifyLabels: function(collisionRows) {
     var out = [];
     var buffer = null;
-    // We define a short label to be a label with only 1 or 2 collisions at a
-    // point. Ex: Black 7, White 10 at Black 3.
-    var shortLabel = /^(Black|White) [^,]*$/g;
-    var shortishLabel = /^(Black|White) [^,]*, (Black|White) [^,]*$/g;
+    // Here we overload the usage of replaceInline to count the number labels in
+    // a row.
+    var numInlineLabels = function(row) {
+      var count = 0;
+      gpub.diagrams.replaceInline(row, function() {
+        count += 1;
+      });
+      return count;
+    };
     for (var i = 0; i < collisionRows.length; i++) {
       var row = collisionRows[i];
-      var rowIsShort = shortLabel.test(row) || shortishLabel.test(row);
+      var rowIsShort = true;
+      var numLabels = numInlineLabels(row);
+      // Note 2 labels is the minimum. Here, we arbitrarily decide that 3 labels
+      // also counts as a short label.
+      if (numLabels > 3) {
+        rowIsShort = false;
+      }
       if (!buffer && !rowIsShort) {
         out.push(row);
         buffer = null;
       } else if (!buffer && rowIsShort) {
         buffer = row;
       } else if (buffer && rowIsShort) {
-        out.push(buffer + ', ' + row);
+        out.push(buffer + '; ' + row);
         buffer = null;
       } else if (buffer && !rowIsShort) {
         out.push(buffer);
@@ -3253,16 +3283,11 @@ gpub.diagrams.gnos = {
     // TODO(kashomon): The font size needs to be passed in here so we can select
     // the correct label size. Moreover, we need to use get getLabelDef to be
     // consistent between the diagram and inlined moves.
-    return text.replace(
-        /((Black)|(White)) (([A-Z])|(\(.\))|([0-9]+))(?=([^A-Za-z]|$))/g,
-        function(fullmatch, p1, xx2, xx3, label) {
+    return gpub.diagrams.replaceInline(text, function(full, player, label) {
       var stone = null;
-      if (/^\(.\)$/.test(label)) {
-        label = label.replace(/^\(|\)$/g, '');
-      }
-      if (p1 === 'Black') {
+      if (player === 'Black') {
         stone = glift.flattener.symbols.BSTONE;
-      } else if (p1 === 'White') {
+      } else if (player === 'White') {
         stone = glift.flattener.symbols.WSTONE;
       } else {
         return fullmatch; // Shouldn't ever happen.

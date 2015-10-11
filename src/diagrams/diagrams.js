@@ -274,20 +274,31 @@ gpub.diagrams = {
   _compactifyLabels: function(collisionRows) {
     var out = [];
     var buffer = null;
-    // We define a short label to be a label with only 1 or 2 collisions at a
-    // point. Ex: Black 7, White 10 at Black 3.
-    var shortLabel = /^(Black|White) [^,]*$/g;
-    var shortishLabel = /^(Black|White) [^,]*, (Black|White) [^,]*$/g;
+    // Here we overload the usage of replaceInline to count the number labels in
+    // a row.
+    var numInlineLabels = function(row) {
+      var count = 0;
+      gpub.diagrams.replaceInline(row, function() {
+        count += 1;
+      });
+      return count;
+    };
     for (var i = 0; i < collisionRows.length; i++) {
       var row = collisionRows[i];
-      var rowIsShort = shortLabel.test(row) || shortishLabel.test(row);
+      var rowIsShort = true;
+      var numLabels = numInlineLabels(row);
+      // Note 2 labels is the minimum. Here, we arbitrarily decide that 3 labels
+      // also counts as a short label.
+      if (numLabels > 3) {
+        rowIsShort = false;
+      }
       if (!buffer && !rowIsShort) {
         out.push(row);
         buffer = null;
       } else if (!buffer && rowIsShort) {
         buffer = row;
       } else if (buffer && rowIsShort) {
-        out.push(buffer + ', ' + row);
+        out.push(buffer + '; ' + row);
         buffer = null;
       } else if (buffer && !rowIsShort) {
         out.push(buffer);

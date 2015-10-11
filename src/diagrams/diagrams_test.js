@@ -45,16 +45,16 @@
   });
 
   test('label for collisions: compactify', function() {
-    var coll = [
-      {color: 'BLACK', mvnum: '1', label: 'a', collisionStoneColor: 'BLACK'},
-      {color: 'WHITE', mvnum: '2', label: 'a', collisionStoneColor: 'BLACK'},
-      {color: 'WHITE', mvnum: '10', label: 'x', collisionStoneColor: 'BLACK'},
-      {color: 'WHITE', mvnum: '12', label: '5', collisionStoneColor: 'BLACK'},
-      {color: 'BLACK', mvnum: '15', label: '5', collisionStoneColor: 'BLACK'},
-      {color: 'BLACK', mvnum: '17', label: '7', collisionStoneColor: 'BLACK'}
+    var rows = [
+      'Black 1, White 2 at Black (a)',
+      'White 10 at Black (x)',
+      'Black 1, White 2 at Black (a)',
+      'White 10 at Black (x)',
+      'White 10 at Black (x)',
+      'Black 1, White 2, Black 3 at Black (a)'
     ];
-    var l =  gpub.diagrams._constructLabel(coll, true, 1, 10);
-    ok(/,\n/.test(l));
+    var l = gpub.diagrams._compactifyLabels(rows);
+    deepEqual(l.length, 4);
   });
 
   test('Full Latex Creation', function() {
