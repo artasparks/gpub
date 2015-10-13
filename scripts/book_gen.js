@@ -14,19 +14,14 @@ var resourcesDir = path.join(scriptDir, '..', 'resources');
 
 var flags = flagz.init(
   'A script for generating books from book specs!',
-  ['<json-book-definition>'],
+  ['<json-book-definition or SGFs>'],
   {
     outputFormat: ['string', 'LATEX', 'The output format for the book.'],
     directory: ['string', '', 'The directory from which to process SGFs.'],
-    outputFileName: ['string', '', 'Defaults to directory name'],
+    outputFileName: ['string', '', 'Defaults to current directory name.'],
     pageSize: ['gpub.book.page.type', 'LETTER',
         'Size of the output page (stock/trim size).'],
     gnosFontSize: ['gpub.diagrams.gnos.sizes', '12', 'Size of gnos diagram.'],
-    autoCompile: ['boolean', false,
-        'Automatically compile books with the relevant external programs. ' +
-        'For example, compile LaTeX with pdflatex. Note: Only works ' +
-        'for logical combinations'],
-
     autoBoxCropOnVariation: ['boolean', false,
         'Automatically perform box crop on the variation'],
     regionRestrictions: ['Array<glift.enums.boardRegions>', null,
@@ -49,7 +44,7 @@ var flags = flagz.init(
     colorProfileFilePath: ['file name',
         path.join(resourcesDir, 'ISOcoated_v2_300_eci.icc'),
         'Color profile file. Defaults to ISOcoated_v2_300_eci.icc in ' +
-        'GPub\'s resources.'],
+        'GPub\'s resources. Only used for PDF/X-1a pdfs.'],
     debug: ['boolean', false, 'Whether or not debugging information is enabled.']
   }).process();
 
@@ -122,12 +117,6 @@ if (workingDir) {
       fname = path.join(workingDir, lastPart) + '.tex';
     }
     fs.writeFileSync(fname, book);
-    if (flags.processed.autoCompile) {
-      console.log('Compiling with pdflatex');
-      var outputDirectory = path.dirname(fname);
-      child_process.execSync('cd ' + outputDirectory + 
-          ' && which pdflatex && pdflatex ' + fname);
-    }
   } else {
     console.log(book);
   }

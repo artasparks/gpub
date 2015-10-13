@@ -197,7 +197,8 @@ FlagzDef.prototype = {
   /** Display the help text. */
   displayHelp: function() {
     var usage = '\n\n:::Usage:::\n' + this._scriptname + ' ' +
-        this.args.join(' ') + ' <optional flags>';
+        '<optional flags> ' +
+        this.args.join(' ');
     var argData = '\n\n' +
         ':::Flags:::\n' +
         '--flag_name: <expected type>, <default value> :: Help Text\n' +
@@ -209,7 +210,7 @@ FlagzDef.prototype = {
       });
       var helpText = farr[2] || '';
       argData += '--' + underScoreFlag + ': <'
-          + farr[0] + '>, <' + farr[1] + '>, ' + helpText + '\n';
+          + farr[0] + '>, <' + farr[1] + '> :: ' + helpText + '\n';
     }
     argData += '--------------------------------------------------------';
     console.log(
