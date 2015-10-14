@@ -1,14 +1,4 @@
-gpub.book.page = {
-  /** Various conversion helpers. */
-  ptToIn: function(ptSize) { return ptSize * (1 / 72); },
-  ptToMm: function(ptSize) { return ptSize * 0.3528; },
-
-  mmToPt: function(mmSize) { return mmSize * 1 / 0.3528; },
-  inToPt: function(inSize) { return inSize * 72 ; },
-
-  inToMm: function(inSize) { return inSize * 25.4; },
-  mmToIn: function(mmSize) { return mmSize * (1 / 25.4); }
-};
+gpub.book.page = {};
 
 /**
  * Enum-like type enumerating the supported page sizes.
@@ -67,7 +57,7 @@ gpub.book.page.size = {
     widthIn: 5
   },
 
-  // Miscellaneous sizes
+  /** Miscellaneous sizes, named by the size. */
   EIGHT_TEN: {
     heightMm: 254,
     widthMm: 203,

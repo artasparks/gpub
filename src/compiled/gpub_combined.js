@@ -69,6 +69,45 @@ gpub.util.Buffer.prototype = {
     return copy;
   }
 };
+gpub.util.size = {
+  /** Various conversion helpers. */
+  ptToIn: function(ptSize) { return ptSize * (1 / 72); },
+  ptToMm: function(ptSize) { return ptSize * 0.3528; },
+
+  mmToPt: function(mmSize) { return mmSize * 1 / 0.3528; },
+  inToPt: function(inSize) { return inSize * 72 ; },
+
+  inToMm: function(inSize) { return inSize * 25.4; },
+  mmToIn: function(mmSize) { return mmSize * (1 / 25.4); },
+
+  /**
+   * Converts a size string with units into a number.
+   *
+   * Note the size-string looks <num><unit>.
+   *
+   * Ex: 12pt, 12mm
+   */
+  parseSizeToPt: function(sizeString) {
+    if (typeof sizeString !== 'string') {
+      throw new Error('Bad type for size string: ' + sizeString);
+    }
+    var units = sizeString.substring(sizeString.length - 2);
+    var num = sizeString.substring(0, sizeString.length - 2);
+    switch(units) {
+      case 'pt':
+          break;
+      case 'px':
+          break;
+      case 'mm':
+          break;
+      case 'in':
+          break;
+      default:
+          throw new Error('Unknown units size: ' + sizeString)
+          break;
+    }
+  }
+};
 /**
  * Markdown for Gpub. Note that Glift comes pre-packaged with markdown.
  *
@@ -1115,17 +1154,7 @@ gpub.book._Generator.prototype = {
     return sgf.substring(0, 50) + sgf.substring(sgf.length - 50, sgf.length);
   }
 };
-gpub.book.page = {
-  /** Various conversion helpers. */
-  ptToIn: function(ptSize) { return ptSize * (1 / 72); },
-  ptToMm: function(ptSize) { return ptSize * 0.3528; },
-
-  mmToPt: function(mmSize) { return mmSize * 1 / 0.3528; },
-  inToPt: function(inSize) { return inSize * 72 ; },
-
-  inToMm: function(inSize) { return inSize * 25.4; },
-  mmToIn: function(mmSize) { return mmSize * (1 / 25.4); }
-};
+gpub.book.page = {};
 
 /**
  * Enum-like type enumerating the supported page sizes.
@@ -1184,7 +1213,7 @@ gpub.book.page.size = {
     widthIn: 5
   },
 
-  // Miscellaneous sizes
+  /** Miscellaneous sizes, named by the size. */
   EIGHT_TEN: {
     heightMm: 254,
     widthMm: 203,
@@ -1467,7 +1496,7 @@ gpub.book.latex.context = {
       if (!pageSize) {
         throw new Error('Page size must be defined. Was:' + pageSize);
       }
-      var widthPt = gpub.book.page.inToPt(pageSize.widthIn);
+      var widthPt = gpub.util.size.inToPt(pageSize.widthIn);
       var debug = this.renderDebug
       if (pcomment.preamble) {
         return [
@@ -1525,7 +1554,7 @@ gpub.book.latex.generator = {
     // Diagram Options
     var diagOpt = {
       // Intersection size in pt.
-      size: opts.gnosFontSize
+      size: opts.goIntersectionSize
     };
 
     var pages = new gpub.book.latex.Paging(
@@ -2270,8 +2299,8 @@ gpub.book.latex.pdfx = {
    */
   pageBoxes: function(pageSize) {
     var pageObj  = gpub.book.page.size[pageSize];
-    var hpt = gpub.book.page.mmToPt(pageObj.heightMm);
-    var wpt = gpub.book.page.mmToPt(pageObj.widthMm);
+    var hpt = gpub.util.size.mmToPt(pageObj.heightMm);
+    var wpt = gpub.util.size.mmToPt(pageObj.widthMm);
     return [
       '\\pdfpageattr{/MediaBox[0 0 ' + wpt + ' ' + hpt + ']',
       '              /BleedBox[0 0 ' + wpt + ' ' + hpt + ']',
@@ -2657,6 +2686,8 @@ gpub.diagrams = {
     // TODO(kashomon): Remove optional options obj. We should only do options
     // processing in api land.
     options = options || {};
+    // Convert the size to a number before we create the diagrams.
+    // var sizeInPt = gpub.diagrams.parseSize(sizeString);
     return this._getPackage(diagramType).create(flattened, options);
   },
 
@@ -3764,6 +3795,12 @@ gpub.defaultOptions = {
    */
   pageSize: 'LETTER',
 
+  /**
+   * Size of the intersections in the diagrams. If no units are specified, the
+   * number is assumed to be in pt.
+   */
+  goIntersectionSize: '12pt',
+
   /** Skip the first N diagrams. Allows users to generate parts of a book. */
   skipDiagrams: 0,
 
@@ -3795,10 +3832,6 @@ gpub.defaultOptions = {
   ////////////////////////////
   // DiagramSpecificOptions //
   ////////////////////////////
-
-  /** Size of the gnos font */
-  // TODO(kashomon): Make this diagram-agnostic.
-  gnosFontSize: '12',
 
   /**
    * Whether or not to generate PDF/X-1a compatibile PDFs. Note: this only

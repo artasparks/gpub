@@ -21,7 +21,9 @@ var flags = flagz.init(
     outputFileName: ['string', '', 'Defaults to current directory name.'],
     pageSize: ['gpub.book.page.type', 'LETTER',
         'Size of the output page (stock/trim size).'],
-    gnosFontSize: ['gpub.diagrams.gnos.sizes', '12', 'Size of gnos diagram.'],
+    goIntersectionSize: ['(string) Qualified size', '12pt',
+        'Size of rendered diagram intersection. Units must be specified. ' +
+        'Examples: 12pt, 20px, 12mm, 1.2in'
     autoBoxCropOnVariation: ['boolean', false,
         'Automatically perform box crop on the variation'],
     regionRestrictions: ['Array<glift.enums.boardRegions>', null,

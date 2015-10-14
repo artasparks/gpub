@@ -88,8 +88,8 @@ gpub.book.latex.pdfx = {
    */
   pageBoxes: function(pageSize) {
     var pageObj  = gpub.book.page.size[pageSize];
-    var hpt = gpub.book.page.mmToPt(pageObj.heightMm);
-    var wpt = gpub.book.page.mmToPt(pageObj.widthMm);
+    var hpt = gpub.util.size.mmToPt(pageObj.heightMm);
+    var wpt = gpub.util.size.mmToPt(pageObj.widthMm);
     return [
       '\\pdfpageattr{/MediaBox[0 0 ' + wpt + ' ' + hpt + ']',
       '              /BleedBox[0 0 ' + wpt + ' ' + hpt + ']',

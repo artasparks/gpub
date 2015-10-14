@@ -10,7 +10,7 @@ gpub.book.latex.generator = {
     // Diagram Options
     var diagOpt = {
       // Intersection size in pt.
-      size: opts.gnosFontSize
+      size: opts.goIntersectionSize
     };
 
     var pages = new gpub.book.latex.Paging(

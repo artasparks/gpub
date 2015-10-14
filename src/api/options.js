@@ -49,6 +49,12 @@ gpub.defaultOptions = {
    */
   pageSize: 'LETTER',
 
+  /**
+   * Size of the intersections in the diagrams. If no units are specified, the
+   * number is assumed to be in pt.
+   */
+  goIntersectionSize: '12pt',
+
   /** Skip the first N diagrams. Allows users to generate parts of a book. */
   skipDiagrams: 0,
 
@@ -80,10 +86,6 @@ gpub.defaultOptions = {
   ////////////////////////////
   // DiagramSpecificOptions //
   ////////////////////////////
-
-  /** Size of the gnos font */
-  // TODO(kashomon): Make this diagram-agnostic.
-  gnosFontSize: '12',
 
   /**
    * Whether or not to generate PDF/X-1a compatibile PDFs. Note: this only

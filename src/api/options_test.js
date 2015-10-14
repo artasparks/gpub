@@ -19,13 +19,12 @@
 
   test('Process options: gnosFontSize', function() {
     var o = gpub.processOptions({
-      // gnosFontSize: '12'
     });
-    deepEqual(o.gnosFontSize, '12');
+    deepEqual(o.goIntersectionSize, '12');
 
     o = gpub.processOptions({
-      gnosFontSize: '14'
+      goIntersectionSize: '14'
     });
-    deepEqual(o.gnosFontSize, '14');
+    deepEqual(o.goIntersectionSize, '14');
   });
 })();

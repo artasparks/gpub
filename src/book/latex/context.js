@@ -173,7 +173,7 @@ gpub.book.latex.context = {
       if (!pageSize) {
         throw new Error('Page size must be defined. Was:' + pageSize);
       }
-      var widthPt = gpub.book.page.inToPt(pageSize.widthIn);
+      var widthPt = gpub.util.size.inToPt(pageSize.widthIn);
       var debug = this.renderDebug
       if (pcomment.preamble) {
         return [
