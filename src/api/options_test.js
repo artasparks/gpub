@@ -20,7 +20,7 @@
   test('Process options: gnosFontSize', function() {
     var o = gpub.processOptions({
     });
-    deepEqual(o.goIntersectionSize, '12');
+    deepEqual(o.goIntersectionSize, '12pt');
 
     o = gpub.processOptions({
       goIntersectionSize: '14'

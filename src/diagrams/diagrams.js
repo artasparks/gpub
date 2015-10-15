@@ -45,8 +45,6 @@ gpub.diagrams = {
     // TODO(kashomon): Remove optional options obj. We should only do options
     // processing in api land.
     options = options || {};
-    // Convert the size to a number before we create the diagrams.
-    // var sizeInPt = gpub.diagrams.parseSize(sizeString);
     return this._getPackage(diagramType).create(flattened, options);
   },
 

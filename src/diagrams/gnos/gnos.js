@@ -60,7 +60,9 @@ gpub.diagrams.gnos = {
    */
   renderInline: function(text, options) {
     var options = options || {}; // TODO(kashomon): Remove hack. Push up a level.
-    var fontsize = options.size || gpub.diagrams.gnos.sizes['12'];
+    var fontsize = gpub.util.size.parseSizeToPt(
+        options.goIntersectionSize || gpub.diagrams.gnos.sizes['12']);
+    fontsize = Math.round(fontsize);
     // TODO(kashomon): The font size needs to be passed in here so we can select
     // the correct label size. Moreover, we need to use get getLabelDef to be
     // consistent between the diagram and inlined moves.
