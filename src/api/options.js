@@ -9,6 +9,17 @@ gpub.defaultOptions = {
   // sgfs: [],
 
   /**
+   * A Glift Spec (Phase 1.) can be passed in.
+   */
+  spec: null,
+
+  /**
+   * Book generation happens in 3 phases: SPEC, DIAGRAMS, BOOK.
+   * See gpub.outputPhase.
+   */
+  outputPhase: 'BOOK',
+
+  /**
    * The format of the 'book' output that is produced by GPub.
    * See gpub.outputFormat.
    */
@@ -171,6 +182,25 @@ gpub.defaultOptions = {
    * Whether or not debug information should be displayed.
    */
   debug: false
+};
+
+
+/**
+ * The phases of GPub. GPub generation happens in three phases.
+ *
+ * 1. Spec Generation. This a description of the book in JSON. This is
+ *    equivalent to a Glift spec.
+ * 2. Diagram Generation. The diagrams are generated next.
+ * 3. Book Generation. Lastly, the diagrams are combined together to form the
+ *    book.
+ *
+ * For a variety of reasons, the book generation can be terminated at any one of
+ * these 3 phases.
+ */
+gpub.outputPhase = {
+  SPEC: 'SPEC',
+  DIAGRAMS: 'DIAGRAMS',
+  BOOK: 'BOOK'
 };
 
 

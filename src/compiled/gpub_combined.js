@@ -74,33 +74,43 @@ gpub.util.size = {
   ptToIn: function(ptSize) { return ptSize * (1 / 72); },
   ptToMm: function(ptSize) { return ptSize * 0.3528; },
 
-  mmToPt: function(mmSize) { return mmSize * 1 / 0.3528; },
+  mmToPt: function(mmSize) { return mmSize * (1 / 0.3528); },
   inToPt: function(inSize) { return inSize * 72 ; },
 
   inToMm: function(inSize) { return inSize * 25.4; },
   mmToIn: function(mmSize) { return mmSize * (1 / 25.4); },
 
   /**
-   * Converts a size string with units into a number.
+   * Converts a size string with units into a number. If there are no units and
+   * the string's a number, we assume the number's in pt.
    *
    * Note the size-string looks <num><unit>.
    *
-   * Ex: 12pt, 12mm
+   * Ex: 12pt, 12mm, 1.2in
+   *
+   * Notes: https://www.cl.cam.ac.uk/~mgk25/metric-typo/
    */
   parseSizeToPt: function(sizeString) {
     if (typeof sizeString !== 'string') {
       throw new Error('Bad type for size string: ' + sizeString);
     }
+    if (/^\d+(\.\d*)?$/.test(sizeString)) {
+      return parseFloat(sizeString);
+    }
+    if (!/^\d+(\.\d*)?[a-z]{2}$/.test(sizeString)) {
+      throw new Error('Unknown format for: ' + sizeString)
+    }
     var units = sizeString.substring(sizeString.length - 2);
-    var num = sizeString.substring(0, sizeString.length - 2);
+    var num = parseFloat(sizeString.substring(0, sizeString.length - 2));
     switch(units) {
       case 'pt':
-          break;
-      case 'px':
+          return num;
           break;
       case 'mm':
+          return gpub.util.size.mmToPt(num);
           break;
       case 'in':
+          return gpub.util.size.inToPt(num);
           break;
       default:
           throw new Error('Unknown units size: ' + sizeString)
@@ -1554,7 +1564,7 @@ gpub.book.latex.generator = {
     // Diagram Options
     var diagOpt = {
       // Intersection size in pt.
-      size: opts.goIntersectionSize
+      size: gpub.util.size.parseSizeToPt(opts.goIntersectionSize)
     };
 
     var pages = new gpub.book.latex.Paging(
@@ -2686,8 +2696,6 @@ gpub.diagrams = {
     // TODO(kashomon): Remove optional options obj. We should only do options
     // processing in api land.
     options = options || {};
-    // Convert the size to a number before we create the diagrams.
-    // var sizeInPt = gpub.diagrams.parseSize(sizeString);
     return this._getPackage(diagramType).create(flattened, options);
   },
 
@@ -3310,7 +3318,9 @@ gpub.diagrams.gnos = {
    */
   renderInline: function(text, options) {
     var options = options || {}; // TODO(kashomon): Remove hack. Push up a level.
-    var fontsize = options.size || gpub.diagrams.gnos.sizes['12'];
+    var fontsize = gpub.util.size.parseSizeToPt(
+        options.goIntersectionSize || gpub.diagrams.gnos.sizes['12']);
+    fontsize = Math.round(fontsize);
     // TODO(kashomon): The font size needs to be passed in here so we can select
     // the correct label size. Moreover, we need to use get getLabelDef to be
     // consistent between the diagram and inlined moves.
@@ -3755,6 +3765,17 @@ gpub.defaultOptions = {
   // sgfs: [],
 
   /**
+   * A Glift Spec (Phase 1.) can be passed in.
+   */
+  spec: null,
+
+  /**
+   * Book generation happens in 3 phases: SPEC, DIAGRAMS, BOOK.
+   * See gpub.outputPhase.
+   */
+  outputPhase: 'BOOK',
+
+  /**
    * The format of the 'book' output that is produced by GPub.
    * See gpub.outputFormat.
    */
@@ -3917,6 +3938,25 @@ gpub.defaultOptions = {
    * Whether or not debug information should be displayed.
    */
   debug: false
+};
+
+
+/**
+ * The phases of GPub. GPub generation happens in three phases.
+ *
+ * 1. Spec Generation. This a description of the book in JSON. This is
+ *    equivalent to a Glift spec.
+ * 2. Diagram Generation. The diagrams are generated next.
+ * 3. Book Generation. Lastly, the diagrams are combined together to form the
+ *    book.
+ *
+ * For a variety of reasons, the book generation can be terminated at any one of
+ * these 3 phases.
+ */
+gpub.outputPhase = {
+  SPEC: 'SPEC',
+  DIAGRAMS: 'DIAGRAMS',
+  BOOK: 'BOOK'
 };
 
 

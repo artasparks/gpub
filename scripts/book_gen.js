@@ -16,6 +16,9 @@ var flags = flagz.init(
   'A script for generating books from book specs!',
   ['<json-book-definition or SGFs>'],
   {
+    outputPhase: ['gpub.outputPhase', 'BOOK',
+        'The terminating output phase -- either, SPEC, DIAGRAMS, or BOOK'],
+
     outputFormat: ['string', 'LATEX', 'The output format for the book.'],
     directory: ['string', '', 'The directory from which to process SGFs.'],
     outputFileName: ['string', '', 'Defaults to current directory name.'],
@@ -23,7 +26,7 @@ var flags = flagz.init(
         'Size of the output page (stock/trim size).'],
     goIntersectionSize: ['(string) Qualified size', '12pt',
         'Size of rendered diagram intersection. Units must be specified. ' +
-        'Examples: 12pt, 20px, 12mm, 1.2in'
+        'Examples: 12pt, 20px, 12mm, 1.2in'],
     autoBoxCropOnVariation: ['boolean', false,
         'Automatically perform box crop on the variation'],
     regionRestrictions: ['Array<glift.enums.boardRegions>', null,
@@ -38,7 +41,6 @@ var flags = flagz.init(
         'The acknowledgements, rendered as markdown.'],
     introduction: ['file name (must be in markdown)', 'introduction.md',
         'The introduction, rendered as markdown.'],
-
     copyright: ['file name (must be in JSON)', 'copyright.json',
         'The copyright file, specified as JSON.'],
 
