@@ -3697,63 +3697,6 @@ gpub.diagrams.svg = {
  * level.
  */
 gpub.api = {};
-////////////////////////
-// Methods in the API //
-////////////////////////
-
-
-/**
- * Create a 'book' output from SGFs.
- *
-  options: A book options array. See gpub.defaultOptions for the format.
- *
- * Returns: The completed book or document.
- */
-gpub.create = function(options) {
-  // Validate input and create the options array.
-  gpub._validateInputs(options);
-
-  var sgfs = options.sgfs;
-
-  // Process the options and fill in any missing values or defaults.
-  options = gpub.processOptions(options);
-
-  // Ensure debugging mode reflects the options mode. Also ensure that debug is
-  // boolean.
-  gpub.global.debug = !!options.debug;
-
-  // Create the glift specification.
-  var spec = gpub.spec.create(sgfs, options);
-
-  // Create the finished book (or whatever that means).
-  var book = gpub.book.create(spec, options);
-
-  // TODO(kashomon): return { contents: ..., diagrams: ... }
-  return book;
-};
-
-
-/////////////
-// Private //
-/////////////
-
-/**
- * Validates that the relevant parameters are available and returns the
- * processed options.
- */
-gpub._validateInputs = function(options) {
-  if (!options) {
-    throw new Error('No options defined');
-  }
-  var sgfs = options.sgfs;
-  if (!sgfs || glift.util.typeOf(sgfs) !== 'array' || !sgfs.length) {
-    throw new Error('SGF array must be defined and non-empty');
-  }
-  if (!glift) {
-    throw new Error('GPub depends on Glift, but Glift was not defined');
-  }
-};
-
 /**
  * Default options for GPub API.
  */
@@ -3762,10 +3705,10 @@ gpub.defaultOptions = {
    * Array of SGF (strings). No default is specified here: Must be explicitly
    * passed in every time.
    */
-  // sgfs: [],
+  sgfs: null,
 
   /**
-   * A Glift Spec (Phase 1.) can be passed in.
+   * A Glift Spec (Phase 2.) can be passed in, bypasing spec creation.
    */
   spec: null,
 
@@ -3941,19 +3884,84 @@ gpub.defaultOptions = {
 };
 
 
+////////////////////////
+// Methods in the API //
+////////////////////////
+
+
 /**
- * The phases of GPub. GPub generation happens in three phases.
+ * Create a 'book' output from SGFs.
  *
- * 1. Spec Generation. This a description of the book in JSON. This is
- *    equivalent to a Glift spec.
- * 2. Diagram Generation. The diagrams are generated next.
- * 3. Book Generation. Lastly, the diagrams are combined together to form the
+  options: A book options array. See gpub.defaultOptions for the format.
+ *
+ * Returns: The completed book or document.
+ */
+gpub.create = function(options) {
+  // Validate input and create the options array.
+  gpub._validateInputs(options);
+
+  // Process the options and fill in any missing values or defaults.
+  options = gpub.processOptions(options);
+
+  var sgfs = options.sgfs;
+
+  // TODO(kashomon): This is a little weird, but we delete the SGFs out of the
+  // object so and choose to explicitly the SGFs around for clarity.
+  delete options.sgfs;
+
+  // Ensure debugging mode reflects the options mode. Also ensure that debug is
+  // boolean.
+  gpub.global.debug = !!options.debug;
+
+  // Create the glift specification.
+  var spec = gpub.spec.create(sgfs, options);
+
+  // Create the finished book (or whatever that means).
+  var book = gpub.book.create(spec, options);
+
+  // TODO(kashomon): return { contents: ..., diagrams: ... }
+  return book;
+};
+
+
+/////////////
+// Private //
+/////////////
+
+/**
+ * Validates that the relevant parameters are available and returns the
+ * processed options.
+ */
+gpub._validateInputs = function(options) {
+  if (!options) {
+    throw new Error('No options defined');
+  }
+  var sgfs = options.sgfs;
+  if (!sgfs || glift.util.typeOf(sgfs) !== 'array' || !sgfs.length) {
+    throw new Error('SGF array must be defined and non-empty');
+  }
+  if (!glift) {
+    throw new Error('GPub depends on Glift, but Glift was not defined');
+  }
+};
+
+/**
+ * The phases of GPub. GPub generation happens in four phases. Generation can
+ * stop at any one of the four steps and output the results.
+ *
+ * 1. Options. In this step, we process tho options for validity. Stopping at
+ *    this step produces a validate options spec with only the file
+ * 2. Spec Generation. This a description of the book in JSON. This is
+ *    equivalent to a Glift spec, with embedded SGFs.
+ * 3. Diagram Generation. The diagrams are generated next.
+ * 4. Book Generation. Lastly, the diagrams are combined together to form the
  *    book.
  *
  * For a variety of reasons, the book generation can be terminated at any one of
  * these 3 phases.
  */
 gpub.outputPhase = {
+  OPTIONS: 'OPTIONS',
   SPEC: 'SPEC',
   DIAGRAMS: 'DIAGRAMS',
   BOOK: 'BOOK'
@@ -4010,11 +4018,6 @@ gpub.processOptions = function(options) {
 
   var simpleTemplate = function(target, base, template) {
     for (var key in template) {
-      if (key === 'sgfs') {
-        // We don't want to be duplicating the SGFs, so we assume that the SGFs
-        // have been extracted at this point.
-        continue;
-      }
       if (newo[key] !== undefined) {
         // We've already copied this key
         continue;

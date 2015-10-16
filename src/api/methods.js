@@ -14,10 +14,14 @@ gpub.create = function(options) {
   // Validate input and create the options array.
   gpub._validateInputs(options);
 
-  var sgfs = options.sgfs;
-
   // Process the options and fill in any missing values or defaults.
   options = gpub.processOptions(options);
+
+  var sgfs = options.sgfs;
+
+  // TODO(kashomon): This is a little weird, but we delete the SGFs out of the
+  // object so and choose to explicitly the SGFs around for clarity.
+  delete options.sgfs;
 
   // Ensure debugging mode reflects the options mode. Also ensure that debug is
   // boolean.
