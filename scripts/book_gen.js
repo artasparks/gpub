@@ -43,6 +43,8 @@ var flags = flagz.init(
         'The introduction, rendered as markdown.'],
     copyright: ['file name (must be in JSON)', 'copyright.json',
         'The copyright file, specified as JSON.'],
+    glossary: ['file name (must be in markdown)', 'glossary.md',
+        'The glossary, rendered as markdown.'],
 
     pdfx1a: ['boolean', false, 'Whether or not to generate PDF/X-1a valid PDFs'],
     colorProfileFilePath: ['file name',
@@ -80,16 +82,18 @@ var options = {
   autoBoxCropOnVariation: flags.processed.autoBoxCropOnVariation,
   regionRestrictions: flags.processed.regionRestrictions,
   bookOptions: {
-    frontmatter: {}
+    frontmatter: {},
+    appendices: {}
   },
   pdfx1a: flags.processed.pdfx1a,
   colorProfileFilePath: flags.processed.colorProfileFilePath,
   debug: flags.processed.debug
 };
 
-// Process frontmatter into the book options.
+// Process front and back matter into the book options.
 var bookPartsKeys = [
   'foreword', 'preface', 'acknowledgements', 'introduction', 'copyright',
+  'glossary'
 ];
 
 for (var i = 0; i < bookPartsKeys.length; i++) {
@@ -103,7 +107,12 @@ for (var i = 0; i < bookPartsKeys.length; i++) {
     }
     if (content) {
       // Note: The text still needs to be converted from mardown to LaTeX.
-      options.bookOptions.frontmatter[key] = content;
+      // Only adds options if they're defined in gpub.defaultOptions.
+      if (key in gpub.defaultOptions.bookOptions.frontmatter) {
+        options.bookOptions.frontmatter[key] = content;
+      } else if (key in gpub.defaultOptions.bookOptions.appendices) {
+        options.bookOptions.frontmatter[key] = content; // frontmatter for now
+      }
     }
   }
 }
