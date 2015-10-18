@@ -159,7 +159,7 @@ gpub.book.latex.defaultTemplate = [
 '\\frontmatter',
 '',
 '<%#frontmatter.foreword%>',
-'\\chapter{Foreward}',
+'\\chapter{Foreword}',
 '<%frontmatter.foreword.text%>',
 '<%/frontmatter.foreword%>',
 '',
