@@ -137,6 +137,7 @@ gpub.book.latex.defaultTemplate = [
 'Library of Congress Control Number: <%frontmatter.copyright.lccn%> \\\\',
 '<%/frontmatter.copyright.lccn%>','\\\\',
 '\\\\',
+'\\\\',
 '<%#frontmatter.copyright.showPermanenceOfPaper%>',
 '\\tikz\\node[circle,draw,inner sep=.1ex] {\\tiny{$\\infty$}};',
 'This paper meets or exceeds the requirements',
