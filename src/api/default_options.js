@@ -175,6 +175,11 @@ gpub.defaultOptions = {
        *  }
        */
       copyright: null
+    },
+
+    // Appendices are currently processed as frontmatter by the LaTeX generator
+    appendices: {
+      glossary: null
     }
   },
 
