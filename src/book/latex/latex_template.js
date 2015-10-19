@@ -117,7 +117,7 @@ gpub.book.latex.defaultTemplate = [
 '\\begin{vplace}[0.7]',
 '\\footnotesize{',
 'Copyright \\textcopyright\\ <%frontmatter.copyright.publishYear%> by <%frontmatter.copyright.publisher%> \\\\',
-'<%frontmatter.copyright.license%> \\\\',
+'<%&frontmatter.copyright.license%> \\\\',
 'Published <%frontmatter.copyright.publishYear%> \\\\',
 'First edition published <%frontmatter.copyright.firstEditionYear%>\\\\',
 '\\\\',
