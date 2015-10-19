@@ -183,7 +183,7 @@ gpub.book.latex.defaultTemplate = [
 '\\appendix',
 '<%#frontmatter.glossary%>',
 '\\chapter{Glossary}',
-'<%frontmatter.glossary.text%>',
+'<%&frontmatter.glossary.text%>',
 '<%/frontmatter.glossary%>',
 '',
 '\\end{document}'].join('\n');
