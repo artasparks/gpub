@@ -43,6 +43,8 @@ var flags = flagz.init(
         'The introduction, rendered as markdown.'],
     copyright: ['file name (must be in JSON)', 'copyright.json',
         'The copyright file, specified as JSON.'],
+    glossary: ['file name (must be in JSON)', 'glossary.md',
+        'The glossary file, specified as markdown.'],
 
     pdfx1a: ['boolean', false, 'Whether or not to generate PDF/X-1a valid PDFs'],
     colorProfileFilePath: ['file name',
@@ -80,30 +82,36 @@ var options = {
   autoBoxCropOnVariation: flags.processed.autoBoxCropOnVariation,
   regionRestrictions: flags.processed.regionRestrictions,
   bookOptions: {
-    frontmatter: {}
+    frontmatter: {},
+    appendices: {},
   },
   pdfx1a: flags.processed.pdfx1a,
   colorProfileFilePath: flags.processed.colorProfileFilePath,
   debug: flags.processed.debug
 };
 
-// Process frontmatter into the book options.
-var bookPartsKeys = [
-  'foreword', 'preface', 'acknowledgements', 'introduction', 'copyright',
-];
+// Process frontmatter and appendices into the book options.
+var bookParts = {
+  frontmatter: 
+      ['foreword', 'preface', 'acknowledgements', 'introduction', 'copyright'],
+  appendices: ['glossary']
+}
 
-for (var i = 0; i < bookPartsKeys.length; i++) {
-  var key = bookPartsKeys[i];
-  var fname = flags.processed[key];
-  var fpath = path.join(workingDir, fname);
-  if (fs.existsSync(fpath)) {
-    var content = fs.readFileSync(fpath, {encoding: 'utf8'});
-    if (key === 'copyright') {
-      content = JSON.parse(content);
-    }
-    if (content) {
-      // Note: The text still needs to be converted from mardown to LaTeX.
-      options.bookOptions.frontmatter[key] = content;
+for (var category in bookParts) {
+  var partsArray = bookParts[category];
+  for (var i = 0; i < partsArray.length; i++) {
+    var key = partsArray[i];
+    var fname = flags.processed[key];
+    var fpath = path.join(workingDir, fname);
+    if (fs.existsSync(fpath)) {
+      var content = fs.readFileSync(fpath, {encoding: 'utf8'});
+      if (key === 'copyright') {
+        content = JSON.parse(content);
+      }
+      if (content) {
+        // Note: The text still needs to be converted from mardown to LaTeX.
+        options.bookOptions[category][key] = content;
+      }
     }
   }
 }
@@ -112,7 +120,7 @@ var book = gpub.create(options);
 
 if (workingDir) {
   var parts = workingDir.split(path.sep)
-  var lastPart = parts[parts.length -1];
+  var lastPart = parts[parts.length - 1];
   if (flags.processed.outputFormat === 'LATEX') {
     var fname = 'mybook.tex';
     if (flags.processed.outputFileName) {

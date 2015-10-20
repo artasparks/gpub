@@ -1588,35 +1588,39 @@ gpub.book.latex.generator = {
 
     view.content = pages.flushAll();
 
-    this._processFrontmatter(view.frontmatter);
+    this._processBookSections(view.frontmatter);
+    this._processBookSections(view.appendices);
 
     return gpub.Mustache.render(this.template(), view);
   },
 
   /**
-   * Processes the frontmatter. In otherwords, does escaping and, in
-   * particular for the copyright object, constructs a couple new fields.
+   * Processes the frontmatter or appendices. In otherwords, does escaping and,
+   * in particular for the copyright object, constructs a couple new fields.
+   *
+   * TODO(kashomon): Clean this up. The generateToc and copyright sections are,
+   * in particular, ugly and non-standard.
    */
-  _processFrontmatter: function(frontmatter) {
+  _processBookSections: function(section) {
     var escape = function(val) {
       return val.replace(/([${%}&#\\])/g, function(m, g1) { return '\\' + g1 });
     };
 
-    // Convert all frontmatter from markdown to LaTeX.
-    for (var key in frontmatter) {
-      if (frontmatter[key]
+    // Convert all frontmatter/appendices from markdown to LaTeX.
+    for (var key in section) {
+      if (section[key]
           && key !== 'copyright'
           && key !== 'generateToc' ) {
-        frontmatter[key] =
-            gpub.book.latex.renderMarkdown(frontmatter[key]);
+        section[key] =
+            gpub.book.latex.renderMarkdown(section[key]);
       } else if (key === 'copyright') {
-        for (var ckey in frontmatter.copyright) {
-          var val = frontmatter.copyright[ckey];
+        for (var ckey in section.copyright) {
+          var val = section.copyright[ckey];
           if (ckey === 'addressLines') {
-            var publisher = frontmatter.copyright.publisher ?
-                [frontmatter.copyright.publisher] : [];
+            var publisher = section.copyright.publisher ?
+                [section.copyright.publisher] : [];
             var constructed = publisher.concat(val);
-            frontmatter.copyright.constructedAddress = constructed
+            section.copyright.constructedAddress = constructed
                 .map(escape)
                 .join('\n\\\\');
           } else if (ckey === 'printingRunNum' &&
@@ -1629,9 +1633,9 @@ gpub.book.latex.generator = {
             for (var i = val; i <= end; i++) {
               out.push(i);
             }
-            frontmatter.copyright.constructedPrintingRun = out.join(' ');
+            section.copyright.constructedPrintingRun = out.join(' ');
           } else if (glift.util.typeOf(val) === 'string') {
-            frontmatter.copyright[ckey] = escape(val);
+            section.copyright[ckey] = escape(val);
           }
         }
       }
@@ -1827,6 +1831,13 @@ gpub.book.latex.defaultTemplate = [
 '%%% The content. %%%',
 '\\mainmatter',
 '<%&content%>',
+'',
+'\\appendix',
+'<%#appendices.glossary%>',
+'\\chapter{Glossary}',
+'<%&appendices.glossary.text%>',
+'<%/appendices.glossary%>',
+'',
 '',
 '\\end{document}'].join('\n');
 /** Creates a marked-Markdown renderer for LaEeX */
@@ -3874,6 +3885,10 @@ gpub.defaultOptions = {
        *  }
        */
       copyright: null
+    },
+
+    appendices: {
+      glossary: null
     }
   },
 

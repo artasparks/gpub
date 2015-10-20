@@ -9,3 +9,4 @@
 \contentsline {chapter}{\chapternumberline {5}The Losing Move}{109}{chapter.5}
 \contentsline {chapter}{\chapternumberline {6}White fights back}{113}{chapter.6}
 \contentsline {chapter}{\chapternumberline {7}Black resigns}{138}{chapter.7}
+\contentsline {appendix}{\chapternumberline {A}Glossary}{140}{appendix.A}

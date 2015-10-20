@@ -175,6 +175,10 @@ gpub.defaultOptions = {
        *  }
        */
       copyright: null
+    },
+
+    appendices: {
+      glossary: null
     }
   },
 
