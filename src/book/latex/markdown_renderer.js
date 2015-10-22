@@ -85,7 +85,7 @@ gpub.book.latex.markdown = {
 
   /** body: string, ordered: boolean */
   list: function(body, ordered) {
-    if (ordererd) {
+    if (ordered) {
       return [
         '\\begin{enumerate}',
         body,

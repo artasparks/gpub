@@ -1809,7 +1809,7 @@ gpub.book.latex.defaultTemplate = [
 '\\frontmatter',
 '',
 '<%#frontmatter.foreword%>',
-'\\chapter{Foreward}',
+'\\chapter{Foreword}',
 '<%&frontmatter.foreword.text%>',
 '<%/frontmatter.foreword%>',
 '',
@@ -1927,7 +1927,7 @@ gpub.book.latex.markdown = {
 
   /** body: string, ordered: boolean */
   list: function(body, ordered) {
-    if (ordererd) {
+    if (ordered) {
       return [
         '\\begin{enumerate}',
         body,
