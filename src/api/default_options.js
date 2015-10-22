@@ -163,6 +163,7 @@ gpub.defaultOptions = {
        *     "firstEditionYear": 2015,
        *     "isbn": "1-1-123-123456-1",
        *     "issn": "1-123-12345-1",
+       *     "lccn": "2015123456",
        *     "addressLines": [
        *        "PO #1111",
        *        "1111 Mainville Road Rd, Ste 120",
