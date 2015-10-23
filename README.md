@@ -14,7 +14,10 @@ rendering.
 The JavaScript API for book generation is:
 
 ```javascript
-gpub.create([sgf1, sgf2, ...], {...options...});
+gpub.create({
+  sgfs: [sgf1, sgf2, ...],
+  ...options...
+});
 ```
 
 This returns the string output of the book.
