@@ -29,8 +29,3 @@ keeping them in my head.
   diagrams are placed within a page. However, being smarter about diagram
   placement means having higher diagram density and lower printing costs.
     - Sort of Done.
-
-- __Better Cropping__: Only for game commentary. It would sometimes be nice to
-  crop a diagram as tightly as possible (crop based only on the variation, not
-  on the existing stones).
-    - Sort of Done.
