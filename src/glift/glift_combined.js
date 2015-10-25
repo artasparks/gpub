@@ -3,14 +3,26 @@
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 1.0.6
+ * @version 1.1.0
  * --------------------------------------
  */
 (function(w) {
 var glift = glift || w.glift || {};
+
+// Define some closure primitives for backwards compatibility. Closure compiler
+// works off of regular expressions, so this shouldn't be an issue.
+var g = w.goog || {};
+if (!g.provide) {
+  g.provide = function(){};
+}
+if (!g.require) {
+  g.require = function(){};
+}
+
 if (w) {
   // expose Glift as a global.
   w.glift = glift;
+  w.goog = g;
 }
 })(window);
 /**
@@ -60,7 +72,7 @@ glift.global = {
   addedCssClasses: false
 };
 /**
- * Initialization function to be run on glift creation.  Things performed:
+ * Initialization function to be run on glift-ui creation.  Things performed:
  *  - (Compatibility) Whether or not the page supports Glift (SVG)
  *  - (Mobile-Zoom) Disable zoom for mobile, if option specified.
  */
@@ -807,8 +819,8 @@ glift.util.coordToString = function(x, y) {
 glift.util.pointFromString = function(str) {
   try {
     var split = str.split(",");
-    var x = parseInt(split[0]);
-    var y = parseInt(split[1]);
+    var x = parseInt(split[0], 10);
+    var y = parseInt(split[1], 10);
     return glift.util.point(x, y);
   } catch(e) {
     throw "Parsing Error! Couldn't parse a point from: " + str;
@@ -3651,17 +3663,9 @@ glift.displays.cropbox = {
         bottom = cropbox.bbox.bottom(),
         left = cropbox.bbox.left(),
         right = cropbox.bbox.right();
-    if (cropbox.hasRaggedTop() && drawBoardCoords) {
-      top -= 1;
-    }
-    if (cropbox.hasRaggedBottom() && drawBoardCoords) {
-      bottom += 1;
-    }
-    if (cropbox.hasRaggedLeft() && drawBoardCoords) {
-      left -= 1;
-    }
-    if (cropbox.hasRaggedRight() && drawBoardCoords) {
-      right += 1;
+    if (drawBoardCoords) {
+      bottom += 2;
+      right += 2;
     }
 
     var cx = new glift.orientation.Cropbox(
@@ -3708,7 +3712,7 @@ glift.displays._CropBox.prototype = {
    *
    * Note: the x and y coordinates for these points will either be 0 or 0.5.
    */
-  topExt: function() { 
+  topExt: function() {
     return this._cbox.hasRaggedTop() ? glift.displays.cropbox.EXT: 0;
   },
   botExt: function() { 
@@ -11652,7 +11656,7 @@ glift.flattener = {
     return new glift.flattener.Flattened(
         board, collisions, comment, boardRegion, cropping, mt.onMainline(),
         startingMoveNum, endingMoveNum, mainlineMoveNum, mainlineMove,
-        nextMainlineMove, stoneMap);
+        nextMainlineMove, stoneMap, marks, labels);
   },
 
   /**
@@ -11737,8 +11741,8 @@ glift.flattener = {
    * Example return value:
    * {
    *  marks: {
-   *    "12.5": 13
-   *    "12.3": 23
+   *    "12,5": 13
+   *    "12,3": 23
    *  },
    *  labels: {
    *    "12,3": "A"
@@ -12025,12 +12029,18 @@ glift.flattener._Board.prototype = {
     return this._maxBoardSize;
   },
 
-  /** Returns the height of the Go board. */
+  /**
+   * Returns the height of the Go board. Note that this won't necessarily be the
+   * length of the board - 1 due to cropping.
+   */
   height: function() {
     return this._boardArray.length;
   },
 
-  /** Returns the width of the Go board. */
+  /**
+   * Returns the width of the Go board. Note that this won't necessarily be the
+   * length of the board - 1 due to cropping.
+   */
   width: function() {
     // Here we assume that the Go board is rectangular.
     return this._boardArray[0].length;
@@ -12067,7 +12077,7 @@ glift.flattener._Board.prototype = {
 glift.flattener.Flattened = function(
     board, collisions, comment, boardRegion, cropping, isOnMainPath,
     startMoveNum, endMoveNum, mainlineMoveNum, mainlineMove,
-    nextMainlineMove, stoneMap) {
+    nextMainlineMove, stoneMap, markMap, labelMap) {
   /**
    * Board wrapper. Essentially a double array of intersection objects.
    */
@@ -12121,6 +12131,28 @@ glift.flattener.Flattened = function(
    *    {point: <point>, color: <color>}
    */
   this._stoneMap = stoneMap;
+
+  /**
+   * All the marks!
+   *
+   * A map with the following structure:
+   *  {
+   *    "12,5": 13
+   *    "12,3": 23
+   *  }
+   * }
+   */
+  this._markMap = markMap;
+
+  /** 
+   * All the labels!
+   *
+   *  labels: {
+   *    "12,3": "A"
+   *    "12,4": "B"
+   *  }
+   */
+  this._labelMap = labelMap;
 };
 
 glift.flattener.Flattened.prototype = {
@@ -12171,8 +12203,40 @@ glift.flattener.Flattened.prototype = {
    */
   nextMainlineMove: function() { return this._nextMainlineMove; },
 
-  /** Returns the stone map. */
+  /**
+   * Returns the stone map. An object with the following structure:
+   * {
+   *   '12,3': {point: <point>, color: <color>} (stone object)
+   * }
+   */
   stoneMap: function() { return this._stoneMap; },
+
+  /**
+   * Returns the labels map. An object with the following structure:
+   *  {
+   *    "12,3": "A"
+   *    "12,4": "B"
+   *  }
+   */
+  labelMap: function() {
+    return this._labelMap;
+  },
+
+  /**
+   * Returns the marks map. An object with the following structure:
+   *  {
+   *    "12,5": 30
+   *    "12,3": 31
+   *  }
+   *
+   * where the numbers correspond to an entry in glift.flattener.symbols.
+   *
+   * Note: This will include the TEXTLABEL symbol, even though the labels map
+   * duplicates this information to some degree.
+   */
+  markMap: function() {
+    return this._markMap;
+  },
 
   /**
    * Helper for truncating labels if the labels are numbers > 100, which
@@ -12893,6 +12957,7 @@ glift.widgets.BaseWidget.prototype = {
  * displayOptions: filled-in display options. See ./options/base_options.js
  * actions: combination of stone actions and icon actions.
  * metadata: metadata about the this instance of glift.
+ * hooks: user-provided functions.
  */
 glift.widgets.WidgetManager = function(divId, sgfCollection, sgfMapping,
     sgfColIndex, allowWrapAround, loadColInBack, sgfDefaults, displayOptions,
@@ -12928,6 +12993,7 @@ glift.widgets.WidgetManager = function(divId, sgfCollection, sgfMapping,
   this.sgfCollection = [];
 
   // Cache of SGFs.  Useful for reducing the number AJAX calls.
+  //
   // Map from SGF name to String contents.
   this.sgfCache = sgfMapping || {};
 
@@ -12959,11 +13025,18 @@ glift.widgets.WidgetManager = function(divId, sgfCollection, sgfMapping,
    */
   this.metadata = metadata || undefined;
 
-  /** External hooks provided by users. */
+  /**
+   * External hooks provided by users.
+   *
+   * A map of hook-name to hook-function.
+   */
   this.hooks = hooks;
 };
 
 glift.widgets.WidgetManager.prototype = {
+  /**
+   * Creates a BaseWidget instance, and calls draw on the base widget.
+   */
   draw: function() {
     var that = this;
     var afterCollectionLoad = function() {
@@ -13002,11 +13075,11 @@ glift.widgets.WidgetManager.prototype = {
   setActive: function() { glift.global.activeInstanceId = this.id; },
 
   /** Gets the current widget object. */
-  getCurrentWidget: function() { 
+  getCurrentWidget: function() {
     if (this.temporaryWidget) {
       return this.temporaryWidget;
     } else {
-      return this.currentWidget; 
+      return this.currentWidget;
     }
   },
 
@@ -13038,7 +13111,6 @@ glift.widgets.WidgetManager.prototype = {
    * array is a string, then we try to figure out whether we're looking at an
    * SGF or a URL and then we manufacture a simple sgf object.
    */
-  // TODO(kashomon): Move to options
   getSgfObj: function(index) {
     if (index < 0 || index > this.sgfCollection.length) {
       throw new Error("Index [" + index +  " ] out of bounds."
@@ -13048,10 +13120,10 @@ glift.widgets.WidgetManager.prototype = {
     if (glift.util.typeOf(curSgfObj) === 'string') {
       var out = {};
       if (/^\s*\(;/.test(curSgfObj)) {
-        // This is a standard SGF String.
+        // We assume that this is a standard SGF String.
         out.sgfString = curSgfObj;
       } else {
-        // assume a URL.
+        // Assume a URL.
         out.url = curSgfObj
       }
       curSgfObj = out;
@@ -13347,7 +13419,8 @@ glift.widgets.options = {
   }
 };
 /**
- * Option defaults.
+ * Option defaults. Sometimes I will refer to the a subset of these options as a
+ * Glift Spec.
  *
  * Generally, there are three classes of options:
  *
@@ -13543,16 +13616,21 @@ glift.widgets.options.baseOptions = {
 
     /**
      * Icons to use in the status bar.
+     *
+     * Note: These should be defined by the type-specific options.
+     *
+     * An example of what this looks like in practice:
+     *
+     * [
+     *   'game-info',
+     *   'move-indicator',
+     *   'fullscreen'
+     *   'settings-wrench'
+     * ],
+     *
      * @api(1.0)
      */
-    // TODO(kashomon): Enable settings when ready (?? what does this mean).
     statusBarIcons: undefined,
-    // [
-      // 'game-info',
-      // 'move-indicator',
-      // 'fullscreen'
-      // 'settings-wrench'
-    // ],
 
     /**
      * Metadata for this SGF.  Like the global metadata, this option is not
@@ -13691,6 +13769,8 @@ glift.widgets.options.baseOptions = {
    * Global metadata for this set of options or SGF collection.  These is not
    * meant to be used directly by Glift but by other programs utilizing Glift
    * and so the metadata has no expected structure.
+   *
+   * Thus is currently (sometimes) used by GPub.
    * @api(experimental)
    */
   metadata: undefined,
@@ -13698,14 +13778,33 @@ glift.widgets.options.baseOptions = {
   /**
    * Hooks are places where users can provide custom functions to 'hook' into
    * Glift behavior.
+   *
    * @api(experimental)
    */
   hooks: {
-    // Fires when user gets a problem correct
-    problemCorrect: function() {},
+    /**
+     * Instead of an SGF collection, users can provide a getNextSgf function.
+     * This means that the SGFs in a are stored external to Glift (e.g., on a
+     * problem-server).
+     *
+     * Has the format: function(callback)
+     *
+     * The call back always expects an sgf object, which has the form:
+     *  {
+     *    sgfString: <string-sgf contents>
+     *    alias: <string for cache-hits>
+     *  }
+     */
+    getNextSgf: null,
 
-    // Fires when user gets a problem wrong.
-    problemIncorrect: function() {}
+    /**
+     * Fires when user gets a problem correct. This is a notification function
+     * only.
+     */
+    problemCorrect: null,
+
+    /** Fires when user gets a problem wrong. */
+    problemIncorrect: null
   },
 
   /**
@@ -14183,7 +14282,7 @@ glift.widgets.options.CORRECT_VARIATIONS_PROBLEM = {
                 'multiopen-boxonly',
                 widget.numCorrectAnswers + '/' + widget.totalCorrectAnswers,
                 { fill: '#0CC', stroke: '#0CC'});
-            hooks.problemCorrect();
+            hooks.problemCorrect && hooks.problemCorrect();
           } else {
             widget.iconBar.addTempText(
                 'multiopen-boxonly',
@@ -14200,7 +14299,7 @@ glift.widgets.options.CORRECT_VARIATIONS_PROBLEM = {
         widget.iconBar.setCenteredTempIcon('multiopen-boxonly', 'cross', 'red');
         widget.iconBar.clearTempText('multiopen-boxonly');
         widget.correctness = problemResults.INCORRECT;
-        hooks.problemIncorrect();
+        hooks.problemIncorrect && problemIncorrect();
       }
     }
   },
@@ -14326,12 +14425,12 @@ glift.widgets.options.STANDARD_PROBLEM = {
     if (data.result === problemResults.CORRECT) {
         widget.iconBar.setCenteredTempIcon('multiopen-boxonly', 'check', '#0CC');
         widget.correctness = problemResults.CORRECT;
-        hooks.problemCorrect();
+        hooks.problemCorrect(pt, currentPlayer);
     } else if (data.result === problemResults.INCORRECT) {
       widget.iconBar.destroyTempIcons();
       widget.iconBar.setCenteredTempIcon('multiopen-boxonly', 'cross', 'red');
       widget.correctness = problemResults.INCORRECT;
-      hooks.problemIncorrect();
+      hooks.problemIncorrect(pt, currentPlayer);
     }
   },
 
