@@ -50,6 +50,7 @@ gpub.diagrams.gnos = {
     return gpub.diagrams.gnos.gnosStringArr(flattened, options.size).join('\n');
   },
 
+  // TODO(kashomon): This should really be a macro.
   _inlineWrapper: '{\\raisebox{-.17em}{\\textnormal{%s}}}',
 
   /**
