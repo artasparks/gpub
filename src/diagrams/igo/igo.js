@@ -141,11 +141,13 @@ gpub.diagrams.igo = {
 
     return out.join('\n');
   },
+
   /**
    * Render go stones that exist in a block of text.
    */
   renderInline: function(text, options) {
-    // TODO(kashomon): Implement at some point. See gnos for an example.
+    // TODO(kashomon): Implement at some point. See gnos for an example. IGO has
+    // good support for inline stones, so it shouldn't be too much trouble.
     return text;
   }
 };

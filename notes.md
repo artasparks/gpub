@@ -8,9 +8,8 @@ keeping them in my head.
 * __Book Interface__: The interface for book should probably be changed from
   returning string to returning a more complex data type. Right now we can
   probably just get away with a string return, but it won't work for
-  externalized diagrams like PDFs, SVGs, PNGs, etc.
-
-  For example, we'll want something like this:
+  externalized diagrams like PDFs, SVGs, PNGs, etc.   For example, we'll want
+  something like this:
 
 ```javascript
 {
@@ -24,6 +23,7 @@ keeping them in my head.
   ]
 }
 ```
+
 
 - __Contextual Diagram Placement__: Right now, there is no logic around the way
   diagrams are placed within a page. However, being smarter about diagram
