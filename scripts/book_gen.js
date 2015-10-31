@@ -20,6 +20,7 @@ var flags = flagz.init(
         'The terminating output phase -- either, SPEC, DIAGRAMS, or BOOK'],
 
     outputFormat: ['string', 'LATEX', 'The output format for the book.'],
+    diagramType: ['string', 'GNOS', 'The diagram type for the book.'],
     directory: ['string', '', 'The directory from which to process SGFs.'],
     outputFileName: ['string', '', 'Defaults to current directory name.'],
     pageSize: ['gpub.book.page.type', 'LETTER',
@@ -78,6 +79,7 @@ for (var i = 0; i < def.collection.length; i++) {
 var options = {
   sgfs: sgfArr,
   pageSize: flags.processed.pageSize,
+  diagramType: flags.processed.diagramType,
   gnosFontSize: flags.processed.gnosFontSize,
   autoBoxCropOnVariation: flags.processed.autoBoxCropOnVariation,
   regionRestrictions: flags.processed.regionRestrictions,
