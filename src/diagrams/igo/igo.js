@@ -17,6 +17,19 @@ gpub.diagrams.igo = {
     20: 20
   },
 
+  /** Converts a normal Glift point into an Igo coordinate. */
+  toIgoCoord: function(pt, size) {
+    if (!pt) { throw new Error('No point'); }
+    if (!size) { throw new Error('No board size'); }
+    if (pt.x() < 0 || pt.y() < 0 || pt.x() > size-1 || pt.y() > size-1) {
+      throw new Error('Pt out of bounds: ' + pt.toString());
+    }
+    var letters = 'abcdefghjklmnopqrstuvwxyz';
+    var x = letters.charAt(pt.x());
+    var y = size - pt.y();
+    return x+y;
+  },
+
   /**
    * Create a diagram from a flattened representation.
    *
@@ -40,85 +53,11 @@ gpub.diagrams.igo = {
    */
   create: function(flattened, options) {
     var size = options.size;
-    var letters = 'abcdefghjklmnopqrstuvwxyz';
     var symbolStr = glift.flattener.symbolStr;
     var wInts = [];
     var bInts = [];
 
     var size = flattened.board.maxBoardSize();
-    var toPt = glift.util.pointFromString;
-    var toIgoCoord  = function(pt) {
-      var x = letters.charAt(pt.x());
-      var y = size - pty.y();
-      return x+y;
-    }
-
-    var seenPts = {};
-    var stoneMap = flattened.stoneMap();
-
-    var procMarks = {
-      BLACK: {
-        // XMARK->CIRCLE are arrays of pt strings
-        XMARK: [],
-        SQUARE: [],
-        TRIANGLE: [],
-        CIRCLE: [],
-        // TEXTLABEL is an array of objects like {ptstr: str, label: str}
-        TEXTLABEL: []
-      },
-      WHITE: {
-        XMARK: [],
-        SQUARE: [],
-        TRIANGLE: [],
-        CIRCLE: [],
-        TEXTLABEL: []
-      },
-      EMPTY: {
-        TEXTLABEL: []
-      }
-    };
-
-    // Glyphs are used in the context: \white|black[glyph]{intersection-pairs}
-    var markToGlyph = {
-      XMARK: '\\igocross',
-      SQUARE: '\\igosquare',
-      TRIANGLE: '\\igotriangle',
-      CIRCLE: '\\igocircle'
-    };
-
-    var number = /^\d+$/;
-    for (var ptstr in flattened.markMap()) {
-      var mark = flattened.markMap()[ptstr];
-      if (stoneMap[ptstr] && stoneMap[ptstr].color) {
-        // Note: Igo does not support marks (except for number-labels) on
-        // empty intersections.
-        if (mark !== glift.flattened.symbols.TEXTLABEL) {
-          var stone = stoneMap[ptstr];
-          procMarks[stone.color][symbolStr(mark)] = toIgoCoord(toPt(ptstr));
-          seenPts[ptstr] = true;
-        } else if (mark === glift.flattened.symbols.TEXTLABEL &&
-            flattened.labelMap()[ptstr] &&
-            number.test(flattened.labelMap()[ptstr])) {
-          // Only number-labels are support on stones.
-          // TODO(kashomon): Since Igo supports special constructions for
-          // consecutive stones, this constructions hould be supported here
-          procMarks[stone.color][symbolStr(mark)] = {
-            ptstr: ptstr,
-            label: flattened.labelMap()[ptstr]
-          };
-        }
-      } else if (mark == glift.flattened.symbols.TEXTLABEL) {
-        // Arbitrary labels are supported for empty intersections.
-        proc[EMPTY][TEXTLABEL] =  {
-          ptstr: ptstr,
-          label: flattened.labelMap()[ptstr]
-        };
-      }
-      // There are several opportunities for marks to not get caught here. Igo
-      // doesn't have support for:
-      // - Empty intersections with marks
-      // - Stones with labels other than numbers
-    }
 
     for (var ptstr in flattened.stoneMap()) {
       if (proc[ptstr]) {
@@ -135,11 +74,86 @@ gpub.diagrams.igo = {
       }
     }
 
+    // Glyphs are used in the context: \white|black[glyph]{intersection-pairs}
+    var markToGlyph = {
+      XMARK: '\\igocross',
+      SQUARE: '\\igosquare',
+      TRIANGLE: '\\igotriangle',
+      CIRCLE: '\\igocircle'
+    };
+
     var out = [
       '\\cleargoban',
     ]
 
     return out.join('\n');
+  },
+
+  /**
+   * Process the marks into something more useful for Igo.
+   * Takes the following maps:
+   * - markMap : map from ptString to mark type
+   * - stoneMap : map from ptString to stone obj
+   * - labelMap : map from ptString to label string
+   */
+  _processMarks: function(markMap, stoneMap, labelMap) {
+    var seenPts = {};
+
+    // With stoneMarks, we attempt find sequences of stones, which allows for
+    // more compact diagram descriptions
+    var stoneTextLabels = [];
+
+    // Has the format
+    // {Color:Mark:[]} -- array of ptstr, or text label objects of the form
+    //    {ptstr: '1,2', label: 'textlabel'}
+    // where color os one of BLACK, WHITE or EMPTY and marks are the output of
+    // glift.flattener.symbolStr(flattener symbol)
+    var procMarks = {
+      BLACK: {
+        XMARK: [], SQUARE: [], TRIANGLE: [], CIRCLE: [],
+      },
+      WHITE: {
+        XMARK: [], SQUARE: [], TRIANGLE: [], CIRCLE: [], TEXTLABEL: []
+      },
+      EMPTY: {
+        TEXTLABEL: []
+      }
+    };
+    var number = /^\d+$/;
+
+    for (var ptstr in markMap) {
+      var mark = markMap[ptstr];
+      if (stoneMap[ptstr] && stoneMap[ptstr].color) {
+        // Note: Igo does not support marks (except for number-labels) on
+        // empty intersections.
+        if (mark !== glift.flattened.symbols.TEXTLABEL) {
+          var stone = stoneMap[ptstr];
+          procMarks[stone.color][symbolStr(mark)] = toIgoCoord(toPt(ptstr));
+          seenPts[ptstr] = true;
+        } else if (mark === glift.flattened.symbols.TEXTLABEL &&
+            flattened.labelMap()[ptstr] &&
+            number.test(flattened.labelMap()[ptstr])) {
+          // Only number-labels are support on stones.
+          // TODO(kashomon): Since Igo supports special constructions for
+          // consecutive stones, this constructions hould be supported here
+          stoneTextLabels.push({
+            ptstr: ptstr,
+            color: color,
+            label: flattened.labelMap()[ptstr]
+          });
+        }
+      } else if (mark == glift.flattened.symbols.TEXTLABEL) {
+        // Arbitrary *text* labels are supported for empty intersections.
+        proc[EMPTY][TEXTLABEL] =  {
+          ptstr: ptstr,
+          label: flattened.labelMap()[ptstr]
+        };
+      }
+      // There are several opportunities for marks to not get caught here. Igo
+      // doesn't have support for:
+      // - Empty intersections with marks
+      // - Stones with labels other than numbers
+    }
   },
 
   /**
