@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Default way to generate the book.
+# Default way to generate the book. Note that igo fundamentally doesn't work
+# with the memoir class, so this doesn't work at the moment.
 
 ../../scripts/book_gen.js \
   --diagram_type=IGO \
