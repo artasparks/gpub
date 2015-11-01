@@ -47,12 +47,19 @@ var flags = flagz.init(
     glossary: ['file name (must be in JSON)', 'glossary.md',
         'The glossary file, specified as markdown.'],
 
+    // Options specifically for making publishable books.
     pdfx1a: ['boolean', false, 'Whether or not to generate PDF/X-1a valid PDFs'],
     colorProfileFilePath: ['file name',
         path.join(resourcesDir, 'ISOcoated_v2_300_eci.icc'),
         'Color profile file. Defaults to ISOcoated_v2_300_eci.icc in ' +
         'GPub\'s resources. Only used for PDF/X-1a pdfs.'],
-    debug: ['boolean', false, 'Whether or not debugging information is enabled.']
+
+    // Debug options.
+    debug: ['boolean', false, 'Whether or not debugging information is enabled.'],
+    skipDiagrams:
+        ['number', 0, 'Skip generating the first N diagrams.'],
+    maxDiagrams:
+        ['number', 0, 'Generate only the first n diagrams. 0 indicates all.']
   }).process();
 
 var workingDir = process.cwd();
@@ -89,7 +96,9 @@ var options = {
   },
   pdfx1a: flags.processed.pdfx1a,
   colorProfileFilePath: flags.processed.colorProfileFilePath,
-  debug: flags.processed.debug
+  debug: flags.processed.debug,
+  maxDiagrams: flags.processed.maxDiagrams,
+  skipDiagrams: flags.processed.skipDiagrams
 };
 
 // Process frontmatter and appendices into the book options.

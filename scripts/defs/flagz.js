@@ -78,7 +78,18 @@ FlagzDef.prototype = {
         return null;
       }
     } else if (value === null || value === undefined) {
+      // We use null as the default (un-filled in) type, for all types.
       value = null;
+    } else if (flagtype === 'number') {
+      var oldvalue = value;
+      if (/^\d+$/.test(value)) {
+        value = parseInt(value, 10);
+      } else {
+        value = parseFloat(value);
+      }
+      if (isNaN(value)) {
+        throw new Error('Could not parse ' + oldvalue + 'as a number');
+      }
     } else if (/Array.*/.test(flagtype)) {
       value = value.split(',');
     }
