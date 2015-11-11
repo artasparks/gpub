@@ -1,3 +1,32 @@
+/**
+ * The GPub Ascii format. Note the similarity to SGF specification.
+ *
+ * Note that the board is indexed from 1,1, from the upper left.
+ *
+ * .........
+ * ......^..
+ * ...%.....
+ * .....%...
+ * ..@.+....
+ * ......X..
+ * ....OOX..
+ * ....OX...
+ * .........
+ *
+ * (3,5):Triangle
+ * (4,3),(6,4):A
+ * (7,1):Square
+ * C: A balanced 9x9 game!
+ *
+ * Legend
+ * . :: Board
+ * + :: Starpoint (optional).
+ * O :: White Stone
+ * X :: Black Stone
+ * @ :: White Stone + label or mark
+ * % :: Black Stone + label or mark
+ * ^ :: Empty Intersection + label or mark
+ */
 gpub.diagrams.gpubAscii = {
   create: function(flattened, opts) {
     var toStr = glift.flattener.symbolStr;
