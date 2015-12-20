@@ -58,7 +58,7 @@ The rough structure of the options object in the API
 
 1. Install [LaTeX](http://www.latex-project.org/)
 2. Install the GNos Font. For font-installation instructions, see
-   [Kashomon/go-type1](www.github.com/Kashomon/go-type1). The recommended font
+   [Kashomon/go-type1](https://www.github.com/Kashomon/go-type1). The recommended font
    is gnos.
 3. Install [NodeJS](https://nodejs.org/)
 3. Download this repository and in your `.bashrc` or `.bash_profile` (whichever
