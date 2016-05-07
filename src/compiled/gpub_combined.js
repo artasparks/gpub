@@ -2823,10 +2823,10 @@ gpub.diagrams = {
    */
   createLabel: function(flattened) {
     return gpub.diagrams._constructLabel(
-        collisions = flattened.collisions(),
-        isOnMainline = flattened.isOnMainPath(),
-        startNum = flattened.startingMoveNum(),
-        endNum = flattened.endingMoveNum());
+        flattened.collisions(),
+        flattened.isOnMainPath(),
+        flattened.startingMoveNum(),
+        flattened.endingMoveNum());
   },
 
   /**
@@ -3189,35 +3189,77 @@ gpub.diagrams.gooe.symbolMap = {
   // WSTONE_INLINE: '\goinWsLbl{%s}',
   // MISC_STONE_INLINE: '\goinChar{%s}',
 };
+/**
+ * The GPub Ascii format. Note the similarity to SGF specification.
+ *
+ * Note that the board is indexed from 1,1, from the upper left.
+ *
+ * .........
+ * ......*..
+ * ...%.....
+ * .....%...
+ * ..@.+....
+ * ......X..
+ * ....OOX..
+ * ....OX...
+ * .........
+ *
+ * (3,5):Triangle
+ * (4,3),(6,4):A
+ * (7,1):Square
+ * C: A balanced 9x9 game!
+ *
+ * Legend
+ * . :: Board
+ * + :: Starpoint (optional).
+ * O :: White Stone
+ * X :: Black Stone
+ * @ :: White Stone + label or mark
+ * % :: Black Stone + label or mark
+ * ^ :: Empty Intersection + label or mark
+ */
 gpub.diagrams.gpubAscii = {
   create: function(flattened, opts) {
     var toStr = glift.flattener.symbolStr;
     var symbolMap = gpub.diagrams.gpubAscii.symbolMap;
 
+    var marks = {};
     var newBoard = flattened.board().transform(function(i, x, y) {
-      var symbol = toStr(i.base());
-      if (i.textLabel() &&
-          i.mark() &&
-          i.mark() === glift.flattener.symbols.TEXTLABEL) {
-        var label = i.textLabel();
-      } else if (i.mark() && i.stone()) {
-        symbol = toStr(i.stone()) + '_' + toStr(i.mark());
-      } else if (i.stone()) {
-        symbol = toStr(i.stone());
+      var symbol = toStr(i.base()); // Default
+      if (i.stone()) {
+        var stoneSym = toStr(symbol);
+        if (i.mark()) {
+          symbol = stoneSym + '_MARK';
+        } else {
+          symbol = stoneSym;
+        }
       } else if (i.mark()) {
-        symbol = toStr(i.mark());
-      } // default case: symbol is the base.
+        symbol = 'EMPTY_MARK';
+      }
+
+      if (i.mark()) {
+        var pt = x + ',' + y;
+        var obj = {
+          mark: toStr(i.mark())
+        };
+        if (i.textLabel()) {
+          obj['label'] = i.textLabel();
+        }
+        marks[pt] = obj;
+      }
 
       var out = symbolMap[symbol];
       if (!out) {
-        console.log('Could not find symbol str for : ' + symbol);
+        throw new Error('Could not find symbol str for : ' + symbol);
       }
+      return out;
     });
 
-    var out = [];
-    for (var i = 0, arr = newBoard.boardArray(); i < arr.length; i++) {
+    var ourStr = [];
+    for (var i = 0; i < newBoard.boardArray; i++) {
+      outStr.push(newBoard.join(''));
     }
-    return out;
+    return outStr.join('\n');
   },
 
   /** Render go stones that exist in a block of text. */
@@ -3242,30 +3284,12 @@ gpub.diagrams.gpubAscii.symbolMap = {
   CENTER: '.',
   CENTER_STARPOINT: '+',
 
-  /**
-   * Marks and StoneMarks layer.
-   */
-  BSTONE_TRIANGLE: 'D',
-  WSTONE_TRIANGLE: 'd',
-  TRIANGLE: 'T',
+  BSTONE: 'X',
+  WSTONE: 'O',
 
-  BSTONE_SQUARE: 'Q',
-  WSTONE_SQUARE: 'q',
-  SQUARE: 'S',
-
-  BSTONE_CIRCLE: 'E',
-  WSTONE_CIRCLE: 'e',
-  CIRCLE: 'C',
-
-  BSTONE_XMARK: 'A',
-  WSTONE_XMARK: 'a',
-  XMARK: 'M',
-
-  // Note: BStone and WStone text labels don't really work and should be ignored
-  // and just rendered as stones, unless they're numbers between 1-10
-  BSTONE_TEXTLABEL: '#',
-  WSTONE_TEXTLABEL: '*',
-  TEXTLABEL: '@'
+  BSTONE_MARK: '%',
+  WSTONE_MARK: '@',
+  EMPTY_MARK: '*'
 };
 gpub.diagrams.gnos = {
   /** Available sizes. In pt. */

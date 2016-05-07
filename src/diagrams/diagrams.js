@@ -161,10 +161,10 @@ gpub.diagrams = {
    */
   createLabel: function(flattened) {
     return gpub.diagrams._constructLabel(
-        collisions = flattened.collisions(),
-        isOnMainline = flattened.isOnMainPath(),
-        startNum = flattened.startingMoveNum(),
-        endNum = flattened.endingMoveNum());
+        flattened.collisions(),
+        flattened.isOnMainPath(),
+        flattened.startingMoveNum(),
+        flattened.endingMoveNum());
   },
 
   /**
