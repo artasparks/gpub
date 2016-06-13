@@ -1,0 +1,37 @@
+{
+  "name": "gpub",
+  "version": "0.3.0",
+  "description": "GPub: Create and publish go books with Glift!",
+  "license": "MIT",
+  "repository": "Kashomon/gpub",
+  "bugs": {
+    "url": "http://github.com/Kashomon/gpub/issues"
+  },
+  "author": {
+    "name": "Josh Hoak",
+    "email": "jrhoak@gmail.com"
+  },
+  "engines": {
+    "node": ">=4.4.0"
+  },
+  "scripts": {
+    "test": "gulp"
+  },
+  "keywords": [
+    "glift",
+    "go",
+    "igo",
+    "baduk",
+    "weiqi"
+  ],
+  "devDependencies": {
+    "glob": "^7.0.3",
+    "gulp": "^3.9.1",
+    "gulp-closure-compiler": "^0.4.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-qunit": "^1.4.0",
+    "gulp-size": "^2.1.0",
+    "gulp-util": "^3.0.7",
+    "through2": "^2.0.1"
+  }
+}

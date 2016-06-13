@@ -1,5 +1,5 @@
 (function() {
-  module('glift.book.generatorTest');
+  module('gpub.book.generatorTest');
 
   test('Test all outputFormat for generators', function() {
     for (var key in gpub.outputFormat) {

@@ -1,5 +1,5 @@
 (function() {
-  module('glift.diagrams.diagramsTest');
+  module('gpub.diagrams.diagramsTest');
   var basicSgf = '(;GB[1]C[foo]AW[aa]AB[ab]LB[ab:z])';
   var diagramType = gpub.diagrams.diagramType;
   var diagramContext = gpub.book.diagramContext;

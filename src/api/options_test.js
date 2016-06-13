@@ -1,9 +1,10 @@
 (function() {
-  module('glift.api.optionsTest');
+  module('gpub.api.optionsTest');
+  var defaultOptions = new gpub.Options();
 
   test('Process options: default', function() {
     var o = gpub.processOptions();
-    deepEqual(o, gpub.defaultOptions);
+    deepEqual(o, defaultOptions);
   });
 
   test('Process options: default', function() {
@@ -14,7 +15,7 @@
     });
     deepEqual(o.bookOptions.title, 'Zed');
     deepEqual(o.bookOptions.publisher,
-        gpub.defaultOptions.bookOptions.publisher);
+        defaultOptions.bookOptions.publisher);
   });
 
   test('Process options: gnosFontSize', function() {

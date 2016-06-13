@@ -4,10 +4,5 @@ gpub.global = {
    * See: http://semver.org/
    * Currently in alpha.
    */
-  version: '0.1.0',
-
-  /**
-   * Whether or not debugging information is enabled.
-   */
-  debug: false
+  version: '0.3.0',
 };

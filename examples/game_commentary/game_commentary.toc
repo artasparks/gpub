@@ -4,9 +4,9 @@
 \contentsline {chapter}{Introduction}{iv}{chapter*.4}
 \contentsline {chapter}{\chapternumberline {1}Introduction}{1}{chapter.1}
 \contentsline {chapter}{\chapternumberline {2}An Old Fuseki}{4}{chapter.2}
-\contentsline {chapter}{\chapternumberline {3}The Brilliant Peep}{35}{chapter.3}
-\contentsline {chapter}{\chapternumberline {4}A Small Mistake}{92}{chapter.4}
-\contentsline {chapter}{\chapternumberline {5}The Losing Move}{109}{chapter.5}
-\contentsline {chapter}{\chapternumberline {6}White fights back}{113}{chapter.6}
-\contentsline {chapter}{\chapternumberline {7}Black resigns}{138}{chapter.7}
-\contentsline {appendix}{\chapternumberline {A}Glossary}{140}{appendix.A}
+\contentsline {chapter}{\chapternumberline {3}The Brilliant Peep}{43}{chapter.3}
+\contentsline {chapter}{\chapternumberline {4}A Small Mistake}{116}{chapter.4}
+\contentsline {chapter}{\chapternumberline {5}The Losing Move}{134}{chapter.5}
+\contentsline {chapter}{\chapternumberline {6}White fights back}{138}{chapter.6}
+\contentsline {chapter}{\chapternumberline {7}Black resigns}{162}{chapter.7}
+\contentsline {appendix}{\chapternumberline {A}Glossary}{164}{appendix.A}

@@ -1,43 +1,5 @@
 gpub.diagrams = {
   /**
-   * Types of diagram output.
-   */
-  // TODO(kashomon): Make part of the API (gpub.api)
-  diagramType: {
-    /**
-     * Sensei's library ASCII variant.
-     */
-    SENSEIS_ASCII: 'SENSEIS_ASCII',
-    /**
-     * GPUB's ASCII variant.
-     */
-    GPUB_ASCII: 'GPUB_ASCII',
-
-    /**
-     * Dan Bump's LaTeX font. Part of the Sgf2Dg script.
-     */
-    GOOE: 'GOOE',
-    /**
-     * Josh Hoak's variant of Gooe
-     */
-    GNOS: 'GNOS',
-    /**
-     * Another LaTeX font / LaTeX style package
-     * >> Not Currently Supported
-     */
-    IGO: 'IGO',
-    /**
-     * Native PDF generation
-     * >> Not Currently Supported, but here for illustration.
-     */
-    PDF: 'PDF',
-    /**
-     * Generate SVG Diagrams.
-     */
-    SVG: 'SVG'
-  },
-
-  /**
    * The new method for generating diagrams. Note that this no longer generates
    * the diagram context -- that is left up to the relevant book generator.
    */

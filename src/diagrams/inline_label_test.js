@@ -1,5 +1,5 @@
 (function() {
-  module('glift.diagrams.inlineLabelTest');
+  module('gpub.diagrams.inlineLabelTest');
   var r = gpub.diagrams.inlineLabelRegex;
   var rep = gpub.diagrams.inlineReplacer;
 

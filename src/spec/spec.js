@@ -1,9 +1,11 @@
+goog.provide('glift.spec')
+
 /**
  * Methods for processing and creating Glift specifications.
  */
 gpub.spec = {
   /**
-   * A default Glift specification.
+   * A default Book specification.
    */
   _defaultSpec: {
     // Since this is for a book definition, we don't need a divId. Clients

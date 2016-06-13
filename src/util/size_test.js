@@ -1,5 +1,5 @@
 (function() {
-  module('glift.util.size');
+  module('gpub.util.size');
 
   var size = gpub.util.size;
   test('conversions: inToPt', function() {

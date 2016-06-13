@@ -1,144 +1,198 @@
+goog.provide('gpub.Options');
+
 /**
- * The phases of GPub. GPub generation happens in four phases. Generation can
- * stop at any one of the four steps and output the results.
+ * Default options for GPub API. Recall that GPub has 3 tasks:
  *
- * 1. Options. In this step, we process tho options for validity. Stopping at
- *    this step produces a validate options spec with only the file
- * 2. Spec Generation. This a description of the book in JSON. This is
- *    equivalent to a Glift spec, with embedded SGFs.
- * 3. Diagram Generation. The diagrams are generated next.
- * 4. Book Generation. Lastly, the diagrams are combined together to form the
- *    book.
+ * - Create a spec (a serialized book prototype).
+ * - Create diagrams
+ * - Assemble the diagrams into a book.
  *
- * For a variety of reasons, the book generation can be terminated at any one of
- * these 3 phases.
+ * These are the set of options for all 3 phases.
+ *
+ * @param {!gpub.Options} options
+ *
+ * @constructor @struct @final
  */
-gpub.outputPhase = {
-  OPTIONS: 'OPTIONS',
-  SPEC: 'SPEC',
-  DIAGRAMS: 'DIAGRAMS',
-  BOOK: 'BOOK'
+gpub.Options = function (options) {
+  var o = options || {};
+
+  /**
+   * Array of SGF (strings). No default is specified here: Must be explicitly
+   * passed in every time.
+   *
+   * @const {!Array<string>}
+   */
+  this.sgfs = o.sgfs || [];
+
+  /**
+   * Book generation happens in 3 phases: SPEC, DIAGRAMS, BOOK.
+   *
+   * @const {gpub.OutputPhase}
+   */
+  this.outputPhase = o.outputPhase || gpub.OutputPhase.BOOK;
+
+  /**
+   * A Book Spec (Phase 2.) can be passed in, bypasing spec creation.
+   *
+   * @const {Object|null}
+   */
+  this.spec = o.spec || null;
+
+  /**
+   * The format of the 'book' output that is produced by GPub.
+   * See gpub.outputFormat.
+   *
+   * @const {gpub.OutputFormat}
+   */
+  this.outputFormat = o.outputFormat || gpub.OutputFormat.LATEX;
+
+  /**
+   * What is the purpose for the book? I.e., Commentary, Problem book,
+   * Combination-book.
+   * See gpub.bookPurpose.
+   *
+   * @const {gpub.BookPurpose}
+   */
+  this.bookPurpose = o.bookPurpose || gpub.BookPurpose.GAME_COMMENTARY;
+
+  /**
+   * Default board region for cropping purposes.
+   * See glift.enums.boardRegions.
+   *
+   * @const {glift.enums.boardRegions}
+   */
+  // TODO(kashomon): Should this even be here? This should generally be set on a
+  // per-diagram basis.
+  this.boardRegion = o.boardRegion || glift.enums.boardRegions.AUTO;
+
+  /**
+   * The type of diagrams produced by GPub.
+   *
+   * Ideally you would be able to use any diagramType in an outputFormat, but
+   * that is not currently the case.  Moreover, some output formats (e.g.,
+   * glift, smartgo) take charge of generating the diagrams.
+   *
+   * However, there are some types that are output format independent:
+   *  - ASCII,
+   *  - PDF,
+   *  - EPS
+   *
+   * @const {gpub.DiagramType}
+   */
+  this.diagramType = o.diagramType || gpub.DiagramType.GNOS;
+
+  /**
+   * The size of the page. Element of gpub.book.page.type.
+   *
+   * @const {gpub.PageSize}
+   */
+  this.pageSize = o.pageSize || gpub.PageSize.LETTER;
+
+  /**
+   * Size of the intersections in the diagrams. If no units are specified, the
+   * number is assumed to be in pt. Can also be specified in 'in', 'mm', or
+   * 'em'.
+   *
+   * @const {string}
+   */
+  this.goIntersectionSize = o.goIntersectionSize || '12pt';
+
+  /**
+   * Skip the first N diagrams. Allows users to generate parts of a book.
+   *
+   * @const {number}
+   */
+  this.skipDiagrams = o.skipDiagrams || 0;
+
+  /**
+   * Maximum diagrams generated -- allows users to specify a section of the
+   * book. 0 indicates that all subsequent diagrams are generated.
+   *
+   * @const {number}
+   */
+  this.maxDiagrams = o.maxDiagrams ||  0;
+
+  /**
+   * Override the default template.
+   * A false-y template will result in using the default template.
+   *
+   * @const {?string}
+   */
+  this.template = o.template || null;
+
+  /**
+   * Whether or not to perform box-cropping on variations.
+   * @const {boolean}
+   */
+  this.autoBoxCropOnVariation = o.autoBoxCropOnVariation || false;
+
+  /**
+   * List of autocropping preferences. Each element in the array should be a
+   * member of glift.enums.boardRegions.
+   *
+   * Note: this may change if we ever support minimal/close-cropping.
+   *
+   * @const {!Array<glift.enums.boardRegions>}
+   */
+  this.regionRestrictions = o.regionRestrictions || [];
+
+  ////////////////////////////
+  // DiagramSpecificOptions //
+  ////////////////////////////
+
+  /**
+   * Whether or not to generate PDF/X-1a compatibile PDFs. Note: this only
+   * applies to output formats that generate PDFs (latex).
+   *
+   * Most printers will require this option to be set.
+   *
+   * @const {boolean}
+   */
+  this.pdfx1a = o.pdfx1a || false;
+
+  /**
+   * An option only for PDF/X-1a. For this spceification, you must specify a
+   * color profile file (e.g., ISOcoated_v2_300_eci.icc).
+   *
+   * @const {?string}
+   */
+  this.colorProfileFilePath = o.colorProfileFilePath || null;
+
+  //////////////////
+  // Book Options //
+  //////////////////
+
+  /**
+   * Options specifically for book processors.
+   *
+   * @const {!gpub.BookOptions}
+   */
+  this.bookOptions = new gpub.BookOptions(o.bookOptions);
+
+  /**
+   * Whether or not debug information should be displayed (initia
+   *
+   * @const {boolean}
+   */
+  this.debug = !!o.debug || false;
 };
 
-
-/**
- * The type general type of the book.  Specifes roughly how we generate the
- * Glift spec.
- */
-gpub.bookPurpose = {
-  /** Game with commentary. */
-  GAME_COMMENTARY: 'GAME_COMMENTARY',
-
-  /** Set of problems and, optionally, anwsers. */
-  PROBLEM_SET: 'PROBLEM_SET',
-
-  /** A set of problems processed specifically for book consumption. */
-  PROBLEM_BOOK: 'PROBLEM_BOOK'
-};
-
-
-/**
- * The format for gpub output.
- */
-gpub.outputFormat = {
-  /** Construct a book in ASCII format. */
-  ASCII: 'ASCII',
-
-  /** Constructs a EPub book. */
-  EPUB: 'EPUB',
-
-  /** Constructs a full HTML page. This is often useful for testing. */
-  HTMLPAGE: 'HTMLPAGE',
-
-  /** Construct a book with a LaTeX format. */
-  LATEX: 'LATEX'
-
-  /** Construct a book in Smart Go format. */
-  // SMART_GO: 'SMART_GO'
-
-  // Future Work:
-  // - ONLY_DIAGRAMS
-  // - ASCII
-  // - SmartGo Books
-};
 
 /**
  * Process the incoming options and set any missing values.
+ *
+ * @param {!gpub.Options} options
+ * @return {!gpub.Options}
  */
 gpub.processOptions = function(options) {
-  var newo = {};
-  var options = options || {};
-
-  var simpleTemplate = function(target, base, template) {
-    for (var key in template) {
-      if (newo[key] !== undefined) {
-        // We've already copied this key
-        continue;
-      }
-      var val = base[key];
-      // Note: we treat null and empty string as intentionally falsey values,
-      // thus we only rely on default behavior in the case of
-      if (val !== undefined) {
-        target[key] = base[key];
-      } else {
-        target[key] = template[key];
-      }
-    }
-    return target;
-  };
-
-  var bookOptions = options.bookOptions || {};
-  var frontmatter = bookOptions.frontmatter || {};
-  var t = gpub.defaultOptions;
-  simpleTemplate(
-      newo, options, t);
-  simpleTemplate(
-      newo.bookOptions, bookOptions, t.bookOptions);
-  simpleTemplate(
-      newo.bookOptions.frontmatter, frontmatter, t.bookOptions.frontmatter);
+  var newo = new gpub.Options(options);
 
   if (newo.skipDiagrams < 0) {
     throw new Error('skipDiagrams cannot be less than 0');
   }
+
   if (newo.maxDiagrams < 0) {
     throw new Error('maxDiagrams cannot be less than 0');
-  }
-
-  gpub.validateOptions(newo);
-
-  return newo;
-};
-
-/**
- * Validate the options and return the passed-in obj.
- */
-gpub.validateOptions = function(newo) {
-  var keys = [
-    'outputFormat',
-    'bookPurpose',
-    'boardRegion',
-    'diagramType',
-    'pageSize'
-  ];
-
-  var parentObjs = [
-    gpub.outputFormat,
-    gpub.bookPurpose,
-    glift.enums.boardRegions,
-    gpub.diagrams.diagramType,
-    gpub.book.page.type
-  ];
-
-  if (keys.length !== parentObjs.length) {
-    throw new Error('Programming error! Keys and parent objs not same length');
-  }
-
-  for (var i = 0; i < keys.length; i++) {
-    var k = keys[i];
-    var value = newo[k];
-    if (!parentObjs[i].hasOwnProperty(value)) {
-      throw new Error('Value: ' + value + ' for property ' + k + ' unrecognized'); 
-    }
   }
 
   return newo;

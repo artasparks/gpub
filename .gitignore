@@ -9,3 +9,10 @@ README.md.html
 # LaTeX Files
 *.aux
 *.out
+
+# Generated files
+/compiled/*
+test/htmltests_gen/*
+
+# Dependency directory
+node_modules

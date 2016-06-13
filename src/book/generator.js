@@ -40,7 +40,7 @@ gpub.book.Gen = {
    * Generates a 'book', whatever that means in the relevant context.
    *
    * Arguments:
-   *  spec: The glift spec.
+   *  spec: The book spec.
    *  options: The gpub options.
    *
    * Returns:

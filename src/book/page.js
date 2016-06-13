@@ -1,23 +1,6 @@
 gpub.book.page = {};
 
 /**
- * Enum-like type enumerating the supported page sizes.
- */
-gpub.book.page.type = {
-  A4: 'A4',
-  /** 8.5 x 11 */
-  LETTER: 'LETTER',
-  /** 6 x 9 */
-  OCTAVO: 'OCTAVO',
-  /** 5 x 7 */
-  NOTECARD: 'NOTECARD',
-  /** 8 x 10 */
-  EIGHT_TEN: 'EIGHT_TEN',
-  /** 5.5 x 8.5 */
-  FIVEFIVE_EIGHTFIVE: 'FIVEFIVE_EIGHTFIVE'
-};
-
-/**
  * Mapping from page-size to col-maping.
  *
  * Note: height and width in mm.

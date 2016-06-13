@@ -3,10 +3,11 @@
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
+ * @version 0.3.0
  * --------------------------------------
  */
 (function(w) {
-var gpub = gpub || w.gpub || {};
+var gpub = w.gpub || {};
 if (w) {
   // expose Glift as a global.
   w.gpub = gpub;

@@ -1,5 +1,62 @@
+goog.provide('glift.api');
+
 /**
- * Stub namespace. Not really used because all the API should exist at the top
- * level.
+ * Api Namespace. Some of the methods are attached at the top level for clarity.
  */
 gpub.api = {};
+
+////////////////////////
+// Methods in the API //
+////////////////////////
+
+
+/**
+ * Create a 'book' output from SGFs.
+ *
+ * @param {!gpub.Options} options
+ * @return {string}
+ */
+gpub.create = function(options) {
+  // Validate input and create the options array.
+  gpub.api.validateInputs_(options);
+
+  // Process the options and fill in any missing values or defaults.
+  options = gpub.processOptions(options);
+
+  // Phase 1: Create the book specification.
+  // var spec = gpub.spec.create(sgfs, options);
+
+  // Create the finished book (or whatever that means).
+  // var book = gpub.book.create(spec, options);
+
+  // TODO(kashomon): return { contents: ..., diagrams: ... }
+  //return book;
+
+  return 'foo';
+};
+
+
+/////////////
+// Private //
+/////////////
+
+/**
+ * Validates that the relevant parameters are available and returns the
+ * processed options.
+ *
+ * @param {!gpub.Options} options
+ * @private
+ */
+gpub.api.validateInputs_ = function(options) {
+  if (!options) {
+    throw new Error('No options defined');
+  }
+  var sgfs = options.sgfs;
+  if (!sgfs || glift.util.typeOf(sgfs) !== 'array' || !sgfs.length) {
+    throw new Error('SGF array must be defined and non-empty');
+  }
+  if (!glift) {
+    throw new Error('GPub depends on Glift, but Glift was not defined');
+  }
+};
+
