@@ -29,7 +29,7 @@ var srcPaths = [
   // :GPub: //
   'src/gpub.js',
   'src/api',
-  // 'src/spec',
+  'src/spec',
 ]
 
 // Ignore the test files
@@ -38,9 +38,10 @@ var srcIgnore = ['!src/**/*_test.js', '!deps/**/*_test.js']
 // The glob used for determining tests
 var testGlob = [
   'src/api/*_test.js',
-  // 'src/spec/*_test.js',
+  'src/spec/*_test.js',
 
-  'deps/**/*_test.js'
+  // Don't include Glift deps
+  // 'deps/**/*_test.js'
 ]
 
 // The full build-test cycle. This:

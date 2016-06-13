@@ -1,19 +1,20 @@
 goog.provide('gpub.Options');
 
 /**
- * Default options for GPub API. Recall that GPub has 3 tasks:
+ * Default options for GPub API. Recall that GPub has 4 tasks:
  *
  * - Create a spec (a serialized book prototype).
+ * - Flatten the spec into an example spec.
  * - Create diagrams
  * - Assemble the diagrams into a book.
  *
- * These are the set of options for all 3 phases.
+ * These are the set of options for all 4 phases.
  *
  * @param {!gpub.Options} options
  *
  * @constructor @struct @final
  */
-gpub.Options = function (options) {
+gpub.Options = function(options) {
   var o = options || {};
 
   /**
@@ -25,16 +26,25 @@ gpub.Options = function (options) {
   this.sgfs = o.sgfs || [];
 
   /**
-   * Book generation happens in 3 phases: SPEC, DIAGRAMS, BOOK.
+   * Optionally, the user can pass in defaults to apply to the SGFs. These are
+   * the defaults applied to Phase 1: Spec generation.
    *
-   * @const {gpub.OutputPhase}
+   * @const {!gpub.spec.SgfType}
    */
-  this.outputPhase = o.outputPhase || gpub.OutputPhase.BOOK;
+  this.defaultSgfType = o.defaultSgfType || gpub.spec.SgfType.GAME_COMMENTARY;
 
   /**
-   * A Book Spec (Phase 2.) can be passed in, bypasing spec creation.
+   * Optionally override the board regions. By default, Gpub does cropping, but
+   * this can be overridden with gpub.enums.boardRegions.ALL;
    *
-   * @const {Object|null}
+   * @const {glift.enums.boardRegions}
+   */
+  this.boardRegion = o.boardRegion || glift.enums.boardRegions.AUTO;
+
+  /**
+   * A Gpub Spec can be passed in, bypassing the first phase.
+   *
+   * @const {?gpub.spec.Spec}
    */
   this.spec = o.spec || null;
 
@@ -45,25 +55,6 @@ gpub.Options = function (options) {
    * @const {gpub.OutputFormat}
    */
   this.outputFormat = o.outputFormat || gpub.OutputFormat.LATEX;
-
-  /**
-   * What is the purpose for the book? I.e., Commentary, Problem book,
-   * Combination-book.
-   * See gpub.bookPurpose.
-   *
-   * @const {gpub.BookPurpose}
-   */
-  this.bookPurpose = o.bookPurpose || gpub.BookPurpose.GAME_COMMENTARY;
-
-  /**
-   * Default board region for cropping purposes.
-   * See glift.enums.boardRegions.
-   *
-   * @const {glift.enums.boardRegions}
-   */
-  // TODO(kashomon): Should this even be here? This should generally be set on a
-  // per-diagram basis.
-  this.boardRegion = o.boardRegion || glift.enums.boardRegions.AUTO;
 
   /**
    * The type of diagrams produced by GPub.

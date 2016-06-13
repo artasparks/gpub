@@ -1,116 +1,111 @@
-goog.provide('glift.spec')
+goog.provide('gpub.spec')
 
 /**
  * Methods for processing and creating Glift specifications.
  */
 gpub.spec = {
   /**
-   * A default Book specification.
-   */
-  _defaultSpec: {
-    // Since this is for a book definition, we don't need a divId. Clients
-    // can add in a relevant ID later.
-    divId: null,
-    // An array of sgf-objects.  This will be populated with entries, created by
-    // the spec processors.
-    sgfCollection: [],
-    // We must rely on SGF aliases to generate the collection to ensure the
-    // collection is self contained.
-    sgfMapping: {},
-    // SGF Defaults that apply to all SGFs. This is a good place to specify the
-    // base widget type, e.g., STANDARD_PROBLEM or EXAMPLE.
-    sgfDefaults: {},
-    // Metadata for the entire spec. Metedata is unused by Glift, but it's
-    // sometimes convenient for Gpub.
-    metadata: {}
-  },
-
-  /**
    * Gets the the processor based on the book purpose.
+   *
+   * @param {gpub.spec.SgfType} sgfType
+   * @return {!gpub.spec.Processor}
    */
-  _getSpecProcessor: function(bookPurpose) {
-    switch(bookPurpose) {
-      case 'GAME_COMMENTARY':
-        return gpub.spec.gameBook;
-      case 'PROBLEM_SET':
-        return gpub.spec.problemSet;
-      case 'PROBLEM_BOOK':
-        return gpub.spec.problemBook;
-      default:
-        throw new Error('Unsupported book purpose: ' + bookPurpose);
-        break;
+  processor: function(sgfType) {
+    if (sgfType === gpub.spec.SgfType.GAME_COMMENTARY) {
+      return new gpub.spec.GameCommentary();
     }
+    if (sgfType === gpub.spec.SgfType.PROBLEM) {
+      return new gpub.spec.Problem();
+    }
+    if (sgfType === gpub.spec.SgfType.EXAMPLE) {
+      return new gpub.spec.Example();
+    }
+    if (sgfType === gpub.spec.SgfType.POSITION_VARIATIONS) {
+      return new gpub.spec.PositionVariations();
+    }
+
+    throw new Error('Unsupported book purpose: ' + sgfType);
   },
 
   /**
-   * Creates a glift spec from an array of sgf data. At this point, we assume
-   * the validity of the options passed in. In other words, we expect that the
-   * options have been processed by the API.
+   * Creates a basic high-level GPub Specification from the passed-in sgfs. This
+   * first pass does a brain-dead transformation based on the SGF defaults. It
+   * does not process the spec into a flattened EXAMPLE spec.
    *
-   * sgfs: Array of SGF strings.
-   * options: Options object.
-   *
-   * - bookPurpose: required
-   * - boardRegion: required. Usually AUTO or ALL.
+   * @param {!gpub.Options} options
+   * @return {!gpub.spec.Spec}
    */
-  create: function(sgfs, options) {
-    var spec = glift.util.simpleClone(gpub.spec._defaultSpec);
-    if (!options.bookPurpose) {
-      throw new Error('Book Purpose must be defined');
-    }
-    var processor = gpub.spec._getSpecProcessor(options.bookPurpose);
+  create: function(options) {
+    var sgfs = options.sgfs;
+    var defaultSgfType = options.defaultSgfType;
+    var defaultBoardRegion = options.boardRegion;
 
-    spec.sgfDefaults = glift.util.simpleClone(
-        glift.widgets.options.baseOptions.sgfDefaults);
-    processor.setHeaderInfo(spec);
+    var spec = new gpub.spec.Spec();
 
-    for (var i = 0; sgfs && i < sgfs.length; i++) {
+    // TODO(kashomon): Modify the topLevelGrouping based on the book data, the
+    // GC node, or headers within the SGF.
+    var baseGrouping = spec.grouping;
+    baseGrouping.sgfType = defaultSgfType;
+    baseGrouping.boardRegion = defaultBoardRegion;
+
+    for (var i = 0; i < sgfs.length; i++) {
       var sgfStr = sgfs[i];
       var mt = glift.parse.fromString(sgfStr);
       var alias = 'sgf:' + i;
-      if (mt.properties().contains('GN')) {
-        alias = mt.properties().getOneValue('GN') + ':' + i;
+
+      // If the Game Name is specified, we prepend that to the index for
+      // readability.
+      var GN = glift.rules.prop.GN;
+      if (mt.properties().contains(GN)) {
+        alias = mt.properties().getOneValue(GN) + ':' + i;
       }
+
+      // Ensure the sgf mapping contains the alias-to-sgf mapping.
       if (!spec.sgfMapping[alias]) {
         spec.sgfMapping[alias] = sgfStr;
       }
-      spec.sgfCollection = spec.sgfCollection.concat(
-          processor.processOneSgf(mt, alias, options));
+
+      // At this point, there is a 1x1 mapping between passed-in SGF and sgf
+      // object. Initial position, nextMovesPath, and boardRegion don't make
+      // sense until the processing into EXAMPLE types.
+      var sgf = new gpub.spec.Sgf({
+        alias: alias,
+        id: alias
+      })
+
+      baseGrouping.sgfs.push(sgf);
     }
-    spec.metadata.bookPurpose = options.bookPurpose;
     return spec;
   },
 
   /**
-   * Convert a movetree and a couple of options to an entry in the SGF
-   * collection. Note: this doesn't set the widgetType: it's expected that users
-   * will probably already have widgetType = EXAMPLE. Users can, of course, set
-   * the widgetType after this processor helper.
-   *
-   * alias: Required. The cache alias.
-   * initPos: Required. The init position
-   * nextMoves: Required. Next moves path
-   * boardRegion: Required. The region of the board to display.
+   * Process a spec by transforming (flattening) all non-example types.
    */
-  _createExample: function(
-      alias, initPos, nextMoves, region) {
-    if (!alias) { throw new Error('No SGF Alias'); }
-    if (!initPos) { throw new Error('No Initial Position'); }
-    if (!nextMoves) { throw new Error('No Next Moves'); }
-    if (!glift.enums.boardRegions[region]) {
-      throw new Error('Unknown board region: ' + region);
-    }
-    var exType = gpub.spec.exampleType;
-    var ipString = glift.rules.treepath.toInitPathString;
-    var fragString = glift.rules.treepath.toFragmentString;
-    var base = {
-      // widgetType: 'EXAMPLE',
-      alias: alias,
-      initialPosition: ipString(initPos),
-      nextMovesPath: fragString(nextMoves),
-      boardRegion: region,
-      widgetType: 'EXAMPLE'
-    };
-    return base;
-  }
+  process: function() {},
+
+    // if (!options.bookPurpose) {
+      // throw new Error('Book Purpose must be defined');
+    // }
+    // var processor = gpub.spec._getSpecProcessor(options.bookPurpose);
+
+    // spec.sgfDefaults = glift.util.simpleClone(
+        // glift.widgets.options.baseOptions.sgfDefaults);
+    // processor.setHeaderInfo(spec);
+
+    // for (var i = 0; sgfs && i < sgfs.length; i++) {
+      // var sgfStr = sgfs[i];
+      // var mt = glift.parse.fromString(sgfStr);
+      // var alias = 'sgf:' + i;
+      // if (mt.properties().contains('GN')) {
+        // alias = mt.properties().getOneValue('GN') + ':' + i;
+      // }
+      // if (!spec.sgfMapping[alias]) {
+        // spec.sgfMapping[alias] = sgfStr;
+      // }
+      // spec.sgfCollection = spec.sgfCollection.concat(
+          // processor.processOneSgf(mt, alias, options));
+    // }
+    // spec.metadata.bookPurpose = options.bookPurpose;
+    // return spec;
+  // },
 };
