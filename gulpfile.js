@@ -234,6 +234,10 @@ gulp.task('src-gen', () => {
  *   [ 'src/*.js', ..., !src/**' + ' /*_test.js']
  *
  * (note: Concatenation is used to avoid comment-breaks).
+ *
+ * @param {!Array<string>} ordering
+ * @param {!Array<string>} addGlobs
+ * @return {!Array<string>} processed globs
  */
 function jsSrcGlobGen(ordering, addGlobs) {
   if (typeof ordering !== 'object' || !ordering.length) {

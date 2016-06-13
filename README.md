@@ -1,5 +1,7 @@
 # GPub: A Go Publishing Utility
 
+[![Travis Build Status](https://travis-ci.org/Kashomon/gpub.svg?branch=master)](https://travis-ci.org/Kashomon/gpub)
+
 ## Overview
 
 _Note: GPub is under active development and users may find unexpected API-breaking
@@ -256,3 +258,22 @@ files).
 ```shell
 convert_tygem.js *.gib
 ```
+
+## Development
+
+To work on / contribute to Gpub, you will need to install 
+
+* NodeJS
+* Gulp
+* Java.
+
+Then, to install all the deps, you'll need:
+
+```
+npm install
+```
+
+And then to run the tests:
+
+```
+gulp build-test
