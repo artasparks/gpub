@@ -34,7 +34,12 @@ gpub.spec.Spec = function(opt_spec) {
    *
    * @const {!Object<string, string>}
    */
-  this.sgfMapping = o.sgfMapping || {};
+  this.sgfMapping =  {};
+  if (o.sgfMapping) {
+    for (var key in o.sgfMapping) {
+      this.sgfMapping[key] = o.sgfMapping[key];
+    }
+  }
 };
 
 /**
@@ -59,6 +64,8 @@ gpub.spec.Spec.prototype = {
 /**
  * A grouping of SGFs each grouping can have sub-groupings, and so on. The
  * structure is required to be tree-shaped -- no cycles can occur.
+ *
+ * Also note: SGF objects are only allowed to occur on terminal nodes.
  *
  * @param {!gpub.spec.Grouping=} opt_group
  *
@@ -100,13 +107,23 @@ gpub.spec.Grouping = function(opt_group) {
    * SGF Objects associated directly with this grouping.
    * @type {!Array<!gpub.spec.Sgf>}
    */
-  this.sgfs = o.sgfs || [];
+  this.sgfs = [];
+  if (o.sgfs) {
+    for (var i = 0; i < o.sgfs.length; i++) {
+      this.sgfs.push(new gpub.spec.Sgf(o.sgfs[i]));
+    }
+  }
 
   /**
    * Groupings that are children of his grouping.
    * @type {!Array<!gpub.spec.Grouping>}
    */
-  this.subGroupings = o.subGroupings || [];
+  this.subGroupings = [];
+  if (o.subGroupings) {
+    for (var i = 0; i < o.subGroupings.length; i++) {
+      this.subGroupings.push(new gpub.spec.Grouping(o.subGroupings[i]));
+    }
+  }
 };
 
 

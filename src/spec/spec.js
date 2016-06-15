@@ -79,33 +79,91 @@ gpub.spec = {
   },
 
   /**
-   * Process a spec by transforming (flattening) all non-example types.
+   * Process a spec by transforming (flattening) all non-example SGFs. If a set
+   * of sgfs contains non-example SGFS, then all SGFS are grouped by type into
+   * new Grouping objects and prepended to the sub-groupings list.
+   *
+   * @param {!gpub.spec.Spec}
    */
-  process: function() {},
+  process: function(spec) {
+    var mapping = spec.sgfMapping;
+    var groupingCopy = new gpub.spec.Grouping(spec.grouping);
+    gpub.spec.processGrouping_(mapping, groupingCopy);
+    return new gpub.spec.Spec({
+      mapping: mapping,
+      grouping: groupingCopy,
+    })
+  },
 
-    // if (!options.bookPurpose) {
-      // throw new Error('Book Purpose must be defined');
-    // }
-    // var processor = gpub.spec._getSpecProcessor(options.bookPurpose);
+  /**
+   * Processing the grouping object.
+   * @param {!Object<string, string>} sgfMapping,
+   * @param {!gpub.spec.Grouping} grouping
+   * @private
+   */
+  processGrouping_: function(sgfMapping, grouping) {
+    var containsAllExmples = true;
+    for (var i = 0; i < grouping.sgfs.length; i++) {
+      var sgf = grouping.sgfs[i];
+      if (sgf.sgfType !== gpub.spec.SgfType.EXAMPLE) {
+        containsAllExmples = false;
+        break;
+      }
+    }
+    if (containsAllExmples) {
+      // We're done!
+    } else {
+      var groupingSgfs = grouping.sgfs;
+      grouping.sgfs = []
+      var currentType = null;
+      var sameTypeSgfs = [];
+      for (var i = 0; i < groupingSgfs.length; i++) {
+        var sgf = groupingSgfs[i];
+        var sgfType = null;
+        if (sgf.sgfType) {
+          sgfType = sgf.sgfType;
+        } else if (grouping.sgfType) {
+          sgfType = grouping.sgfType;
+        }
+        if (!sgfType) {
+          throw new Error('No SGF type specified for SGF:' + JSON.stringify(sgf));
+        }
 
-    // spec.sgfDefaults = glift.util.simpleClone(
-        // glift.widgets.options.baseOptions.sgfDefaults);
-    // processor.setHeaderInfo(spec);
+        if (!currentType) {
+          currentType = sgfType;
+        }
 
-    // for (var i = 0; sgfs && i < sgfs.length; i++) {
-      // var sgfStr = sgfs[i];
-      // var mt = glift.parse.fromString(sgfStr);
-      // var alias = 'sgf:' + i;
-      // if (mt.properties().contains('GN')) {
-        // alias = mt.properties().getOneValue('GN') + ':' + i;
-      // }
-      // if (!spec.sgfMapping[alias]) {
-        // spec.sgfMapping[alias] = sgfStr;
-      // }
-      // spec.sgfCollection = spec.sgfCollection.concat(
-          // processor.processOneSgf(mt, alias, options));
-    // }
-    // spec.metadata.bookPurpose = options.bookPurpose;
-    // return spec;
-  // },
+        if (currentType === sgfType) {
+          sameTypeSgfs.push(sgf);
+        } else {
+          gpub.spec.processSgfBuffer_(sgfMapping, sgfMapping, sameTypeSgfs);
+          sameTypeSgfs = [];
+        }
+      }
+      if (sameTypeSgfs.length) {
+        gpub.spec.processSgfBuffer_(sgfMapping, grouping, sameTypeSgfs);
+        sameTypeSgfs = [];
+      }
+    }
+
+    // Process the children.
+    for (var i = 0; i < grouping.subGroupings.length; i++) {
+      gpub.spec.processGrouping_(sgfMapping, grouping.subGroupings[i]);
+    }
+  },
+
+  /**
+   * Processes an array of sgfs all of the same type.
+   * @param {!Object<string, string>} sgfMapping,
+   * @param {!gpub.spec.Grouping} grouping
+   * @param {!Array<!gpub.spec.Sgf>} sgfs
+   * @private
+   */
+  processSgfBuffer_: function(sgfMapping, grouping, sgfs) {
+    var newGrouping = new gpub.spec.Grouping();
+    for (var i = 0; i < sgfs.length; i++) {
+      var sgf = sgfs[i];
+      // TODO(kashomon): Finish this.
+    }
+  }
 };

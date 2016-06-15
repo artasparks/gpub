@@ -23,9 +23,10 @@ gpub.create = function(options) {
   // Process the options and fill in any missing values or defaults.
   options = gpub.processOptions(options);
 
-  // Phase 1: Create the book specification.
-  // var spec = gpub.spec.create(sgfs, options);
+  // Phase 1: Create the basic book specification.
+  var spec = gpub.spec.create(options);
 
+  var processed = gpub.spec.process(spec);
   // Create the finished book (or whatever that means).
   // var book = gpub.book.create(spec, options);
 
