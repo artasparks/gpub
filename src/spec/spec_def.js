@@ -7,13 +7,21 @@ goog.provide('gpub.spec.Spec');
 goog.scope(function() {
 
 /**
+ * @typedef {{
+ *  grouping: (!gpub.spec.Grouping|undefined),
+ *  sgfMapping: (!Object<string, string>|undefined)
+ * }}
+ */
+gpub.spec.SpecTypedef;
+
+/**
  * A book spec represents a serialized Book specification or Spec. Re-running
  * Gpub on the same spec should generate the same output.
  *
  * The Book Spec is descendent from the Glift Spec, but has orthogonal concerns
  * and so is separate.
  *
- * @param {!gpub.spec.Spec=} opt_spec
+ * @param {(!gpub.spec.Spec|gpub.spec.SpecTypedef)=} opt_spec
  *
  * @constructor @struct @final
  */

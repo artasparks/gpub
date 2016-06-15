@@ -83,7 +83,7 @@ gpub.spec = {
    * of sgfs contains non-example SGFS, then all SGFS are grouped by type into
    * new Grouping objects and prepended to the sub-groupings list.
    *
-   * @param {!gpub.spec.Spec}
+   * @param {!gpub.spec.Spec} spec
    */
   process: function(spec) {
     var mapping = spec.sgfMapping;
@@ -136,7 +136,7 @@ gpub.spec = {
         if (currentType === sgfType) {
           sameTypeSgfs.push(sgf);
         } else {
-          gpub.spec.processSgfBuffer_(sgfMapping, sgfMapping, sameTypeSgfs);
+          gpub.spec.processSgfBuffer_(sgfMapping, grouping, sameTypeSgfs);
           sameTypeSgfs = [];
         }
       }
