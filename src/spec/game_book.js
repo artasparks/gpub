@@ -3,7 +3,7 @@ goog.provide('gpub.spec.GameCommentary');
 /**
  * A gpub spec processor. Implements gpub.spec.processor.
  *
- * @implements {gpub.spec.Processor}
+ * @implements {gpub.spec.TypeProcessor}
  *
  * @constructor @struct @final
  */

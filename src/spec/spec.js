@@ -84,15 +84,13 @@ gpub.spec = {
    * new Grouping objects and prepended to the sub-groupings list.
    *
    * @param {!gpub.spec.Spec} spec
+   * @return {!gpub.spec.Spec} the transformed spec.
    */
   process: function(spec) {
     var mapping = spec.sgfMapping;
     var groupingCopy = new gpub.spec.Grouping(spec.grouping);
-    gpub.spec.processGrouping_(mapping, groupingCopy);
-    return new gpub.spec.Spec({
-      mapping: mapping,
-      grouping: groupingCopy,
-    })
+    return new gpub.spec.Processor(mapping, groupingCopy)
+        process();
   },
 
   /**
@@ -102,68 +100,35 @@ gpub.spec = {
    * @private
    */
   processGrouping_: function(sgfMapping, grouping) {
-    var containsAllExmples = true;
-    for (var i = 0; i < grouping.sgfs.length; i++) {
-      var sgf = grouping.sgfs[i];
-      if (sgf.sgfType !== gpub.spec.SgfType.EXAMPLE) {
-        containsAllExmples = false;
-        break;
-      }
-    }
-    if (containsAllExmples) {
-      // We're done!
-    } else {
-      var groupingSgfs = grouping.sgfs;
-      grouping.sgfs = []
-      var currentType = null;
-      var sameTypeSgfs = [];
-      for (var i = 0; i < groupingSgfs.length; i++) {
-        var sgf = groupingSgfs[i];
-        var sgfType = null;
-        if (sgf.sgfType) {
-          sgfType = sgf.sgfType;
-        } else if (grouping.sgfType) {
-          sgfType = grouping.sgfType;
-        }
-        if (!sgfType) {
-          throw new Error('No SGF type specified for SGF:' + JSON.stringify(sgf));
-        }
-
-        if (!currentType) {
-          currentType = sgfType;
-        }
-
-        if (currentType === sgfType) {
-          sameTypeSgfs.push(sgf);
-        } else {
-          gpub.spec.processSgfBuffer_(sgfMapping, grouping, sameTypeSgfs);
-          sameTypeSgfs = [];
-        }
-      }
-      if (sameTypeSgfs.length) {
-        gpub.spec.processSgfBuffer_(sgfMapping, grouping, sameTypeSgfs);
-        sameTypeSgfs = [];
-      }
-    }
-
-    // Process the children.
-    for (var i = 0; i < grouping.subGroupings.length; i++) {
-      gpub.spec.processGrouping_(sgfMapping, grouping.subGroupings[i]);
-    }
   },
 
   /**
    * Processes an array of sgfs all of the same type.
-   * @param {!Object<string, string>} sgfMapping,
+   * @param {!Object<string, string>} sgfMapping
+   * @param {!Object<string, glift.rules.MoveTree>} mtMapping
    * @param {!gpub.spec.Grouping} grouping
+   * @param {!gpub.spec.SgfType} sgfType
    * @param {!Array<!gpub.spec.Sgf>} sgfs
    * @private
    */
-  processSgfBuffer_: function(sgfMapping, grouping, sgfs) {
+  processSgfBuffer_: function(
+      sgfMapping, mtMapping, grouping, sgfType, sgfs) {
     var newGrouping = new gpub.spec.Grouping();
+    var processor = gpub.spec.processor(sgfType);
     for (var i = 0; i < sgfs.length; i++) {
       var sgf = sgfs[i];
-      // TODO(kashomon): Finish this.
+      var alias = sgf.alias;
+      var mt = null;
+      if (mtMapping[alias]) {
+        mt = mtMapping[alias];
+      } else {
+        var sgfStr = sgfMapping[alias];
+        if (!sgfStr) {
+          throw new Error('Could not find SGF string for alias: ' + alias);
+        }
+        mt = glift.rules.movetree.getFromSgf(sgfStr);
+      }
+      var processed = processor.process(mt, sgf);
     }
   }
 };

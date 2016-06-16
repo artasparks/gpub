@@ -4,7 +4,7 @@ goog.provide('gpub.spec.PositionVariations');
  * A gpub Position Varations processor. This produces an output very similar to
  * the game commentary.
  *
- * @implements {gpub.spec.Processor}
+ * @implements {gpub.spec.TypeProcessor}
  *
  * @constructor @struct @final
  */

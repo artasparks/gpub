@@ -3,7 +3,7 @@ goog.provide('gpub.spec.Problem');
 /**
  * Generates a problem set spec. Implements gpub.spec.processor.
  *
- * @implements {gpub.spec.Processor}
+ * @implements {gpub.spec.TypeProcessor}
  *
  * @constructor @struct @final
  */
