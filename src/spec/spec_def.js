@@ -2,21 +2,35 @@ goog.provide('gpub.spec.Grouping');
 goog.provide('gpub.spec.Sgf');
 goog.provide('gpub.spec.SgfTypedef');
 goog.provide('gpub.spec.SgfType');
+goog.provide('gpub.spec.SgfVersion');
 goog.provide('gpub.spec.Spec');
 
 goog.scope(function() {
 
 /**
  * @typedef {{
+ *  version: (gpub.spec.SpecVersion|undefined),
  *  grouping: (!gpub.spec.Grouping|undefined),
- *  sgfMapping: (!Object<string, string>|undefined)
+ *  sgfMapping: (!Object<string, string>|undefined),
+ *  specOptions: (!gpub.SpecOptions|undefined),
+ *  diagramOptions: (!gpub.DiagramOptions|undefined),
+ *  bookOptions: (!gpub.BookOptions|undefined),
  * }}
  */
 gpub.spec.SpecTypedef;
 
 /**
+ * The version of the spec.
+ * @enum {string}
+ */
+gpub.spec.SpecVersion = {
+  V1: 'V1'
+};
+
+/**
  * A book spec represents a serialized Book specification or Spec. Re-running
- * Gpub on the same spec should generate the same output.
+ * Gpub on the same spec should generate the same output, modulo some details
+ * like dates and debug information
  *
  * The Book Spec is descendent from the Glift Spec, but has orthogonal concerns
  * and so is separate.
@@ -27,6 +41,14 @@ gpub.spec.SpecTypedef;
  */
 gpub.spec.Spec = function(opt_spec) {
   var o = opt_spec || {};
+
+  /**
+   * The version of this spec. Required so that parsing of old specs can still
+   * happen.
+   *
+   * @const {!gpub.spec.SpecVersion}
+   */
+  this.version = o.version || gpub.spec.SpecVersion.V1;
 
   /**
    * Top-level SGF grouping.
@@ -48,6 +70,24 @@ gpub.spec.Spec = function(opt_spec) {
       this.sgfMapping[key] = o.sgfMapping[key];
     }
   }
+
+  /**
+   * Options specific to spec creation (Phases 1 and 2)
+   * @const {!gpub.SpecOptions}
+   */
+  this.specOptions = new gpub.SpecOptions(o.specOptions);
+
+  /**
+   * Options specific to Diagrams (Phase 3)
+   * @const {!gpub.DiagramOptions}
+   */
+  this.diagramOptions = new gpub.DiagramOptions(o.diagramOptions);
+
+  /**
+   * Options specific to book processing (Phase 4)
+   * @const {!gpub.BookOptions}
+   */
+  this.bookOptions = new gpub.BookOptions(o.bookOptions);
 };
 
 /**
@@ -106,12 +146,6 @@ gpub.spec.Grouping = function(opt_group) {
   this.sgfType = o.sgfType || undefined;
 
   /**
-   * Optionally specify a board region to apply to the children.
-   * @type {glift.enums.boardRegions}
-   */
-  this.boardRegion = o.boardRegion || undefined;
-
-  /**
    * SGF Objects associated directly with this grouping.
    * @type {!Array<!gpub.spec.Sgf>}
    */
@@ -141,7 +175,6 @@ gpub.spec.Grouping = function(opt_group) {
  *  id: (string|undefined),
  *  initialPosition: (string|undefined),
  *  nextMovesPath: (string|undefined),
- *  boardRegion: (glift.enums.boardRegions|undefined),
  *  sgfType: (gpub.spec.SgfType|undefined)
  * }}
  */
@@ -182,12 +215,6 @@ gpub.spec.Sgf = function(opt_sgf) {
    * @const {string|undefined}
    */
   this.nextMovesPath = o.nextMovesPath || undefined;
-
-  /**
-   * Optional board region specifying cropping.
-   * @const {glift.enums.boardRegions|undefined}
-   */
-  this.boardRegion = o.boardRegion || undefined;
 
   /**
    * Optional sgf type

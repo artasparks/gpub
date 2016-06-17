@@ -2,12 +2,44 @@ goog.provide('gpub.BookOptions');
 goog.provide('gpub.Frontmatter');
 
 /**
- * @param {!gpub.BookOptions} options
+ * @param {!gpub.BookOptions=} opt_options
  *
  * @constructor @struct @final
  */
-gpub.BookOptions = function(options) {
-  var o = options || {};
+gpub.BookOptions = function(opt_options) {
+  var o = opt_options || {};
+
+  /**
+   * The format of the 'book' output that is produced by GPub.
+   * See gpub.outputFormat.
+   *
+   * @const {gpub.OutputFormat}
+   */
+  this.outputFormat = o.outputFormat || gpub.OutputFormat.LATEX;
+
+  /**
+   * The size of the page. Element of gpub.book.page.type.
+   *
+   * @const {gpub.PageSize}
+   */
+  this.pageSize = o.pageSize || gpub.PageSize.LETTER;
+
+  /**
+   * Size of the intersections in the diagrams. If no units are specified, the
+   * number is assumed to be in pt. Can also be specified in 'in', 'mm', or
+   * 'em'.
+   *
+   * @const {string}
+   */
+  this.goIntersectionSize = o.goIntersectionSize || '12pt';
+
+  /**
+   * Override the default template.
+   * A false-y template will result in using the default template.
+   *
+   * @const {?string}
+   */
+  this.template = o.template || null;
 
   /**
    * Any additional setup that needs to be done in the header. I.e.,
@@ -16,6 +48,7 @@ gpub.BookOptions = function(options) {
    *
    * @type {string}
    */
+  // TODO(kashomon): Get rid of this.
   this.init = o.init || '';
 
   /** @type {?string} */
@@ -108,4 +141,26 @@ gpub.Frontmatter = function(options) {
    */
   // TODO(kashomon): Make a proper type.
   this.copyright = o.copyright || null;
+
+  /////////////////////
+  // Special Options //
+  /////////////////////
+
+  /**
+   * Whether or not to generate PDF/X-1a compatibile PDFs. Note: this only
+   * applies to output formats that generate PDFs (latex).
+   *
+   * Most printers will require this option to be set.
+   *
+   * @const {boolean}
+   */
+  this.pdfx1a = o.pdfx1a || false;
+
+  /**
+   * An option only for PDF/X-1a. For this spceification, you must specify a
+   * color profile file (e.g., ISOcoated_v2_300_eci.icc).
+   *
+   * @const {?string}
+   */
+  this.colorProfileFilePath = o.colorProfileFilePath || null;
 };

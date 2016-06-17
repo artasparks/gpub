@@ -17,51 +17,90 @@ gpub.spec.TypeProcessor = function() {};
  *
  * @return {!gpub.spec.Grouping} a procesed grouping for the sgf.
  */
-gpub.spec.TypeProcessor.prototype.process = function(movetree, alias, boardRegion) {};
+gpub.spec.TypeProcessor.prototype.process =
+    function(movetree, alias, boardRegion) {};
+
 
 /**
- * @param {!Object<string, string>} sgfMapping
- * @param {!gpub.spec.Grouping} topGrouping
+ * Gets the the processor based on the book purpose.
  *
+ * @param {gpub.spec.SgfType} sgfType
+ * @return {!gpub.spec.TypeProcessor}
+ */
+gpub.spec.processor = function(sgfType) {
+  if (sgfType === gpub.spec.SgfType.GAME_COMMENTARY) {
+    return new gpub.spec.GameCommentary();
+  }
+  if (sgfType === gpub.spec.SgfType.PROBLEM) {
+    return new gpub.spec.Problem();
+  }
+  if (sgfType === gpub.spec.SgfType.EXAMPLE) {
+    return new gpub.spec.Example();
+  }
+  if (sgfType === gpub.spec.SgfType.POSITION_VARIATIONS) {
+    return new gpub.spec.PositionVariations();
+  }
+
+  throw new Error('Unsupported book purpose: ' + sgfType);
+};
+
+/**
+ * The process takes a basic spec and transforms it into example-diagram
+ * specifications.
+ *
+ * @param {!gpub.spec.Spec} spec
  * @constructor @struct @final
  */
-gpub.spec.Processor = function(sgfMapping, topGrouping) {
+gpub.spec.Processor = function(spec) {
+  /** @private @const {!gpub.spec.Spec} */
+  this.originalSpec_ = spec;
+
   /**
    * Mapping from alias to movetree.
-   * @const {!Object<string, glift.rules.Movetree}
+   * @const {!Object<string, !glift.rules.MoveTree>}
+   * @private
    */
-  this.mtMapping = {};
+  this.mtCache_ = {};
 
   /**
    * SGF Mapping from alias to SGF string.
    * @const {!Object<string, string>}
+   * @private
    */
-  this.sgfMapping = sgfMapping;
+  this.sgfMapping_ = spec.sgfMapping;
 
   /**
    * A top-level grouping, and ensuring the grouping is complete copy.
    * @const {!gpub.spec.Grouping}
+   * @private
    */
-  this.topGrouping = new gpub.spec.Grouping(topGrouping);
+  this.topGrouping_ = new gpub.spec.Grouping(spec.grouping);
 
-  /** @private {numbur} */
+  /** @private {number} */
   this.diagramIndex_ = 1;
 };
 
 gpub.spec.Processor.prototype = {
   /**
+   * Process the spec! Returns an
+   *
    * @return {!gpub.spec.Spec}
    */
   process: function() {
-    this.processGroup(topGrouping);
+    this.processGroup(this.topGrouping_);
     return new gpub.spec.Spec({
-      grouping: this.topGrouping,
-      sgfMapping: sgfMapping,
+      grouping: this.topGrouping_,
+      sgfMapping: this.sgfMapping_,
+      specOptions: this.originalSpec_.specOptions,
+      diagramOptions: this.originalSpec_.diagramOptions,
+      bookOptions: this.originalSpec_.bookOptions,
     });
   },
 
   /**
-   * Recursive group processor.
+   * Recursive group processor. This assumes that the grouping passed in is a
+   * member of the passed in GPub Spec.
+   *
    * @param {!gpub.spec.Grouping} grouping
    */
   processGroup: function(grouping) {
@@ -73,13 +112,14 @@ gpub.spec.Processor.prototype = {
 
   /**
    * Whether or not a grouping contains only examples.
-   * @param {!gpub.spec.Grouping}
+   *
+   * @param {!gpub.spec.Grouping} grouping
    * @return {boolean}
    * @private
    */
   containsAllExamples_: function(grouping) {
     var containsAllExamples = true;
-    for (var i = 0; i < this.topGrouping.length; i++) {
+    for (var i = 0; i < grouping.sgfs.length; i++) {
       var sgf = grouping.sgfs[i];
       if (sgf.sgfType !== gpub.spec.SgfType.EXAMPLE) {
         containsAllExamples = false;
@@ -91,51 +131,100 @@ gpub.spec.Processor.prototype = {
 
   /**
    * Reprocess the SGFs in a grouping by ordering them into similar types and
-   * then processing them with the type-specific processors. Note that if the
-   * Grouping contains only examples, the grouping is considered to be already
-   * processed and this function returns without doing any work.
+   * then processing them with the type-specific processors. If the Grouping
+   * contains only examples, the grouping is considered to be already processed
+   * and this function returns without doing any work.
    *
-   * @param {!gpub.spec.Grouping}
+   * If the grouping has SGFs that need to be processed, we process all the
+   * SGFs.
+   *
+   * @param {!gpub.spec.Grouping} grouping
+   * @private
    */
   reprocessSgfs_: function(grouping) {
     if (!this.containsAllExamples_(grouping)) {
       return;
     }
     var sgfs = grouping.sgfs;
-    grouping.sgfs = []; // Clear out the sgfs.
+    grouping.sgfs = [];
     var currentType = null;
     var sameTypeSgfs = [];
 
     for (var i = 0; i < sgfs.length; i++) {
       var sgf = sgfs[i];
-      var sgfType = null;
-      if (sgf.sgfType) {
-        sgfType = sgf.sgfType;
-      } else if (grouping.sgfType) {
-        sgfType = grouping.sgfType;
-      }
-      if (!sgfType) {
-        throw new Error('No SGF type specified for SGF:' + JSON.stringify(sgf));
-      }
-
+      var sgfType = this.getSgfType_(grouping, sgf);
       if (!currentType) {
         currentType = sgfType;
       }
-
       if (currentType === sgfType) {
         sameTypeSgfs.push(sgf);
       } else {
-        gpub.spec.processSgfBuffer_(sgfMapping, grouping, sameTypeSgfs);
+        this.processSgfBuffer_(grouping, sameTypeSgfs);
         sameTypeSgfs = [];
       }
     }
-    if (sameTypeSgfs.length
-        && currentType !== gpub.spec.SgfType.EXAMPLE) {
-      // The second condition should be unnecessary.
-      gpub.spec.processSgfBuffer_(sgfMapping, grouping, sameTypeSgfs);
+    if (sameTypeSgfs.length) {
+      this.processSgfBuffer_(grouping, sameTypeSgfs);
       sameTypeSgfs = [];
     }
   },
 
-  getSgfType: function(grouping, sgf) {},
+  /**
+   * Process a grouping of SGFS. Where the magic happens.
+   *
+   * @param {!gpub.spec.Grouping} grouping
+   * @param {!Array<!gpub.spec.Sgf>} sgfs
+   * @private
+   */
+  processSgfBuffer_: function(grouping, sgfs) {
+    var newGrouping = new gpub.spec.Grouping();
+    for (var i = 0; i < sgfs.length; i++) {
+      var sgf = sgfs[i];
+      var type = this.getSgfType_(grouping, sgf);
+      var mt = this.getMovetree_(sgf);
+    }
+  },
+
+  /**
+   * Gets a movetree for an SGF
+   *
+   * @param {!gpub.spec.Sgf} sgf
+   * @return {!glift.rules.MoveTree}
+   * @private
+   */
+  getMovetree_: function(sgf) {
+    var alias = sgf.alias;
+    if (!alias) {
+      throw new Error('No alias defined for SGF object: ' + JSON.stringify(sgf));
+    }
+    var sgfStr = this.sgfMapping_[alias];
+    if (!sgfStr) {
+      throw new Error('No SGF defined in the SGF Mapping for alias: ' + alias);
+    }
+    if (!this.mtCache_[alias]) {
+      this.mtCache_[alias] = glift.rules.movetree.getFromSgf(sgfStr);
+    }
+    return this.mtCache_[alias];
+  },
+
+  /**
+   * Get a SGF Type for a grouping/sgf pair.
+   *
+   * @param {!gpub.spec.Grouping} grouping
+   * @param {!gpub.spec.Sgf} sgf
+   * @return {!gpub.spec.SgfType}
+   * @private
+   */
+  getSgfType_: function(grouping, sgf) {
+    var sgfType = null;
+    if (sgf.sgfType) {
+      sgfType = sgf.sgfType;
+    } else if (grouping.sgfType) {
+      sgfType = grouping.sgfType;
+    }
+    if (!sgfType) {
+      throw new Error('No SGF type specified for SGF:' + JSON.stringify(sgf));
+    }
+    return sgfType;
+  },
 };

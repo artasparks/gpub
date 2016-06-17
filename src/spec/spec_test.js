@@ -29,7 +29,6 @@
     var grouping = spec.grouping;
     ok(grouping);
     deepEqual(grouping.subGroupings.length, 0);
-    deepEqual(grouping.boardRegion, glift.enums.boardRegions.AUTO);
     deepEqual(grouping.sgfType, gpub.spec.SgfType.GAME_COMMENTARY);
     deepEqual(grouping.sgfs.length, 1);
 

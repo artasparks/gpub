@@ -38,7 +38,6 @@ gpub.spec.GameCommentary.prototype = {
             alias: alias,
             initialPosition: ipString(pathSpec.treepath),
             nextMovesPath: fragString(pathSpec.nextMoves),
-            boardRegion: boardRegion
         }));
 
         varPathBuffer = varPathBuffer.concat(this.variationPaths(mt));
@@ -50,7 +49,6 @@ gpub.spec.GameCommentary.prototype = {
               alias: alias,
               initialPosition: ipString(varPathSpec.treepath),
               nextMovesPath: fragString(varPathSpec.nextMoves),
-              boardRegion: boardRegion,
           }));
         }
         varPathBuffer = [];

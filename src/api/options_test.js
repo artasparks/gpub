@@ -21,11 +21,13 @@
   test('Process options: gnosFontSize', function() {
     var o = gpub.processOptions({
     });
-    deepEqual(o.goIntersectionSize, '12pt');
+    deepEqual(o.bookOptions.goIntersectionSize, '12pt');
 
     o = gpub.processOptions({
-      goIntersectionSize: '14'
+      bookOptions: {
+        goIntersectionSize: '14'
+      }
     });
-    deepEqual(o.goIntersectionSize, '14');
+    deepEqual(o.bookOptions.goIntersectionSize, '14');
   });
 })();
