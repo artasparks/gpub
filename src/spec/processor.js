@@ -1,3 +1,5 @@
+goog.provide('gpub.spec.GroupingOrSgf');
+goog.provide('gpub.spec.IdGen');
 goog.provide('gpub.spec.Processor');
 goog.provide('gpub.spec.TypeProcessor');
 
@@ -9,13 +11,23 @@ goog.provide('gpub.spec.TypeProcessor');
  */
 gpub.spec.TypeProcessor = function() {};
 
+/**
+ * Represents the return value of the type processor. Only one of grouping or
+ * SGF should be defined.
+ * @typedef {{
+ *  grouping: (!gpub.spec.Grouping|undefined),
+ *  sgf: (!gpub.spec.Sgf),
+ * }}
+ */
+gpub.spec.GroupingOrSgf;
 
 /**
- * @param {!glift.rules.MoveTree} movetree Parsed movetree.
- * @param {!string} alias For the SGF string.
- * @param {!glift.enums.boardRegions} boardRegion
+ * @param {!glift.rules.MoveTree} mt
+ * @param {!gpub.spec.Sgf} sgf
+ * @param {!gpub.spec.IdGen} idGen
+ * @return {!gpub.spec.Grouping}
  *
- * @return {!gpub.spec.Grouping} a procesed grouping for the sgf.
+ * @return {!gpub.spec.GroupingOrSgf} a procesed grouping for the sgf.
  */
 gpub.spec.TypeProcessor.prototype.process =
     function(movetree, alias, boardRegion) {};
@@ -42,6 +54,20 @@ gpub.spec.processor = function(sgfType) {
   }
 
   throw new Error('Unsupported book purpose: ' + sgfType);
+};
+
+/**
+ * Simple id generator.
+ * @constructor @struct @final
+ * @package
+ */
+gpub.spec.IdGen = function() {
+  var idx = 0;
+  /** @return {number} */
+  this.next = function() {
+    idx++;
+    return idx;
+  };
 };
 
 /**
@@ -76,8 +102,8 @@ gpub.spec.Processor = function(spec) {
    */
   this.topGrouping_ = new gpub.spec.Grouping(spec.grouping);
 
-  /** @private {number} */
-  this.diagramIndex_ = 1;
+  /** @private {!gpub.spec.IdGen} */
+  this.idGen_ = new gpub.spec.IdGen();
 };
 
 gpub.spec.Processor.prototype = {
@@ -142,7 +168,8 @@ gpub.spec.Processor.prototype = {
    * @private
    */
   reprocessSgfs_: function(grouping) {
-    if (!this.containsAllExamples_(grouping)) {
+    if (this.containsAllExamples_(grouping)) {
+      // Ensure the IDs are accurate
       return;
     }
     var sgfs = grouping.sgfs;
@@ -177,10 +204,14 @@ gpub.spec.Processor.prototype = {
    * @private
    */
   processSgfBuffer_: function(grouping, sgfs) {
+    if (!sgfs.length) {
+      return; // No SGFs. nothing to do.
+    }
     var newGrouping = new gpub.spec.Grouping();
+    var type = this.getSgfType_(grouping, sgfs[0]);
+    var processor = gpub.spec.processor(sgfType);
     for (var i = 0; i < sgfs.length; i++) {
       var sgf = sgfs[i];
-      var type = this.getSgfType_(grouping, sgf);
       var mt = this.getMovetree_(sgf);
     }
   },

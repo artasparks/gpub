@@ -46,11 +46,10 @@ gpub.spec = {
       }
 
       // At this point, there is a 1x1 mapping between passed-in SGF and sgf
-      // object. Initial position, nextMovesPath, and boardRegion don't make
+      // object. Initial position, nextMovesPath, and id don't make
       // sense until the processing into EXAMPLE types.
       var sgf = new gpub.spec.Sgf({
         alias: alias,
-        id: alias
       })
 
       baseGrouping.sgfs.push(sgf);

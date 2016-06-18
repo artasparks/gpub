@@ -13,11 +13,11 @@ gpub.spec.PositionVariations = function() {};
 gpub.spec.PositionVariations.prototype = {
   /**
    * @param {!glift.rules.MoveTree} mt
-   * @param {string} alias
-   * @param {glift.enums.boardRegions} boardRegion
+   * @param {!gpub.spec.Sgf} sgf
+   * @param {!gpub.spec.IdGen} idGen
    * @return {!gpub.spec.Grouping}
    */
-  process: function(mt, alias, boardRegion) {
+  process: function(mt, sgf, idGen) {
     return new gpub.spec.Grouping();
   }
 };

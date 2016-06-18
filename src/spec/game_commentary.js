@@ -13,7 +13,6 @@ gpub.spec.GameCommentary.prototype = {
   /**
    * @param {!glift.rules.MoveTree} mt
    * @param {string} alias
-   * @param {glift.enums.boardRegions} boardRegion
    * @return {!gpub.spec.Grouping}
    */
   process: function(mt, alias, boardRegion) {
