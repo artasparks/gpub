@@ -33,8 +33,8 @@
     deepEqual(grouping.sgfs.length, 1);
 
     var sgf = grouping.sgfs[0];
-    deepEqual(sgf.id, alias);
     deepEqual(sgf.alias, alias);
+    deepEqual(sgf.id, undefined);
     deepEqual(sgf.initialPosition, undefined);
     deepEqual(sgf.nextMovesPath, undefined);
     deepEqual(sgf.boardRegion, undefined);

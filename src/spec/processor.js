@@ -16,7 +16,7 @@ gpub.spec.TypeProcessor = function() {};
  * SGF should be defined.
  * @typedef {{
  *  grouping: (!gpub.spec.Grouping|undefined),
- *  sgf: (!gpub.spec.Sgf),
+ *  sgf: (!gpub.spec.Sgf|undefined)
  * }}
  */
 gpub.spec.GroupingOrSgf;
@@ -25,12 +25,9 @@ gpub.spec.GroupingOrSgf;
  * @param {!glift.rules.MoveTree} mt
  * @param {!gpub.spec.Sgf} sgf
  * @param {!gpub.spec.IdGen} idGen
- * @return {!gpub.spec.Grouping}
- *
  * @return {!gpub.spec.GroupingOrSgf} a procesed grouping for the sgf.
  */
-gpub.spec.TypeProcessor.prototype.process =
-    function(movetree, alias, boardRegion) {};
+gpub.spec.TypeProcessor.prototype.process = function(mt, sgf, idGen) {};
 
 
 /**
@@ -209,7 +206,7 @@ gpub.spec.Processor.prototype = {
     }
     var newGrouping = new gpub.spec.Grouping();
     var type = this.getSgfType_(grouping, sgfs[0]);
-    var processor = gpub.spec.processor(sgfType);
+    var processor = gpub.spec.processor(type);
     for (var i = 0; i < sgfs.length; i++) {
       var sgf = sgfs[i];
       var mt = this.getMovetree_(sgf);

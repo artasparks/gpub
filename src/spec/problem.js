@@ -13,11 +13,11 @@ gpub.spec.Problem = function () {};
 gpub.spec.Problem.prototype = {
   /**
    * @param {!glift.rules.MoveTree} mt
-   * @param {string} alias
-   * @param {glift.enums.boardRegions} boardRegion
-   * @return {!gpub.spec.Grouping}
+   * @param {!gpub.spec.Sgf} sgf
+   * @param {!gpub.spec.IdGen} idGen
+   * @return {!gpub.spec.GroupingOrSgf} a procesed grouping for the sgf.
    */
-  process: function(mt, alias, boardRegion) {
-    return new gpub.spec.Grouping();
+  process: function(mt, sgf, idGen) {
+    return {};
   }
 };

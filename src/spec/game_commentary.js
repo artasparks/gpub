@@ -12,15 +12,17 @@ gpub.spec.GameCommentary = function() {};
 gpub.spec.GameCommentary.prototype = {
   /**
    * @param {!glift.rules.MoveTree} mt
-   * @param {string} alias
-   * @return {!gpub.spec.Grouping}
+   * @param {!gpub.spec.Sgf} sgf
+   * @param {!gpub.spec.IdGen} idGen
+   * @return {!gpub.spec.GroupingOrSgf} a procesed grouping for the sgf.
    */
-  process: function(mt, alias, boardRegion) {
+  process: function(mt, sgf, idGen) {
     var out = [];
     var varPathBuffer = [];
     var node = mt.node();
     var ipString = glift.rules.treepath.toInitPathString;
     var fragString = glift.rules.treepath.toFragmentString;
+    var alias = sgf.alias;
 
     while (node) {
       if (!mt.properties().getComment() && node.numChildren() > 0) {
@@ -61,7 +63,9 @@ gpub.spec.GameCommentary.prototype = {
       sgfs: out,
     }));
 
-    return grouping;
+    return {
+      grouping: grouping
+    }
   },
 
   /**
@@ -93,6 +97,7 @@ gpub.spec.GameCommentary.prototype = {
         out.push(nmtz.treepathToHere());
       });
     }
+
     return out;
   }
 };

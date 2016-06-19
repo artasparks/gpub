@@ -14,7 +14,7 @@ gpub.spec.Example.prototype = {
    * @param {!glift.rules.MoveTree} mt
    * @param {!gpub.spec.Sgf} sgf
    * @param {!gpub.spec.IdGen} idGen
-   * @return {!gpub.spec.Grouping}
+   * @return {!gpub.spec.GroupingOrSgf} a procesed grouping for the sgf.
    */
   process: function(mt, sgf, idGen) {
   }
