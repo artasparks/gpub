@@ -9,7 +9,7 @@
 
   test('Get processor', function() {
     for (var key in gpub.spec.SgfType) {
-      var proc = gpub.spec.processor(key);
+      var proc = gpub.spec.typeProcessor(key);
       ok(proc, 'Processor not defined for key: ' + proc);
     }
   });

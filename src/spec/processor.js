@@ -36,7 +36,7 @@ gpub.spec.TypeProcessor.prototype.process = function(mt, sgf, idGen) {};
  * @param {gpub.spec.SgfType} sgfType
  * @return {!gpub.spec.TypeProcessor}
  */
-gpub.spec.processor = function(sgfType) {
+gpub.spec.typeProcessor = function(sgfType) {
   if (sgfType === gpub.spec.SgfType.GAME_COMMENTARY) {
     return new gpub.spec.GameCommentary();
   }
@@ -206,7 +206,7 @@ gpub.spec.Processor.prototype = {
     }
     var newGrouping = new gpub.spec.Grouping();
     var type = this.getSgfType_(grouping, sgfs[0]);
-    var processor = gpub.spec.processor(type);
+    var processor = gpub.spec.typeProcessor(type);
     for (var i = 0; i < sgfs.length; i++) {
       var sgf = sgfs[i];
       var mt = this.getMovetree_(sgf);
