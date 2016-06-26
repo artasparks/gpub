@@ -26,9 +26,9 @@
     mapping[alias] = sgf;
     deepEqual(spec.sgfMapping, mapping);
 
-    var grouping = spec.grouping;
+    var grouping = spec.rootGrouping;
     ok(grouping);
-    deepEqual(grouping.subGroupings.length, 0);
+    deepEqual(grouping.groupings.length, 0);
     deepEqual(grouping.sgfType, gpub.spec.SgfType.GAME_COMMENTARY);
     deepEqual(grouping.sgfs.length, 1);
 
@@ -55,9 +55,9 @@
     mapping[alias1] = sgf1;
     mapping[alias2] = sgf2;
     deepEqual(spec.sgfMapping, mapping);
-    deepEqual(spec.grouping.sgfs.length, 2);
-    deepEqual(spec.grouping.sgfs[0].alias, alias1);
-    deepEqual(spec.grouping.sgfs[1].alias, alias2);
+    deepEqual(spec.rootGrouping.sgfs.length, 2);
+    deepEqual(spec.rootGrouping.sgfs[0].alias, alias1);
+    deepEqual(spec.rootGrouping.sgfs[1].alias, alias2);
   })
 
   // test('Create: one simple game, with variation', function() {

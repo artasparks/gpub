@@ -55,7 +55,7 @@ gpub.spec.Spec = function(opt_spec) {
    *
    * @const {!gpub.spec.Grouping}
    */
-  this.grouping = new gpub.spec.Grouping(o.grouping);
+  this.rootGrouping = new gpub.spec.Grouping(o.rootGrouping);
 
   /**
    * Mapping from SGF Alias to SGF string. It's not required that this be a
@@ -160,10 +160,10 @@ gpub.spec.Grouping = function(opt_group) {
    * Groupings that are children of his grouping.
    * @type {!Array<!gpub.spec.Grouping>}
    */
-  this.subGroupings = [];
-  if (o.subGroupings) {
-    for (var i = 0; i < o.subGroupings.length; i++) {
-      this.subGroupings.push(new gpub.spec.Grouping(o.subGroupings[i]));
+  this.groupings = [];
+  if (o.groupings) {
+    for (var i = 0; i < o.groupings.length; i++) {
+      this.groupings.push(new gpub.spec.Grouping(o.groupings[i]));
     }
   }
 };

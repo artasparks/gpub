@@ -25,7 +25,7 @@ gpub.spec = {
 
     // TODO(kashomon): Modify the topLevelGrouping based on the book data, the
     // GC node, or headers within the SGF.
-    var baseGrouping = spec.grouping;
+    var baseGrouping = spec.rootGrouping;
     baseGrouping.sgfType = defaultSgfType;
 
     for (var i = 0; i < sgfs.length; i++) {

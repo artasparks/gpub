@@ -97,7 +97,7 @@ gpub.spec.Processor = function(spec) {
    * @const {!gpub.spec.Grouping}
    * @private
    */
-  this.topGrouping_ = new gpub.spec.Grouping(spec.grouping);
+  this.rootGrouping_ = new gpub.spec.Grouping(spec.rootGrouping);
 
   /** @private {!gpub.spec.IdGen} */
   this.idGen_ = new gpub.spec.IdGen();
@@ -110,9 +110,9 @@ gpub.spec.Processor.prototype = {
    * @return {!gpub.spec.Spec}
    */
   process: function() {
-    this.processGroup(this.topGrouping_);
+    this.processGroup(this.rootGrouping_);
     return new gpub.spec.Spec({
-      grouping: this.topGrouping_,
+      rootGrouping: this.rootGrouping_,
       sgfMapping: this.sgfMapping_,
       specOptions: this.originalSpec_.specOptions,
       diagramOptions: this.originalSpec_.diagramOptions,
@@ -128,8 +128,8 @@ gpub.spec.Processor.prototype = {
    */
   processGroup: function(grouping) {
     this.reprocessSgfs_(grouping);
-    for (var i = 0; i < grouping.subGroupings.length; i++) {
-      this.processGroup(grouping.subGroupings[i]);
+    for (var i = 0; i < grouping.groupings.length; i++) {
+      this.processGroup(grouping.groupings[i]);
     }
   },
 
@@ -195,6 +195,9 @@ gpub.spec.Processor.prototype = {
 
   /**
    * Process a grouping of SGFS. Where the magic happens.
+   *
+   * Each type-specific processor returns an object that contains either
+   * processed SGF Objects *or* a grouping sub-structure.
    *
    * @param {!gpub.spec.Grouping} grouping
    * @param {!Array<!gpub.spec.Sgf>} sgfs
