@@ -228,15 +228,55 @@ glift.rules.treepath = {
   /**
    * Converts a treepath fragement back to a string.  In other words:
    *    [2,0,1,2,6] => 2.0.1.2.6
+   *    [0,0,0,0] => 0:4
+   *    [0,0,0,0,1,1,1] => 0:4.1:3
+   * If the treepath is empty, returns an empty string.
    *
    * @param {!glift.rules.Treepath} path A treepath fragment.
    * @return {string} A fragment string.
    */
   toFragmentString: function(path) {
     if (glift.util.typeOf(path) !== 'array') {
+      // This is probably unnecessary, but exists for safety.
       return path.toString();
     }
-    return path.join('.');
+    if (path.length === 0) {
+      return '';
+    }
+    var last = null;
+    var next = null;
+    var repeated = 0;
+    var out = null;
+
+    var flush = function() {
+      var component = '';
+      if (repeated < 2) {
+        component = last + '';
+      } else {
+        component = last + ':' + repeated;
+      }
+      if (out === null) {
+        out = component;
+      } else {
+        out += '.' + component;
+      }
+      repeated = 1;
+    }
+
+    for (var i = 0; i < path.length; i++) {
+      next = path[i];
+      if (last === null) {
+        last = next;
+      }
+      if (next === last) {
+        repeated++;
+      } else {
+        flush();
+      }
+      last = next;
+    }
+    flush();
+    return out;
   },
 
   /**
@@ -254,28 +294,30 @@ glift.rules.treepath = {
    * @return {string} A full path string.
    */
   toInitPathString: function(path) {
+    if (glift.util.typeOf(path) !== 'array') {
+      return path.toString();
+    }
+    if (path.length === 0) {
+      return '0';
+    }
+
     var out = [];
     var onMainLine = true;
+    var firstNumber = 0;
     for (var i = 0; i < path.length; i++) {
       var elem = path[i];
-      if (elem === 0) {
-        if (onMainLine && i === path.length - 1) {
-          out.push(i + 1);
-        } else if (!onMainLine) {
-          out.push(elem);
-        }
-        // ignore otherwise
-      } else if (elem > 0) {
-        // Since elem is non-zero, it's a variation indicator.
-        if (onMainLine) {
-          onMainLine = false;
-          // Note: We only want to push the initial-move-number part *once*
-          out.push(i);
-        }
-        out.push(elem);
+      if (elem !== 0) {
+        break;
+      } else {
+        firstNumber = i + 1;
       }
     }
-    return out.join('.');
+    var component = glift.rules.treepath.toFragmentString(path.slice(firstNumber));
+    if (component) {
+      return firstNumber + '.' + component;
+    } else {
+      return firstNumber + '';
+    }
   },
 
   /**
