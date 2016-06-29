@@ -31,13 +31,13 @@ gpub.spec = {
     for (var i = 0; i < sgfs.length; i++) {
       var sgfStr = sgfs[i];
       var mt = glift.parse.fromString(sgfStr);
-      var alias = 'sgf:' + i;
+      var alias = 'sgf:' + (i+1);
 
       // If the Game Name is specified, we prepend that to the index for
       // readability.
       var GN = glift.rules.prop.GN;
       if (mt.properties().contains(GN)) {
-        alias = mt.properties().getOneValue(GN) + ':' + i;
+        alias = mt.properties().getOneValue(GN) + ':' + (i+1);
       }
 
       // Ensure the sgf mapping contains the alias-to-sgf mapping.

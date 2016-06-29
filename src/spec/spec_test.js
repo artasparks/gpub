@@ -1,18 +1,5 @@
 (function() {
   module('gpub.spec.specTest');
-  var spec = gpub.spec;
-
-  // var defaultOptions = gpub.processOptions();
-  // var problemSetOpts = gpub.processOptions({
-    // bookPurpose: gpub.bookPurpose.PROBLEM_SET
-  // });
-
-  test('Get processor', function() {
-    for (var key in gpub.spec.SgfType) {
-      var proc = gpub.spec.typeProcessor(key);
-      ok(proc, 'Processor not defined for key: ' + proc);
-    }
-  });
 
   test('create spec', function() {
     var sgf = '(;GM[1]AW[aa]AB[ba];B[bb]C[The End!])';
@@ -21,7 +8,7 @@
     });
     var spec = gpub.spec.create(o);
 
-    var alias = 'sgf:0';
+    var alias = 'sgf:1';
     var mapping = {};
     mapping[alias] = sgf;
     deepEqual(spec.sgfMapping, mapping);
@@ -29,16 +16,16 @@
     var grouping = spec.rootGrouping;
     ok(grouping);
     deepEqual(grouping.groupings.length, 0);
-    deepEqual(grouping.sgfType, gpub.spec.SgfType.GAME_COMMENTARY);
-    deepEqual(grouping.sgfs.length, 1);
+    deepEqual(grouping.positionType, gpub.spec.PositionType.GAME_COMMENTARY);
+    deepEqual(grouping.positions.length, 1);
 
-    var sgf = grouping.sgfs[0];
-    deepEqual(sgf.alias, alias);
-    deepEqual(sgf.id, undefined);
-    deepEqual(sgf.initialPosition, undefined);
-    deepEqual(sgf.nextMovesPath, undefined);
-    deepEqual(sgf.boardRegion, undefined);
-    deepEqual(sgf.sgfType, undefined);
+    var pos = grouping.positions[0];
+    deepEqual(pos.alias, alias);
+    deepEqual(pos.id, alias);
+    deepEqual(pos.initialPosition, undefined);
+    deepEqual(pos.nextMovesPath, undefined);
+    deepEqual(pos.boardRegion, undefined);
+    deepEqual(pos.positionType, undefined);
   });
 
   test('create spec: two sgfs', function() {
@@ -50,14 +37,14 @@
     });
 
     var spec = gpub.spec.create(o);
-    var alias1 = 'sgf:0', alias2 = 'foo:1';
+    var alias1 = 'sgf:1', alias2 = 'foo:2';
     var mapping = {};
     mapping[alias1] = sgf1;
     mapping[alias2] = sgf2;
     deepEqual(spec.sgfMapping, mapping);
-    deepEqual(spec.rootGrouping.sgfs.length, 2);
-    deepEqual(spec.rootGrouping.sgfs[0].alias, alias1);
-    deepEqual(spec.rootGrouping.sgfs[1].alias, alias2);
+    deepEqual(spec.rootGrouping.positions.length, 2);
+    deepEqual(spec.rootGrouping.positions[0].alias, alias1);
+    deepEqual(spec.rootGrouping.positions[1].alias, alias2);
   })
 
   // test('Create: one simple game, with variation', function() {

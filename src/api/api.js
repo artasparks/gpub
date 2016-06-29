@@ -1,40 +1,44 @@
-goog.provide('glift.api');
+goog.provide('gpub.api');
+goog.provide('gpub.create');
 
 /**
  * Api Namespace. Some of the methods are attached at the top level for clarity.
+ * @const
  */
-gpub.api = {};
+gpub.api = {
+  /**
+   * Create a 'book' output from SGFs.
+   *
+   * @param {!gpub.Options} options
+   * @return {string}
+   */
+  create: function(options) {
+    // Validate input and create the options array.
+    gpub.api.validateInputs_(options);
+
+    // Process the options and fill in any missing values or defaults.
+    options = gpub.processOptions(options);
+
+    // Phase 1: Create the basic book specification.
+    var spec = gpub.spec.create(options);
+
+    var processed = gpub.spec.process(spec);
+    // Create the finished book (or whatever that means).
+    // var book = gpub.book.create(spec, options);
+
+    // TODO(kashomon): return { contents: ..., diagrams: ... }
+    //return book;
+
+    return 'foo';
+  }
+};
+
+gpub.create = gpub.api.create;
 
 ////////////////////////
 // Methods in the API //
 ////////////////////////
 
-
-/**
- * Create a 'book' output from SGFs.
- *
- * @param {!gpub.Options} options
- * @return {string}
- */
-gpub.create = function(options) {
-  // Validate input and create the options array.
-  gpub.api.validateInputs_(options);
-
-  // Process the options and fill in any missing values or defaults.
-  options = gpub.processOptions(options);
-
-  // Phase 1: Create the basic book specification.
-  var spec = gpub.spec.create(options);
-
-  var processed = gpub.spec.process(spec);
-  // Create the finished book (or whatever that means).
-  // var book = gpub.book.create(spec, options);
-
-  // TODO(kashomon): return { contents: ..., diagrams: ... }
-  //return book;
-
-  return 'foo';
-};
 
 
 /////////////

@@ -9,7 +9,6 @@ goog.provide('gpub.spec.TypeProcessor');
  */
 gpub.spec.IdGen = function(alias) {
   var idx = 0;
-  var alias = alias;
   /** @return {number} */
   this.next = function() {
     idx++;
@@ -56,9 +55,6 @@ gpub.spec.Processor = function(spec) {
    * @private
    */
   this.rootGrouping_ = new gpub.spec.Grouping(spec.rootGrouping);
-
-  /** @private {!gpub.spec.IdGen} */
-  this.idGen_ = new gpub.spec.IdGen();
 };
 
 gpub.spec.Processor.prototype = {
@@ -162,7 +158,7 @@ gpub.spec.Processor.prototype = {
 
     if (positionGroups.length === 1) {
       // If length is 1, all the Positions are of the same type.
-      var ret = this.processPositionGroup_(grouping, positionGroups[i]);
+      var ret = this.processPositionGroup_(grouping, positionGroups[0]);
     }
 
     for (var i = 0; i < positionGroups.length; i++) {
@@ -177,25 +173,25 @@ gpub.spec.Processor.prototype = {
    * @param {!Array<!gpub.spec.Position>} positions
    * @return {{
    *    groupings: (!Array<!gpub.spec.Grouping>|undefined),
-   *    sgfs: (!Array<!gpub.spec.Sgf>|undefined)
-   * }} Return either an array of SGFs or an array of groupings (but not both).
+   *    positions: (!Array<!gpub.spec.Position>|undefined)
+   * }} Return either an array of positions or an array of groupings (but not both).
    *
    * @private
    */
-  processSgfGroup_: function(grouping, positions) {
+  processPositionGroup_: function(grouping, positions) {
     if (!positions.length) {
       return {}; // No positions. nothing to do.
     }
     var type = this.getPositionType_(grouping, positions[0]);
-    var processor = gpub.spec.typeProcessor(type);
     for (var i = 0; i < positions.length; i++) {
       var pos = positions[i];
       var mt = this.getMovetree_(pos);
-      var idGen = this.getIdGen(pos);
+      var idGen = this.getIdGen_(pos);
       switch(type) {
         case 'GAME_COMMENTARY':
           var newGrouping = new gpub.spec.Grouping();
-          newGrouping.positions = gpub.spec.processGameCommentary(mt, sgf, idGen);
+          newGrouping.positions =
+              gpub.spec.processGameCommentary(mt, pos, idGen);
           break;
         case 'PROBLEM':
           break;
@@ -209,6 +205,7 @@ gpub.spec.Processor.prototype = {
         default: throw new Error('Unknown position type:' + type);
       }
     }
+    return {};
   },
 
   /**
@@ -238,8 +235,8 @@ gpub.spec.Processor.prototype = {
    * Gets a Position Type for a position/grouping/options.
    *
    * @param {!gpub.spec.Grouping} grouping
-   * @param {!gpub.spec.Sgf} sgf
-   * @return {!gpub.spec.SgfType}
+   * @param {!gpub.spec.Position} position
+   * @return {!gpub.spec.PositionType}
    * @private
    */
   getPositionType_: function(grouping, position) {
@@ -248,11 +245,11 @@ gpub.spec.Processor.prototype = {
       positionType = position.positionType;
     } else if (grouping.positionType) {
       positionType = grouping.positionType;
-    } else if (options.spec.specOptions.defaultPositionType) {
-      positionType = options.spec.specOptions.defaultPositionType;
+    } else if (this.originalSpec_.specOptions.defaultPositionType) {
+      positionType = this.originalSpec_.specOptions.defaultPositionType;
     }
     if (!positionType) {
-      throw new Error('No position type specified for position:' 
+      throw new Error('No position type specified for position:'
           + JSON.stringify(position));
     }
     return positionType;
@@ -260,11 +257,13 @@ gpub.spec.Processor.prototype = {
 
   /**
    * Gets the id generator for a position object
+   * @param {!gpub.spec.Position} pos
+   * @return {!gpub.spec.IdGen}
    */
-  getIdGen_: function(position) {
-    var alias = position.alias;
+  getIdGen_: function(pos) {
+    var alias = pos.alias;
     if (!alias) {
-      throw new Error('No alias defined for Position object: ' + JSON.stringify(sgf));
+      throw new Error('No alias defined for Position object: ' + JSON.stringify(pos));
     }
     if (!this.idGenMap_[alias]) {
       this.idGenMap_[alias] = new gpub.spec.IdGen(alias);

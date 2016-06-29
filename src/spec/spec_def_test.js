@@ -6,16 +6,16 @@
     var sgf1 = '(;GM[1]AW[aa]AB[ba];B[bb]C[The End!])';
     var sgf2 = '(;GM[1]AW[aa]AB[ba];B[bb]C[Another End!])';
 
-    var sgfs = [{
+    var positions = [{
         alias: 'foo',
-        sgfType: gpub.spec.SgfType.EXAMPLE,
+        positionType: gpub.spec.PositionType.EXAMPLE,
       },{
         alias: 'bar',
-        sgfType: gpub.spec.SgfType.PROBLEM,
+        positionType: gpub.spec.PositionType.PROBLEM,
       }]
     var spec = new gpub.spec.Spec({
       rootGrouping: {
-        sgfs: sgfs
+        positions: positions
       },
       sgfMapping: {
         'foo': sgf1,
@@ -29,7 +29,7 @@
     var obj = JSON.parse(json);
     deepEqual(obj.sgfMapping, spec.sgfMapping, 'mapping');
     deepEqual(obj.rootGrouping.groupings, [], 'groupings');
-    deepEqual(obj.rootGrouping.sgfs, sgfs, 'sgfs');
+    deepEqual(obj.rootGrouping.positions, positions, 'positions');
 
     var parsed = gpub.spec.Spec.deserializeJson(json);
     deepEqual(spec, parsed, 'Round trip should produce same results');

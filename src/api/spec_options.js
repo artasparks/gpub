@@ -1,6 +1,7 @@
 goog.provide('gpub.SpecOptions');
 goog.provide('gpub.api.ProblemAnswers');
 
+goog.require('gpub.api');
 
 /**
  * How should the problem answers be generated?
@@ -13,8 +14,10 @@ gpub.api.ProblemAnswers = {
   AFTER_PROBLEM: 'AFTER_PROBLEM',
   /** Generate the anwers after all the problems. */
   AT_END: 'AT_END',
-  /** Only generate problems answers. This is useful for when users want the
-   * answers in a separate book */
+  /**
+   * Only generate problems answers. This is useful for when users want the
+   * answers in a separate book.
+   */
   ONLY_ANSWERS: 'ONLY_ANSWERS',
 };
 
