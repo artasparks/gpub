@@ -1,8 +1,8 @@
 goog.provide('gpub.spec.Grouping');
-goog.provide('gpub.spec.Sgf');
-goog.provide('gpub.spec.SgfTypedef');
-goog.provide('gpub.spec.SgfType');
-goog.provide('gpub.spec.SgfVersion');
+goog.provide('gpub.spec.Position');
+goog.provide('gpub.spec.PositionTypedef');
+goog.provide('gpub.spec.PositionType');
+goog.provide('gpub.spec.SpecVersion');
 goog.provide('gpub.spec.Spec');
 
 goog.scope(function() {
@@ -51,7 +51,7 @@ gpub.spec.Spec = function(opt_spec) {
   this.version = o.version || gpub.spec.SpecVersion.V1;
 
   /**
-   * Top-level SGF grouping.
+   * Top-level Position grouping.
    *
    * @const {!gpub.spec.Grouping}
    */
@@ -110,10 +110,10 @@ gpub.spec.Spec.prototype = {
 };
 
 /**
- * A grouping of SGFs each grouping can have sub-groupings, and so on. The
+ * A grouping of Positions. Each grouping can have sub-groupings, and so on. The
  * structure is required to be tree-shaped -- no cycles can occur.
  *
- * Also note: SGF objects are only allowed to occur on terminal nodes.
+ * Also note: Position objects are only allowed to occur on terminal nodes.
  *
  * @param {!gpub.spec.Grouping=} opt_group
  *
@@ -136,23 +136,23 @@ gpub.spec.Grouping = function(opt_group) {
   this.description = o.description || undefined;
 
   /**
-   * It can make sense to specify the SGF Type for a specific grouping. Unless
+   * It can make sense to specify the Position Type for a specific grouping. Unless
    * re-specified by children groupings, the type should apply to the
-   * descendents. It's possible to have a heterogenous collection af SGFs in a
+   * descendents. It's possible to have a heterogenous collection af Positions in a
    * grouping, so by default this is not set.
    *
-   * @type {gpub.spec.SgfType|undefined}
+   * @type {gpub.spec.PositionType|undefined}
    */
-  this.sgfType = o.sgfType || undefined;
+  this.positionType = o.positionType || undefined;
 
   /**
-   * SGF Objects associated directly with this grouping.
-   * @type {!Array<!gpub.spec.Sgf>}
+   * Position Objects associated directly with this grouping.
+   * @type {!Array<!gpub.spec.Position>}
    */
-  this.sgfs = [];
-  if (o.sgfs) {
-    for (var i = 0; i < o.sgfs.length; i++) {
-      this.sgfs.push(new gpub.spec.Sgf(o.sgfs[i]));
+  this.positions = [];
+  if (o.positions) {
+    for (var i = 0; i < o.positions.length; i++) {
+      this.positions.push(new gpub.spec.Position(o.positions[i]));
     }
   }
 
@@ -175,21 +175,21 @@ gpub.spec.Grouping = function(opt_group) {
  *  id: (string|undefined),
  *  initialPosition: (string|undefined),
  *  nextMovesPath: (string|undefined),
- *  sgfType: (gpub.spec.SgfType|undefined)
+ *  positionType: (gpub.spec.PositionType|undefined)
  * }}
  */
-gpub.spec.SgfTypedef;
+gpub.spec.PositionTypedef;
 
 /**
- * A single SGF definition. This is overloaded and used for both individual SGFs
- * and for SGF defaults.
+ * A single Position definition. This is overloaded and used for both individual Positions
+ * and for Position defaults.
  *
- * @param {(!gpub.spec.Sgf|!gpub.spec.SgfTypedef)=} opt_sgf
+ * @param {(!gpub.spec.Position|!gpub.spec.PositionTypedef)=} opt_position
  *
  * @constructor @struct @final
  */
-gpub.spec.Sgf = function(opt_sgf) {
-  var o = opt_sgf || {};
+gpub.spec.Position = function(opt_position) {
+  var o = opt_position || {};
 
   /**
    * Alias of the SGF in the SGF mapping. Must be specified.
@@ -198,7 +198,7 @@ gpub.spec.Sgf = function(opt_sgf) {
   this.alias = o.alias || undefined;
 
   /**
-   * ID of this particular sgf + position.
+   * ID of this particular position.
    * @const {string|undefined}
    */
   this.id = o.id || undefined;
@@ -217,16 +217,16 @@ gpub.spec.Sgf = function(opt_sgf) {
   this.nextMovesPath = o.nextMovesPath || undefined;
 
   /**
-   * Optional sgf type
-   * @const {gpub.spec.SgfType|undefined}
+   * Optional positiontype
+   * @const {gpub.spec.PositionType|undefined}
    */
-  this.sgfType = o.sgfType || undefined;
+  this.positionType = o.positionType || undefined;
 };
 
-gpub.spec.Sgf.prototype = {
+gpub.spec.Position.prototype = {
   /**
-   * Validate the spec and throw an error if the spec is 
-   * @return {!gpub.spec.Sgf} this
+   * Validate the spec and throw an error.
+   * @return {!gpub.spec.Position} this
    */
   validate:  function() {
     if (this.alias == undefined) {
@@ -236,7 +236,7 @@ gpub.spec.Sgf.prototype = {
       throw new Error('No Initial Position');
     }
 
-    if (this.sgfType !== gpub.spec.SgfType.EXAMPLE &&
+    if (this.positionType !== gpub.spec.PositionType.EXAMPLE &&
         this.nextMovesPath != undefined) {
       throw new Error('Next moves path is only valid for EXAMPLE types');
     }
@@ -245,11 +245,11 @@ gpub.spec.Sgf.prototype = {
 };
 
 /**
- * The type or interpretation of the SGF.
+ * The type or interpretation of the Position.
  *
  * @enum {string}
  */
-gpub.spec.SgfType = {
+gpub.spec.PositionType = {
   /**
    * A flat diagram without any special meaning. All other types can be
    * converted into one or more EXAMPLE types. EXAMPLE types are ultimately the
@@ -261,7 +261,7 @@ gpub.spec.SgfType = {
   GAME_COMMENTARY: 'GAME_COMMENTARY',
 
   /**
-   * A problem SGF. In problems, there isn't usually a concept of a mainline
+   * A problem position. In problems, there isn't usually a concept of a mainline
    * vairation. Each variation indicates either a correct or incorrect solution.
    */
   PROBLEM: 'PROBLEM',

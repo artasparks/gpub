@@ -1,69 +1,19 @@
-goog.provide('gpub.spec.GroupingOrSgf');
 goog.provide('gpub.spec.IdGen');
 goog.provide('gpub.spec.Processor');
 goog.provide('gpub.spec.TypeProcessor');
-
-/**
- * A processor takes as input a single SGF, implicitly with a specified type,
- * and outputs a series of EXAMPLE Sgf objects.
- *
- * @record
- */
-gpub.spec.TypeProcessor = function() {};
-
-/**
- * Represents the return value of the type processor. Only one of grouping or
- * SGF should be defined.
- * @typedef {{
- *  grouping: (!gpub.spec.Grouping|undefined),
- *  sgf: (!gpub.spec.Sgf|undefined)
- * }}
- */
-gpub.spec.GroupingOrSgf;
-
-/**
- * @param {!glift.rules.MoveTree} mt
- * @param {!gpub.spec.Sgf} sgf
- * @param {!gpub.spec.IdGen} idGen
- * @return {!gpub.spec.GroupingOrSgf} a procesed grouping for the sgf.
- */
-gpub.spec.TypeProcessor.prototype.process = function(mt, sgf, idGen) {};
-
-
-/**
- * Gets the the processor based on the book purpose.
- *
- * @param {gpub.spec.SgfType} sgfType
- * @return {!gpub.spec.TypeProcessor}
- */
-gpub.spec.typeProcessor = function(sgfType) {
-  if (sgfType === gpub.spec.SgfType.GAME_COMMENTARY) {
-    return new gpub.spec.GameCommentary();
-  }
-  if (sgfType === gpub.spec.SgfType.PROBLEM) {
-    return new gpub.spec.Problem();
-  }
-  if (sgfType === gpub.spec.SgfType.EXAMPLE) {
-    return new gpub.spec.Example();
-  }
-  if (sgfType === gpub.spec.SgfType.POSITION_VARIATIONS) {
-    return new gpub.spec.PositionVariations();
-  }
-
-  throw new Error('Unsupported book purpose: ' + sgfType);
-};
 
 /**
  * Simple id generator.
  * @constructor @struct @final
  * @package
  */
-gpub.spec.IdGen = function() {
+gpub.spec.IdGen = function(alias) {
   var idx = 0;
+  var alias = alias;
   /** @return {number} */
   this.next = function() {
     idx++;
-    return idx;
+    return alias + '-' + idx;
   };
 };
 
@@ -86,7 +36,15 @@ gpub.spec.Processor = function(spec) {
   this.mtCache_ = {};
 
   /**
-   * SGF Mapping from alias to SGF string.
+   * Map from alias to ID Gen instance. Each alias gets its own id generator so that IDs
+   * are sequential for a particular raw SGF.
+   *
+   * @const {!Object<string, !gpub.spec.IdGen>}
+   */
+  this.idGenMap_ = {};
+
+  /**
+   * Mapping from sgf alias to SGF string.
    * @const {!Object<string, string>}
    * @private
    */
@@ -127,7 +85,7 @@ gpub.spec.Processor.prototype = {
    * @param {!gpub.spec.Grouping} grouping
    */
   processGroup: function(grouping) {
-    this.reprocessSgfs_(grouping);
+    this.reprocessPositions_(grouping);
     for (var i = 0; i < grouping.groupings.length; i++) {
       this.processGroup(grouping.groupings[i]);
     }
@@ -142,9 +100,9 @@ gpub.spec.Processor.prototype = {
    */
   containsAllExamples_: function(grouping) {
     var containsAllExamples = true;
-    for (var i = 0; i < grouping.sgfs.length; i++) {
-      var sgf = grouping.sgfs[i];
-      if (sgf.sgfType !== gpub.spec.SgfType.EXAMPLE) {
+    for (var i = 0; i < grouping.positions.length; i++) {
+      var position= grouping.positions[i];
+      if (position.positionType !== gpub.spec.PositionType.EXAMPLE) {
         containsAllExamples = false;
         break;
       }
@@ -153,80 +111,118 @@ gpub.spec.Processor.prototype = {
   },
 
   /**
-   * Reprocess the SGFs in a grouping by ordering them into similar types and
+   * Reprocess the Positions in a grouping by ordering them into similar types and
    * then processing them with the type-specific processors. If the Grouping
    * contains only examples, the grouping is considered to be already processed
    * and this function returns without doing any work.
    *
-   * If the grouping has SGFs that need to be processed, we process all the
-   * SGFs.
+   * If the grouping has Positions that need to be processed, we process all the
+   * Positions. Another way to say this: If we create groupings, we must create
+   * groupings for all the Positions. This ensures that the ordering remains
+   * consistent.
    *
    * @param {!gpub.spec.Grouping} grouping
    * @private
    */
-  reprocessSgfs_: function(grouping) {
-    if (this.containsAllExamples_(grouping)) {
-      // Ensure the IDs are accurate
-      return;
-    }
-    var sgfs = grouping.sgfs;
-    grouping.sgfs = [];
+  reprocessPositions_: function(grouping) {
+    var positions = grouping.positions;
+
+    grouping.positions = [];
+
     var currentType = null;
-    var sameTypeSgfs = [];
 
-    for (var i = 0; i < sgfs.length; i++) {
-      var sgf = sgfs[i];
-      var sgfType = this.getSgfType_(grouping, sgf);
-      if (!currentType) {
-        currentType = sgfType;
+    /**
+     * @type {!Array<!gpub.spec.Position>}
+     */
+    var sameTypePositions = [];
+
+    /**
+     * Groups of Positions. The Positions in the inner array are guaranteed to
+     * be all of the same type.
+     * @type {!Array<!Array<!gpub.spec.Position>>}
+     */
+    var positionGroups = []
+
+    for (var i = 0; i < positions.length; i++) {
+      var position = positions[i];
+      var positionType = this.getPositionType_(grouping, position);
+      if (currentType == null) {
+        currentType = positionType;
       }
-      if (currentType === sgfType) {
-        sameTypeSgfs.push(sgf);
+      if (positionType === currentType) {
+        sameTypePositions.push(position);
       } else {
-        this.processSgfBuffer_(grouping, sameTypeSgfs);
-        sameTypeSgfs = [];
+        positionGroups.push(sameTypePositions);
+        sameTypePositions = [];
       }
     }
-    if (sameTypeSgfs.length) {
-      this.processSgfBuffer_(grouping, sameTypeSgfs);
-      sameTypeSgfs = [];
+    if (sameTypePositions.length) {
+      positionGroups.push(sameTypePositions);
+    }
+
+    if (positionGroups.length === 1) {
+      // If length is 1, all the Positions are of the same type.
+      var ret = this.processPositionGroup_(grouping, positionGroups[i]);
+    }
+
+    for (var i = 0; i < positionGroups.length; i++) {
+      var ret = this.processPositionGroup_(grouping, positionGroups[i]);
     }
   },
 
   /**
-   * Process a grouping of SGFS. Where the magic happens.
-   *
-   * Each type-specific processor returns an object that contains either
-   * processed SGF Objects *or* a grouping sub-structure.
+   * Process a grouping of positions. Where the magic happens.
    *
    * @param {!gpub.spec.Grouping} grouping
-   * @param {!Array<!gpub.spec.Sgf>} sgfs
+   * @param {!Array<!gpub.spec.Position>} positions
+   * @return {{
+   *    groupings: (!Array<!gpub.spec.Grouping>|undefined),
+   *    sgfs: (!Array<!gpub.spec.Sgf>|undefined)
+   * }} Return either an array of SGFs or an array of groupings (but not both).
+   *
    * @private
    */
-  processSgfBuffer_: function(grouping, sgfs) {
-    if (!sgfs.length) {
-      return; // No SGFs. nothing to do.
+  processSgfGroup_: function(grouping, positions) {
+    if (!positions.length) {
+      return {}; // No positions. nothing to do.
     }
-    var newGrouping = new gpub.spec.Grouping();
-    var type = this.getSgfType_(grouping, sgfs[0]);
+    var type = this.getPositionType_(grouping, positions[0]);
     var processor = gpub.spec.typeProcessor(type);
-    for (var i = 0; i < sgfs.length; i++) {
-      var sgf = sgfs[i];
-      var mt = this.getMovetree_(sgf);
+    for (var i = 0; i < positions.length; i++) {
+      var pos = positions[i];
+      var mt = this.getMovetree_(pos);
+      var idGen = this.getIdGen(pos);
+      switch(type) {
+        case 'GAME_COMMENTARY':
+          var newGrouping = new gpub.spec.Grouping();
+          newGrouping.positions = gpub.spec.processGameCommentary(mt, sgf, idGen);
+          break;
+        case 'PROBLEM':
+          break;
+
+        case 'POSITION_VARIATIONS':
+          break;
+
+        case 'EXAMPLE':
+          break;
+
+        default: throw new Error('Unknown position type:' + type);
+      }
     }
   },
 
   /**
-   * Gets a movetree for an SGF
+   * Gets a movetree for an position
    *
-   * @param {!gpub.spec.Sgf} sgf
+   * @param {!gpub.spec.Position} position
    * @return {!glift.rules.MoveTree}
    * @private
    */
-  getMovetree_: function(sgf) {
-    var alias = sgf.alias;
+  getMovetree_: function(position) {
+    var alias = position.alias;
     if (!alias) {
-      throw new Error('No alias defined for SGF object: ' + JSON.stringify(sgf));
+      throw new Error('No SGF alias defined for position object: '
+          + JSON.stringify(position));
     }
     var sgfStr = this.sgfMapping_[alias];
     if (!sgfStr) {
@@ -239,23 +235,40 @@ gpub.spec.Processor.prototype = {
   },
 
   /**
-   * Get a SGF Type for a grouping/sgf pair.
+   * Gets a Position Type for a position/grouping/options.
    *
    * @param {!gpub.spec.Grouping} grouping
    * @param {!gpub.spec.Sgf} sgf
    * @return {!gpub.spec.SgfType}
    * @private
    */
-  getSgfType_: function(grouping, sgf) {
-    var sgfType = null;
-    if (sgf.sgfType) {
-      sgfType = sgf.sgfType;
-    } else if (grouping.sgfType) {
-      sgfType = grouping.sgfType;
+  getPositionType_: function(grouping, position) {
+    var positionType = null;
+    if (position.positionType) {
+      positionType = position.positionType;
+    } else if (grouping.positionType) {
+      positionType = grouping.positionType;
+    } else if (options.spec.specOptions.defaultPositionType) {
+      positionType = options.spec.specOptions.defaultPositionType;
     }
-    if (!sgfType) {
-      throw new Error('No SGF type specified for SGF:' + JSON.stringify(sgf));
+    if (!positionType) {
+      throw new Error('No position type specified for position:' 
+          + JSON.stringify(position));
     }
-    return sgfType;
+    return positionType;
   },
+
+  /**
+   * Gets the id generator for a position object
+   */
+  getIdGen_: function(position) {
+    var alias = position.alias;
+    if (!alias) {
+      throw new Error('No alias defined for Position object: ' + JSON.stringify(sgf));
+    }
+    if (!this.idGenMap_[alias]) {
+      this.idGenMap_[alias] = new gpub.spec.IdGen(alias);
+    }
+    return this.idGenMap_[alias];
+  }
 };

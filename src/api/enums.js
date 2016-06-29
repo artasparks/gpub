@@ -24,24 +24,6 @@ gpub.OutputPhase = {
 
 
 /**
- * The type general type of the book.  Specifes roughly how we generate the
- * Glift spec.
- *
- * @enum {string}
- */
-gpub.BookPurpose = {
-  /** Game with commentary. */
-  GAME_COMMENTARY: 'GAME_COMMENTARY',
-
-  /** Set of problems and, optionally, anwsers. */
-  PROBLEM_SET: 'PROBLEM_SET',
-
-  /** A set of problems processed specifically for book consumption. */
-  PROBLEM_BOOK: 'PROBLEM_BOOK'
-};
-
-
-/**
  * The format for gpub output.
  *
  * @enum {string}
@@ -74,7 +56,6 @@ gpub.OutputFormat = {
  * @enum {string}
  */
 gpub.DiagramType = {
-
   /**
    * Dan Bump's LaTeX font. Part of the Sgf2Dg script.
    */

@@ -15,7 +15,7 @@ gpub.spec = {
   create: function(options) {
     var sgfs = options.sgfs;
     var specOptions = options.specOptions;
-    var defaultSgfType = specOptions.defaultSgfType;
+    var defaultPositionType = specOptions.defaultPositionType;
 
     var spec = new gpub.spec.Spec({
       specOptions: options.specOptions,
@@ -26,7 +26,7 @@ gpub.spec = {
     // TODO(kashomon): Modify the topLevelGrouping based on the book data, the
     // GC node, or headers within the SGF.
     var baseGrouping = spec.rootGrouping;
-    baseGrouping.sgfType = defaultSgfType;
+    baseGrouping.positionType = defaultPositionType;
 
     for (var i = 0; i < sgfs.length; i++) {
       var sgfStr = sgfs[i];
@@ -48,19 +48,20 @@ gpub.spec = {
       // At this point, there is a 1x1 mapping between passed-in SGF and sgf
       // object. Initial position, nextMovesPath, and id don't make
       // sense until the processing into EXAMPLE types.
-      var sgf = new gpub.spec.Sgf({
+      var position = new gpub.spec.Position({
         alias: alias,
+        id: alias
       })
 
-      baseGrouping.sgfs.push(sgf);
+      baseGrouping.positions.push(position);
     }
     return spec;
   },
 
   /**
-   * Process a spec by transforming (flattening) all non-example SGFs. If a set
-   * of sgfs contains non-example SGFS, then all SGFS are grouped by type into
-   * new Grouping objects and prepended to the sub-groupings list.
+   * Process a spec by transforming the positions positions. All  SGFS are
+   * grouped by type into new Grouping objects, if the types are not uniform,
+   * and prepended to the sub-groupings list.
    *
    * @param {!gpub.spec.Spec} spec
    * @return {!gpub.spec.Spec} the transformed spec.
