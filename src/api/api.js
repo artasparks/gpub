@@ -33,6 +33,7 @@ gpub.api = {
   }
 };
 
+/** @export */
 gpub.create = gpub.api.create;
 
 ////////////////////////
