@@ -9,11 +9,24 @@ goog.provide('gpub.spec.TypeProcessor');
  */
 gpub.spec.IdGen = function(alias) {
   var idx = 0;
+
+  /**
+   * Map from alias to sequence.
+   * @type {!Object<string, number>}
+   */
+  var aliasMap = {};
+
+  /**
+   * In the case of user-provided IDs, it can be useful
+   * @type {!Object<string, boolean>}
+   */
+  var seenIds = {};
+
   /** @return {number} */
   this.next = function() {
     idx++;
     return alias + '-' + idx;
-  };
+  }
 };
 
 /**
@@ -88,6 +101,67 @@ gpub.spec.Processor.prototype = {
   },
 
   /**
+   * Reprocess the Positions in a grouping by ordering them into similar types and
+   * then processing them with the type-specific processors. If the Grouping
+   * contains only examples, the grouping is considered to be already processed
+   * and this function returns without doing any work.
+   *
+   * If the grouping has Positions that need to be processed, we process all the
+   * Positions. Another way to say this: If we create groupings, we must create
+   * groupings for all the Positions. This ensures that the ordering remains
+   * consistent.
+   *
+   * @param {!gpub.spec.Grouping} grouping
+   * @private
+   */
+  reprocessPositions_: function(grouping) {
+    var positions = grouping.positions;
+
+    /**
+     * @type {!Array<!gpub.spec.Position>}
+     */
+    var sameTypePositions = [];
+
+    /**
+     * Groups of Positions. The Positions in the inner array are guaranteed to
+     * be all of the same type.
+     * @type {!Array<!Array<!gpub.spec.Position>>}
+     */
+    var positionGroups = []
+
+    var currentType = null;
+    for (var i = 0; i < positions.length; i++) {
+      var position = positions[i];
+      var positionType = this.getPositionType_(grouping, position);
+      if (currentType == null) {
+        currentType = positionType;
+      }
+      if (positionType === currentType) {
+        sameTypePositions.push(position);
+      } else {
+        positionGroups.push(sameTypePositions);
+        sameTypePositions = [];
+      }
+    }
+    if (sameTypePositions.length) {
+      positionGroups.push(sameTypePositions);
+    }
+
+    // Clear out the positions and replace
+    grouping.positions = [];
+    var containsAllEx = this.containsAllExamples_(grouping);
+
+    if (positionGroups.length === 1 && containsAllEx) {
+      var ret = this.processPositionGroup_(grouping, positionGroups[0]);
+      grouping.positions = ret.positions;
+    } else {
+      for (var i = 0; i < positionGroups.length; i++) {
+        var ret = this.processPositionGroup_(grouping, positionGroups[i]);
+      }
+    }
+  },
+
+  /**
    * Whether or not a grouping contains only examples.
    *
    * @param {!gpub.spec.Grouping} grouping
@@ -107,73 +181,12 @@ gpub.spec.Processor.prototype = {
   },
 
   /**
-   * Reprocess the Positions in a grouping by ordering them into similar types and
-   * then processing them with the type-specific processors. If the Grouping
-   * contains only examples, the grouping is considered to be already processed
-   * and this function returns without doing any work.
-   *
-   * If the grouping has Positions that need to be processed, we process all the
-   * Positions. Another way to say this: If we create groupings, we must create
-   * groupings for all the Positions. This ensures that the ordering remains
-   * consistent.
-   *
-   * @param {!gpub.spec.Grouping} grouping
-   * @private
-   */
-  reprocessPositions_: function(grouping) {
-    var positions = grouping.positions;
-
-    grouping.positions = [];
-
-    var currentType = null;
-
-    /**
-     * @type {!Array<!gpub.spec.Position>}
-     */
-    var sameTypePositions = [];
-
-    /**
-     * Groups of Positions. The Positions in the inner array are guaranteed to
-     * be all of the same type.
-     * @type {!Array<!Array<!gpub.spec.Position>>}
-     */
-    var positionGroups = []
-
-    for (var i = 0; i < positions.length; i++) {
-      var position = positions[i];
-      var positionType = this.getPositionType_(grouping, position);
-      if (currentType == null) {
-        currentType = positionType;
-      }
-      if (positionType === currentType) {
-        sameTypePositions.push(position);
-      } else {
-        positionGroups.push(sameTypePositions);
-        sameTypePositions = [];
-      }
-    }
-    if (sameTypePositions.length) {
-      positionGroups.push(sameTypePositions);
-    }
-
-    if (positionGroups.length === 1) {
-      // If length is 1, all the Positions are of the same type.
-      var ret = this.processPositionGroup_(grouping, positionGroups[0]);
-    }
-
-    for (var i = 0; i < positionGroups.length; i++) {
-      var ret = this.processPositionGroup_(grouping, positionGroups[i]);
-    }
-  },
-
-  /**
    * Process a grouping of positions. Where the magic happens.
    *
    * @param {!gpub.spec.Grouping} grouping
    * @param {!Array<!gpub.spec.Position>} positions
    * @return {{
    *    groupings: (!Array<!gpub.spec.Grouping>|undefined),
-   *    positions: (!Array<!gpub.spec.Position>|undefined)
    * }} Return either an array of positions or an array of groupings (but not both).
    *
    * @private
@@ -194,14 +207,15 @@ gpub.spec.Processor.prototype = {
               gpub.spec.processGameCommentary(mt, pos, idGen);
           break;
         case 'PROBLEM':
-          break;
-
-        case 'POSITION_VARIATIONS':
+          var problemGrouping = gpub.spec.processProblems(
+              mt, pos, idGen, this.originalSpec_.specOptions);
           break;
 
         case 'EXAMPLE':
           break;
 
+        // case 'POSITION_VARIATIONS':
+          // Fall through, for now.
         default: throw new Error('Unknown position type:' + type);
       }
     }
@@ -271,3 +285,4 @@ gpub.spec.Processor.prototype = {
     return this.idGenMap_[alias];
   }
 };
+

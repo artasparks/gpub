@@ -27,21 +27,21 @@ gpub.Options = function(opt_options) {
 
   /**
    * Options specific to spec creation (Phases 1 and 2)
-   * @const {!gpub.SpecOptions}
+   * @const {!gpub.api.SpecOptions}
    */
-  this.specOptions = new gpub.SpecOptions(o.specOptions);
+  this.specOptions = new gpub.api.SpecOptions(o.specOptions);
 
   /**
    * Options specific to Diagrams (Phase 3)
-   * @const {!gpub.DiagramOptions}
+   * @const {!gpub.api.DiagramOptions}
    */
-  this.diagramOptions = new gpub.DiagramOptions(o.diagramOptions);
+  this.diagramOptions = new gpub.api.DiagramOptions(o.diagramOptions);
 
   /**
    * Options specific to book processing (Phase 4)
-   * @const {!gpub.BookOptions}
+   * @const {!gpub.api.BookOptions}
    */
-  this.bookOptions = new gpub.BookOptions(o.bookOptions);
+  this.bookOptions = new gpub.api.BookOptions(o.bookOptions);
 
   /**
    * Whether or not debug information should be displayed (initia

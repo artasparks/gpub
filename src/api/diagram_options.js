@@ -1,13 +1,13 @@
-goog.provide('gpub.DiagramOptions');
+goog.provide('gpub.api.DiagramOptions');
 
 /**
  * Options for diagram generation
  *
- * @param {!gpub.DiagramOptions=} opt_options
+ * @param {!gpub.api.DiagramOptions=} opt_options
  *
  * @constructor @struct @final
  */
-gpub.DiagramOptions = function(opt_options) {
+gpub.api.DiagramOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**

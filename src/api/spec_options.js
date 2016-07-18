@@ -1,4 +1,4 @@
-goog.provide('gpub.SpecOptions');
+goog.provide('gpub.api.SpecOptions');
 goog.provide('gpub.api.ProblemAnswers');
 
 goog.require('gpub.api');
@@ -25,11 +25,11 @@ gpub.api.ProblemAnswers = {
 /**
  * Options for spec creation
  * 
- * @param {!gpub.SpecOptions=} opt_options
+ * @param {!gpub.api.SpecOptions=} opt_options
  *
  * @constructor @final @struct
  */
-gpub.SpecOptions = function(opt_options) {
+gpub.api.SpecOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**

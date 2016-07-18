@@ -1,12 +1,12 @@
-goog.provide('gpub.BookOptions');
-goog.provide('gpub.Frontmatter');
+goog.provide('gpub.api.BookOptions');
+goog.provide('gpub.api.Frontmatter');
 
 /**
- * @param {!gpub.BookOptions=} opt_options
+ * @param {!gpub.api.BookOptions=} opt_options
  *
  * @constructor @struct @final
  */
-gpub.BookOptions = function(opt_options) {
+gpub.api.BookOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
@@ -77,7 +77,7 @@ gpub.BookOptions = function(opt_options) {
    * that do support the relevant sections, the frontmatter and backmatter are
    * dumped into the book options.
    */
-  this.frontmatter = new gpub.Frontmatter(o.frontmatter);
+  this.frontmatter = new gpub.api.Frontmatter(o.frontmatter);
 
   // TODO(kashomon): Give a real constructor to the appendices.
   var app = o.appendices || {};
@@ -89,11 +89,11 @@ gpub.BookOptions = function(opt_options) {
 };
 
 /**
- * @param {!gpub.Frontmatter} options
+ * @param {!gpub.api.Frontmatter} options
  *
  * @constructor @struct @final
  */
-gpub.Frontmatter = function(options) {
+gpub.api.Frontmatter = function(options) {
   var o = options || {};
 
   // epigraph: null, // AKA Quote Page
