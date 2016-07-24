@@ -4,15 +4,17 @@ goog.provide('gpub.spec.GameCommentary');
  * @param {!glift.rules.MoveTree} mt
  * @param {!gpub.spec.Position} position
  * @param {!gpub.spec.IdGen} idGen
- * @return {!Array<!gpub.spec.Position>} processed positions.
+ * @return {!gpub.spec.Grouping} processed positions.
  */
 gpub.spec.processGameCommentary = function(mt, position, idGen) {
-  var out = [];
+  var outPositions = [];
   var varPathBuffer = [];
   var node = mt.node();
   var ipString = glift.rules.treepath.toInitPathString;
   var fragString = glift.rules.treepath.toFragmentString;
   var alias = position.alias;
+
+  var newGrouping = new gpub.spec.Grouping();
 
   while (node) {
     if (!mt.properties().getComment() && node.numChildren() > 0) {
@@ -25,7 +27,7 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
       // This node has a comment or is terminal.  Process this node and all
       // the variations.
       var pathSpec = glift.rules.treepath.findNextMovesPath(mt);
-      out.push(new gpub.spec.Position({
+      outPositions.push(new gpub.spec.Position({
           alias: alias,
           initialPosition: ipString(pathSpec.treepath),
           nextMovesPath: fragString(pathSpec.nextMoves),
@@ -37,7 +39,7 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
         var path = varPathBuffer[i];
         var mtz = mt.getTreeFromRoot(path);
         var varPathSpec = glift.rules.treepath.findNextMovesPath(mtz);
-        out.push(new gpub.spec.Position({
+        outPositions.push(new gpub.spec.Position({
             alias: alias,
             initialPosition: ipString(varPathSpec.treepath),
             nextMovesPath: fragString(varPathSpec.nextMoves),
@@ -49,7 +51,8 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
     mt.moveDown();
   }
 
-  return out;
+  newGrouping.positions = outPositions;
+  return newGrouping;
 };
 
 /**

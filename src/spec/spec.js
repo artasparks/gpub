@@ -23,8 +23,6 @@ gpub.spec = {
       bookOptions: options.bookOptions
     });
 
-    // TODO(kashomon): Modify the topLevelGrouping based on the book data, the
-    // GC node, or headers within the SGF.
     var baseGrouping = spec.rootGrouping;
     baseGrouping.positionType = defaultPositionType;
 

@@ -3,26 +3,16 @@ goog.provide('gpub.spec.Processor');
 goog.provide('gpub.spec.TypeProcessor');
 
 /**
- * Simple id generator.
+ * Simple id generator. As currently designed, this only works for one game
+ * alias.
+ *
  * @constructor @struct @final
  * @package
  */
 gpub.spec.IdGen = function(alias) {
   var idx = 0;
 
-  /**
-   * Map from alias to sequence.
-   * @type {!Object<string, number>}
-   */
-  var aliasMap = {};
-
-  /**
-   * In the case of user-provided IDs, it can be useful
-   * @type {!Object<string, boolean>}
-   */
-  var seenIds = {};
-
-  /** @return {number} */
+  /** @return {string} */
   this.next = function() {
     idx++;
     return alias + '-' + idx;
@@ -202,8 +192,7 @@ gpub.spec.Processor.prototype = {
       var idGen = this.getIdGen_(pos);
       switch(type) {
         case 'GAME_COMMENTARY':
-          var newGrouping = new gpub.spec.Grouping();
-          newGrouping.positions =
+          var newGrouping =
               gpub.spec.processGameCommentary(mt, pos, idGen);
           break;
         case 'PROBLEM':
@@ -275,7 +264,7 @@ gpub.spec.Processor.prototype = {
    * @return {!gpub.spec.IdGen}
    */
   getIdGen_: function(pos) {
-    var alias = pos.alias;
+   var alias = pos.alias;
     if (!alias) {
       throw new Error('No alias defined for Position object: ' + JSON.stringify(pos));
     }
