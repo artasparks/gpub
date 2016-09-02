@@ -141,12 +141,18 @@ gpub.spec.Processor.prototype = {
     grouping.positions = [];
     var containsAllEx = this.containsAllExamples_(grouping);
 
-    if (positionGroups.length === 1 && containsAllEx) {
-      var ret = this.processPositionGroup_(grouping, positionGroups[0]);
-      grouping.positions = ret.positions;
+    if (positionGroups.length === 1
+        && containsAllEx
+        && positionGroups[0].length) {
+      var posType = this.getPositionType_(grouping, positionGroups[0][0]);
+      var ret = this.processPositionGroup_(posType, grouping, positionGroups[0]);
+      // grouping.positions = ret;
     } else {
       for (var i = 0; i < positionGroups.length; i++) {
-        var ret = this.processPositionGroup_(grouping, positionGroups[i]);
+        if (positionGroups[i].length) {
+          posType = this.getPositionType_(grouping, positionGroups[i][0]);
+          var ret = this.processPositionGroup_(posType, grouping, positionGroups[i]);
+        }
       }
     }
   },
@@ -161,7 +167,7 @@ gpub.spec.Processor.prototype = {
   containsAllExamples_: function(grouping) {
     var containsAllExamples = true;
     for (var i = 0; i < grouping.positions.length; i++) {
-      var position= grouping.positions[i];
+      var position = grouping.positions[i];
       if (position.positionType !== gpub.spec.PositionType.EXAMPLE) {
         containsAllExamples = false;
         break;
@@ -173,24 +179,27 @@ gpub.spec.Processor.prototype = {
   /**
    * Process a grouping of positions. Where the magic happens.
    *
-   * @param {!gpub.spec.Grouping} grouping
-   * @param {!Array<!gpub.spec.Position>} positions
-   * @return {{
-   *    groupings: (!Array<!gpub.spec.Grouping>|undefined),
-   * }} Return either an array of positions or an array of groupings (but not both).
+   * @param {!gpub.spec.PositionType} posType The position type for this
+   *    set of positions. Note: it's possible the position type is not specified
+   *    directly on the position. Instead, it could be a default on the parent
+   *    grouping. However, that detail is opaque to this method.
+   * @param {!gpub.spec.Grouping} grouping The parent grouping.
+   * @param {!Array<!gpub.spec.Position>} positions The positions that need
+   *    processing.
+   * @return {!Array<!gpub.spec.Grouping>} Return either an array of groupings
+   *    [or positions?].
    *
    * @private
    */
-  processPositionGroup_: function(grouping, positions) {
+  processPositionGroup_: function(posType, grouping, positions) {
     if (!positions.length) {
-      return {}; // No positions. nothing to do.
+      return []; // No positions. nothing to do.
     }
-    var type = this.getPositionType_(grouping, positions[0]);
     for (var i = 0; i < positions.length; i++) {
       var pos = positions[i];
       var mt = this.getMovetree_(pos);
       var idGen = this.getIdGen_(pos);
-      switch(type) {
+      switch(posType) {
         case 'GAME_COMMENTARY':
           var newGrouping =
               gpub.spec.processGameCommentary(mt, pos, idGen);
@@ -205,10 +214,10 @@ gpub.spec.Processor.prototype = {
 
         // case 'POSITION_VARIATIONS':
           // Fall through, for now.
-        default: throw new Error('Unknown position type:' + type);
+        default: throw new Error('Unknown position type:' + JSON.stringify(posType));
       }
     }
-    return {};
+    return [];
   },
 
   /**

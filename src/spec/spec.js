@@ -6,8 +6,11 @@ goog.provide('gpub.spec')
 gpub.spec = {
   /**
    * Creates a basic high-level GPub Specification from the passed-in sgfs. This
-   * first pass does a brain-dead transformation based on the SGF defaults. It
+   * first pass does a brain-dead transformation based on the position defaults. It
    * does not process the spec into a flattened EXAMPLE spec.
+   *
+   * Importantly, this creates a serializeable book object that can be store for
+   * later processing.
    *
    * @param {!gpub.Options} options
    * @return {!gpub.spec.Spec}
@@ -43,9 +46,9 @@ gpub.spec = {
         spec.sgfMapping[alias] = sgfStr;
       }
 
-      // At this point, there is a 1x1 mapping between passed-in SGF and sgf
-      // object. Initial position, nextMovesPath, and id don't make
-      // sense until the processing into EXAMPLE types.
+      // At this point, there is a 1x1 mapping between passed-in SGF string and
+      // position. Initial position, nextMovesPath, and id don't make sense
+      // until the processing into EXAMPLE types.
       var position = new gpub.spec.Position({
         alias: alias,
         id: alias
