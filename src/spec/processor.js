@@ -216,7 +216,7 @@ gpub.spec.Processor.prototype = {
           // Fall through, for now.
         default: throw new Error('Unknown position type:' + JSON.stringify(posType));
       }
-    });
+    }.bind(this));
     return [];
   },
 
