@@ -186,6 +186,7 @@ gpub.spec.Processor.prototype = {
    * @param {!gpub.spec.Grouping} grouping The parent grouping.
    * @param {!Array<!gpub.spec.Position>} positions The positions that need
    *    processing.
+   *
    * @return {!Array<!gpub.spec.Grouping>} Return either an array of groupings
    *    [or positions?].
    *
@@ -195,8 +196,7 @@ gpub.spec.Processor.prototype = {
     if (!positions.length) {
       return []; // No positions. nothing to do.
     }
-    for (var i = 0; i < positions.length; i++) {
-      var pos = positions[i];
+    positions.forEach(function(pos) {
       var mt = this.getMovetree_(pos);
       var idGen = this.getIdGen_(pos);
       switch(posType) {
@@ -216,7 +216,7 @@ gpub.spec.Processor.prototype = {
           // Fall through, for now.
         default: throw new Error('Unknown position type:' + JSON.stringify(posType));
       }
-    }
+    });
     return [];
   },
 
