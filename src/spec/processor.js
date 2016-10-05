@@ -9,13 +9,13 @@ goog.provide('gpub.spec.TypeProcessor');
  * @constructor @struct @final
  * @package
  */
-gpub.spec.IdGen = function(alias) {
+gpub.spec.IdGen = function(prefix) {
   var idx = 0;
 
   /** @return {string} */
   this.next = function() {
     idx++;
-    return alias + '-' + idx;
+    return prefix + '-' + idx;
   }
 };
 
@@ -187,8 +187,8 @@ gpub.spec.Processor.prototype = {
    * @param {!Array<!gpub.spec.Position>} positions The positions that need
    *    processing.
    *
-   * @return {!Array<!gpub.spec.Grouping>} Return either an array of groupings
-   *    [or positions?].
+   * @return {!Array<!gpub.spec.Position>} Return either an array of generated
+   *    positions.
    *
    * @private
    */

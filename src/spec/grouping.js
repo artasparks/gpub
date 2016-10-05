@@ -1,4 +1,5 @@
 goog.provide('gpub.spec.Grouping');
+goog.provide('gpub.spec.Generated');
 
 /**
  * A grouping of Positions. Each grouping can have sub-groupings, and so on. The
@@ -59,3 +60,40 @@ gpub.spec.Grouping = function(opt_group) {
   }
 };
 
+
+/**
+ * Generated positions.
+ *
+ * @param {!gpub.spec.Generated=} opt_gen
+ *
+ * @constructor @final @struct
+ */
+gpub.spec.Generated = function(opt_gen) {
+  var o = opt_gen || {};
+
+  if (!o.id) {
+    throw new Error('id was not defined, but must be defined');
+  }
+
+  /**
+   * ID of the Position that generated this generated obj.
+   * @const {string}
+   */
+  this.id = o.id;
+
+  /**
+   * Generated positions.
+   * @type {!Array<!gpub.spec.Position>}
+   */
+  this.genPos = o.genPos || [];
+
+  /**
+   * Map from arbitrary keys to indices in the genPos array. This is motivated
+   * by problems which generate a
+   * - Starting position
+   * - Correct variation
+   * - Incorrect variation
+   * @type {!Object<string, !Array<number>>}
+   */
+  this.semanticMap = o.semanticMap || {};
+};

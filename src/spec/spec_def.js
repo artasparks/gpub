@@ -14,7 +14,7 @@ goog.provide('gpub.spec.Spec');
 gpub.spec.SpecTypedef;
 
 /**
- * The version of the spec.
+ * The version of the spec. Necessary for storage-compatibility.
  * @enum {string}
  */
 gpub.spec.SpecVersion = {
