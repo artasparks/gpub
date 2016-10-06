@@ -42,9 +42,23 @@ gpub.spec.Grouping = function(opt_group) {
    * @type {!Array<!gpub.spec.Position>}
    */
   this.positions = [];
-  if (o.positions) {
+  // TODO(Kashomon): Make a helper for these copy functions. It's getting to be
+  // a little much and it's error-prone.
+  if (o.positions) { // Deep copy
     for (var i = 0; i < o.positions.length; i++) {
       this.positions.push(new gpub.spec.Position(o.positions[i]));
+    }
+  }
+
+  /**
+   * Positions generated from a position in the position array. A map from the
+   * ID of the original position to the generated positions.
+   * @type {!Object<string, !gpub.spec.Generated>}
+   */
+  this.generated = {};
+  if (o.generated) { // Deep copy
+    for (var k in o.generated) {
+      this.generated[k] = new gpub.spec.Generated(o.generated[k])
     }
   }
 
@@ -52,7 +66,7 @@ gpub.spec.Grouping = function(opt_group) {
    * Groupings that are children of his grouping.
    * @type {!Array<!gpub.spec.Grouping>}
    */
-  this.groupings = [];
+  this.groupings = []; // Deep copy.
   if (o.groupings) {
     for (var i = 0; i < o.groupings.length; i++) {
       this.groupings.push(new gpub.spec.Grouping(o.groupings[i]));
@@ -85,15 +99,28 @@ gpub.spec.Generated = function(opt_gen) {
    * Generated positions.
    * @type {!Array<!gpub.spec.Position>}
    */
-  this.genPos = o.genPos || [];
+  this.positions = [];
+  if (o.positions) { // Deep copy
+    for (var i = 0; i < o.positions.length; i++) {
+      this.positions.push(new gpub.spec.Position(o.positions[i]));
+    }
+  }
 
   /**
-   * Map from arbitrary keys to indices in the genPos array. This is motivated
-   * by problems which generate a
-   * - Starting position
-   * - Correct variation
-   * - Incorrect variation
+   * Map from arbitrary labels to indices in the positions array. This is
+   * motivated by Problem positions which generate:
+   * - A starting position.
+   * - Correct variations.
+   * - Incorrect variations.
+   * This is not guaranteed to be populated by anything in particular, but may
+   * be populated for convenience.
    * @type {!Object<string, !Array<number>>}
    */
-  this.semanticMap = o.semanticMap || {};
+  this.labelMap = {};
+  if (o.labelMap) { // Deep copy
+    for (var k in o.labelMap) {
+      // if o.labelMap[k] is not an array, thats a programming error and should explode.
+      this.labelMap[k] = o.labelMap[k].slice();
+    }
+  }
 };
