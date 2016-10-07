@@ -62,7 +62,7 @@ gpub.spec.Processor = function(spec) {
 
 gpub.spec.Processor.prototype = {
   /**
-   * Process the spec! Returns an
+   * Process the spec!
    *
    * @return {!gpub.spec.Spec}
    */
@@ -81,143 +81,74 @@ gpub.spec.Processor.prototype = {
    * Recursive group processor. This assumes that the grouping passed in is a
    * member of the passed in GPub Spec.
    *
-   * @param {!gpub.spec.Grouping} grouping
+   * @param {!gpub.spec.Grouping} g
    */
-  processGroup: function(grouping) {
-    this.reprocessPositions_(grouping);
-    for (var i = 0; i < grouping.groupings.length; i++) {
-      this.processGroup(grouping.groupings[i]);
+  processGroup: function(g) {
+    this.processPositions_(g);
+    for (var i = 0; i < g.groupings.length; i++) {
+      this.processGroup(g.groupings[i]);
     }
   },
 
   /**
-   * Reprocess the Positions in a grouping by ordering them into similar types and
-   * then processing them with the type-specific processors. If the Grouping
-   * contains only examples, the grouping is considered to be already processed
-   * and this function returns without doing any work.
-   *
-   * If the grouping has Positions that need to be processed, we process all the
-   * Positions. Another way to say this: If we create groupings, we must create
-   * groupings for all the Positions. This ensures that the ordering remains
-   * consistent.
+   * Process the Positions by, if necessary, generating new positions. This
+   * creates generated objects for each of the original positions.
    *
    * @param {!gpub.spec.Grouping} grouping
    * @private
    */
-  reprocessPositions_: function(grouping) {
-    var positions = grouping.positions;
-
-    /**
-     * @type {!Array<!gpub.spec.Position>}
-     */
-    var sameTypePositions = [];
-
-    /**
-     * Groups of Positions. The Positions in the inner array are guaranteed to
-     * be all of the same type.
-     * @type {!Array<!Array<!gpub.spec.Position>>}
-     */
-    var positionGroups = []
-
-    var currentType = null;
-    for (var i = 0; i < positions.length; i++) {
-      var position = positions[i];
-      var positionType = this.getPositionType_(grouping, position);
-      if (currentType == null) {
-        currentType = positionType;
+  // TODO(Kashomon): Currently this requires ids to be defined and unique.
+  processPositions_: function(grouping) {
+    var pos = grouping.positions;
+    for (var i = 0; i < pos.length; i++) {
+      var p = pos[i];
+      var id = p.id;
+      if (id === undefined) {
+        throw new Error('Each position must have an ID. Id was: ' + id);
       }
-      if (positionType === currentType) {
-        sameTypePositions.push(position);
-      } else {
-        positionGroups.push(sameTypePositions);
-        sameTypePositions = [];
+      var pType = this.getPositionType_(grouping, p);
+      var gen = this.generatePositions_(pType, p);
+      if (gen) {
+        grouping.generated[id] = gen;
       }
     }
-    if (sameTypePositions.length) {
-      positionGroups.push(sameTypePositions);
-    }
-
-    // Clear out the positions and replace
-    grouping.positions = [];
-    var containsAllEx = this.containsAllExamples_(grouping);
-
-    if (positionGroups.length === 1
-        && containsAllEx
-        && positionGroups[0].length) {
-      var posType = this.getPositionType_(grouping, positionGroups[0][0]);
-      var ret = this.processPositionGroup_(posType, grouping, positionGroups[0]);
-      // grouping.positions = ret;
-    } else {
-      for (var i = 0; i < positionGroups.length; i++) {
-        if (positionGroups[i].length) {
-          posType = this.getPositionType_(grouping, positionGroups[i][0]);
-          var ret = this.processPositionGroup_(posType, grouping, positionGroups[i]);
-        }
-      }
-    }
-  },
-
-  /**
-   * Whether or not a grouping contains only examples.
-   *
-   * @param {!gpub.spec.Grouping} grouping
-   * @return {boolean}
-   * @private
-   */
-  containsAllExamples_: function(grouping) {
-    var containsAllExamples = true;
-    for (var i = 0; i < grouping.positions.length; i++) {
-      var position = grouping.positions[i];
-      if (position.positionType !== gpub.spec.PositionType.EXAMPLE) {
-        containsAllExamples = false;
-        break;
-      }
-    }
-    return containsAllExamples;
   },
 
   /**
    * Process a grouping of positions. Where the magic happens.
    *
    * @param {!gpub.spec.PositionType} posType The position type for this
-   *    set of positions. Note: it's possible the position type is not specified
-   *    directly on the position. Instead, it could be a default on the parent
-   *    grouping. However, that detail is opaque to this method.
-   * @param {!gpub.spec.Grouping} grouping The parent grouping.
-   * @param {!Array<!gpub.spec.Position>} positions The positions that need
-   *    processing.
+   *    set of positions, which indicates how the position should be processed.
+   *    This needs to be passed in since it can be specified by the parent
+   *    grouping (is this good behavior?).
+   * @param {!gpub.spec.Position} pos The position that needs processing.
    *
-   * @return {!Array<!gpub.spec.Position>} Return either an array of generated
+   * @return {?gpub.spec.Generated} Return either an array of generated
    *    positions.
    *
    * @private
    */
-  processPositionGroup_: function(posType, grouping, positions) {
-    if (!positions.length) {
-      return []; // No positions. nothing to do.
+  generatePositions_: function(posType, pos) {
+    var mt = this.getMovetree_(pos);
+    var idGen = this.getIdGen_(pos);
+    switch(posType) {
+      case 'GAME_COMMENTARY':
+        var newGrouping =
+            gpub.spec.processGameCommentary(mt, pos, idGen);
+        break;
+      case 'PROBLEM':
+        var problemGrouping = gpub.spec.processProblems(
+            mt, pos, idGen, this.originalSpec_.specOptions);
+        break;
+
+      case 'EXAMPLE':
+        break;
+
+      // case 'POSITION_VARIATIONS':
+        // Fall through, for now.
+      default: throw new Error('Unknown position type:' + JSON.stringify(posType));
     }
-    positions.forEach(function(pos) {
-      var mt = this.getMovetree_(pos);
-      var idGen = this.getIdGen_(pos);
-      switch(posType) {
-        case 'GAME_COMMENTARY':
-          var newGrouping =
-              gpub.spec.processGameCommentary(mt, pos, idGen);
-          break;
-        case 'PROBLEM':
-          var problemGrouping = gpub.spec.processProblems(
-              mt, pos, idGen, this.originalSpec_.specOptions);
-          break;
-
-        case 'EXAMPLE':
-          break;
-
-        // case 'POSITION_VARIATIONS':
-          // Fall through, for now.
-        default: throw new Error('Unknown position type:' + JSON.stringify(posType));
-      }
-    }.bind(this));
-    return [];
+    return null;
   },
 
   /**

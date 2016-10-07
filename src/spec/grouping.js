@@ -15,13 +15,6 @@ gpub.spec.Grouping = function(opt_group) {
   var o = opt_group || {};
 
   /**
-   * It can be useful to provide group titles. These may eventually correspond
-   * to chapter titles, but it's not required
-   * @type {string|undefined}
-   */
-  this.title = o.title || undefined;
-
-  /**
    * Description of this section.
    * @type {string|undefined}
    */
