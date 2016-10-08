@@ -8,9 +8,11 @@
 
     var positions = [{
         alias: 'foo',
+        id: 'foo',
         positionType: gpub.spec.PositionType.EXAMPLE,
       },{
         alias: 'bar',
+        id: 'bar',
         positionType: gpub.spec.PositionType.PROBLEM,
       }]
     var spec = new gpub.spec.Spec({

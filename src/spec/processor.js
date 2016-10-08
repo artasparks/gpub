@@ -78,8 +78,8 @@ gpub.spec.Processor.prototype = {
   },
 
   /**
-   * Recursive group processor. This assumes that the grouping passed in is a
-   * member of the passed in GPub Spec.
+   * Recursive group processor, which traverses the groups and processes all
+   * the positions, generating positions along the way.
    *
    * @param {!gpub.spec.Grouping} g
    */
@@ -103,7 +103,7 @@ gpub.spec.Processor.prototype = {
     for (var i = 0; i < pos.length; i++) {
       var p = pos[i];
       var id = p.id;
-      if (id === undefined) {
+      if (!id) {
         throw new Error('Each position must have an ID. Id was: ' + id);
       }
       var pType = this.getPositionType_(grouping, p);
@@ -122,33 +122,32 @@ gpub.spec.Processor.prototype = {
    *    This needs to be passed in since it can be specified by the parent
    *    grouping (is this good behavior?).
    * @param {!gpub.spec.Position} pos The position that needs processing.
-   *
-   * @return {?gpub.spec.Generated} Return either an array of generated
-   *    positions.
+   * @return {?gpub.spec.Generated} Returns a generated position wrapper or
+   *    null if no positions were generated.
    *
    * @private
    */
   generatePositions_: function(posType, pos) {
     var mt = this.getMovetree_(pos);
+    // Create a new ID gen instance for creating IDs.
     var idGen = this.getIdGen_(pos);
     switch(posType) {
       case 'GAME_COMMENTARY':
-        var newGrouping =
-            gpub.spec.processGameCommentary(mt, pos, idGen);
+        return gpub.spec.processGameCommentary(mt, pos, idGen);
         break;
       case 'PROBLEM':
-        var problemGrouping = gpub.spec.processProblems(
+        return gpub.spec.processProblems(
             mt, pos, idGen, this.originalSpec_.specOptions);
         break;
 
       case 'EXAMPLE':
+        return null;
         break;
 
       // case 'POSITION_VARIATIONS':
         // Fall through, for now.
       default: throw new Error('Unknown position type:' + JSON.stringify(posType));
     }
-    return null;
   },
 
   /**

@@ -30,11 +30,15 @@ gpub.spec.Position = function(opt_position) {
    */
   this.alias = o.alias || undefined;
 
+  if (!o.id) {
+    throw new Error('Positions are required to have IDs. Was: ' + o.id);
+  }
+
   /**
    * ID of this particular position.
-   * @const {string|undefined}
+   * @const {string}
    */
-  this.id = o.id || undefined;
+  this.id = o.id;
 
   /**
    * An initial position, specified as a stringified Glift treepath.
