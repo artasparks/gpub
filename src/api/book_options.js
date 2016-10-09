@@ -163,4 +163,32 @@ gpub.api.Frontmatter = function(options) {
    * @const {?string}
    */
   this.colorProfileFilePath = o.colorProfileFilePath || null;
+
+  // TODO(Kashomon): Problem answers are a function of rendering and shouldn't
+  // be part of the spec.
+  /**
+   * How should the problem answers be generated?
+   * @const {!gpub.api.ProblemAnswers}
+   */
+  this.problemAnswerType = o.problemAnswerType || gpub.api.ProblemAnswers.AT_END;
+
+  /**
+   * How many problems should be grouped together? This is only useful for the
+   * AFTER_PROBLEM type. 0 groups all the problems together and results in the
+   * same generation as the AT_END type.
+   * @const {!number}
+   */
+  this.numProblemsInGroup = o.numProblemsInGroup !== undefined ?
+      o.numProblemsInGroup : 2;
+
+  /**
+   * Some problems have dozens of answers specified in their
+   * respective Positions. To limit this answer explosion, the user can specify the
+   * maximum number of answers that will be rendered. 0 indicates there is no
+   * limit.
+   *
+   * @const {!number}
+   */
+  this.maxAnswersPerProblem  = o.maxAnswersPerProblem !== undefined ?
+      o.maxAnswersPerProblem : 2;
 };

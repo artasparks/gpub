@@ -40,29 +40,30 @@ gpub.api.SpecOptions = function(opt_options) {
   this.defaultPositionType = o.defaultPositionType ||
       gpub.spec.PositionType.GAME_COMMENTARY;
 
-  /**
-   * How should the problem answers be generated?
-   * @const {!gpub.api.ProblemAnswers}
-   */
-  this.problemAnswerType = o.problemAnswerType || gpub.api.ProblemAnswers.AT_END;
+  /** @type {!glift.rules.ProblemConditions} */
+  var defaultProbCon = {};
+  defaultProbCon[glift.rules.prop.GB] = [];
+  defaultProbCon[glift.rules.prop.C] = ['Correct', 'is correct'];
 
   /**
-   * How many problems should be grouped together? This is only usefulo for the
-   * AFTER_PROBLEM type. 0 groups all the problems together and results in the
-   * same generation as the AT_END type.
-   * @const {!number}
-   */
-  this.numProblemsInGroup = o.numProblemsInGroup !== undefined ?
-      o.numProblemsInGroup : 2;
-
-  /**
-   * Some problems have dozens of answers specified in their
-   * respective Positions. To limit this answer explosion, the user can specify the
-   * maximum number of answers that will be rendered. 0 indicates there is no
-   * limit.
+   * Problem conditions indicate how to determine whether a particular
+   * variation is considered 'correct' or 'incorrect'. In brief, this relies on
+   * looking for simple matches in the underlying SGF.
    *
-   * @const {!number}
+   * Some Examples:
+   *    Correct if there is a GB property or the words 'Correct' or 'is correct' in
+   *    the comment. This is the default.
+   *    { GB: [], C: ['Correct', 'is correct'] }
+   *
+   *    Nothing is correct
+   *    {}
+   *
+   *    Correct as long as there is a comment tag.
+   *    { C: [] }
+   *
+   *    Correct as long as there is a black stone-move (a strange condition).
+   *    { B: [] }
+   * @const {!glift.rules.ProblemConditions}
    */
-  this.maxAnswersPerProblem  = o.maxAnswersPerProblem !== undefined ?
-      o.maxAnswersPerProblem : 2;
+  this.problemConditions = o.problemConditions || defaultProbCon;
 };

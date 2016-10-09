@@ -8,7 +8,7 @@
     });
     var spec = gpub.spec.create(o);
 
-    var alias = 'sgf:1';
+    var alias = 'sgf-1';
     var mapping = {};
     mapping[alias] = sgf;
     deepEqual(spec.sgfMapping, mapping);
@@ -37,7 +37,7 @@
     });
 
     var spec = gpub.spec.create(o);
-    var alias1 = 'sgf:1', alias2 = 'foo:2';
+    var alias1 = 'sgf-1', alias2 = 'foo-2';
     var mapping = {};
     mapping[alias1] = sgf1;
     mapping[alias2] = sgf2;

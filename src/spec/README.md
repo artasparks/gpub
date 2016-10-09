@@ -14,39 +14,3 @@ called a 'Spec'. There are two phases to Spec-processing:
     generating positions for rendering. For example, if a PROBLEM-type position
     is passed in, it will generate a root position, and the incorrect/correct
     answers.
-
-
----------
-
-
-Notes:
-
-Structure:
-
-Phase One:
-
-```
-RootGrouping ->
-  Positions
-
-or
-
-RootGrouping ->
-  Grouping ->
-    Positions
-```
-
-Phase Two
-
-```
-RootGrouping ->
-  Positions ->
-    Generated
-
-or
-
-RootGrouping ->
-  Grouping ->
-    Positions ->
-      Generated
-```
