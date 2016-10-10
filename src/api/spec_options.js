@@ -1,26 +1,6 @@
 goog.provide('gpub.api.SpecOptions');
-goog.provide('gpub.api.ProblemAnswers');
 
 goog.require('gpub.api');
-
-/**
- * How should the problem answers be generated?
- * @enum {string}
- */
-gpub.api.ProblemAnswers = {
-  /** Don't generate problem answers */
-  NO_ANSWERS: 'NO_ANSWERS',
-  /** Generate the answers directly after the problem grouping. */
-  AFTER_PROBLEM: 'AFTER_PROBLEM',
-  /** Generate the anwers after all the problems. */
-  AT_END: 'AT_END',
-  /**
-   * Only generate problems answers. This is useful for when users want the
-   * answers in a separate book.
-   */
-  ONLY_ANSWERS: 'ONLY_ANSWERS',
-};
-
 
 /**
  * Options for spec creation

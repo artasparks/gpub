@@ -51,7 +51,10 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
       }
       varPathBuffer = [];
     }
-    node = node.getChild(0); // Travel down
+    // Travel down along the mainline. Advance both the node and the movetree
+    // itself. It's worth noting that getChild() returns null if there are no
+    // children, thus terminating flow.
+    node = node.getChild(0);
     mt.moveDown();
   }
 
@@ -60,7 +63,7 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
 };
 
 /**
- * Get the next move treepaths for a particular root node.
+ * Get the next-move treepaths for a particular root node.
  * path.
  *
  * @param {!glift.rules.MoveTree} mt

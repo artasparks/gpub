@@ -5,7 +5,7 @@ goog.provide('gpub.spec.GeneratedTypedef');
  * @typedef {{
  *  id: (string|undefined),
  *  positions: (!Array<!gpub.spec.Position>|undefined),
- *  labelMap: (!Object<string, !Array<number>>|undefined),
+ *  labelMap: (!Object<string, !Array<string>>|undefined),
  * }}
  */
 gpub.spec.GeneratedTypedef;
@@ -42,14 +42,14 @@ gpub.spec.Generated = function(opt_gen) {
   }
 
   /**
-   * Map from arbitrary labels to indices in the positions array. This is
-   * motivated by Problem positions which generate:
+   * Map from arbitrary labels to position ID. This is motivated by Problem
+   * positions which generate:
    * - A starting position.
    * - Correct variations.
    * - Incorrect variations.
    * This is not guaranteed to be populated by anything in particular, but may
    * be populated for convenience.
-   * @type {!Object<string, !Array<number>>}
+   * @type {!Object<string, !Array<string>>}
    */
   this.labelMap = {};
   if (o.labelMap) { // Deep copy
