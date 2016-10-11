@@ -5,6 +5,7 @@ goog.provide('gpub.spec.GeneratedTypedef');
  * @typedef {{
  *  id: (string|undefined),
  *  positions: (!Array<!gpub.spec.Position>|undefined),
+ *  positionType: (gpub.spec.PositionType|undefined),
  *  labelMap: (!Object<string, !Array<string>>|undefined),
  * }}
  */
@@ -31,6 +32,13 @@ gpub.spec.Generated = function(opt_gen) {
   this.id = o.id;
 
   /**
+   * Default position type to apply to the generated positions. Generally this
+   * will just be EXAMPLE
+   * @const {gpub.spec.PositionType}
+   */
+  this.positionType = o.positionType || gpub.spec.PositionType.EXAMPLE;
+
+  /**
    * Generated positions.
    * @type {!Array<!gpub.spec.Position>}
    */
@@ -51,11 +59,11 @@ gpub.spec.Generated = function(opt_gen) {
    * be populated for convenience.
    * @type {!Object<string, !Array<string>>}
    */
-  this.labelMap = {};
-  if (o.labelMap) { // Deep copy
-    for (var k in o.labelMap) {
-      // if o.labelMap[k] is not an array, thats a programming error and should explode.
-      this.labelMap[k] = o.labelMap[k].slice();
+  this.labels = {};
+  if (o.labels) { // Deep copy
+    for (var k in o.labels) {
+      // if o.labels[k] is not an array, thats a programming error and should explode.
+      this.labels[k] = o.labels[k].slice();
     }
   }
 };

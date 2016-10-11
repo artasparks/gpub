@@ -1,5 +1,5 @@
-(function() {
-  module('gpub.spec.gameBook');
+(function() { 
+  module('gpub.spec.gameCommentary');
 
   var alias = 'zed';
 

@@ -19,7 +19,7 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
     id: position.id
   });
 
-  var labels = {};
+  var initPos = mt.treepathToHere();
 
   /**
    * @param {!glift.rules.MoveTree} movetree
@@ -35,10 +35,13 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
    */
   var pathRecurse = function(movetree, prevPos, sincePrevPos, correctness) {
     var newCor = glift.rules.problems.positionCorrectness(movetree, conditions);
-    // Record positions that have comments or
+    // Record positions when
+    // - There are comments
+    // - We're at the end of a branch.
+    // - We're at the root
     if (movetree.properties().getOneValue(glift.rules.prop.C) ||
-        newCor !== correctness ||
-        (prevPos.length === 0 && sincePrevPos.length === 0)) {
+        movetree.node().numChildren() === 0 ||
+        (prevPos.length === initPos.length && sincePrevPos.length === 0)) {
       var pos = new gpub.spec.Position({
         id: idGen.next(),
         alias: alias,
@@ -50,12 +53,13 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
       } else {
         var label = newCor;
       }
-      if (!gen.labelMap[label]) {
-        gen.labelMap[label] = [];
+      if (!gen.labels[label]) {
+        gen.labels[label] = [];
       }
-      gen.labelMap[label].push(pos.id);
+      gen.labels[label].push(pos.id);
       outPositions.push(pos);
       prevPos = sincePrevPos;
+      sincePrevPos = [];
     }
     for (var i = 0; i < movetree.node().numChildren(); i++) {
       var nmt = movetree.newTreeRef();
@@ -70,7 +74,7 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
     }
   };
 
-  pathRecurse(mt, mt.treepathToHere(), [], glift.enums.problemResults.INDETERMINATE);
+  pathRecurse(mt, initPos, [], glift.enums.problemResults.INDETERMINATE);
   gen.positions = outPositions;
   return gen;
 };

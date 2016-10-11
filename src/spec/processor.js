@@ -14,8 +14,9 @@ gpub.spec.IdGen = function(prefix) {
 
   /** @return {string} */
   this.next = function() {
+    var nextId = prefix + '-' + idx;
     idx++;
-    return prefix + '-' + idx;
+    return nextId;
   }
 };
 

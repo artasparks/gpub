@@ -29,7 +29,7 @@ testdata.sgfs = {
     "" +
     "(;B[sa];W[ra]C[Ko])" +
     "(;B[ra]C[Correct];W[]C[And if white thinks it is seki?]" +
-    "  (;B[qb]C[Correct.];W[sa];B[rb]C[Black lives])" +
+    "  (;B[qb]C[Correct.];W[sa];B[rb]C[White Dies.]GB[1])" +
     "  (;B[sa];W[qb];B[ra];W[rb]C[White Lives])" +
     ")" +
     "(;B[qb];W[ra]C[White lives]))",
