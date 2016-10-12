@@ -5,36 +5,46 @@
   var sgfTwo = '(;GM[1]GN[Zed];B[aa];W[bb]C[Still Cool!];B[cc])';
   var sgfThree = '(;GM[1];B[aa];W[bb]C[Still Cool!];B[cc])';
 
-  // test('Process one SGF', function() {
-    // var spec =  gpub.spec.create([
-      // sgfOne
-    // ], {
-      // bookPurpose: gpub.bookPurpose.GAME_COMMENTARY,
-      // boardRegion: glift.enums.boardRegions.AUTO
-    // });
+  test('Process one SGF', function() {
+    var spec = gpub.spec.create(new gpub.Options({
+      sgfs: [sgfOne],
+    }));
 
-    // deepEqual(spec.sgfCollection.length, 2);
-    // deepEqual(spec.sgfCollection[0].alias, 'Zed:0');
-  // });
+    var proc = gpub.spec.process(spec);
 
-  // test('Process three SGFs', function() {
-    // var spec =  gpub.spec.create([
-      // sgfOne,
-      // sgfTwo,
-      // sgfThree,
-    // ], {
-      // bookPurpose: gpub.bookPurpose.GAME_COMMENTARY,
-      // boardRegion: glift.enums.boardRegions.AUTO
-    // });
+    var id = 'Zed-1'
+    deepEqual(proc.rootGrouping.positions[0].id, id);
+    deepEqual(proc.rootGrouping.positions[0].alias, id);
+    deepEqual(proc.rootGrouping.generated[id].positions.length, 2);
+    deepEqual(proc.rootGrouping.generated[id].positions[0].alias, id);
+  });
 
-    // deepEqual(spec.sgfCollection.length, 6);
-    // deepEqual(spec.sgfCollection[0].alias, 'Zed:0');
-    // deepEqual(spec.sgfCollection[2].alias, 'Zed:1');
-    // deepEqual(spec.sgfCollection[4].alias, 'sgf:2');
-  // });
+  test('Process three SGFs', function() {
+    var spec =  gpub.spec.create(new gpub.Options({
+      sgfs: [
+        sgfOne,
+        sgfTwo,
+        sgfThree,
+      ]
+    }));
 
-  // test('Process Two SGFs!', function() {
-    // var sgfOne
-    // deepEqual(1, 1, '1 should equal 1');
-  // });
+    var proc = gpub.spec.process(spec);
+
+    deepEqual(proc.rootGrouping.positions.length, 3);
+
+    proc.rootGrouping.positions.forEach(function(p) {
+      var id = p.id;
+      ok(proc.rootGrouping.generated[id], 'should have generated for id: ' + id);
+      var gen = proc.rootGrouping.generated[id];
+      deepEqual(gen.positions.length, 2);
+      for (var i = 0; i < gen.positions.length; i++) {
+        var genp = gen.positions[i];
+        genp.alias = gen.alias;
+        genp.id = gen.alias + '-' + i;
+      };
+      deepEqual(gen.labels['MAINLINE'].length, 2);
+      deepEqual(gen.labels['VARIATION'].length, 0);
+    });
+  });
+
 })();
