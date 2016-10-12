@@ -52,6 +52,7 @@ gpub.Options = function(opt_options) {
 };
 
 
+// TODO(Kashomon): Remove this method.
 /**
  * Process the incoming options and set any missing values.
  *

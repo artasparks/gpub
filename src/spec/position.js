@@ -24,21 +24,25 @@ gpub.spec.PositionTypedef;
 gpub.spec.Position = function(opt_position) {
   var o = opt_position || {};
 
-  /**
-   * Alias of the SGF in the SGF mapping. Must be specified.
-   * @const {string|undefined}
-   */
-  this.alias = o.alias || undefined;
-
   if (!o.id) {
     throw new Error('Positions are required to have IDs. Was: ' + o.id);
   }
 
   /**
-   * ID of this particular position.
+   * ID of this particular position. Required and must be unique
    * @const {string}
    */
   this.id = o.id;
+
+  if (!o.alias) {
+    throw new Error('SGF Alias must be defined')
+  }
+
+  /**
+   * Alias of the SGF in the SGF mapping. Required and must be unique.
+   * @const {string}
+   */
+  this.alias = o.alias;
 
   /**
    * An initial position, specified as a stringified Glift treepath.

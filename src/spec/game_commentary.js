@@ -5,9 +5,11 @@ goog.provide('gpub.spec.GameCommentary');
  * @param {!gpub.spec.Position} position The position used for spec generation.
  * @param {!gpub.spec.IdGen} idGen
  * @return {!gpub.spec.Generated} processed positions.
+ * @package
  */
 gpub.spec.processGameCommentary = function(mt, position, idGen) {
-  var outPositions = [];
+  // TODO(Kashomon): This should be refactored to be much simpler (more like the
+  // problem-code).
   var varPathBuffer = [];
   var node = mt.node();
   var ipString = glift.rules.treepath.toInitPathString;
@@ -17,6 +19,8 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
   var gen = new gpub.spec.Generated({
     id: position.id
   });
+  gen.labels['MAINLINE'] = [];
+  gen.labels['VARIATION'] = [];
 
   while (node) {
     if (!mt.properties().getComment() && node.numChildren() > 0) {
@@ -29,12 +33,14 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
       // This node has a comment or is terminal.  Process this node and all
       // the variations.
       var pathSpec = glift.rules.treepath.findNextMovesPath(mt);
-      outPositions.push(new gpub.spec.Position({
+      var pos = new gpub.spec.Position({
           id: idGen.next(),
           alias: alias,
           initialPosition: ipString(pathSpec.treepath),
           nextMovesPath: fragString(pathSpec.nextMoves),
-      }));
+      })
+      gen.positions.push(pos);
+      gen.labels['MAINLINE'].push(pos.id);
 
       varPathBuffer = varPathBuffer.concat(
           gpub.spec.variationPaths(mt));
@@ -42,12 +48,14 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
         var path = varPathBuffer[i];
         var mtz = mt.getTreeFromRoot(path);
         var varPathSpec = glift.rules.treepath.findNextMovesPath(mtz);
-        outPositions.push(new gpub.spec.Position({
+        var varPos = new gpub.spec.Position({
             id: idGen.next(),
             alias: alias,
             initialPosition: ipString(varPathSpec.treepath),
             nextMovesPath: fragString(varPathSpec.nextMoves),
-        }));
+        });
+        gen.positions.push(varPos);
+        gen.labels['VARIATION'].push(varPos.id);
       }
       varPathBuffer = [];
     }
@@ -58,7 +66,6 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
     mt.moveDown();
   }
 
-  gen.positions = outPositions;
   return gen;
 };
 

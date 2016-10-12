@@ -25,11 +25,14 @@ gpub.spec = {
       bookOptions: options.bookOptions
     });
 
-    var baseGrouping = spec.rootGrouping;
-    baseGrouping.positionType = defaultPositionType;
+    var rootGrouping = spec.rootGrouping;
+    rootGrouping.positionType = defaultPositionType;
 
     for (var i = 0; i < sgfs.length; i++) {
       var sgfStr = sgfs[i];
+      if (!sgfStr) {
+        throw new Error('No SGF String defined for index: ' + i);
+      }
       var mt = glift.parse.fromString(sgfStr);
       var alias = 'sgf-' + (i+1);
 
@@ -46,13 +49,13 @@ gpub.spec = {
       }
 
       // At this point, there is a 1x1 mapping between passed-in SGF string and
-      // position.
+      // position. That need not be true generally, but it is true for this method.
       var position = new gpub.spec.Position({
         alias: alias,
         id: alias
       })
 
-      baseGrouping.positions.push(position);
+      rootGrouping.positions.push(position);
     }
     return spec;
   },

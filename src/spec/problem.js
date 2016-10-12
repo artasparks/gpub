@@ -1,10 +1,12 @@
 
 /**
+ * Process a problem position, creating a generated return object.
  * @param {!glift.rules.MoveTree} mt
  * @param {!gpub.spec.Position} position
  * @param {!gpub.spec.IdGen} idGen
  * @param {!gpub.api.SpecOptions} opt
  * @return {!gpub.spec.Generated} return the generated position.
+ * @package
  */
 gpub.spec.processProblems = function(mt, position, idGen, opt) {
   var outPositions = [];

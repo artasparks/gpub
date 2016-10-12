@@ -20,7 +20,7 @@ testdata.sgfs = {
     ";B[qf]\n" +
     ";W[nc]\n" +
     ";B[dd]\n" +
-    ";W[pb])",
+    ";W[pb]C[Correct])",
 
   easy:
     "(;GM[1]FF[4]CA[UTF-8]AP[CGoban:3]ST[2]" +
