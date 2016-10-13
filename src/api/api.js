@@ -15,14 +15,14 @@ gpub.api = {
   create: function(options) {
     // Validate input and create the options array.
     gpub.api.validateInputs_(options);
-
     // Process the options and fill in any missing values or defaults.
     options = gpub.processOptions(options);
-
     // Phase 1: Create the basic book specification.
     var spec = gpub.spec.create(options);
-
+    // Phase 2: Process the spec and generate the new positions
     var processed = gpub.spec.process(spec);
+    // Phase 3: Create diagrams
+    // gpub.diagrams...
     // Create the finished book (or whatever that means).
     // var book = gpub.book.create(spec, options);
 
@@ -30,7 +30,7 @@ gpub.api = {
     //return book;
 
     return 'foo';
-  }
+  },
 };
 
 /** @export */
