@@ -14,7 +14,7 @@ gpub.api = {
    */
   create: function(options) {
     // Validate input and create the options array.
-    gpub.api.validateInputs_(options);
+    gpub.api.validateInputs(options);
     // Process the options and fill in any missing values or defaults.
     options = gpub.processOptions(options);
     // Phase 1: Create the basic book specification.
@@ -51,9 +51,9 @@ gpub.create = gpub.api.create;
  * processed options.
  *
  * @param {!gpub.Options} options
- * @private
+ * @package
  */
-gpub.api.validateInputs_ = function(options) {
+gpub.api.validateInputs = function(options) {
   if (!options) {
     throw new Error('No options defined');
   }

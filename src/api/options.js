@@ -45,10 +45,15 @@ gpub.Options = function(opt_options) {
 
   /**
    * Whether or not debug information should be displayed (initia
-   *
    * @const {boolean}
    */
   this.debug = !!o.debug || false;
+
+  /**
+   * Whether or not to use async processing. By default, GPub assumes that
+   * execution flow is synchronous.
+   */
+  this.async = !!o.async || false;
 };
 
 
