@@ -98,12 +98,17 @@ gpub.spec.Processor.prototype = {
    * @param {!gpub.spec.Grouping} grouping
    * @private
    */
-  // TODO(Kashomon): Currently this requires ids to be defined and unique.
+  // TODO(kashomon): Currently this requires ids to be defined and unique.
   processPositions_: function(grouping) {
     var pos = grouping.positions;
+    var uniqueMap = {};
     for (var i = 0; i < pos.length; i++) {
       var p = pos[i];
       var id = p.id;
+      if (uniqueMap[id]) {
+        throw new Error('IDs are required to be unique, but the following ID was duplicated: ' + id);
+      }
+      uniqueMap[id] = true;
       if (!id) {
         throw new Error('Each position must have an ID. Id was: ' + id);
       }

@@ -29,9 +29,7 @@ var checkFnRet = function(ret, msg) {
  */
 gpub.init = function(options) {
   gpub.api.validateInputs(options);
-  // Process the options and fill in any missing values or defaults.
-  options = new gpub.Options(options);
-  return new gpub.Api(options);
+  return new gpub.Api(new gpub.Options(options));
 };
 
 /**
@@ -46,8 +44,8 @@ gpub.Api = function(options) {
   this.spec_ = null;
 };
 
-
 /**
+ * Process the return options from a processing phase.
  * @param {T} p
  * @param {string} msg
  * @param {!(function(T):T)=} opt_fn

@@ -17,7 +17,7 @@ gpub.api = {
         .createSpec()
         .processSpec();
 
-    // TODO(Kashomon): Finish phase 3 & 4.
+    // TODO(kashomon): Finish phase 3 & 4.
     return 'foo';
   },
 };

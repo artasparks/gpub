@@ -34,7 +34,7 @@ gpub.spec.Grouping = function(opt_group) {
    * @type {!Array<!gpub.spec.Position>}
    */
   this.positions = [];
-  // TODO(Kashomon): Make a helper for these copy functions. It's getting to be
+  // TODO(kashomon): Make a helper for these copy functions. It's getting to be
   // a little much and it's error-prone.
   if (o.positions) { // Deep copy
     for (var i = 0; i < o.positions.length; i++) {

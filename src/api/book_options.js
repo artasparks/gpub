@@ -183,7 +183,7 @@ gpub.api.Frontmatter = function(options) {
    */
   this.colorProfileFilePath = o.colorProfileFilePath || null;
 
-  // TODO(Kashomon): Problem answers are a function of rendering and shouldn't
+  // TODO(kashomon): Problem answers are a function of rendering and shouldn't
   // be part of the spec.
   /**
    * How should the problem answers be generated?

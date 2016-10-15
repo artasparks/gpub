@@ -8,7 +8,7 @@ goog.provide('gpub.spec.GameCommentary');
  * @package
  */
 gpub.spec.processGameCommentary = function(mt, position, idGen) {
-  // TODO(Kashomon): This should be refactored to be much simpler (more like the
+  // TODO(kashomon): This should be refactored to be much simpler (more like the
   // problem-code).
   var varPathBuffer = [];
   var node = mt.node();
