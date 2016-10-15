@@ -47,7 +47,7 @@
     deepEqual(spec.rootGrouping.positions[1].alias, alias2);
   })
 
-  test('Creating a Processed spec with two problems', function() {
+  test('Creating a Processed spec with six problems', function() {
     var sgfs = testdata.sgfs;
     var opts = new gpub.Options({
       sgfs: [
