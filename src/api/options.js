@@ -48,22 +48,4 @@ gpub.Options = function(opt_options) {
    * @const {boolean}
    */
   this.debug = !!o.debug || false;
-
-  /**
-   * Whether or not to use async processing. By default, GPub assumes that
-   * execution flow is synchronous.
-   */
-  this.async = !!o.async || false;
-};
-
-
-// TODO(Kashomon): Remove this method.
-/**
- * Process the incoming options and set any missing values.
- *
- * @param {!gpub.Options} options
- * @return {!gpub.Options}
- */
-gpub.processOptions = function(options) {
-  return new gpub.Options(options);
 };

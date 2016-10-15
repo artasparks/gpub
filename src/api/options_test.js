@@ -3,12 +3,12 @@
   var defaultOptions = new gpub.Options();
 
   test('Process options: default', function() {
-    var o = gpub.processOptions();
+    var o = new gpub.Options();
     deepEqual(o, defaultOptions);
   });
 
   test('Process options: default', function() {
-    var o = gpub.processOptions({
+    var o = new gpub.Options({
       bookOptions: {
         title: 'Zed'
       }
@@ -19,11 +19,10 @@
   });
 
   test('Process options: gnosFontSize', function() {
-    var o = gpub.processOptions({
-    });
+    var o = new gpub.Options();
     deepEqual(o.bookOptions.goIntersectionSize, '12pt');
 
-    o = gpub.processOptions({
+    o = new gpub.Options({
       bookOptions: {
         goIntersectionSize: '14'
       }

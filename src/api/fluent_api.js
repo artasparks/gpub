@@ -16,12 +16,12 @@ var checkFnRet = function(ret, msg) {
 /**
  * Intended usage:
  *    gpub.init({...})
- *        .createSpec()
- *        .processSpec(() => save)
- *        .createDiagrams()
- *        .createBook()
+ *      .createSpec()
+ *      .processSpec()
+ *      .createDiagrams()
+ *      .createBook()
  *
- * equivalent to:
+ * Equivalent to:
  *    gpub.create({...})
  *
  * @param {!gpub.Options} options to process
@@ -44,33 +44,85 @@ gpub.Api = function(options) {
   this.opt_ = options;
   /** @private {?gpub.spec.Spec} */
   this.spec_ = null;
-}
+};
+
+
+/**
+ * @param {T} p
+ * @param {string} msg
+ * @param {!(function(T):T)=} opt_fn
+ * @return {T} Processed p.
+ * @template T
+ */
+var sendback = function(p, msg, opt_fn) {
+  if (opt_fn) {
+    var newp = opt_fn(p);
+    if (!newp) {
+      // object was not returned. Ignore.
+      return p
+    } else {
+      checkFnRet(newp, 'a gpub.spec.Spec object');
+    }
+    p = newp;
+  }
+  return p;
+};
 
 gpub.Api.prototype = {
   /**
-   * Create an initial Gpub specification. Allow user
+   * Create an initial GPub specification.
    * @param {!(function(!gpub.spec.Spec):!gpub.spec.Spec)=} opt_fn
    *    Optional user-specified processing function.
    * @return {!gpub.Api} this
    */
   createSpec: function(opt_fn) {
-    this.spec_ = gpub.spec.create(this.opt_);
-    if (opt_fn) {
-      var optspec = opt_fn(this.spec_);
-      if (!optspec) {
-        // Spec was not returned. ignore.
-      } else {
-        checkFnRet(optspec, 'a gpub.spec.Spec object');
-        this.spec_ = optspec;
-      }
-    }
+    this.spec_ = sendback(
+        gpub.spec.create(this.options()),
+        'a gpub.spec.Spec object',
+        opt_fn);
     return this;
   },
 
-  asyncError_: function() {
-    throw new Error('Async behavior not enabled. Enable with `options.async = true`.');
+  /**
+   * Process a GPub specification, generating new positions if necessary.
+   * @param {!(function(!gpub.spec.Spec):!gpub.spec.Spec)=} opt_fn
+   *    Optional user-specified processing function.
+   * @return {!gpub.Api} this
+   */
+  processSpec: function(opt_fn) {
+    var spec = this.spec();
+    if (!spec) {
+      throw new Error('Spec must be defined before processing.');
+    }
+    this.spec_ = sendback(
+        gpub.spec.process(spec),
+        'a processed gpub.spec.Spec object',
+        opt_fn);
+    return this;
+  },
+
+  /** @return {!gpub.Options} The options object. */
+  options: function() {
+    return this.opt_;
+  },
+
+  /** @return {?gpub.spec.Spec} The spec, if it exists. */
+  spec: function() {
+    return this.spec_;
+  },
+
+  /**
+   * @return {string} Return the serialized JSON or empty string if no spec can
+   * can be found.
+   */
+  jsonSpec: function() {
+    var spec = this.spec_;
+    if (spec) {
+      return spec.serializeJson();
+    } else {
+      return '';
+    }
   }
 };
-
 
 });  // goog.scope;

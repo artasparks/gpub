@@ -16,7 +16,7 @@
   };
 
   var getCtxFromSpec = function(spec) {
-    var opts = gpub.processOptions();
+    var opts = gpub.Options();
     var gen = gpub.book.generator(opts.outputFormat, opts);
     var out = [];
     gen.forEachSgf(spec, function(i, mt, flat, ctx) {

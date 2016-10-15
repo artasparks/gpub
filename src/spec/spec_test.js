@@ -3,8 +3,8 @@
 
   test('create spec', function() {
     var sgf = '(;GM[1]AW[aa]AB[ba];B[bb]C[The End!])';
-    var o = gpub.processOptions({
-      sgfs: [sgf]
+    var o = new gpub.Options({
+      sgfs: [sgf],
     });
     var spec = gpub.spec.create(o);
 
@@ -32,7 +32,7 @@
     var sgf1 = '(;GM[1]AW[aa]AB[ba];B[bb]C[The End!])';
     var sgf2 = '(;GM[1]GN[foo]AW[aa]AB[ba];B[bb];W[cc](;B[ab]'
         + 'C[Correct!])(;W[ac]C[Surprise!]))';
-    var o = gpub.processOptions({
+    var o = new gpub.Options({
       sgfs: [sgf1, sgf2]
     });
 
