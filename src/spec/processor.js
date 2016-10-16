@@ -25,18 +25,22 @@ gpub.spec.IdGen = function(prefix) {
  * specifications.
  *
  * @param {!gpub.spec.Spec} spec
+ * @param {!gpub.util.MoveTreeCache} cache
  * @constructor @struct @final
  */
-gpub.spec.Processor = function(spec) {
+gpub.spec.Processor = function(spec, cache) {
   /** @private @const {!gpub.spec.Spec} */
   this.originalSpec_ = spec;
 
   /**
    * Mapping from alias to movetree.
-   * @const {!Object<string, !glift.rules.MoveTree>}
+   * @const {!gpub.util.MoveTreeCache}
    * @private
    */
-  this.mtCache_ = {};
+  this.mtCache_ = cache;
+  if (!this.mtCache_) {
+    throw new Error('cache must be defined. was: ' + this.mtCache_);
+  }
 
   /**
    * Map from alias to ID Gen instance. Each alias gets its own id generator so that IDs
@@ -169,14 +173,7 @@ gpub.spec.Processor.prototype = {
       throw new Error('No SGF alias defined for position object: '
           + JSON.stringify(position));
     }
-    var sgfStr = this.sgfMapping_[alias];
-    if (!sgfStr) {
-      throw new Error('No SGF defined in the SGF Mapping for alias: ' + alias);
-    }
-    if (!this.mtCache_[alias]) {
-      this.mtCache_[alias] = glift.rules.movetree.getFromSgf(sgfStr);
-    }
-    return this.mtCache_[alias];
+    return this.mtCache_.get(alias);
   },
 
   /**
@@ -217,6 +214,6 @@ gpub.spec.Processor.prototype = {
       this.idGenMap_[alias] = new gpub.spec.IdGen(alias);
     }
     return this.idGenMap_[alias];
-  }
+ }
 };
 

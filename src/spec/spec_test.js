@@ -2,10 +2,11 @@
   module('gpub.spec.specTest');
 
   test('create spec', function() {
+    var cache = new gpub.util.MoveTreeCache();
     var sgf = '(;GM[1]AW[aa]AB[ba];B[bb]C[The End!])';
     var o = new gpub.Options({
       sgfs: [sgf],
-    });
+    }, cache);
     var spec = gpub.spec.create(o);
 
     var alias = 'sgf-1';
@@ -29,6 +30,7 @@
   });
 
   test('create spec: two sgfs', function() {
+    var cache = new gpub.util.MoveTreeCache();
     var sgf1 = '(;GM[1]AW[aa]AB[ba];B[bb]C[The End!])';
     var sgf2 = '(;GM[1]GN[foo]AW[aa]AB[ba];B[bb];W[cc](;B[ab]'
         + 'C[Correct!])(;W[ac]C[Surprise!]))';
@@ -36,7 +38,7 @@
       sgfs: [sgf1, sgf2]
     });
 
-    var spec = gpub.spec.create(o);
+    var spec = gpub.spec.create(o, cache);
     var alias1 = 'sgf-1', alias2 = 'foo-2';
     var mapping = {};
     mapping[alias1] = sgf1;
@@ -47,7 +49,8 @@
     deepEqual(spec.rootGrouping.positions[1].alias, alias2);
   })
 
-  test('Creating a Processed spec with six problems', function() {
+  test('Creating a Processed spec with problems', function() {
+    var cache = new gpub.util.MoveTreeCache();
     var sgfs = testdata.sgfs;
     var opts = new gpub.Options({
       sgfs: [
@@ -62,14 +65,14 @@
         defaultPositionType: gpub.spec.PositionType.PROBLEM,
       }
     });
-    var spec = gpub.spec.create(opts);
+    var spec = gpub.spec.create(opts, cache);
     ok(spec, 'spec should be defined')
     deepEqual(Object.keys(spec.sgfMapping).length, 6, 'should have 6 sgfs');
     deepEqual(spec.sgfMapping['sgf-1'], opts.sgfs[0])
     deepEqual(spec.sgfMapping['sgf-2'], opts.sgfs[1])
     deepEqual(spec.rootGrouping.positions.length, 6, 'should have 6 positions');
 
-    var proc = gpub.spec.process(spec);
+    var proc = gpub.spec.process(spec, cache);
     ok(proc, 'processed spec should be defined');
     var secondId = 'sgf-2';
     deepEqual(proc.rootGrouping.generated['sgf-2'].labels['CORRECT'].length, 1,
@@ -86,15 +89,16 @@
   });
 
   test('Create: one simple game, with variation', function() {
+    var cache = new gpub.util.MoveTreeCache();
     var opts = new gpub.Options({
       sgfs: [
         '(;GM[1]AW[aa]AB[ba];B[bb](;W[ab]C[The End!])(;W[ac]C[Surprise!]))'
       ]
     });
-    var spec = gpub.spec.create(opts);
+    var spec = gpub.spec.create(opts, cache);
     deepEqual(Object.keys(spec.sgfMapping).length, 1, 'Should have 1 sgf');
 
-    var proc = gpub.spec.process(spec);
+    var proc = gpub.spec.process(spec, cache);
     ok(proc, 'should be defined');
     var gen = proc.rootGrouping.generated['sgf-1'];
 

@@ -42,6 +42,8 @@ gpub.Api = function(options) {
   this.opt_ = options;
   /** @private {?gpub.spec.Spec} */
   this.spec_ = null;
+  /** @private {!gpub.util.MoveTreeCache|undefined} */
+  this.cache_ = undefined;
 };
 
 /**
@@ -74,8 +76,8 @@ gpub.Api.prototype = {
    * @return {!gpub.Api} this
    */
   createSpec: function(opt_fn) {
-    this.spec_ = sendback(
-        gpub.spec.create(this.options()),
+    this.cache_ = new gpub.util.MoveTreeCache();
+    this.spec_ = sendback(gpub.spec.create(this.options(), this.cache_),
         'a gpub.spec.Spec object',
         opt_fn);
     return this;
@@ -92,8 +94,11 @@ gpub.Api.prototype = {
     if (!spec) {
       throw new Error('Spec must be defined before processing.');
     }
-    this.spec_ = sendback(
-        gpub.spec.process(spec),
+    if (!this.cache_) {
+      this.cache_ = new gpub.util.MoveTreeCache(spec.sgfMapping);
+    }
+    sendback(
+        gpub.spec.process(spec, this.cache_),
         'a processed gpub.spec.Spec object',
         opt_fn);
     return this;

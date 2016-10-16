@@ -12,10 +12,12 @@ gpub.spec = {
    * later processing.
    *
    * @param {!gpub.Options} options
-   * @return {!gpub.spec.Spec}
+   * @param {!gpub.util.MoveTreeCache=} opt_cache
+   * @return {!gpub.spec.Spec} Finished spec.
    */
-  create: function(options) {
+  create: function(options, opt_cache) {
     var sgfs = options.sgfs;
+    var cache = opt_cache || new gpub.util.MoveTreeCache(); // for testing convenience.
     var specOptions = options.specOptions;
     var defaultPositionType = specOptions.defaultPositionType;
 
@@ -43,6 +45,9 @@ gpub.spec = {
         alias = mt.properties().getOneValue(GN) + '-' + (i+1);
       }
 
+      cache.sgfMap[alias] = sgfStr;
+      cache.mtCache[alias] = mt;
+
       // Ensure the sgf mapping contains the alias-to-sgf mapping.
       if (!spec.sgfMapping[alias]) {
         spec.sgfMapping[alias] = sgfStr;
@@ -66,9 +71,10 @@ gpub.spec = {
    * and prepended to the sub-groupings list.
    *
    * @param {!gpub.spec.Spec} spec
+   * @param {!gpub.util.MoveTreeCache} cache
    * @return {!gpub.spec.Spec} the transformed spec.
    */
-  process: function(spec) {
-    return new gpub.spec.Processor(spec).process();
+  process: function(spec, cache) {
+    return new gpub.spec.Processor(spec, cache).process();
   },
 };

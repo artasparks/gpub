@@ -22,7 +22,7 @@ gpub.api.DiagramOptions = function(opt_options) {
    *  - PDF,
    *  - EPS
    *
-   * @const {!gpub.diagrams.Type}
+   * @const {gpub.diagrams.Type}
    */
   this.diagramType = o.diagramType || gpub.diagrams.Type.GNOS;
 
@@ -32,7 +32,7 @@ gpub.api.DiagramOptions = function(opt_options) {
    *
    * @const {glift.enums.boardRegions|undefined}
    */
-  this.boardRegion = o.boardRegion || undefined;
+  this.boardRegion = o.boardRegion || glift.enums.boardRegions.AUTO;
 
   /**
    * Skip the first N diagrams. Allows users to generate parts of a book. 0 or
