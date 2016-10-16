@@ -30,6 +30,8 @@ var srcPaths = [
   'src/gpub.js',
   'src/api',
   'src/spec',
+  'src/diagrams',
+  'src/util',
 ]
 
 // Ignore the test files

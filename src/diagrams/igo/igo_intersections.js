@@ -1,6 +1,9 @@
+goog.provide('gpub.diagrams.igo.Intersections');
+
 /**
  * Mutable container for tracking which stones and marks have been processed, in
  * a way that's useful for Igo.
+ * @constructor @struct @final
  */
 gpub.diagrams.igo.Intersections = function() {
   /**
@@ -109,7 +112,7 @@ gpub.diagrams.igo.Intersections.prototype = {
         arrCopy.push(item);
       } else {
         throw new Error('Invalid item:'
-            + item.ptstr + ',' + item.color + ',' + iteem.label);
+            + item.ptstr + ',' + item.color + ',' + item.label);
       }
     }
 
@@ -166,8 +169,6 @@ gpub.diagrams.igo.Intersections.prototype = {
 gpub.diagrams.igo.processIntersections =
     function( markMap, stoneMap, labelMap) {
   var tracker = new gpub.diagrams.igo.Intersections();
-
-  var stoneTextLabels = [];
 
   var number = /^\d+$/;
 

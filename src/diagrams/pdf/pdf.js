@@ -1,3 +1,5 @@
+goog.provide('gpub.diagrams.pdf');
+
 /**
  * Create a PDF diagram.
  */

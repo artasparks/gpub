@@ -1,3 +1,5 @@
+goog.provide('gpub.diagrams.gooe.init');
+
 /**
  * Initialization necessary for various output formats.
  */
@@ -41,10 +43,11 @@ gpub.diagrams.gooe.init = {
    * Generates the LaTeX document headers as a string.
    *
    * Takes a base font family. Defaults to cmss (computer modern sans serif).
+   * @param {string=} opt_baseFont
    */
-  extraDefs: function(baseFont) {
+  extraDefs: function(opt_baseFont) {
+    var baseFont = opt_baseFont || 'cmss';
     var defs = gpub.diagrams.gooe.init.defs;
-    var baseFont = baseFont || 'cmss';
     var fontDefsBase = [
       '% Gooe font definitions',
       '\\font\\tenpoint=' + baseFont + '10',

@@ -49,7 +49,7 @@ gpub.spec = {
       }
 
       // At this point, there is a 1x1 mapping between passed-in SGF string and
-      // position. That need not be true generally, but it is true for this method.
+      // position. That need not be true generally, but it is true here.
       var position = new gpub.spec.Position({
         alias: alias,
         id: alias

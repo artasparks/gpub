@@ -22,9 +22,9 @@ gpub.api.DiagramOptions = function(opt_options) {
    *  - PDF,
    *  - EPS
    *
-   * @const {gpub.DiagramType}
+   * @const {!gpub.diagrams.Type}
    */
-  this.diagramType = o.diagramType || gpub.DiagramType.GNOS;
+  this.diagramType = o.diagramType || gpub.diagrams.Type.GNOS;
 
   /**
    * Optional board region specifying cropping. By default, Gpub does cropping, but

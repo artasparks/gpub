@@ -1,3 +1,6 @@
+goog.provide('gpub.diagrams')
+
+
 gpub.diagrams = {
   /**
    * The new method for generating diagrams. Note that this no longer generates
@@ -7,17 +10,17 @@ gpub.diagrams = {
     // TODO(kashomon): Remove optional options obj. We should only do options
     // processing in api land.
     options = options || {};
-    return this._getPackage(diagramType).create(flattened, options);
+    return gpub.diagrams._getPackage(diagramType).create(flattened, options);
   },
 
   /** Renders go stones that exist in a block of text. */
   renderInline: function(diagramType, text) {
-    return this._getPackage(diagramType).renderInline(text);
+    return gpub.diagrams._getPackage(diagramType).renderInline(text);
   },
 
   /** Gets a diagram type package */
   _getPackage: function(diagramType) {
-    if (!diagramType || !gpub.diagrams.diagramType[diagramType]) {
+    if (!diagramType || !gpub.diagrams.Type[diagramType]) {
       throw new Error('Unknown diagram type: ' + diagramType);
     }
     var pkgName = glift.enums.toCamelCase(diagramType);
@@ -34,7 +37,7 @@ gpub.diagrams = {
 
   /** Gets the initialization data for a diagramType. */
   getInit: function(diagramType, outputFormat) {
-    var pkg = this._getPackage(diagramType);
+    var pkg = gpub.diagrams._getPackage(diagramType);
     if (!pkg.init || typeof pkg.init != 'object') {
       throw new Error('No init obj');
     }

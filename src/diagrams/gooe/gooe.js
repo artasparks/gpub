@@ -1,3 +1,5 @@
+goog.provide('gpub.diagrams.gooe');
+
 /**
  * Create a gooe-font diagram.
  */

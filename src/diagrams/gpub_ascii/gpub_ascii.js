@@ -3,20 +3,25 @@
  *
  * Note that the board is indexed from 1,1, from the upper left.
  *
- * .........
- * ......*..
- * ...%.....
- * .....%...
- * ..@.+....
- * ......X..
- * ....OOX..
- * ....OX...
- * .........
+ * ___________
+ * |.........|
+ * |......*..|
+ * |...%.....|
+ * |.....%...|
+ * |..@.+....|
+ * |......X..|
+ * |....OOX..|
+ * |....OX...|
+ * |.........|
+ * -----------
  *
  * (3,5):Triangle
  * (4,3),(6,4):A
  * (7,1):Square
  * C: A balanced 9x9 game!
+ *
+ * Note that coords are indexed from the top left (maybe it should be bottom
+ * left?)
  *
  * Legend
  * . :: Board
@@ -25,7 +30,7 @@
  * X :: Black Stone
  * @ :: White Stone + label or mark
  * % :: Black Stone + label or mark
- * ^ :: Empty Intersection + label or mark
+ * * :: Empty Intersection + label or mark
  */
 gpub.diagrams.gpubAscii = {
   create: function(flattened, opts) {
@@ -33,10 +38,11 @@ gpub.diagrams.gpubAscii = {
     var symbolMap = gpub.diagrams.gpubAscii.symbolMap;
 
     var marks = {};
+    var outStr = '';
     var newBoard = flattened.board().transform(function(i, x, y) {
       var symbol = toStr(i.base()); // Default
       if (i.stone()) {
-        var stoneSym = toStr(symbol);
+        var stoneSym = toStr(i.stone());
         if (i.mark()) {
           symbol = stoneSym + '_MARK';
         } else {
@@ -64,11 +70,14 @@ gpub.diagrams.gpubAscii = {
       return out;
     });
 
-    var ourStr = [];
     for (var i = 0; i < newBoard.boardArray; i++) {
-      outStr.push(newBoard.join(''));
+      if (outStr) {
+        outStr += '\n' + newBoard.join('');
+      } else {
+        outStr = newBoard.join('');
+      }
     }
-    return outStr.join('\n');
+    return outStr;
   },
 
   /** Render go stones that exist in a block of text. */

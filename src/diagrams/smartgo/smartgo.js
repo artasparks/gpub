@@ -1,3 +1,5 @@
+goog.provide('gpub.diagrams.smartgo');
+
 /**
  * Create a smartgo diagram
  *

@@ -1,3 +1,5 @@
+goog.provide('gpub.diagrams.senseisAscii');
+
 /**
  * ASCII in the Sensei's library format.  See:
  * http://senseis.xmp.net/?HowDiagramsWork

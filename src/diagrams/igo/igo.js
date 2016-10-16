@@ -1,3 +1,5 @@
+goog.provide('gpub.diagrams.igo');
+
 /**
  *
  * Creates igo-diagrams. Note: This is only for creating books using latex.

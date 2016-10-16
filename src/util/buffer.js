@@ -1,7 +1,10 @@
+goog.provide('gpub.util.Buffer');
+
 /**
  * Buffer Helper. Used to manage groupings items. This implementation allows
  * users to fill up the buffer past the maximum capacity -- it us up to the user
  * to check whether the buffer should be flushed via the atCapacity method.
+ * @constructor @struct @final
  */
 gpub.util.Buffer = function(maxSize) {
   this._maxSize = maxSize || 1;

@@ -1,29 +1,4 @@
 /**
- * The phases of GPub. GPub generation happens in four phases. Generation can
- * stop at any one of the four steps and output the results.
- *
- * 1. Options. In this step, we process tho options for validity. Stopping at
- *    this step produces a validate options spec with only the file
- * 2. Spec Generation. This a description of the book in JSON. This is
- *    equivalent to a Glift spec, with embedded SGFs.
- * 3. Diagram Generation. The diagrams are generated next.
- * 4. Book Generation. Lastly, the diagrams are combined together to form the
- *    book.
- *
- * For a variety of reasons, the book generation can be terminated at any one of
- * these 3 phases.
- *
- * @enum {string}
- */
-gpub.OutputPhase = {
-  OPTIONS: 'OPTIONS',
-  SPEC: 'SPEC',
-  DIAGRAMS: 'DIAGRAMS',
-  BOOK: 'BOOK'
-};
-
-
-/**
  * The format for gpub output.
  *
  * @enum {string}
@@ -48,54 +23,6 @@ gpub.OutputFormat = {
   // - ONLY_DIAGRAMS
   // - ASCII
   // - SmartGo Books
-};
-
-/**
- * Types of diagram output.
- *
- * @enum {string}
- */
-gpub.DiagramType = {
-  /**
-   * Dan Bump's LaTeX font. Part of the Sgf2Dg script.
-   */
-  GOOE: 'GOOE',
-
-  /**
-   * Variant of Gooe series.
-   */
-  GNOS: 'GNOS',
-
-  /////////////////////////////
-  // Morass of planned types //
-  /////////////////////////////
-
-  /**
-   * Another LaTeX font / LaTeX style package
-   * >> Not Currently Supported
-   */
-  //IGO: 'IGO',
-
-  /**
-   * Native PDF generation
-   * >> Not Currently Supported, but here for illustration.
-   */
-  //PDF: 'PDF',
-
-  /**
-   * Generate SVG Diagrams.
-   */
-  //SVG: 'SVG'
-  //
-  /**
-   * Sensei's library ASCII variant.
-   */
-  //SENSEIS_ASCII: 'SENSEIS_ASCII',
-
-  /**
-   * GPUB's ASCII variant.
-   */
-  //GPUB_ASCII: 'GPUB_ASCII',
 };
 
 

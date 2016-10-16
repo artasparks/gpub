@@ -1,3 +1,5 @@
+goog.provide('gpub.diagrams.gnos');
+
 gpub.diagrams.gnos = {
   /** Available sizes. In pt. */
   sizes: {
@@ -60,7 +62,7 @@ gpub.diagrams.gnos = {
    * the relevant stone symbols i.e. Black 123 => \\gnosbi\\char23
    */
   renderInline: function(text, options) {
-    var options = options || {}; // TODO(kashomon): Remove hack. Push up a level.
+    options = options || {}; // TODO(kashomon): Remove hack. Push up a level.
     var fontsize = gpub.util.size.parseSizeToPt(
         options.goIntersectionSize || gpub.diagrams.gnos.sizes['12']);
     fontsize = Math.round(fontsize);
@@ -74,7 +76,7 @@ gpub.diagrams.gnos = {
       } else if (player === 'White') {
         stone = glift.flattener.symbols.WSTONE;
       } else {
-        return fullmatch; // Shouldn't ever happen.
+        throw new Error('Fell through!  player != White && player != Black');
       }
       var labelSymbol = gpub.diagrams.gnos.getLabelDef(label, stone, fontsize);
       var labelSymbolVal = gpub.diagrams.gnos.symbolMap[labelSymbol];
@@ -106,7 +108,7 @@ gpub.diagrams.gnos = {
    * series of latex/gnos symbols.
    */
   gnosBoard: function(flattened, size) {
-    var size = size || '12';
+    size = size || '12';
     var toStr = glift.flattener.symbolStr;
     var symbolMap = gpub.diagrams.gnos.symbolMap;
     var newBoard = flattened.board().transform(function(i, x, y) {
@@ -123,6 +125,7 @@ gpub.diagrams.gnos = {
         symbol = toStr(i.mark());
       }
 
+      var out;
       if (symbolMap[symbol]) {
         out = symbolMap[symbol];
       } else {
@@ -131,7 +134,7 @@ gpub.diagrams.gnos = {
       var lbl = flattened.autoTruncateLabel(i.textLabel());
       if (lbl) {
         out = gpub.diagrams.gnos._processTextLabel(
-            symbol, out, lbl, size, true);
+            symbol, out, lbl, size);
       } else if (i.mark() && !i.stone()) {
         out = gpub.diagrams.gnos.symbolMap.markOverlap(
             symbolMap[toStr(i.base())], out);
@@ -155,7 +158,7 @@ gpub.diagrams.gnos = {
     size = size + ''; // Ensure a string
     if (label && /^\d+$/.test(label) && stone &&
         (size === '8' || label.length >= 3)) {
-      var num = parseInt(label);
+      var num = parseInt(label, 10);
       var stoneStr = toStr(stone)
       if (num > 0 && num < 100) {
         return stoneStr + '_' + 'NUMLABEL_1_99';
@@ -189,7 +192,7 @@ gpub.diagrams.gnos = {
     if (/^\d+$/.test(label) && /NUMLABEL/.test(symbol)) {
       // NUMLABEL are  a special categories of number-labeling where we use the
       // built-in font.  Each of these NUMLABEL fonts accept two characters.
-      lbl = parseInt(label) % 100;
+      var lbl = parseInt(label, 10) % 100;
       return symbolVal.replace('%s', lbl);
     } else {
       // Here, we just overlay text on a stone.
