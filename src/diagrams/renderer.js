@@ -3,15 +3,19 @@ goog.provide('gpub.diagrams.Renderer');
 /**
  * General diagram renderer.
  * @param {!gpub.spec.Spec} spec
- * @param {!gpub.api.DiagramOptions} opts.
+ * @param {!gpub.api.DiagramOptions} opts
+ * @param {!gpub.util.MoveTreeCache} cache
  * @constructor @struct @final
  */
-gpub.diagrams.Renderer = function(spec, opts) {
+gpub.diagrams.Renderer = function(spec, opts, cache) {
   /** @const {!gpub.spec.Spec} */
   this.spec_ = spec;
 
   /** @const {!gpub.api.DiagramOptions} */
   this.opts_ = opts;
+
+  /** @const {!gpub.util.MoveTreeCache} */
+  this.cache_ = cache;
 };
 
 gpub.diagrams.Renderer.prototype = {
@@ -31,14 +35,15 @@ gpub.diagrams.Renderer.prototype = {
   renderGroups_: function(g) {
     var out = this.renderOneGroup_(g);
     for (var i = 0; i < g.groupings.length; i++) {
-      var o = this.renderOneGroup_(g);
-      out = out.concat(o);
+      out = out.concat(this.renderOneGroup_(g));
     }
     return out;
   },
 
   /**
-   * Render all the positions for a single group.
+   * Render all the positions for a single group; We only render the generated
+   * positions; if there are no generated positions, we try to render the
+   * original position.
    * @param {!gpub.spec.Grouping} g
    * @return {!Array<!gpub.diagrams.Diagram>} Rendered diagrams.
    * @private
@@ -60,12 +65,30 @@ gpub.diagrams.Renderer.prototype = {
   },
 
   /**
-   * Render a single position
+   * Render a single position.
    * @param {!gpub.spec.Position} pos
-   * @return {!gpub.diagrams.Diagram} pos
+   * @return {!gpub.diagrams.Diagram} diag
    * @private
    */
   renderOnePosition_: function(pos) {
+    var mt = this.cache_.get(pos.alias);
+    var region = this.opts_.boardRegion;
+    var init = glift.rules.treepath.parseInitialPath(pos.initialPosition);
+    mt = mt.getTreeFromRoot(init);
+    var flattened = glift.flattener.flatten(mt, {
+      boardRegion: region,
+      nextMovesTreepath: glift.rules.treepath.parseFragment(pos.nextMovesPath  || ''),
+    });
+    switch(this.opts_.diagramType) {
+      case 'GNOS':
+        break;
+      case 'GOOE':
+        break
+      case 'IGO':
+        break;
+      default:
+        throw new Error('Unexpected or unknown diagramType: ' + this.opts_.diagramType);
+    }
     return new gpub.diagrams.Diagram();
   },
 };

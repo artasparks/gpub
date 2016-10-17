@@ -32,7 +32,6 @@ gpub.util.MoveTreeCache = function(opt_sgfMapping, opt_mtCache) {
     if (mt) {
       return mt;
     }
-    console.log(this.sgfMap);
     if (this.sgfMap[alias]) {
       var str = this.sgfMap[alias];
       mt = glift.parse.fromString(str);
@@ -40,7 +39,7 @@ gpub.util.MoveTreeCache = function(opt_sgfMapping, opt_mtCache) {
     } else {
       throw new Error('No SGF found for alias in sgfMap: ' + alias);
     }
-    return mt;
+    return mt.getTreeFromRoot();
   };
 };
 
