@@ -1,19 +1,25 @@
 goog.provide('gpub.diagrams.gnos');
 
 gpub.diagrams.gnos = {
-  /** Available sizes. In pt. */
-  sizes: {
-    8: '8',
-    9: '9',
-    10: '10',
-    11: '11',
-    12: '12',
-    14: '14',
-    16: '16',
-    20: '20'
+  /** 
+   * Available sizes for the characters. In pt.
+   * @enum {string}
+   */
+  CharSize: {
+    C8: '8',
+    C9: '9',
+    C10: '10',
+    C11: '11',
+    C12: '12',
+    C14: '14',
+    C16: '16',
+    C20: '20'
   },
 
-  /** Mapping from size to label size index. Keys in pt. */
+  /**
+   * Mapping from size to label size index. Keys in pt.
+   * @type {!Object<gpub.diagrams.gnos.CharSize, number>}
+   */
   singleCharSizeAtTen: {
     8: 1, // tiny
     9: 2, // footnotesize
@@ -21,8 +27,8 @@ gpub.diagrams.gnos = {
     11: 3, // small
     12: 3, // normalsize
     14: 4, // large
-    16: 5,
-    20: 6
+    16: 5, // Large
+    20: 6  // LARGE
   },
 
   /**
@@ -48,7 +54,7 @@ gpub.diagrams.gnos = {
    * We expect flattened and options to be defined.
    */
   create: function(flattened, options) {
-    options.size = options.size || gpub.diagrams.gnos.sizes['12'];
+    options.size = options.size || gpub.diagrams.gnos.CharSize.C12;
     return gpub.diagrams.gnos.gnosStringArr(flattened, options.size).join('\n');
   },
 
@@ -64,7 +70,7 @@ gpub.diagrams.gnos = {
   renderInline: function(text, options) {
     options = options || {}; // TODO(kashomon): Remove hack. Push up a level.
     var fontsize = gpub.util.size.parseSizeToPt(
-        options.goIntersectionSize || gpub.diagrams.gnos.sizes['12']);
+        options.goIntersectionSize || gpub.diagrams.gnos.CharSize.C12);
     fontsize = Math.round(fontsize);
     // TODO(kashomon): The font size needs to be passed in here so we can select
     // the correct label size. Moreover, we need to use get getLabelDef to be
