@@ -5,18 +5,21 @@ goog.provide('gpub.diagrams.igo');
  * Creates igo-diagrams. Note: This is only for creating books using latex.
  */
 gpub.diagrams.igo = {
-  /** Font sizes supported by igo. */
-  fontSize: {
-    5: 5,
-    6: 6,
-    7: 7,
-    8: 8,
-    9: 9,
-    10: 10,
-    11: 11,
-    12: 12,
-    15: 15,
-    20: 20
+  /**
+   * Font sizes supported by igo.
+   * @enum {number}
+   */
+  FontSize: {
+    C5: 5,
+    C6: 6,
+    C7: 7,
+    C8: 8,
+    C9: 9,
+    C10: 10,
+    C11: 11,
+    C12: 12,
+    C15: 15,
+    C20: 20
   },
 
   /**
@@ -58,14 +61,14 @@ gpub.diagrams.igo = {
    */
   create: function(flattened, options) {
     var optSize = options.size || 10;
-    var fontSize = gpub.diagrams.igo.fontSize[optSize] ||
-        gpub.diagrams.igo.fontSize['10'];
+    var fontSize = gpub.diagrams.igo.FontSize['C' + optSize] ||
+        gpub.diagrams.igo.FontSize.C10;
 
     var boardSize = flattened.board().maxBoardSize();
     var symbolStr = glift.flattener.symbolStr;
 
     var intersections = gpub.diagrams.igo.processIntersections(
-        flattened.markMap(), flattened.stoneMap(), flattened.labelMap());
+        flattened.marks(), flattened.stoneMap(), flattened.labels());
 
     // Glyphs are used in the context: \white|black[glyph]{intersection-pairs}
     var markToGlyph = {

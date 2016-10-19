@@ -65,4 +65,16 @@ gpub.api.DiagramOptions = function(opt_options) {
    * @const {!Array<glift.enums.boardRegions>}
    */
   this.regionRestrictions = o.regionRestrictions || [];
+
+  /**
+   * What size should the intersections be? Defaults to undefined since
+   * different diagram types may have a different idea of what a good default
+   * is, and if it's undefined, the particular diagram type will pick the
+   * default.
+   *
+   * Note: If this is a number, we assume the size is in pt. Otherwise units
+   * are required: 12pt, 12mm, 1.2in, etc.
+   * @const {number|string|undefined}
+   */
+  this.goIntersectionSize = o.goIntersectionSize || undefined;
 };

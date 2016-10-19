@@ -83,6 +83,8 @@ gpub.diagrams = {
    * - Black (A)
    * - White (126)
    * - Black (x)
+   *
+   * @type {!RegExp}
    */
   inlineLabelRegex: new RegExp(
       '(Black|White) ' +
@@ -119,162 +121,10 @@ gpub.diagrams = {
    * Construct the label based on the flattened object. From the flattened
    * object, we must extract the collisions and the move numbers.
    *
-   * Collisions is an array of collisions objects, having the form:
-   *    {color: <color>, mvnum: <number>, label: <str label>}
-   *
-   * returns: stringified label format.
+   * @param {!glift.flattener.Flattened} flattened
+   * @return {string}
    */
   createLabel: function(flattened) {
-    return gpub.diagrams._constructLabel(
-        flattened.collisions(),
-        flattened.isOnMainPath(),
-        flattened.startingMoveNum(),
-        flattened.endingMoveNum());
+    return glift.flattener.labels.createFullLabel(flattened);
   },
-
-  /**
-   * Construct the label based on the flattened object. From the flattened
-   * object, we must extract the collisions and the move numbers.
-   *
-   * Collisions is an array of collisions objects, having the form:
-   * {
-   *    color: <color>,
-   *    mvnum: <number>,
-   *    label: <str label>,
-   *    collisionStoneColor: <str label>,
-   * }
-   *
-   * returns: stringified label format.
-   */
-  _constructLabel: function(collisions, isOnMainline, startNum, endNum) {
-    var baseLabel = '';
-
-    if (isOnMainline) {
-      // If we're on the mainline branch, construct a label that's like:
-      // (Moves: 1-12)
-      // or 
-      // (Move: 32)
-      var nums = [startNum];
-      if (startNum !== endNum) {
-        // Note: Currently the API is such that if there's only one move, then
-        // startNum == endNum.
-        nums.push(endNum);
-      }
-      var moveLabel = nums.length > 1 ? 'Moves: ' : 'Move: ';
-      baseLabel += '(' + moveLabel + nums.join('-') + ')';
-    }
-
-    // No Collisions! Woohoo
-    if (collisions == null || collisions.length === 0) {
-      return baseLabel;
-    }
-
-    // First we collect all the labels by type, being careful to perserve the
-    // ordering in which the labels came in.
-    var labelToColArr = {};
-    var labelToColStoneColor = {};
-    var labelOrdering = [];
-    for (var i = 0; i < collisions.length; i++) {
-      var c = collisions[i];
-      if (!labelToColArr[c.label]) {
-        labelOrdering.push(c.label);
-        labelToColArr[c.label] = [];
-      }
-      if (!labelToColStoneColor[c.label]) {
-        labelToColStoneColor[c.label] = c.collisionStoneColor;
-      }
-      labelToColArr[c.label].push(c);
-    }
-
-    // Now we construct rows that look like:
-    //
-    // Black 13, White 16, Black 19 at White (a)
-    // Black 14, White 17, Black 21 at Black 3
-    var allRows = []
-    for (var k = 0; k < labelOrdering.length; k++) {
-      var label = labelOrdering[k];
-      var colArr = labelToColArr[label];
-      var row = [];
-      for (var i = 0; i < colArr.length; i++) {
-        var c = colArr[i];
-        var color = c.color === glift.enums.states.BLACK ? 'Black' : 'White';
-        row.push(color + ' ' + c.mvnum);
-      }
-      var colStoneColor = labelToColStoneColor[label];
-      colStoneColor = (colStoneColor === glift.enums.states.BLACK ?
-          'Black' : 'White');
-
-      // In the rare case where we construct labels, convert a to (a) so it can
-      // be inline-rendered more easily. This has the downside that it makes
-      // labels non-uniform, so we may eventually want to make all labels have
-      // the form (<label>).
-      if (/^[a-z]$/.test(label)) {
-        label = '(' + label + ')';
-      }
-      var rowString = row.join(', ') + ' at ' + colStoneColor + ' ' + label;
-      allRows.push(rowString);
-    }
-    if (baseLabel) { baseLabel += '\n'; }
-
-    if (allRows.length >= 4) {
-      // This means there are collisions at 4 separate locations, so to reduce
-      // space, concerns, try to squash some of the lines together.  Note that
-      // this is, usually pretty rare. It means that the user is generating
-      // diagrams with lots of moves (see examples/yearbook_example).
-      allRows = gpub.diagrams._compactifyLabels(allRows);
-    }
-
-    baseLabel += allRows.join(',\n') + '.';
-    return baseLabel;
-  },
-
-  /**
-   * Compactify collision rows from _constructLabel. This is an uncommon
-   * edgecase for the majority of diagrams; it means that there were captures +
-   * plays at many locations.
-   *
-   * To preserve space, this method collapses labels that look like Black 5 at
-   * White 6\n, Black 7, White 10 at Black 3. into one line.
-   */
-  _compactifyLabels: function(collisionRows) {
-    var out = [];
-    var buffer = null;
-    // Here we overload the usage of replaceInline to count the number labels in
-    // a row.
-    var numInlineLabels = function(row) {
-      var count = 0;
-      gpub.diagrams.replaceInline(row, function() {
-        count += 1;
-      });
-      return count;
-    };
-    for (var i = 0; i < collisionRows.length; i++) {
-      var row = collisionRows[i];
-      var rowIsShort = true;
-      var numLabels = numInlineLabels(row);
-      // Note 2 labels is the minimum. Here, we arbitrarily decide that 3 labels
-      // also counts as a short label.
-      if (numLabels > 3) {
-        rowIsShort = false;
-      }
-      if (!buffer && !rowIsShort) {
-        out.push(row);
-        buffer = null;
-      } else if (!buffer && rowIsShort) {
-        buffer = row;
-      } else if (buffer && rowIsShort) {
-        out.push(buffer + '; ' + row);
-        buffer = null;
-      } else if (buffer && !rowIsShort) {
-        out.push(buffer);
-        out.push(row);
-        buffer = null;
-      }
-    }
-    if (buffer) {
-      // Flush any remaining buffer;
-      out.push(buffer);
-    }
-    return out;
-  }
 };

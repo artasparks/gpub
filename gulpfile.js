@@ -41,6 +41,8 @@ var srcIgnore = ['!src/**/*_test.js', '!deps/**/*_test.js']
 var testGlob = [
   'src/api/*_test.js',
   'src/spec/*_test.js',
+  'src/util/*_test.js',
+  'src/diagrams/**/*_test.js',
 
   // Don't include Glift deps
   // 'deps/**/*_test.js'

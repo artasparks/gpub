@@ -1,7 +1,7 @@
 (function() {
   module('gpub.diagrams.igo.igoTest');
   var pt = glift.util.point;
-  var IGO = gpub.diagrams.diagramType.IGO;
+  var IGO = gpub.diagrams.Type.IGO;
 
   test('toIgoCoord', function() {
     var toIgoCoord = gpub.diagrams.igo.toIgoCoord;

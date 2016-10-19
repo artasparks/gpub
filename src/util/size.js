@@ -1,12 +1,36 @@
 gpub.util.size = {
   /** Various conversion helpers. */
+  /**
+   * @param {number} ptSize
+   * @return {number} Size in inches
+   */
   ptToIn: function(ptSize) { return ptSize * (1 / 72); },
+  /**
+   * @param {number} ptSize
+   * @return {number} Size in mm
+   */
   ptToMm: function(ptSize) { return ptSize * 0.3528; },
 
+  /**
+   * @param {number} mmSize
+   * @return {number} Size in pt
+   */
   mmToPt: function(mmSize) { return mmSize * (1 / 0.3528); },
+  /**
+   * @param {number} inSize
+   * @return {number} Size in pt
+   */
   inToPt: function(inSize) { return inSize * 72 ; },
 
+  /**
+   * @param {number} inSize
+   * @return {number} Size in mm
+   */
   inToMm: function(inSize) { return inSize * 25.4; },
+  /**
+   * @param {number} mmSize
+   * @return {number} Size in in
+   */
   mmToIn: function(mmSize) { return mmSize * (1 / 25.4); },
 
   /**
@@ -18,11 +42,19 @@ gpub.util.size = {
    * Ex: 12pt, 12mm, 1.2in
    *
    * Notes: https://www.cl.cam.ac.uk/~mgk25/metric-typo/
+   * @param {number|string} sizeOrNum
+   * @return {number}
    */
-  parseSizeToPt: function(sizeString) {
+  parseSizeToPt: function(sizeOrNum) {
+    if (typeof sizeOrNum === 'number') {
+      // Assume already in point.
+      return /** @type {number} */ (sizeOrNum);
+    }
+    var sizeString = /** @type {string} */ (sizeOrNum);
     if (typeof sizeString !== 'string') {
       throw new Error('Bad type for size string: ' + sizeString);
     }
+
     if (/^\d+(\.\d*)?$/.test(sizeString)) {
       return parseFloat(sizeString);
     }

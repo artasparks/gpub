@@ -1,24 +1,28 @@
 goog.provide('gpub.diagrams.gnos');
 
+/**
+ * Gnos is a modification of the Gooe font series.
+ * See https://github.com/Kashomon/go-type1.
+ */
 gpub.diagrams.gnos = {
-  /** 
-   * Available sizes for the characters. In pt.
-   * @enum {string}
+  /**
+   * Available font sizes for the gno characters, in pt.
+   * @type{!Object<number, number>}
    */
-  CharSize: {
-    C8: '8',
-    C9: '9',
-    C10: '10',
-    C11: '11',
-    C12: '12',
-    C14: '14',
-    C16: '16',
-    C20: '20'
+  FontSize: {
+    8: 8,
+    9: 9,
+    10: 10,
+    11: 11,
+    12: 12,
+    14: 14,
+    16: 16,
+    20: 20
   },
 
   /**
    * Mapping from size to label size index. Keys in pt.
-   * @type {!Object<gpub.diagrams.gnos.CharSize, number>}
+   * @type {!Object<number, number>}
    */
   singleCharSizeAtTen: {
     8: 1, // tiny
@@ -33,7 +37,11 @@ gpub.diagrams.gnos = {
 
   /**
    * Array of avaible latex sizes. Should probably be moved to the latex
-   * package.
+   * package. It's sort of unpleasant that this is an array, but the reason is
+   * that we sometimes bump the size up or down by one and latex sizes are
+   * binned into the following (sequential) sizes.
+   *
+   * @type {!Array<string>}
    */
   sizeArray: [
     'tiny',
@@ -50,11 +58,11 @@ gpub.diagrams.gnos = {
 
   /**
    * The create method!
-   * 
+   *
    * We expect flattened and options to be defined.
    */
   create: function(flattened, options) {
-    options.size = options.size || gpub.diagrams.gnos.CharSize.C12;
+    options.size = options.size || gpub.diagrams.gnos.FontSize[12];
     return gpub.diagrams.gnos.gnosStringArr(flattened, options.size).join('\n');
   },
 
@@ -70,7 +78,7 @@ gpub.diagrams.gnos = {
   renderInline: function(text, options) {
     options = options || {}; // TODO(kashomon): Remove hack. Push up a level.
     var fontsize = gpub.util.size.parseSizeToPt(
-        options.goIntersectionSize || gpub.diagrams.gnos.CharSize.C12);
+        options.goIntersectionSize || gpub.diagrams.gnos.FontSize[12]);
     fontsize = Math.round(fontsize);
     // TODO(kashomon): The font size needs to be passed in here so we can select
     // the correct label size. Moreover, we need to use get getLabelDef to be

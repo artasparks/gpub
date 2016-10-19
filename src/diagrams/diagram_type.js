@@ -16,15 +16,14 @@ gpub.diagrams.Type = {
    */
   GNOS: 'GNOS',
 
+  /**
+   * Another LaTeX font / LaTeX style package. Note that IGO has a limited
+   * character set available.
+   */
+  IGO: 'IGO',
+
   /////////////////////////////
   // Morass of planned types //
-  /////////////////////////////
-
-  /**
-   * Another LaTeX font / LaTeX style package
-   * >> Not Currently Supported
-   */
-  //IGO: 'IGO',
 
   /**
    * Native PDF generation
