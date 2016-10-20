@@ -1,14 +1,14 @@
 (function() {
   module('gpub.diagrams.gnos.gnosTest');
-  var gnosBoard = gpub.diagrams.gnos.gnosBoard;
-  var symbolMap = gpub.diagrams.gnos.symbolMap;
+  var gnosBoard = gpub.diagrams.gnos.gnosBoard_;
+  var symbolMap = gpub.diagrams.gnos.Symbol;
   var basicSgf = '(;GB[1]C[foo]AW[aa]AB[ab][ad]LB[ab:z]LB[bc:2]' +
       '[ad:30]TR[dd])';
   var flattened = gpub.diagrams.flatten(
       basicSgf, [], [], 'TOP_LEFT');
 
   test('Gnos board generation', function() {
-    var board = gnosBoard(flattened);
+    var board = gnosBoard(flattened, 12);
     ok(board, 'should be defined');
     deepEqual(board.boardArray().length, 11, 'height');
     deepEqual(board.boardArray()[0].length, 12, 'width');
@@ -24,7 +24,7 @@
     deepEqual(board.getInt(0,3),
         symbolMap.BSTONE_TEXTLABEL.replace('%s', '\\footnotesize{30}'));
     deepEqual(board.getInt(3,3),
-        symbolMap.markOverlap(symbolMap.CENTER_STARPOINT, symbolMap.TRIANGLE));
+        gpub.diagrams.gnos.markOverlap_(symbolMap.CENTER_STARPOINT, symbolMap.TRIANGLE));
   });
 
   test('Gnos getLabelDef', function() {

@@ -1,7 +1,13 @@
+goog.provide('gpub.diagrams.gnos.Symbol');
+
 /**
- * Symbol map.
+ * Gnos symbols. The keys of the map should roughly equal the keys of
+ * glift.flattener.symbols. In otherwords, there should be a 1:1 mapping from
+ * glift.flattener.symbols to this symbol map, but not necessarily the other
+ * way around.
+ * @enum {string}
  */
-gpub.diagrams.gnos.symbolMap = {
+gpub.diagrams.gnos.Symbol = {
   /** Placeholder symbol. */
   EMPTY: '\\gnosEmptyLbl{_}',
 
@@ -53,8 +59,4 @@ gpub.diagrams.gnos.symbolMap = {
   WSTONE_NUMLABEL_100_199: '{\\gnoswi\\char%s}',
   WSTONE_NUMLABEL_200_299: '{\\gnoswii\\char%s}',
   WSTONE_NUMLABEL_300_399: '{\\gnoswiii\\char%s}',
-
-  markOverlap: function(a, b) {
-    return '\\gnosOverlap{' + a + '}{\\gnos' + b + '}';
-  }
 };

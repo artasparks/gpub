@@ -9,7 +9,7 @@ gpub.diagrams.gnos = {
    * Available font sizes for the gno characters, in pt.
    * @type{!Object<number, number>}
    */
-  FontSize: {
+  fontSize: {
     8: 8,
     9: 9,
     10: 10,
@@ -60,10 +60,21 @@ gpub.diagrams.gnos = {
    * The create method!
    *
    * We expect flattened and options to be defined.
+   * @param {!glift.flattener.Flattened} flat
+   * @param {!gpub.api.DiagramOptions} opt
    */
-  create: function(flattened, options) {
-    options.size = options.size || gpub.diagrams.gnos.FontSize[12];
-    return gpub.diagrams.gnos.gnosStringArr(flattened, options.size).join('\n');
+  create: function(flat, opt) {
+    var optSize = opt.goIntersectionSize;
+    if (optSize) {
+      optSize = gpub.util.size.parseSizeToPt(optSize);
+    } else {
+      optSize = 12;
+    }
+    if (!gpub.diagrams.gnos.fontSize[optSize]) {
+      throw new Error('Font size not supported by Gnos diagarm type: ' + optSize
+          + '. Supported font sizes: ' + Object.keys(gpub.diagrams.gnos.fontSize));
+    }
+    return gpub.diagrams.gnos.gnosString_(flat, optSize);
   },
 
   // TODO(kashomon): This should really be a macro.
@@ -78,7 +89,7 @@ gpub.diagrams.gnos = {
   renderInline: function(text, options) {
     options = options || {}; // TODO(kashomon): Remove hack. Push up a level.
     var fontsize = gpub.util.size.parseSizeToPt(
-        options.goIntersectionSize || gpub.diagrams.gnos.FontSize[12]);
+        options.goIntersectionSize || gpub.diagrams.gnos.fontSize[12]);
     fontsize = Math.round(fontsize);
     // TODO(kashomon): The font size needs to be passed in here so we can select
     // the correct label size. Moreover, we need to use get getLabelDef to be
@@ -90,10 +101,11 @@ gpub.diagrams.gnos = {
       } else if (player === 'White') {
         stone = glift.flattener.symbols.WSTONE;
       } else {
-        throw new Error('Fell through!  player != White && player != Black');
+        throw new Error('Error processing inline label! '
+            + 'player != White && player != Black');
       }
       var labelSymbol = gpub.diagrams.gnos.getLabelDef(label, stone, fontsize);
-      var labelSymbolVal = gpub.diagrams.gnos.symbolMap[labelSymbol];
+      var labelSymbolVal = gpub.diagrams.gnos.Symbol[labelSymbol];
       var processed = gpub.diagrams.gnos._processTextLabel(
           labelSymbol, labelSymbolVal, label, fontsize);
       return gpub.diagrams.gnos._inlineWrapper.replace('%s', processed);
@@ -103,28 +115,38 @@ gpub.diagrams.gnos = {
   ///////////////////////
   // 'private' helpers //
   ///////////////////////
-  gnosStringArr: function(flattened, size) {
+  /**
+   * Produce a gnos string array of lines.
+   * @param {!glift.flattener.Flattened} flattened
+   * @param {!number} size
+   * @return {string} the rendered diagram
+   * @private
+   */
+  gnosString_: function(flattened, size) {
     var latexNewLine = '\\\\';
-    var header = [
-        '\\gnosfontsize{' + size + '}',
-        '{\\gnos'];
+    var buffer = '\\gnosfontsize{' + size + '}' +
+        '{\\gnos'
     var footer = '}';
-    var board = gpub.diagrams.gnos.gnosBoard(flattened, size);
+    var board = gpub.diagrams.gnos.gnosBoard_(flattened, size);
     for (var i = 0, arr = board.boardArray(); i < arr.length; i++) {
-      header.push(arr[i].join('') + latexNewLine);
+      buffer += arr[i].join('') + latexNewLine;
     }
-    header.push(footer);
-    return header;
+    buffer += footer
+    return buffer;
   },
 
   /**
    * Returns a flattener-symbol-board that's been transformed for into a
    * series of latex/gnos symbols.
+   *
+   * @param {!glift.flattener.Flattened} flattened
+   * @param {number} size
+   * @return {!glift.flattener.Board<gpub.diagrams.gnos.Symbol>}
+   * @private
    */
-  gnosBoard: function(flattened, size) {
-    size = size || '12';
+  gnosBoard_: function(flattened, size) {
     var toStr = glift.flattener.symbolStr;
-    var symbolMap = gpub.diagrams.gnos.symbolMap;
+    var Symbol= gpub.diagrams.gnos.Symbol;
     var newBoard = flattened.board().transform(function(i, x, y) {
       var symbol = toStr(i.base()); // By default: Show the base symbol
       if (i.textLabel() && i.mark() &&
@@ -140,22 +162,33 @@ gpub.diagrams.gnos = {
       }
 
       var out;
-      if (symbolMap[symbol]) {
-        out = symbolMap[symbol];
+      if (Symbol[symbol]) {
+        out = Symbol[symbol];
       } else {
-        out = symbolMap.EMPTY;
+        out = Symbol.EMPTY;
       }
       var lbl = flattened.autoTruncateLabel(i.textLabel());
       if (lbl) {
         out = gpub.diagrams.gnos._processTextLabel(
             symbol, out, lbl, size);
       } else if (i.mark() && !i.stone()) {
-        out = gpub.diagrams.gnos.symbolMap.markOverlap(
-            symbolMap[toStr(i.base())], out);
+        out = gpub.diagrams.gnos.markOverlap_(
+            Symbol[toStr(i.base())], out);
       }
       return out;
     });
     return newBoard;
+  },
+
+  /**
+   * Mark a symbol as overlapping another symbol.
+   *
+   * @param {gpub.diagrams.gnos.Symbol} a
+   * @param {gpub.diagrams.gnos.Symbol} b
+   * @return {string}
+   */
+  markOverlap_: function(a, b) {
+    return '\\gnosOverlap{' + a + '}{\\gnos' + b + '}';
   },
 
   /**
@@ -166,6 +199,7 @@ gpub.diagrams.gnos = {
    * label: string or null
    * stone: number symbol or null
    * size: string.  Size of the gnos font
+   *
    */
   getLabelDef: function(label, stone, size) {
     var toStr = glift.flattener.symbolStr;
