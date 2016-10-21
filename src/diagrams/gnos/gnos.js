@@ -62,6 +62,7 @@ gpub.diagrams.gnos = {
    * We expect flattened and options to be defined.
    * @param {!glift.flattener.Flattened} flat
    * @param {!gpub.api.DiagramOptions} opt
+   * @return {string}
    */
   create: function(flat, opt) {
     var optSize = opt.goIntersectionSize;
@@ -78,13 +79,18 @@ gpub.diagrams.gnos = {
   },
 
   // TODO(kashomon): This should really be a macro.
-  _inlineWrapper: '{\\raisebox{-.17em}{\\textnormal{%s}}}',
+  /** @private {string} */
+  inlineWrapper_: '{\\raisebox{-.17em}{\\textnormal{%s}}}',
 
   /**
    * Render go stones that exist in a block of text.
    *
    * In particular, replace the phrases Black \d+ and White \d+ with
    * the relevant stone symbols i.e. Black 123 => \\gnosbi\\char23
+   *
+   * @param {string} text
+   * @param {!gpub.api.DiagramOptions} options
+   * @return string
    */
   renderInline: function(text, options) {
     options = options || {}; // TODO(kashomon): Remove hack. Push up a level.
@@ -106,9 +112,9 @@ gpub.diagrams.gnos = {
       }
       var labelSymbol = gpub.diagrams.gnos.getLabelDef(label, stone, fontsize);
       var labelSymbolVal = gpub.diagrams.gnos.Symbol[labelSymbol];
-      var processed = gpub.diagrams.gnos._processTextLabel(
+      var processed = gpub.diagrams.gnos.processTextLabel_(
           labelSymbol, labelSymbolVal, label, fontsize);
-      return gpub.diagrams.gnos._inlineWrapper.replace('%s', processed);
+      return gpub.diagrams.gnos.inlineWrapper_.replace('%s', processed);
     });
   },
 
@@ -141,12 +147,12 @@ gpub.diagrams.gnos = {
    *
    * @param {!glift.flattener.Flattened} flattened
    * @param {number} size
-   * @return {!glift.flattener.Board<gpub.diagrams.gnos.Symbol>}
+   * @return {!glift.flattener.Board<string>}
    * @private
    */
   gnosBoard_: function(flattened, size) {
     var toStr = glift.flattener.symbolStr;
-    var Symbol= gpub.diagrams.gnos.Symbol;
+    var Symbol = gpub.diagrams.gnos.Symbol;
     var newBoard = flattened.board().transform(function(i, x, y) {
       var symbol = toStr(i.base()); // By default: Show the base symbol
       if (i.textLabel() && i.mark() &&
@@ -165,11 +171,11 @@ gpub.diagrams.gnos = {
       if (Symbol[symbol]) {
         out = Symbol[symbol];
       } else {
-        out = Symbol.EMPTY;
+        out = Symbol['EMPTY'];
       }
       var lbl = flattened.autoTruncateLabel(i.textLabel());
       if (lbl) {
-        out = gpub.diagrams.gnos._processTextLabel(
+        out = gpub.diagrams.gnos.processTextLabel_(
             symbol, out, lbl, size);
       } else if (i.mark() && !i.stone()) {
         out = gpub.diagrams.gnos.markOverlap_(
@@ -183,8 +189,8 @@ gpub.diagrams.gnos = {
   /**
    * Mark a symbol as overlapping another symbol.
    *
-   * @param {gpub.diagrams.gnos.Symbol} a
-   * @param {gpub.diagrams.gnos.Symbol} b
+   * @param {string} a Gnos symbol transformation
+   * @param {string} b Gnos symbol transformation
    * @return {string}
    */
   markOverlap_: function(a, b) {
@@ -200,30 +206,41 @@ gpub.diagrams.gnos = {
    * stone: number symbol or null
    * size: string.  Size of the gnos font
    *
+   * @param {string} label
+   * @param {glift.flattener.symbols} stone
+   * @param {number} sizeNum
+   * @return {string} key
    */
-  getLabelDef: function(label, stone, size) {
+  getLabelDef: function(label, stone, sizeNum) {
     var toStr = glift.flattener.symbolStr;
-    size = size + ''; // Ensure a string
+    var size = sizeNum + ''; // Ensure a string
+    var out = '';
     if (label && /^\d+$/.test(label) && stone &&
         (size === '8' || label.length >= 3)) {
       var num = parseInt(label, 10);
       var stoneStr = toStr(stone)
       if (num > 0 && num < 100) {
-        return stoneStr + '_' + 'NUMLABEL_1_99';
+        out = stoneStr + '_' + 'NUMLABEL_1_99';
       } else if (num >= 100 && num < 200) {
-        return stoneStr + '_' + 'NUMLABEL_100_199';
+        out = stoneStr + '_' + 'NUMLABEL_100_199';
       } else if (num >= 200 && num < 299) {
-        return stoneStr + '_' + 'NUMLABEL_200_299';
+        out = stoneStr + '_' + 'NUMLABEL_200_299';
       } else if (num >= 300 && num < 399) {
-        return stoneStr + '_' + 'NUMLABEL_300_399';
+        out = stoneStr + '_' + 'NUMLABEL_300_399';
       } else {
-        return toStr(stone) + '_' + 'TEXTLABEL';
+        out = toStr(stone) + '_' + 'TEXTLABEL';
       }
     } else if (stone && label) {
-      return toStr(stone) + '_' + 'TEXTLABEL';
+      out = toStr(stone) + '_' + 'TEXTLABEL';
     } else {
-      return 'TEXTLABEL';
+      out ='TEXTLABEL';
     }
+    if (!gpub.diagrams.gnos.Symbol[out]) {
+      // This shouldn't happen if I've written this method correctly.
+      throw new Error('Programming error! Symbol [' + out + '] not defined in'
+          + ' gpub.diagrams.gnos.Symbol');
+    }
+    return out;
   },
 
   /**
@@ -235,13 +252,25 @@ gpub.diagrams.gnos = {
    *
    * (2) Everything else. In this case, the characters are just overlayed
    * on the stone directly.
+   *
+   * @param {string} symbol Key in into gpub.diagrams.gnos.Symbol.
+   * @param {string} symbolVal Element of gpub.diagrams.gnos.Symbol.
+   * @param {string} label The text to place on a stone (usu. numbers).
+   * @param {number} size The font size. Must be a supported gnos font size.
+   * @return {string}
+   * @private
    */
-  _processTextLabel: function(symbol, symbolVal, label, size) {
+  processTextLabel_: function(symbol, symbolVal, label, size) {
     if (/^\d+$/.test(label) && /NUMLABEL/.test(symbol)) {
       // NUMLABEL are  a special categories of number-labeling where we use the
       // built-in font.  Each of these NUMLABEL fonts accept two characters.
       var lbl = parseInt(label, 10) % 100;
-      return symbolVal.replace('%s', lbl);
+      if (isNaN(lbl)) {
+        // Programming error:
+        throw new Error('Regex thought that lbl was a number, but it was not! '
+            + 'Was: ' + lbl);
+      }
+      return symbolVal.replace('%s', lbl + '');
     } else {
       // Here, we just overlay text on a stone.
       // Make smaller for labels 2+ characters long

@@ -5,7 +5,8 @@ goog.provide('gpub.diagrams.gnos.Symbol');
  * glift.flattener.symbols. In otherwords, there should be a 1:1 mapping from
  * glift.flattener.symbols to this symbol map, but not necessarily the other
  * way around.
- * @enum {string}
+ *
+ * @type {!Object<string,string>}
  */
 gpub.diagrams.gnos.Symbol = {
   /** Placeholder symbol. */

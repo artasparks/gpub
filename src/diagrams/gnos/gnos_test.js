@@ -42,7 +42,7 @@
     var g = gpub.diagrams.gnos;
     var text = 'And then! Black 3 followed by White 4! Destruction. ' +
         'Avoidable with White A. Followed by Black 101';
-    var t = g.renderInline(text);
+    var t = g.renderInline(text, {});
 
     ok(t.indexOf('{\\gnosOverlap{!}') > -1,
         'Exp: overlap !. Rendered Text:' + t);
@@ -63,7 +63,7 @@
   test('Gnos render for lowercase', function() {
     var g = gpub.diagrams.gnos;
     var text = 'And then! Black (a)';
-    var t = g.renderInline(text);
+    var t = g.renderInline(text, {});
     ok(t.indexOf('{\\gnosOverlap{@}') > -1,
         'Exp: overlap !. Rendered Text:' + t);
     ok(t.indexOf('{a}') > -1, 'Should remove parens:' + t);
