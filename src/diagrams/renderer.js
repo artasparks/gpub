@@ -1,6 +1,19 @@
 goog.provide('gpub.diagrams.Renderer');
 
 /**
+ * A map from string to enabled renderers. Typically, the string key will be a
+ * gpub.diagrams.Type enum, but to enable custom renderers, this is left
+ * open-ended.
+ *
+ * Each Renderer must be registered here to be considered enabled, but most
+ * renderers add to this map later, so that this package needn't know about the
+ * down-stream diagram renderer packages.
+ *
+ * @type {!Object<!string, (function(): !gpub.diagrams.DiagramRenderer)>}
+ */
+gpub.diagrams.enabledRenderers = {};
+
+/**
  * General diagram renderer.
  * @param {!gpub.spec.Spec} spec
  * @param {!gpub.api.DiagramOptions} opts
@@ -19,25 +32,69 @@ gpub.diagrams.Renderer = function(spec, opts, cache) {
 };
 
 gpub.diagrams.Renderer.prototype = {
+  /** @return {!gpub.diagrams.Type} Returns the relevant diagram type. */
+  diagramType: function() { return this.opts_.diagramType; },
+
   /**
    * Render all the positions in all the groups.
-   * @return {!Array<!gpub.diagrams.Diagram>}
+   * @return {!gpub.diagrams.Rendered} The rendered diagrams plus any metadata.
    */
   render: function() {
-    return this.renderGroups_(this.spec_.rootGrouping);
+    var metadata = this.renderMetadata();
+    var diagrams = [];
+    /** @param {!gpub.diagrams.Diagram} d */
+    var handler = function(d) {
+      diagrams.push(d);
+    };
+    this.renderGroups_(this.spec_.rootGrouping, handler);
+    metadata.diagrams = diagrams;
+    return metadata;
+  },
+
+  /**
+   * Return the rendered object with just the matadata filled in.
+   * @return {!gpub.diagrams.Rendered}
+   */
+  renderMetadata: function() {
+    return {
+      type: this.diagramType(),
+      init: this.diagramRenderer().init(),
+      diagrams: [],
+    };
+  },
+
+  /**
+   * Stream back the rendered diagrams
+   * @param {!function(gpub.diagrams.Diagram)} fn
+   */
+  renderStream: function(fn) {
+    this.renderGroups_(this.spec_.rootGrouping, fn);
+  },
+
+  /**
+   * Gets the diagram renderer for the passed-in diagram type
+   * @return {!gpub.diagrams.DiagramRenderer}
+   */
+  diagramRenderer: function() {
+    var ren = gpub.diagrams.enabledRenderers[this.diagramType()]
+    if (!ren) {
+      throw new Error('Unknown or unsupported render type: ' + this.diagramType() +
+          '. Each renderer must have a function-provider present in ' +
+          'gpub.diagrams.enabledRenderers.');
+    }
+    return ren();
   },
 
   /**
    * @param {!gpub.spec.Grouping} g
-   * @return {!Array<!gpub.diagrams.Diagram>} Rendered diagrams.
+   * @param {!function(gpub.diagrams.Diagram)} fn
    * @private
    */
-  renderGroups_: function(g) {
-    var out = this.renderOneGroup_(g);
+  renderGroups_: function(g, fn) {
+   this.renderOneGroup_(g, fn);
     for (var i = 0; i < g.groupings.length; i++) {
-      out = out.concat(this.renderOneGroup_(g));
+      this.renderOneGroup_(g, fn);
     }
-    return out;
   },
 
   /**
@@ -45,32 +102,31 @@ gpub.diagrams.Renderer.prototype = {
    * positions; if there are no generated positions, we try to render the
    * original position.
    * @param {!gpub.spec.Grouping} g
-   * @return {!Array<!gpub.diagrams.Diagram>} Rendered diagrams.
+   * @param {!function(!gpub.diagrams.Diagram)} fn
    * @private
    */
-  renderOneGroup_: function(g) {
+  renderOneGroup_: function(g, fn) {
     var out = [];
     for (var i = 0; i < g.positions.length; i++) {
       var pos = g.positions[i];
       if (g.generated[pos.id]) {
         var gen = g.generated[pos.id];
         for (var j = 0; j < gen.positions.length; j++) {
-          out.push(this.renderOnePosition_(gen.positions[i]));
+          this.renderOnePosition_(gen.positions[i], fn);
         }
       } else {
-        out.push(this.renderOnePosition_(pos));
+        this.renderOnePosition_(pos, fn);
       }
     }
-    return out;
   },
 
   /**
    * Render a single position.
    * @param {!gpub.spec.Position} pos
-   * @return {!gpub.diagrams.Diagram} diag
+   * @param {!function(!gpub.diagrams.Diagram)} fn Handler to receive the diagrams.
    * @private
    */
-  renderOnePosition_: function(pos) {
+  renderOnePosition_: function(pos, fn) {
     var mt = this.cache_.get(pos.alias);
     var region = this.opts_.boardRegion;
     var init = glift.rules.treepath.parseInitialPath(pos.initialPosition);
@@ -79,16 +135,12 @@ gpub.diagrams.Renderer.prototype = {
       boardRegion: region,
       nextMovesTreepath: glift.rules.treepath.parseFragment(pos.nextMovesPath  || ''),
     });
-    switch(this.opts_.diagramType) {
-      case 'GNOS':
-        break;
-      case 'GOOE':
-        break
-      case 'IGO':
-        break;
-      default:
-        throw new Error('Unexpected or unknown diagramType: ' + this.opts_.diagramType);
-    }
-    return new gpub.diagrams.Diagram();
+    var dr = this.diagramRenderer()
+    var diagram = {
+      id: pos.id,
+      rendered: dr.render(flattened, this.opts_),
+      comment: flattened.comment(),
+    };
+    fn(diagram);
   },
 };

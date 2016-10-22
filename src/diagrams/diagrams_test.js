@@ -3,6 +3,7 @@
   var basicSgf = '(;GB[1]C[foo]AW[aa]AB[ab]LB[ab:z])';
   var diagramType = gpub.diagrams.Type;
   var format = gpub.outputFormat;
+  /*
 
   test('Create: GOOE', function() {
     var flattened = gpub.diagrams.flatten(basicSgf);
@@ -27,4 +28,5 @@
     var init = gpub.diagrams.getInit('GOOE', 'LATEX');
     deepEqual(init, gpub.diagrams.gooe.init.LATEX());
   });
+  */
 })();
