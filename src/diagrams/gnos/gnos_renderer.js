@@ -7,6 +7,7 @@ goog.provide('gpub.diagrams.gnos.Renderer');
  * @constructor @final @struct
  */
 gpub.diagrams.gnos.Renderer = function() {}
+
 gpub.diagrams.gnos.Renderer.prototype = {
   /**
    * The create method!
@@ -32,6 +33,16 @@ gpub.diagrams.gnos.Renderer.prototype = {
     out[gpub.OutputFormat.LATEX] = '\\usepackage{gnos}';
     return out;
   },
+
+  /**
+   * Render-inline the
+   * @param {string} text
+   * @param {!gpub.api.DiagramOptions} opt
+   * @return {string} The processed text
+   */
+  renderInline: function(text, opt) {
+    return gpub.diagrams.gnos.renderInline(text, opt);
+  }
 };
 
 // Enabled the Renderer!

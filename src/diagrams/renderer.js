@@ -31,6 +31,21 @@ gpub.diagrams.Renderer = function(spec, opts, cache) {
   this.cache_ = cache;
 };
 
+/**
+ * Get a type specific renderer.
+ * @param {!gpub.diagrams.Type} type
+ * @return {!gpub.diagrams.DiagramRenderer}
+ */
+gpub.diagrams.Renderer.typeRenderer = function(type) {
+  var ren = gpub.diagrams.enabledRenderers[type];
+  if (!ren) {
+    throw new Error('Unknown or unsupported render type: ' + type +
+        '. Each renderer must have a function-provider present in ' +
+        'gpub.diagrams.enabledRenderers.');
+  }
+  return ren();
+};
+
 gpub.diagrams.Renderer.prototype = {
   /** @return {!gpub.diagrams.Type} Returns the relevant diagram type. */
   diagramType: function() { return this.opts_.diagramType; },
@@ -76,13 +91,7 @@ gpub.diagrams.Renderer.prototype = {
    * @return {!gpub.diagrams.DiagramRenderer}
    */
   diagramRenderer: function() {
-    var ren = gpub.diagrams.enabledRenderers[this.diagramType()]
-    if (!ren) {
-      throw new Error('Unknown or unsupported render type: ' + this.diagramType() +
-          '. Each renderer must have a function-provider present in ' +
-          'gpub.diagrams.enabledRenderers.');
-    }
-    return ren();
+    return gpub.diagrams.Renderer.typeRenderer(this.diagramType());
   },
 
   /**
@@ -131,16 +140,32 @@ gpub.diagrams.Renderer.prototype = {
     var region = this.opts_.boardRegion;
     var init = glift.rules.treepath.parseInitialPath(pos.initialPosition);
     mt = mt.getTreeFromRoot(init);
-    var flattened = glift.flattener.flatten(mt, {
+    var flattenOpts = {
       boardRegion: region,
-      nextMovesTreepath: glift.rules.treepath.parseFragment(pos.nextMovesPath  || ''),
-    });
-    var dr = this.diagramRenderer()
+      nextMovesPath: glift.rules.treepath.parseFragment(pos.nextMovesPath  || ''),
+    };
+    var flattened = glift.flattener.flatten(mt, flattenOpts);
+    var dr = this.diagramRenderer();
     var diagram = {
       id: pos.id,
       rendered: dr.render(flattened, this.opts_),
       comment: flattened.comment(),
+      collisions: flattened.collisions(),
+      isOnMainPath: flattened.isOnMainPath(),
+      startingMove: flattened.startingMoveNum(),
+      endingMoveNum: flattened.endingMoveNum()
     };
     fn(diagram);
+  },
+
+  /**
+   * Process text inline, if possible, replacing stones with inline-images if
+   * possible.
+   * @param {string} text
+   * @param {!gpub.api.DiagramOptions} opt
+   * @return {string} The processed text.
+   */
+  renderInline: function(text, opt) {
+    return this.diagramRenderer().renderInline(text, opt);
   },
 };

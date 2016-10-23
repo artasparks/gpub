@@ -10,6 +10,10 @@ goog.provide('gpub.diagrams.DiagramRenderer');
  *  id: string,
  *  rendered: string,
  *  comment: string,
+ *  collisions: !Array<!glift.flattener.Collision>,
+ *  isOnMainPath: boolean,
+ *  startingMove: number,
+ *  endingMoveNum: number,
  * }}
  */
 gpub.diagrams.Diagram;
@@ -33,6 +37,7 @@ gpub.diagrams.Rendered;
 gpub.diagrams.DiagramRenderer = function() {};
 
 /**
+ * Render one diagram.
  * @param {!glift.flattener.Flattened} f
  * @param {!gpub.api.DiagramOptions} o
  * @return {string} The rendered diagram
@@ -40,7 +45,16 @@ gpub.diagrams.DiagramRenderer = function() {};
 gpub.diagrams.DiagramRenderer.prototype.render = function(f, o) {};
 
 /**
+ * Provide the initialization map.
  * @return {!Object<gpub.OutputFormat, string>} Diagram-type specific
  * initialization info.
  */
 gpub.diagrams.DiagramRenderer.prototype.init = function() {};
+
+/**
+ * Render inline text with stone images.
+ * @param {string} text
+ * @param {!gpub.api.DiagramOptions} opt
+ * @return {string}
+ */
+gpub.diagrams.DiagramRenderer.prototype.renderInline = function(text, opt) {};

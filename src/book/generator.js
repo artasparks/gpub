@@ -150,7 +150,7 @@ gpub.book._Generator.prototype = {
       var autoVarCrop = this._shouldPerformAutoCropOnVar(mt, nextMoves)
 
       var flattened = glift.flattener.flatten(mt, {
-          nextMovesTreepath: nextMoves,
+          nextMovesPath: nextMoves,
           boardRegion: sgfObj.boardRegion,
           autoBoxCropOnNextMoves: autoVarCrop,
           regionRestrictions: regionRestrictions

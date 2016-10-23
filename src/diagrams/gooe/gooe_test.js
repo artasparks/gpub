@@ -5,8 +5,11 @@
   var NORMAL = gpub.diagrams.gooe.sizes.NORMAL;
   var LARGE = gpub.diagrams.gooe.sizes.LARGE;
   var basicSgf = '(;GB[1]C[foo]AW[aa]AB[ab]LB[ab:z])';
-  var flattened = gpub.diagrams.flatten(
-      basicSgf, [], [], 'TOP_LEFT');
+
+  var mt = glift.parse.fromString(basicSgf)
+  var flattened = glift.flattener.flatten(mt, {
+    boardRegion: 'TOP_LEFT'
+  });
 
   test('Gooe board generation', function() {
     var board = gooeBoard(flattened, NORMAL);
@@ -31,8 +34,9 @@
   });
 
   test('Gooe board generation: headers / footers', function() {
+    var flatter = glift.flattener.flatten(mt, {});
     var arr = gpub.diagrams.gooe.gooeStringArray(
-        gpub.diagrams.flatten(basicSgf),
+        flatter,
         NORMAL);
     deepEqual(arr.length, 19 + 2);
 

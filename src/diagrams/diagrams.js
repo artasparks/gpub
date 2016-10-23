@@ -3,69 +3,41 @@ goog.provide('gpub.diagrams')
 
 gpub.diagrams = {
   /**
-   * The new method for generating diagrams. Note that this no longer generates
-   * the diagram context -- that is left up to the relevant book generator.
+   * General diagram renderer.
+   * @param {!gpub.spec.Spec} spec
+   * @param {!gpub.api.DiagramOptions} opts
+   * @param {!gpub.util.MoveTreeCache} cache
+   * @return {!gpub.diagrams.Rendered} The rendered diagrams.
    */
-  create: function(flattened, diagramType, options) {
-    // TODO(kashomon): Remove optional options obj. We should only do options
-    // processing in api land.
-    options = options || {};
-    return gpub.diagrams._getPackage(diagramType).create(flattened, options);
-  },
-
-  /** Renders go stones that exist in a block of text. */
-  renderInline: function(diagramType, text) {
-    return gpub.diagrams._getPackage(diagramType).renderInline(text);
-  },
-
-  /** Gets a diagram type package */
-  _getPackage: function(diagramType) {
-    if (!diagramType || !gpub.diagrams.Type[diagramType]) {
-      throw new Error('Unknown diagram type: ' + diagramType);
-    }
-    var pkgName = glift.enums.toCamelCase(diagramType);
-    var pkg = gpub.diagrams[pkgName];
-
-    if (!pkg) {
-      throw new Error('No package for diagram type: ' + diagramType);
-    }
-    if (!pkg.create) {
-      throw new Error('No create method for diagram type: ' + diagramType);
-    }
-    return pkg
-  },
-
-  /** Gets the initialization data for a diagramType. */
-  getInit: function(diagramType, outputFormat) {
-    var pkg = gpub.diagrams._getPackage(diagramType);
-    if (!pkg.init || typeof pkg.init != 'object') {
-      throw new Error('No init obj');
-    }
-    var init = pkg.init[outputFormat];
-    if (!init) {
-      return ''
-    } else if (typeof init === 'function') {
-      return init();
-    } else if (typeof init === 'string') {
-      return init;
-    } else {
-      return '';
-    }
+  render: function(spec, opts, cache) {
+    return new gpub.diagrams.Renderer(spec, opts, cache)
+        .render();
   },
 
   /**
-   * A flattener helper.  Returns a glift Flattened object, which is key for
-   * generating diagrams.
+   * Streaming-process the diagrams.
+   *
+   * @param {!gpub.spec.Spec} spec
+   * @param {!gpub.api.DiagramOptions} opts
+   * @param {!gpub.util.MoveTreeCache} cache
+   * @param {!function(gpub.diagrams.Diagram)} fn
    */
-  // TODO(kashomon): Consider deleting this. It's really not doing much at all.
-  flatten: function(sgf, initPos, nextMovesPath, boardRegion) {
-    initPos = initPos || [];
-    nextMovesPath = nextMovesPath || [];
-    var movetree = glift.rules.movetree.getFromSgf(sgf, initPos);
-    return glift.flattener.flatten(movetree, {
-      nextMovesTreepath: nextMovesPath,
-      boardRegion: boardRegion
-    });
+  renderStream: function(spec, opts, cache, fn) {
+    return new gpub.diagrams.Renderer(spec, opts, cache)
+        .renderStream(fn);
+  },
+
+  /**
+   * Renders go stones that exist in a block of text.
+   * @param {!gpub.diagrams.Type} diagramType
+   * @param {!string} text To process
+   * @param {!gpub.api.DiagramOptions} opt
+   * @return {string}
+   */
+  renderInline: function(diagramType, text, opt) {
+    return gpub.diagrams.Renderer
+        .typeRenderer(diagramType)
+        .renderInline(text, opt);
   },
 
   /**
@@ -101,14 +73,22 @@ gpub.diagrams = {
    * - Label
    *
    * Returns new text with the relevant replacements.
+   * @type {?RegExp}
    */
   inlineLabelRegexGlobal_: null,
+
+  /**
+   * A replace-inline function.
+   * @param {string} text The text to process.
+   * @param {function(string, string, string): string} fn A processing function
+   *    that takes as parameters 'full', 'player', 'label'.
+   */
   replaceInline: function(text, fn) {
     if (!gpub.diagrams.inlineLabelRegexGlobal_) {
       gpub.diagrams.inlineLabelRegexGlobal_ = new RegExp(
           gpub.diagrams.inlineLabelRegex.source, 'g');
     }
-    var reg = gpub.diagrams.inlineLabelRegexGlobal_;
+    var reg = /** @type {!RegExp} */ (gpub.diagrams.inlineLabelRegexGlobal_);
     return text.replace(reg, function(full, player, label) {
       if (/^\(.\)$/.test(label)) {
         label = label.replace(/^\(|\)$/g, '');

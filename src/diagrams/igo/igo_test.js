@@ -16,19 +16,22 @@
       'B[ca];' +
       'W[cb];' +
       'B[cc]TR[ad])';
+
   test('Create!', function() {
-    var flattened = gpub.diagrams.flatten(
-        basicSgf, [], [0,0,0], 'TOP_LEFT');
-    var d = gpub.diagrams.create(flattened, IGO, {});
-    deepEqual(d, [
-        '\\cleargoban',
-        '\\gobansize{19}',
-        '\\igofontsize{10}',
-        '\\white{a19}',
-        '\\black{a18}',
-        '\\black[1]{c19,c18,c17}',
-        '\\black[\\igotriangle]{a16}',
-        '\\showgoban'
-    ].join('\n'));
+    var mt = glift.parse.fromString(basicSgf)
+    var flattened = glift.flattener.flatten(mt, {
+      boardRegion: 'TOP_LEFT',
+      nextMovesPath: [0,0,0],
+    });
+    var d = gpub.diagrams.igo.create(flattened, {});
+    deepEqual(d,
+        '\\cleargoban\n' +
+        '\\gobansize{19}\n' +
+        '\\igofontsize{10}\n' +
+        '\\white{a19}\n' +
+        '\\black{a18}\n' +
+        '\\black[1]{c19,c18,c17}\n' +
+        '\\black[\\igotriangle]{a16}\n' +
+        '\\showgoban');
   });
 })();

@@ -346,7 +346,7 @@ glift.rules.treepath = {
   },
 
   /**
-   * Use some heuristics to find a nextMovesTreepath.  This is used for
+   * Use some heuristics to find a nextMovesPath.  This is used for
    * automatically adding move numbers.
    *
    * Note: The movetree should be in _final position_. The algorithm below works
@@ -366,8 +366,8 @@ glift.rules.treepath = {
    * @param {glift.rules.Treepath=} opt_initTreepath The initial treepath. If not
    *    specified or undefined, use the current location in the movetree.
    * @param {number=} opt_minusMovesOverride: Force findNextMoves to to return a
-   *    nextMovesTreepath of this length, starting from the init treepath.  The
-   *    actual nextMovesTreepath can be shorter. (Note: This option should be
+   *    nextMovesPath of this length, starting from the init treepath.  The
+   *    actual nextMovesPath can be shorter. (Note: This option should be
    *    deleted).
    * @param {boolean=} opt_breakOnComment Whether or not to break on comments on the
    *    main variation.  Defaults to true
@@ -380,7 +380,7 @@ glift.rules.treepath = {
    *
    * - movetree: An updated movetree
    * - treepath: A new treepath that says how to get to this position
-   * - nextMoves: A nextMovesTreepath, used to apply for the purpose of
+   * - nextMoves: A nextMovesPath, used to apply for the purpose of
    *    crafting moveNumbers.
    */
   findNextMovesPath: function(
@@ -389,11 +389,11 @@ glift.rules.treepath = {
     var breakOnComment = opt_breakOnComment === false ? false : true;
     var mt = movetree.getTreeFromRoot(initTreepath);
     var minusMoves = opt_minusMovesOverride || 1000;
-    var nextMovesTreepath = [];
+    var nextMovesPath = [];
     var startMainline = mt.onMainline();
     for (var i = 0; mt.node().getParent() && i < minusMoves; i++) {
       var varnum = mt.node().getVarNum();
-      nextMovesTreepath.push(varnum);
+      nextMovesPath.push(varnum);
       mt.moveUp();
       if (breakOnComment &&
           mt.properties().getOneValue(glift.rules.prop.C)) {
@@ -404,11 +404,11 @@ glift.rules.treepath = {
         break; // Break if we've moved to the mainline from a variation
       }
     }
-    nextMovesTreepath.reverse();
+    nextMovesPath.reverse();
     return {
       movetree: mt,
       treepath: mt.treepathToHere(),
-      nextMoves: nextMovesTreepath
+      nextMoves: nextMovesPath
     };
   },
 
