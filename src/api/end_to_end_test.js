@@ -20,7 +20,9 @@
   test('Testing full happy path, no exceptions', function() {
     var output = gpub.create({
       sgfs: [sgf],
-      maxDiagrams: 20
+      diagramOptions: {
+        maxDiagrams: 20
+      },
     })
     ok(output, 'Output should be defined');
   });

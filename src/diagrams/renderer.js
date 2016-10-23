@@ -29,6 +29,12 @@ gpub.diagrams.Renderer = function(spec, opts, cache) {
 
   /** @const {!gpub.util.MoveTreeCache} */
   this.cache_ = cache;
+
+  /**
+   * Number of diagrams that have been rendered.
+   * @private {number}
+   */
+  this.rendered_ = 0;
 };
 
 /**
@@ -116,6 +122,7 @@ gpub.diagrams.Renderer.prototype = {
    */
   renderOneGroup_: function(g, fn) {
     var out = [];
+
     for (var i = 0; i < g.positions.length; i++) {
       var pos = g.positions[i];
       if (g.generated[pos.id]) {
@@ -136,6 +143,18 @@ gpub.diagrams.Renderer.prototype = {
    * @private
    */
   renderOnePosition_: function(pos, fn) {
+    this.rendered_++;
+    if (this.opts_.skipDiagrams) {
+      if (this.rendered_ <= this.opts_.skipDiagrams) {
+        return;
+      }
+    }
+    if (this.opts_.maxDiagrams) {
+      if (this.rendered_ > this.opts_.maxDiagrams) {
+        return;
+      }
+    }
+
     var mt = this.cache_.get(pos.alias);
     var region = this.opts_.boardRegion;
     var init = glift.rules.treepath.parseInitialPath(pos.initialPosition);
@@ -153,7 +172,9 @@ gpub.diagrams.Renderer.prototype = {
       collisions: flattened.collisions(),
       isOnMainPath: flattened.isOnMainPath(),
       startingMoveNum: flattened.startingMoveNum(),
-      endingMoveNum: flattened.endingMoveNum()
+      endingMoveNum: flattened.endingMoveNum(),
+      autoBoxCropOnVariation: this.opts_.autoBoxCropOnVariation,
+      regionRestrictions: this.opts_.regionRestrictions,
     };
     fn(diagram);
   },

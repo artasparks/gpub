@@ -38,4 +38,20 @@
     deepEqual(api.cache_.get(id0).toSgf(), expCache[id0].toSgf(), 'sgf1 text');
     deepEqual(api.cache_.get(id1).toSgf(), expCache[id1].toSgf(), 'sgf2 text');
   });
+
+  test('Fluent API: Full Diagram Creation', function() {
+    var sgf = testdata.gogameguru_commentary;
+    var api = gpub.init({
+      sgfs: [sgf],
+      diagramOptions: {
+        maxDiagrams: 20,
+      }})
+      .createSpec()
+      .processSpec()
+      .renderDiagrams();
+
+    var diag = api.diagrams();
+    ok(diag, 'Diagrams must be defined');
+    deepEqual(diag.diagrams.length, 20);
+  });
 })();

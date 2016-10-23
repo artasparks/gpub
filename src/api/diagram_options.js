@@ -64,7 +64,7 @@ gpub.api.DiagramOptions = function(opt_options) {
    *
    * @const {!Array<glift.enums.boardRegions>}
    */
-  this.regionRestrictions = o.regionRestrictions || [];
+  this.regionRestrictions = o.regionRestrictions || undefined;
 
   /**
    * What size should the intersections be? Defaults to undefined since
