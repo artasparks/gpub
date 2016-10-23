@@ -4,6 +4,7 @@
   "description": "GPub: Create and publish go books with Glift!",
   "license": "MIT",
   "repository": "Kashomon/gpub",
+  "main": "index.js",
   "bugs": {
     "url": "http://github.com/Kashomon/gpub/issues"
   },

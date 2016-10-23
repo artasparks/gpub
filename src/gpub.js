@@ -7,9 +7,9 @@
  * --------------------------------------
  */
 (function(w) {
-var gpub = w.gpub || {};
+var g = gpub || w.gpub || {};
 if (w) {
   // expose Glift as a global.
-  w.gpub = gpub;
+  w.gpub = g;
 }
 })(window);
