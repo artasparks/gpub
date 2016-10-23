@@ -7,27 +7,30 @@ goog.provide('gpub.util.MoveTreeCache');
  * @constructor @struct @final
  */
 gpub.util.MoveTreeCache = function(opt_sgfMapping, opt_mtCache) {
-  /** @type {!Object<string, string>} */
-  this.sgfMap = {};
-  if (opt_sgfMapping) {
-    for (var key in opt_sgfMapping) {
-      this.sgfMap[key] = opt_sgfMapping[key];
-    }
-  }
+  /**
+   * Reference to the SGF mapping, for convenience.
+   *
+   * We assume SGFs are immutable once passed in, as is the SGF Mapping. Thus
+   * we don't copy the map here.
+   * @type {!Object<string, string>}
+   */
+  this.sgfMap = opt_sgfMapping || {};
 
   /**
    * @type {!Object<string, !glift.rules.MoveTree>} mapping from alias to
    *    movetree.
    */
   this.mtCache = opt_mtCache || {};
+};
 
+gpub.util.MoveTreeCache.prototype = {
   /**
    * Get a movetree. If a movetree can't be found, throw an exception -- that
    * means an alias hasn't been provided.
    * @param {string} alias
    * @return {!glift.rules.MoveTree}
    */
-  this.get = function(alias) {
+  get: function(alias) {
     var mt = this.mtCache[alias];
     if (mt) {
       return mt;
@@ -40,6 +43,5 @@ gpub.util.MoveTreeCache = function(opt_sgfMapping, opt_mtCache) {
       throw new Error('No SGF found for alias in sgfMap: ' + alias);
     }
     return mt.getTreeFromRoot();
-  };
+  }
 };
-

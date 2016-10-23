@@ -9,11 +9,12 @@
     var cache = new gpub.util.MoveTreeCache();
     var spec = gpub.spec.create(new gpub.Options({
       sgfs: [sgfOne],
+      ids: ['Zed'],
     }), cache);
 
     var proc = gpub.spec.process(spec, cache);
 
-    var id = 'Zed-1'
+    var id = 'Zed'
     deepEqual(proc.rootGrouping.positions[0].id, id);
     deepEqual(proc.rootGrouping.positions[0].alias, id);
     deepEqual(proc.rootGrouping.generated[id].positions.length, 2);

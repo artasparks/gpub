@@ -19,7 +19,7 @@ gpub.spec = {
     var sgfs = options.sgfs;
     var cache = opt_cache || new gpub.util.MoveTreeCache(); // for testing convenience.
     var specOptions = options.specOptions;
-    var defaultPositionType = specOptions.defaultPositionType;
+    var defaultPositionType = specOptions.positionType;
 
     var spec = new gpub.spec.Spec({
       specOptions: options.specOptions,
@@ -29,6 +29,7 @@ gpub.spec = {
 
     var rootGrouping = spec.rootGrouping;
     rootGrouping.positionType = defaultPositionType;
+    var optIds = options.ids;
 
     for (var i = 0; i < sgfs.length; i++) {
       var sgfStr = sgfs[i];
@@ -36,13 +37,10 @@ gpub.spec = {
         throw new Error('No SGF String defined for index: ' + i);
       }
       var mt = glift.parse.fromString(sgfStr);
-      var alias = 'sgf-' + (i+1);
 
-      // If the Game Name is specified, we prepend that to the index for
-      // readability.
-      var GN = glift.rules.prop.GN;
-      if (mt.properties().contains(GN)) {
-        alias = mt.properties().getOneValue(GN) + '-' + (i+1);
+      var alias = 'sgf-' + (i+1);
+      if (optIds) {
+        alias = optIds[i];
       }
 
       cache.sgfMap[alias] = sgfStr;

@@ -152,7 +152,7 @@ gpub.diagrams.Renderer.prototype = {
       comment: flattened.comment(),
       collisions: flattened.collisions(),
       isOnMainPath: flattened.isOnMainPath(),
-      startingMove: flattened.startingMoveNum(),
+      startingMoveNum: flattened.startingMoveNum(),
       endingMoveNum: flattened.endingMoveNum()
     };
     fn(diagram);

@@ -3,8 +3,9 @@ goog.provide('gpub.api.SpecOptions');
 goog.require('gpub.api');
 
 /**
- * Options for spec creation
- * 
+ * The user can pass in defaults to apply to the SGFs during spec
+ * creation.
+ *
  * @param {!gpub.api.SpecOptions=} opt_options
  *
  * @constructor @final @struct
@@ -13,11 +14,11 @@ gpub.api.SpecOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
-   * Optionally, the user can pass in defaults to apply to the SGFs. These are
-   * the defaults applied to Phase 1: Basic spec generation.
+   * Set the default position type for all position generation during spec
+   * processing.
    * @const {!gpub.spec.PositionType}
    */
-  this.defaultPositionType = o.defaultPositionType ||
+  this.positionType = o.positionType ||
       gpub.spec.PositionType.GAME_COMMENTARY;
 
   /** @type {!glift.rules.ProblemConditions} */

@@ -5,12 +5,11 @@ gpub.diagrams = {
   /**
    * General diagram renderer.
    * @param {!gpub.spec.Spec} spec
-   * @param {!gpub.api.DiagramOptions} opts
    * @param {!gpub.util.MoveTreeCache} cache
    * @return {!gpub.diagrams.Rendered} The rendered diagrams.
    */
-  render: function(spec, opts, cache) {
-    return new gpub.diagrams.Renderer(spec, opts, cache)
+  render: function(spec, cache) {
+    return new gpub.diagrams.Renderer(spec, spec.diagramOptions, cache)
         .render();
   },
 
@@ -18,12 +17,11 @@ gpub.diagrams = {
    * Streaming-process the diagrams.
    *
    * @param {!gpub.spec.Spec} spec
-   * @param {!gpub.api.DiagramOptions} opts
    * @param {!gpub.util.MoveTreeCache} cache
    * @param {!function(gpub.diagrams.Diagram)} fn
    */
-  renderStream: function(spec, opts, cache, fn) {
-    return new gpub.diagrams.Renderer(spec, opts, cache)
+  renderStream: function(spec, cache, fn) {
+    return new gpub.diagrams.Renderer(spec, spec.diagramOptions, cache)
         .renderStream(fn);
   },
 

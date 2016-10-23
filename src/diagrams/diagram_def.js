@@ -12,7 +12,7 @@ goog.provide('gpub.diagrams.DiagramRenderer');
  *  comment: string,
  *  collisions: !Array<!glift.flattener.Collision>,
  *  isOnMainPath: boolean,
- *  startingMove: number,
+ *  startingMoveNum: number,
  *  endingMoveNum: number,
  * }}
  */

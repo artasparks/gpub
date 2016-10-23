@@ -26,6 +26,31 @@ gpub.Options = function(opt_options) {
   this.sgfs = o.sgfs || [];
 
   /**
+   * Optianal array of IDs corresponding to the SGFs. If supplied, should be
+   * the same length as the sgfs. If not specified, artificial IDs will be
+   * specified.
+   * @const {!Array<string>|undefined}
+   */
+  this.ids = o.ids || undefined;
+
+  if (this.ids) {
+    if (this.ids.length !== this.sgfs.length) {
+      throw new Error('If IDs array is provided, ' +
+          'it must be the same length as the SGFs array');
+    } else {
+      // Ensure uniqueness.
+      var tmpMap = {};
+      for (var i = 0; i < this.ids.length; i++) {
+        var id = this.ids[i];
+        if (tmpMap[this.ids[i]]) {
+          throw new Error('IDs must be unique. Found duplicate: ' + id);
+        }
+        tmpMap[id] = true;
+      }
+    }
+  }
+
+  /**
    * Options specific to spec creation (Phases 1 and 2)
    * @const {!gpub.api.SpecOptions}
    */

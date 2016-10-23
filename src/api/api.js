@@ -7,6 +7,25 @@ goog.provide('gpub.create');
  */
 gpub.api = {
   /**
+   * Intended usage:
+   *    gpub.init({...})
+   *      .createSpec()
+   *      .processSpec()
+   *      .createDiagrams()
+   *      .createBook()
+   *
+   * Equivalent to:
+   *    gpub.create({...})
+   *
+   * @param {!gpub.Options} options to process
+   * @return {!gpub.Api} A fluent API wrapper.
+   */
+  init: function(options) {
+    gpub.api.validateInputs(options);
+    return new gpub.Api(new gpub.Options(options));
+  },
+
+  /**
    * Create a 'book' output from SGFs.
    *
    * @param {!gpub.Options} options
@@ -15,25 +34,18 @@ gpub.api = {
   create: function(options) {
     gpub.init(options)
         .createSpec()
-        .processSpec();
+        .processSpec()
+        .renderDiagrams();
 
-    // TODO(kashomon): Finish phase 3 & 4.
+    // TODO(kashomon): Finish phase 4.
     return 'foo';
   },
 };
 
 /** @export */
 gpub.create = gpub.api.create;
-
-////////////////////////
-// Methods in the API //
-////////////////////////
-
-
-
-/////////////
-// Private //
-/////////////
+/** @export */
+gpub.init = gpub.api.init;
 
 /**
  * Validates that the relevant parameters are available and returns the

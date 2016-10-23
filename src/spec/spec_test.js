@@ -39,7 +39,7 @@
     });
 
     var spec = gpub.spec.create(o, cache);
-    var alias1 = 'sgf-1', alias2 = 'foo-2';
+    var alias1 = 'sgf-1', alias2 = 'sgf-2';
     var mapping = {};
     mapping[alias1] = sgf1;
     mapping[alias2] = sgf2;
@@ -62,7 +62,7 @@
         sgfs.gogameguruHard,
       ],
       specOptions: {
-        defaultPositionType: gpub.spec.PositionType.PROBLEM,
+        positionType: gpub.spec.PositionType.PROBLEM,
       }
     });
     var spec = gpub.spec.create(opts, cache);

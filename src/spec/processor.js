@@ -190,8 +190,8 @@ gpub.spec.Processor.prototype = {
       positionType = position.positionType;
     } else if (grouping.positionType) {
       positionType = grouping.positionType;
-    } else if (this.originalSpec_.specOptions.defaultPositionType) {
-      positionType = this.originalSpec_.specOptions.defaultPositionType;
+    } else if (this.originalSpec_.specOptions.positionType) {
+      positionType = this.originalSpec_.specOptions.positionType;
     }
     if (!positionType) {
       throw new Error('No position type specified for position:'
