@@ -1,0 +1,8 @@
+compiled/*
+compiler-latest/*
+deps/*
+examples/*
+src/*
+test/*
+copy-local-to-deps.sh
+gulpfile.js

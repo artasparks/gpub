@@ -131,6 +131,13 @@ gulp.task('concat', () => {
     .pipe(gulp.dest('./compiled/'))
 })
 
+gulp.task('concat-node', () => {
+  return gulp.src(jsSrcGlobGen(srcPaths, srcIgnore))
+    .pipe(concat('gpub-concat.js'))
+    .pipe(size())
+    .pipe(gulp.dest('./gpub-node/'))
+})
+
 // Update the HTML tests with the dev JS source files
 gulp.task('update-html-srcs', () => {
   return gulp.src(jsSrcGlobGen(srcPaths, srcIgnore))
