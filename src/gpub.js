@@ -7,7 +7,15 @@
  * --------------------------------------
  */
 (function(w) {
-var g = gpub || w.gpub || {};
+var g;
+if (typeof gpub !== 'undefined') {
+  g = gpub;
+} else if (typeof w.gpub !== 'undefined') {
+  g = w.gpub
+} else {
+  g = {};
+}
+
 if (w) {
   // expose Glift as a global.
   w.gpub = g;
