@@ -53,7 +53,7 @@ var testGlob = [
 // - Recreates the concat-target
 // - Runs all the tests
 // - Compiles with JSCompiler + TypeChecking
-gulp.task('build-test', ['concat', 'compile', 'test'])
+gulp.task('build-test', ['concat', 'compile', 'test', 'concat-node'])
 
 gulp.task('test', ['update-html-tests', 'update-html-srcs'], () => {
   return gulp.src('./test/htmltests_gen/GPubQunitTest.html').pipe(qunit())
