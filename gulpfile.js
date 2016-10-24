@@ -2,7 +2,6 @@
 
 var gulp = require('gulp'),
     qunit = require('gulp-qunit'),
-    gutil = require('gulp-util'),
     size = require('gulp-size'),
     concat = require('gulp-concat'),
     closureCompiler = require('gulp-closure-compiler'),
@@ -194,6 +193,11 @@ gulp.task('src-gen', () => {
     }));
 });
 
+gulp.task('bump-patch', () => {
+  gulp.src(['package.json', 'src/gpub_global.js', 'src/gpub.js'])
+    .pipe(updateVersion({type: 'patch'}))
+});
+
 /////////////////////////////////////////////////
 /////////////// Library Functions ///////////////
 /////////////////////////////////////////////////
@@ -296,21 +300,82 @@ function jsSrcGlobGen(ordering, addGlobs) {
   return out.concat(addGlobs);
 }
 
+/**
+ * Update the semver version
+ * @param {{
+ *  regexes: !Array<!RegExp>,
+ *  type: string
+ * }} opt
+ */
+function updateVersion(opt) {
+  var opt = opt || {};
+  var allFile = [];
+  var defaultReg = [
+    'version:\\s*[\'"]((\\d+)\\.(\\d+)\\.(\\d+))[\'"]',
+    '"version":\\s*"((\\d+)\\.(\\d+)\\.(\\d+))"',
+    '@version\\s*((\\d+)\\.(\\d+)\\.(\\d+))',
+  ];
+
+  var inRegs = defaultReg || opt.regexes;
+  var reg = inRegs.map((r) => new RegExp(r));
+  var type = opt.type || 'patch';
+  if (type !== 'patch' && type !== 'minor' && type !== 'major') {
+    throw new Error('Unknown bump type (should be patch, minor, or major): ' + type);
+  }
+  return through.obj(function(file, enc, cb) {
+    allFile.push(file.path);
+    cb();
+  }, function(cb) {
+    allFile.forEach((f) => {
+      var contents = fs.readFileSync(f, {encoding: 'UTF-8'})
+      for (var i = 0; i < reg.length; i++) {
+        var r = reg[i];
+        if (r.test(contents)) {
+          console.log('Updating Version for: ' + f);
+          contents = contents.replace(r, function(match, p1, maj, min, pat) {
+            var nmaj = maj, nmin = min, npat = pat;
+            if (type === 'major') {
+              nmaj = parseInt(maj, 10) + 1;
+            }
+            if (type === 'minor') {
+              nmin = parseInt(min, 10) + 1;
+            }
+            if (type === 'patch') {
+              npat = parseInt(pat, 10) + 1;
+            }
+            var newv = nmaj + '.' + nmin + '.' + npat
+            // Now we can use simple string replacement
+            return match.replace(p1, newv)
+          })
+          break;
+        }
+      }
+      fs.writeFileSync(f, contents)
+    })
+    cb();
+  })
+}
+
 
 /**
  * A function to update the HTML files. The idea is that updateHtmlFiles takes a
  * glob of files and treats them as templates. It goes through and add
  * sources to these files then outputs them to  the specified outDir
  *
- * @param {string} filesGlob The glob of html files.
- * @param {string} header The header marker to indicate where to dump the JS
+ *  - filesGlob: The glob of html files.
+ *  - header: The header marker to indicate where to dump the JS sources.
+ *  - footer: The footer marker to indicate where to dump the JS
  *    sources.
- * @param {string} footer The footer marker to indicate where to dump the JS
- *    sources.
- * @param {string} outDir the output dir for the templated files.
- * @param {string} template the template to use.
- *
- * @return an object stream
+ *  - outDir the output dir for the templated files.
+ *  - template - the template to use.
+ * @param {{
+ *  filesGlob: string,
+ *  header: string,
+ *  footer: string,
+ *  outDir: string,
+ *  template: string
+ * }} params
+ * @return {!Object} an object stream
  * Note: this gets the 'srcs' as part of the Vinyl file stream.
  */
 function updateHtmlFiles(params) {
