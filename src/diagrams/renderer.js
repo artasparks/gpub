@@ -128,7 +128,7 @@ gpub.diagrams.Renderer.prototype = {
       if (g.generated[pos.id]) {
         var gen = g.generated[pos.id];
         for (var j = 0; j < gen.positions.length; j++) {
-          this.renderOnePosition_(gen.positions[i], fn);
+          this.renderOnePosition_(gen.positions[j], fn);
         }
       } else {
         this.renderOnePosition_(pos, fn);
