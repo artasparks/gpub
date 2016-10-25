@@ -8,7 +8,7 @@ goog.provide('gpub.create');
 gpub.api = {
   /**
    * Intended usage:
-   *    gpub.init({...})
+   *    gpub.init({...options...})
    *      .createSpec()
    *      .processSpec()
    *      .createDiagrams()
@@ -21,7 +21,9 @@ gpub.api = {
    * @return {!gpub.Api} A fluent API wrapper.
    */
   init: function(options) {
-    gpub.api.validateInputs(options);
+    if (!glift) {
+      throw new Error('GPub depends on Glift, but Glift was not defined');
+    }
     return new gpub.Api(new gpub.Options(options));
   },
 
@@ -46,24 +48,3 @@ gpub.api = {
 gpub.create = gpub.api.create;
 /** @export */
 gpub.init = gpub.api.init;
-
-/**
- * Validates that the relevant parameters are available and returns the
- * processed options.
- *
- * @param {!gpub.Options} options
- * @package
- */
-gpub.api.validateInputs = function(options) {
-  if (!options) {
-    throw new Error('No options defined');
-  }
-  var sgfs = options.sgfs;
-  if (!sgfs || glift.util.typeOf(sgfs) !== 'array' || !sgfs.length) {
-    throw new Error('SGF array must be defined and non-empty');
-  }
-  if (!glift) {
-    throw new Error('GPub depends on Glift, but Glift was not defined');
-  }
-};
-

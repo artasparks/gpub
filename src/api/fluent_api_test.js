@@ -39,6 +39,29 @@
     deepEqual(api.cache_.get(id1).toSgf(), expCache[id1].toSgf(), 'sgf2 text');
   });
 
+  test('Fluent API: Spec Creation (options)', function() {
+    var veasy = testdata.sgfs.veryeasy;
+    var triv = testdata.sgfs.trivialproblem;
+    var opt = {
+      sgfs: [veasy, triv],
+      ids: ['veasy', 'triv'],
+      specOptions: {
+        positionType: 'PROBLEM',
+      },
+    };
+    var api = gpub.init(opt).createSpec()
+
+    var spec = api.spec();
+    var jsonspec = api.jsonSpec();
+    ok(spec, 'spec should be defined');
+    ok(jsonspec, 'spec should be defined');
+    deepEqual(typeof spec, 'object', 'Spec should be an object');
+    deepEqual(typeof jsonspec, 'string', 'JSON spec should be a string');
+
+    deepEqual(gpub.init().createSpec(jsonspec).jsonSpec(), jsonspec);
+    deepEqual(gpub.init().createSpec(spec).jsonSpec(), jsonspec);
+  });
+
   test('Fluent API: Full Diagram Creation', function() {
     var sgf = testdata.gogameguru_commentary;
     var api = gpub.init({

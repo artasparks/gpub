@@ -56,30 +56,56 @@ gpub.Api.prototype = {
   /** @return {?gpub.spec.Spec} The spec, if it exists. */
   spec: function() { return this.spec_; },
 
-  /** @return {?gpub.diagrams.Rendered} The rendered diagrams, if they exists. */
+  /**
+   * @return {?gpub.diagrams.Rendered} The rendered diagrams, if they exist.
+   * Note that
+   */
   diagrams: function() { return this.diagrams_; },
 
   /** @return {string} Return the serialized JSON spec or empty string. */
   jsonSpec: function() { return this.spec_ ? this.spec_.serializeJson() : '' },
 
   /**
-   * Create an initial GPub specification.
-   * @param {!(function(!gpub.spec.Spec):!gpub.spec.Spec)=} opt_fn
-   *    Optional user-specified processing function.
+   * Create an initial GPub specification. This can either be created from
+   * scratch or from an existing spec (in either it's object or JSON form).
+   *
+   * @param {(!gpub.spec.Spec|string)=} opt_spec Optionally pass in a spec, in
+   *    either a serialized JSON form, or in the object form.
    * @return {!gpub.Api} this
    */
-  createSpec: function(opt_fn) {
-    this.cache_ = new gpub.util.MoveTreeCache();
-    this.spec_ = sendback(gpub.spec.create(this.options(), this.cache_),
-        'a gpub.spec.Spec object',
-        opt_fn);
+  createSpec: function(opt_spec) {
+    if (opt_spec) {
+      // The spec option has been passed in.
+      if (typeof opt_spec === 'string') {
+        // Assume it's JSON.
+        var jsonspec = /** @type {string} */ (opt_spec);
+        this.spec_ = gpub.spec.Spec.deserializeJson(jsonspec);
+      } else if (typeof opt_spec === 'object') {
+        // Assume the types are correct and create a copy.
+        var objspec = /** @type {!gpub.spec.Spec} */ (opt_spec);
+        this.spec_ = new gpub.spec.Spec(objspec);
+      } else {
+        throw new Error('Unknown type for spec options. ' +
+            'Must be serialized JSON or a gpub.spce.Spec object.');
+      }
+    } else {
+      // No spec option has been passed in; Process the incoming SGFS.
+      var sgfs = this.opt_.sgfs;
+      if (!sgfs || glift.util.typeOf(sgfs) !== 'array' || sgfs.length === 0) {
+        throw new Error('SGF array must be defined and non-empty ' +
+            'before spec creation');
+      }
+      this.cache_ = new gpub.util.MoveTreeCache();
+      this.spec_ = gpub.spec.create(this.options(), this.cache_);
+    }
     return this;
   },
 
   /**
    * Process a GPub specification, generating new positions if necessary.
    * @param {!(function(!gpub.spec.Spec):!gpub.spec.Spec)=} opt_fn
-   *    Optional user-specified processing function.
+   *    Optional user-specified processing function for when spec generation
+   *    is finished.
    * @return {!gpub.Api} this
    */
   processSpec: function(opt_fn) {
@@ -114,8 +140,11 @@ gpub.Api.prototype = {
 
   /**
    * Stream the rendered diagrams to the user-provided function. The intention
-   *    is that the user will store these diagrams to disk or do some other
-   *    processing.
+   * is that the user will store these diagrams to disk or do some other
+   * processing. The rendered diagrams object is still produced, because it
+   * still contains useful metadata, but it will not contain the rendered
+   * bytes.
+   *
    * @param {!function(gpub.diagrams.Diagram)} fn Void-returning processing
    *    function.
    * @return {!gpub.Api} this
