@@ -3,15 +3,6 @@ goog.provide('gpub.Api');
 goog.scope(function() {
 
 /**
- * @param {!Object} ret Return value
- */
-var checkFnRet = function(ret, msg) {
-  if (!ret|| typeof ret!== 'object') {
-    throw new Error('Error: Your callback must return ' + msg);
-  }
-};
-
-/**
  * SpecPhase: Create the basic book specification.
  * @param {!gpub.Options} options
  * @struct @constructor @final
@@ -28,13 +19,22 @@ gpub.Api = function(options) {
 };
 
 gpub.Api.prototype = {
-  /** @return {?gpub.spec.Spec} The spec, if it exists. */
+  /**
+   * @return {?gpub.spec.Spec} The spec, if it exists.
+   * @export
+   */
   spec: function() { return this.spec_; },
 
-  /** @return {?gpub.diagrams.Rendered} The rendered diagrams, if they exist. */
+  /**
+   * @return {?gpub.diagrams.Rendered} The rendered diagrams, if they exist.
+   * @export
+   */
   diagrams: function() { return this.diagrams_; },
 
-  /** @return {string} Return the serialized JSON spec or empty string. */
+  /**
+   * @return {string} Return the serialized JSON spec or empty string. 
+   * @export
+   */
   jsonSpec: function() { return this.spec_ ? this.spec_.serializeJson() : '' },
 
   /**
@@ -44,6 +44,7 @@ gpub.Api.prototype = {
    * @param {(!gpub.spec.Spec|string)=} opt_spec Optionally pass in a spec, in
    *    either a serialized JSON form, or in the object form.
    * @return {!gpub.Api} this
+   * @export
    */
   createSpec: function(opt_spec) {
     if (opt_spec) {
@@ -78,6 +79,7 @@ gpub.Api.prototype = {
    * Process a GPub specification, generating new positions if necessary.
    * @param {(!gpub.api.SpecOptions)=} opt_o Optional Spec options.
    * @return {!gpub.Api} this
+   * @export
    */
   processSpec: function(opt_o) {
     var phase = 'processing the spec';
@@ -99,6 +101,7 @@ gpub.Api.prototype = {
    *
    * @param {(!gpub.api.DiagramOptions)=} opt_o Optional diagram options.
    * @return {!gpub.Api} this
+   * @export
    */
   renderDiagrams: function(opt_o) {
     var phase = 'diagram rendering';
@@ -120,11 +123,12 @@ gpub.Api.prototype = {
    * processing. The rendered diagrams object is still produced, because it
    * still contains useful metadata, but it will not contain the rendered
    * bytes.
-   * 
+   *
    * @param {!function(gpub.diagrams.Diagram)} fn Void-returning processing
    *    function.
    * @param {!gpub.api.DiagramOptions=} opt_o Optional options
    * @return {!gpub.Api} this
+   * @export
    */
   renderDiagramsStream: function(fn, opt_o) {
     var phase = 'streaming diagram rendering';
