@@ -93,6 +93,19 @@ gpub.spec.Spec.deserializeJson = function(str) {
   return new gpub.spec.Spec(obj);
 };
 
+/**
+ * Merge the top-level entries of two spec objects and return a new copy.
+ * @param {!Object} oldobj
+ * @param {!Object} newobj
+ * @return {!gpub.spec.Spec} a new option sobject.
+ */
+gpub.spec.Spec.merge = function(oldobj, newobj) {
+  for (var key in newobj) {
+    oldobj[key] = newobj[key];
+  }
+  return new gpub.spec.Spec(/** @type {!gpub.spec.Spec} */ (oldobj));
+};
+
 gpub.spec.Spec.prototype = {
   /**
    * Transform a this spec into a JSON represontation.

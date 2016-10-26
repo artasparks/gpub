@@ -2,7 +2,7 @@
   module('gpub.api.fluentApiTest');
   var sgfs = testdata.sgfs;
 
-  test('Fluent API: Spec Creation', function() {
+  test('Spec Creation', function() {
     var veasy = testdata.sgfs.veryeasy;
     var triv = testdata.sgfs.trivialproblem;
     var opt = {
@@ -17,8 +17,8 @@
 
     var api = gpub.init(opt);
     ok(api, 'must be defined');
-    deepEqual(api.options().sgfs, opt.sgfs);
-    deepEqual(api.options().ids, opt.ids);
+    deepEqual(api.opt_.sgfs, opt.sgfs);
+    deepEqual(api.opt_.ids, opt.ids);
 
     api.createSpec();
     var spec = api.spec();
@@ -39,7 +39,7 @@
     deepEqual(api.cache_.get(id1).toSgf(), expCache[id1].toSgf(), 'sgf2 text');
   });
 
-  test('Fluent API: Spec Creation (options)', function() {
+  test('Spec Creation (options)', function() {
     var veasy = testdata.sgfs.veryeasy;
     var triv = testdata.sgfs.trivialproblem;
     var opt = {
@@ -62,13 +62,24 @@
     deepEqual(gpub.init().createSpec(spec).jsonSpec(), jsonspec);
   });
 
-  test('Fluent API: Full Diagram Creation', function() {
+  test('Process Spec +(options)', function() {
+    var veasy = testdata.sgfs.veryeasy;
+    var api = gpub.init({sgfs: [veasy] })
+        .createSpec()
+        .processSpec({
+          positionType: 'PROBLEM'
+        });
+
+    deepEqual(api.spec().specOptions.positionType, 'PROBLEM');
+  });
+
+  test('Full Diagram Creation', function() {
     var sgf = testdata.gogameguru_commentary;
     var api = gpub.init({
-      sgfs: [sgf],
-      diagramOptions: {
-        maxDiagrams: 20,
-      }})
+        sgfs: [sgf],
+        diagramOptions: {
+          maxDiagrams: 20,
+        }})
       .createSpec()
       .processSpec()
       .renderDiagrams();
@@ -76,5 +87,48 @@
     var diag = api.diagrams();
     ok(diag, 'Diagrams must be defined');
     deepEqual(diag.diagrams.length, 20);
+    var idmap = {};
+    for (var i = 0; i < diag.diagrams.length; i++) {
+      var d  = diag.diagrams[i];
+      ok(d.rendered, 'Must have rendered content');
+      ok(d.id, 'Must have id');
+      ok(!idmap[d.id], 'Duplicate ID detected: ' + d.id);
+      // Diagrams are not generally required to have comments, but due to the
+      // way game_commentary is processed, all diagrams will have comments for
+      // this type.
+      ok(d.comment, 'Must have a comment');
+    }
+  });
+
+  test('Full Diagram Creation +(options)', function() {
+    var sgf = testdata.gogameguru_commentary;
+    var api = gpub.init({
+        sgfs: [sgf],
+      })
+      .createSpec()
+      .processSpec()
+      .renderDiagrams({
+        maxDiagrams: 20,
+      })
+    var diag = api.diagrams();
+    deepEqual(diag.diagrams.length, 20);
+  });
+
+  test('Full Diagram Creation streamed +(options)', function() {
+    var sgf = testdata.gogameguru_commentary;
+    var callCount = 0;
+    var api = gpub.init({
+        sgfs: [sgf],
+      })
+      .createSpec()
+      .processSpec()
+      .renderDiagramsStream(function(d) {
+        ok(d.id);
+        ok(d.rendered);
+        callCount++;
+      }, {
+        maxDiagrams: 20,
+      })
+    deepEqual(callCount, 20);
   });
 })();

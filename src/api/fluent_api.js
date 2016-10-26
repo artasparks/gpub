@@ -27,39 +27,11 @@ gpub.Api = function(options) {
   this.cache_ = undefined;
 };
 
-/**
- * Process the return options from a processing phase.
- * @param {T} p
- * @param {string} msg
- * @param {!(function(T):T)=} opt_fn
- * @return {T} Processed p.
- * @template T
- */
-var sendback = function(p, msg, opt_fn) {
-  if (opt_fn) {
-    var newp = opt_fn(p);
-    if (!newp) {
-      // object was not returned. Ignore.
-      return p
-    } else {
-      checkFnRet(newp, 'a gpub.spec.Spec object');
-    }
-    p = newp;
-  }
-  return p;
-};
-
 gpub.Api.prototype = {
-  /** @return {!gpub.Options} The options object. */
-  options: function() { return this.opt_; },
-
   /** @return {?gpub.spec.Spec} The spec, if it exists. */
   spec: function() { return this.spec_; },
 
-  /**
-   * @return {?gpub.diagrams.Rendered} The rendered diagrams, if they exist.
-   * Note that
-   */
+  /** @return {?gpub.diagrams.Rendered} The rendered diagrams, if they exist. */
   diagrams: function() { return this.diagrams_; },
 
   /** @return {string} Return the serialized JSON spec or empty string. */
@@ -75,7 +47,8 @@ gpub.Api.prototype = {
    */
   createSpec: function(opt_spec) {
     if (opt_spec) {
-      // The spec option has been passed in.
+      // The spec option has been passed in. So instead of creating a spec from
+      // scratch, parse the one that's passed in.
       if (typeof opt_spec === 'string') {
         // Assume it's JSON.
         var jsonspec = /** @type {string} */ (opt_spec);
@@ -96,24 +69,26 @@ gpub.Api.prototype = {
             'before spec creation');
       }
       this.cache_ = new gpub.util.MoveTreeCache();
-      this.spec_ = gpub.spec.create(this.options(), this.cache_);
+      this.spec_ = gpub.spec.create(this.opt_, this.cache_);
     }
     return this;
   },
 
   /**
    * Process a GPub specification, generating new positions if necessary.
-   * @param {!(function(!gpub.spec.Spec):!gpub.spec.Spec)=} opt_fn
-   *    Optional user-specified processing function for when spec generation
-   *    is finished.
+   * @param {(!gpub.api.SpecOptions)=} opt_o Optional Spec options.
    * @return {!gpub.Api} this
    */
-  processSpec: function(opt_fn) {
+  processSpec: function(opt_o) {
     var phase = 'processing the spec';
-    this.spec_ = sendback(
-        gpub.spec.process(this.mustGetSpec_(phase), this.getCacheOrInit_(phase)),
-        'a processed gpub.spec.Spec object',
-        opt_fn);
+    var spec = this.mustGetSpec_(phase);
+    var cache = this.getCacheOrInit_(phase);
+    if (opt_o) {
+      spec = gpub.spec.Spec.merge(spec, {
+        specOptions: new gpub.api.SpecOptions(opt_o)
+      });
+    }
+    this.spec_ = gpub.spec.process(spec, cache);
     return this;
   },
 
@@ -122,19 +97,20 @@ gpub.Api.prototype = {
    * possibly giant rendered JS Object. If you have many diagrams that you're
    * going to write to disk anyway, consider using `renderDiagramsStream`.
    *
-   * @param {!(function(!gpub.diagrams.Rendered):!gpub.diagrams.Rendered)=} opt_fn
-   *    Optional user-specified processing function for when diagram generation
-   *    is finished.
+   * @param {(!gpub.api.DiagramOptions)=} opt_o Optional diagram options.
    * @return {!gpub.Api} this
    */
-  renderDiagrams: function(opt_fn) {
+  renderDiagrams: function(opt_o) {
     var phase = 'diagram rendering';
-    this.diagrams_ = sendback(
-        gpub.diagrams.render(
-            this.mustGetSpec_(phase),
-            this.getCacheOrInit_(phase)),
-        'a processed gpub.diagrams.Rendered object',
-        opt_fn);
+    var spec = this.mustGetSpec_(phase);
+    var cache = this.getCacheOrInit_(phase);
+    if (opt_o) {
+      spec = gpub.spec.Spec.merge(spec, {
+        diagramOptions: new gpub.api.DiagramOptions(opt_o)
+      });
+      this.spec_ = spec;
+    }
+    this.diagrams_ = gpub.diagrams.render(spec, cache);
     return this;
   },
 
@@ -144,17 +120,23 @@ gpub.Api.prototype = {
    * processing. The rendered diagrams object is still produced, because it
    * still contains useful metadata, but it will not contain the rendered
    * bytes.
-   *
+   * 
    * @param {!function(gpub.diagrams.Diagram)} fn Void-returning processing
    *    function.
+   * @param {!gpub.api.DiagramOptions=} opt_o Optional options
    * @return {!gpub.Api} this
    */
-  renderDiagramsStream: function(fn) {
+  renderDiagramsStream: function(fn, opt_o) {
     var phase = 'streaming diagram rendering';
-    gpub.diagrams.renderStream(
-        this.mustGetSpec_(phase),
-        this.getCacheOrInit_(phase),
-        fn);
+    var spec = this.mustGetSpec_(phase);
+    var cache = this.getCacheOrInit_(phase);
+    if (opt_o) {
+      spec = gpub.spec.Spec.merge(spec, {
+        diagramOptions: new gpub.api.DiagramOptions(opt_o)
+      });
+      this.spec_ = spec;
+    }
+    gpub.diagrams.renderStream(spec, cache, fn)
     return this;
   },
 
