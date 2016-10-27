@@ -62,6 +62,13 @@ gpub.spec.Position = function(opt_position) {
    * @const {gpub.spec.PositionType|undefined}
    */
   this.positionType = o.positionType || undefined;
+
+  /**
+   * Optional array of labels. This is usually created during specProcessing,
+   * if at all.
+   * @const {!Array<string>|undefined}
+   */
+  this.labels = o.labels ? o.labels.slice() : undefined;
 };
 
 gpub.spec.Position.prototype = {

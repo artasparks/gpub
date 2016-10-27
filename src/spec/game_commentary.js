@@ -19,8 +19,10 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
   var gen = new gpub.spec.Generated({
     id: position.id
   });
-  gen.labels['MAINLINE'] = [];
-  gen.labels['VARIATION'] = [];
+  var mainlineLbl = 'MAINLINE';
+  var variationLbl = 'VARIATION';
+  gen.labels[mainlineLbl] = [];
+  gen.labels[variationLbl] = [];
 
   while (node) {
     if (!mt.properties().getComment() && node.numChildren() > 0) {
@@ -38,9 +40,10 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
           alias: alias,
           initialPosition: ipString(pathSpec.treepath),
           nextMovesPath: fragString(pathSpec.nextMoves),
+          labels: [mainlineLbl]
       })
       gen.positions.push(pos);
-      gen.labels['MAINLINE'].push(pos.id);
+      gen.labels[mainlineLbl].push(pos.id);
 
       varPathBuffer = varPathBuffer.concat(
           gpub.spec.variationPaths(mt));
@@ -53,9 +56,10 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
             alias: alias,
             initialPosition: ipString(varPathSpec.treepath),
             nextMovesPath: fragString(varPathSpec.nextMoves),
+            labels: [variationLbl],
         });
         gen.positions.push(varPos);
-        gen.labels['VARIATION'].push(varPos.id);
+        gen.labels[variationLbl].push(varPos.id);
       }
       varPathBuffer = [];
     }

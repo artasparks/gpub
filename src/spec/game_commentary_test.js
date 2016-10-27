@@ -3,7 +3,7 @@
 
   var alias = 'zed';
 
-  test('Process 0th and 1st variation', function() {
+  test('Process basic game commentary', function() {
     var sgf = '(;GM[1]C[A Game!];B[aa]C[Here\'s a move])';
     var mt = glift.parse.fromString(sgf);
     var id = 'simple-id';
@@ -18,12 +18,32 @@
     deepEqual(gen.positions[0].id, id + '-0', 'gen-1 id');
     deepEqual(gen.positions[0].initialPosition, '0', 'gen-1 init pos');
     deepEqual(gen.positions[0].nextMovesPath, undefined, 'gen-1 next-moves');
+    deepEqual(gen.positions[0].labels, ['MAINLINE'], 'gen-1 lbl');
 
     deepEqual(gen.positions[1].id, id + '-1', 'gen-2 id');
     deepEqual(gen.positions[1].initialPosition, '0', 'gen-2 init pos');
     deepEqual(gen.positions[1].nextMovesPath, '0', 'gen-2 next moves');
+    deepEqual(gen.positions[1].labels, ['MAINLINE'], 'gen-2 lbl');
 
     deepEqual(gen.labels['MAINLINE'].length, 2);
+  });
+
+  test('Process game commentary with variations', function() {
+    var sgf = '(;GM[1]C[A Game!];B[aa]C[Here\'s a move]' +
+        '(;W[ac]C[And another!])' +
+        '(;W[ad]C[Yet another!]))';
+    var mt = glift.parse.fromString(sgf);
+    var id = 'simple-id';
+    var idGen = new gpub.spec.IdGen(id);
+    var pos = new gpub.spec.Position({
+      id: id,
+      alias: id,
+    });
+    var gen = gpub.spec.processGameCommentary(mt, pos, idGen);
+    deepEqual(gen.positions.length, 4);
+    deepEqual(gen.labels['MAINLINE'].length, 3);
+    deepEqual(gen.labels['VARIATION'].length, 1);
+    deepEqual(gen.positions[3].labels, ['VARIATION'], 'gen-3 lbl');
   });
 
   test('Process gamebook', function() {

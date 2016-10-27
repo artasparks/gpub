@@ -9163,8 +9163,10 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
   var gen = new gpub.spec.Generated({
     id: position.id
   });
-  gen.labels['MAINLINE'] = [];
-  gen.labels['VARIATION'] = [];
+  var mainlineLbl = 'MAINLINE';
+  var variationLbl = 'VARIATION';
+  gen.labels[mainlineLbl] = [];
+  gen.labels[variationLbl] = [];
 
   while (node) {
     if (!mt.properties().getComment() && node.numChildren() > 0) {
@@ -9182,9 +9184,10 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
           alias: alias,
           initialPosition: ipString(pathSpec.treepath),
           nextMovesPath: fragString(pathSpec.nextMoves),
+          labels: [mainlineLbl]
       })
       gen.positions.push(pos);
-      gen.labels['MAINLINE'].push(pos.id);
+      gen.labels[mainlineLbl].push(pos.id);
 
       varPathBuffer = varPathBuffer.concat(
           gpub.spec.variationPaths(mt));
@@ -9197,9 +9200,10 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
             alias: alias,
             initialPosition: ipString(varPathSpec.treepath),
             nextMovesPath: fragString(varPathSpec.nextMoves),
+            labels: [variationLbl],
         });
         gen.positions.push(varPos);
-        gen.labels['VARIATION'].push(varPos.id);
+        gen.labels[variationLbl].push(varPos.id);
       }
       varPathBuffer = [];
     }
@@ -9449,6 +9453,13 @@ gpub.spec.Position = function(opt_position) {
    * @const {gpub.spec.PositionType|undefined}
    */
   this.positionType = o.positionType || undefined;
+
+  /**
+   * Optional array of labels. This is usually created during specProcessing,
+   * if at all.
+   * @const {!Array<string>|undefined}
+   */
+  this.labels = o.labels ? o.labels.slice() : undefined;
 };
 
 gpub.spec.Position.prototype = {
@@ -9549,20 +9560,20 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
     if (movetree.properties().getOneValue(glift.rules.prop.C) ||
         movetree.node().numChildren() === 0 ||
         (prevPos.length === initPos.length && sincePrevPos.length === 0)) {
+      var label = newCor;
+      if (prevPos.length === 0 && sincePrevPos.length === 0 ) {
+        label = 'PROBLEM_ROOT';
+      }
+      if (!gen.labels[label]) {
+        gen.labels[label] = [];
+      }
       var pos = new gpub.spec.Position({
         id: idGen.next(),
         alias: alias,
         initialPosition: ipString(prevPos),
         nextMovesPath: fragString(sincePrevPos),
+        labels: [label],
       });
-      if (prevPos.length === 0 && sincePrevPos.length === 0 ) {
-        var label = 'PROBLEM_ROOT';
-      } else {
-        var label = newCor;
-      }
-      if (!gen.labels[label]) {
-        gen.labels[label] = [];
-      }
       gen.labels[label].push(pos.id);
       outPositions.push(pos);
       prevPos = sincePrevPos;

@@ -44,20 +44,20 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
     if (movetree.properties().getOneValue(glift.rules.prop.C) ||
         movetree.node().numChildren() === 0 ||
         (prevPos.length === initPos.length && sincePrevPos.length === 0)) {
+      var label = newCor;
+      if (prevPos.length === 0 && sincePrevPos.length === 0 ) {
+        label = 'PROBLEM_ROOT';
+      }
+      if (!gen.labels[label]) {
+        gen.labels[label] = [];
+      }
       var pos = new gpub.spec.Position({
         id: idGen.next(),
         alias: alias,
         initialPosition: ipString(prevPos),
         nextMovesPath: fragString(sincePrevPos),
+        labels: [label],
       });
-      if (prevPos.length === 0 && sincePrevPos.length === 0 ) {
-        var label = 'PROBLEM_ROOT';
-      } else {
-        var label = newCor;
-      }
-      if (!gen.labels[label]) {
-        gen.labels[label] = [];
-      }
       gen.labels[label].push(pos.id);
       outPositions.push(pos);
       prevPos = sincePrevPos;
