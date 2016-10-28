@@ -8,6 +8,7 @@ goog.provide('gpub.diagrams.DiagramRenderer');
  *
  * @typedef {{
  *  id: string,
+ *  labels: (!Array<string>|undefined),
  *  rendered: string,
  *  comment: string,
  *  collisions: !Array<!glift.flattener.Collision>,

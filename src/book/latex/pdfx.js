@@ -9,9 +9,9 @@
  * http://tex.stackexchange.com/questions/242303/pdf-x-1a-on-tex-live-2014-for-publishing-with-pod-lightining-source
  *
  * Requirements that we care about:
- * - PDF/X-1a files are regular PDF 1.3 or PDF 1.4
+ * - PDF/X-1a files are regular PDF 1.3
  * - All color data must be grayscale, CMYK or named spot colors. The file
- *   should not contain any RGB, LAB,… data.
+ *   should not contain any RGB, LAB, data.
  * - Can't use hyperref annotations.
  * - Have to change the stream compression to 0.
  *

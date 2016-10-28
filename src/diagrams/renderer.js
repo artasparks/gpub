@@ -162,19 +162,20 @@ gpub.diagrams.Renderer.prototype = {
     var flattenOpts = {
       boardRegion: region,
       nextMovesPath: glift.rules.treepath.parseFragment(pos.nextMovesPath  || ''),
+      autoBoxCropOnVariation: this.opts_.autoBoxCropOnVariation,
+      regionRestrictions: this.opts_.regionRestrictions,
     };
     var flattened = glift.flattener.flatten(mt, flattenOpts);
     var dr = this.diagramRenderer();
     var diagram = {
       id: pos.id,
+      labels: pos.labels,
       rendered: dr.render(flattened, this.opts_),
       comment: flattened.comment(),
       collisions: flattened.collisions(),
       isOnMainPath: flattened.isOnMainPath(),
       startingMoveNum: flattened.startingMoveNum(),
       endingMoveNum: flattened.endingMoveNum(),
-      autoBoxCropOnVariation: this.opts_.autoBoxCropOnVariation,
-      regionRestrictions: this.opts_.regionRestrictions,
     };
     fn(diagram);
   },
