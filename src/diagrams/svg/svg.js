@@ -28,11 +28,19 @@
  * - http://svgmagazine.com/oct2014/Adventures%20With%20SVG%20In%20ePub.html
  */
 gpub.diagrams.svg = {
+  /**
+   * @param {!glift.flattener.Flattened} flattened
+   * @param {!Object} options
+   * @return {string} The rendered text
+   */
   create: function(flattened, options) {
 
   },
 
-  /** Render go stones that exist in a block of text. */
+  /**
+   * Render go stones that exist in a block of text.
+   * @param {string} text Inline text to render.
+   */
   renderInline: function(text) {
     // We probably don't want to modifify inline go stones for SVG rendering.
     return text;
