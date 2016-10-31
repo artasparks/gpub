@@ -8325,7 +8325,7 @@ glift.sgf = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.2
+ * @version 0.3.3
  * --------------------------------------
  */
 (function(w) {
@@ -10054,6 +10054,7 @@ goog.provide('gpub.diagrams.DiagramRenderer');
  *
  * @typedef {{
  *  id: string,
+ *  labels: (!Array<string>|undefined),
  *  rendered: string,
  *  comment: string,
  *  collisions: !Array<!glift.flattener.Collision>,
@@ -10318,19 +10319,20 @@ gpub.diagrams.Renderer.prototype = {
     var flattenOpts = {
       boardRegion: region,
       nextMovesPath: glift.rules.treepath.parseFragment(pos.nextMovesPath  || ''),
+      autoBoxCropOnVariation: this.opts_.autoBoxCropOnVariation,
+      regionRestrictions: this.opts_.regionRestrictions,
     };
     var flattened = glift.flattener.flatten(mt, flattenOpts);
     var dr = this.diagramRenderer();
     var diagram = {
       id: pos.id,
+      labels: pos.labels,
       rendered: dr.render(flattened, this.opts_),
       comment: flattened.comment(),
       collisions: flattened.collisions(),
       isOnMainPath: flattened.isOnMainPath(),
       startingMoveNum: flattened.startingMoveNum(),
       endingMoveNum: flattened.endingMoveNum(),
-      autoBoxCropOnVariation: this.opts_.autoBoxCropOnVariation,
-      regionRestrictions: this.opts_.regionRestrictions,
     };
     fn(diagram);
   },
@@ -11643,11 +11645,19 @@ gpub.smartgo = {
  * - http://svgmagazine.com/oct2014/Adventures%20With%20SVG%20In%20ePub.html
  */
 gpub.diagrams.svg = {
+  /**
+   * @param {!glift.flattener.Flattened} flattened
+   * @param {!Object} options
+   * @return {string} The rendered text
+   */
   create: function(flattened, options) {
 
   },
 
-  /** Render go stones that exist in a block of text. */
+  /**
+   * Render go stones that exist in a block of text.
+   * @param {string} text Inline text to render.
+   */
   renderInline: function(text) {
     // We probably don't want to modifify inline go stones for SVG rendering.
     return text;
