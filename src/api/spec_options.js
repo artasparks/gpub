@@ -1,6 +1,11 @@
 goog.provide('gpub.api.SpecOptions');
 
-goog.require('gpub.api');
+goog.scope(function() {
+
+/** @type {!glift.rules.ProblemConditions} */
+var defaultProbCon = {};
+defaultProbCon[glift.rules.prop.GB] = [];
+defaultProbCon[glift.rules.prop.C] = ['Correct', 'is correct'];
 
 /**
  * The user can pass in defaults to apply to the SGFs during spec
@@ -21,10 +26,11 @@ gpub.api.SpecOptions = function(opt_options) {
   this.positionType = o.positionType ||
       gpub.spec.PositionType.GAME_COMMENTARY;
 
-  /** @type {!glift.rules.ProblemConditions} */
-  var defaultProbCon = {};
-  defaultProbCon[glift.rules.prop.GB] = [];
-  defaultProbCon[glift.rules.prop.C] = ['Correct', 'is correct'];
+  /**
+   * How are IDs generated?
+   * @const {!gpub.spec.IdGenType}
+   */
+  this.idGenType = o.idGenType || gpub.spec.IdGenType.PATH;
 
   /**
    * Problem conditions indicate how to determine whether a particular
@@ -48,3 +54,5 @@ gpub.api.SpecOptions = function(opt_options) {
    */
   this.problemConditions = o.problemConditions || defaultProbCon;
 };
+
+});

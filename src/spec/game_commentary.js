@@ -35,11 +35,13 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
       // This node has a comment or is terminal.  Process this node and all
       // the variations.
       var pathSpec = glift.rules.treepath.findNextMovesPath(mt);
+      var ip = ipString(pathSpec.treepath);
+      var frag = fragString(pathSpec.nextMoves);
       var pos = new gpub.spec.Position({
-          id: idGen.next(),
+          id: idGen.next(alias, ip, frag),
           alias: alias,
-          initialPosition: ipString(pathSpec.treepath),
-          nextMovesPath: fragString(pathSpec.nextMoves),
+          initialPosition: ip,
+          nextMovesPath: frag,
           labels: [mainlineLbl]
       })
       gen.positions.push(pos);
@@ -51,11 +53,13 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
         var path = varPathBuffer[i];
         var mtz = mt.getTreeFromRoot(path);
         var varPathSpec = glift.rules.treepath.findNextMovesPath(mtz);
+        var ipz = ipString(varPathSpec.treepath);
+        var fragz = fragString(varPathSpec.nextMoves);
         var varPos = new gpub.spec.Position({
-            id: idGen.next(),
+            id: idGen.next(alias, ipz, fragz),
             alias: alias,
-            initialPosition: ipString(varPathSpec.treepath),
-            nextMovesPath: fragString(varPathSpec.nextMoves),
+            initialPosition: ipz,
+            nextMovesPath: fragz,
             labels: [variationLbl],
         });
         gen.positions.push(varPos);

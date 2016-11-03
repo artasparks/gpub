@@ -1,24 +1,5 @@
-goog.provide('gpub.spec.IdGen');
 goog.provide('gpub.spec.Processor');
 goog.provide('gpub.spec.TypeProcessor');
-
-/**
- * Simple id generator. As currently designed, this only works for one game
- * alias.
- *
- * @constructor @struct @final
- * @package
- */
-gpub.spec.IdGen = function(prefix) {
-  var idx = 0;
-
-  /** @return {string} */
-  this.next = function() {
-    var nextId = prefix + '-' + idx;
-    idx++;
-    return nextId;
-  }
-};
 
 /**
  * The process takes a basic spec and transforms it into example-diagram
@@ -33,6 +14,12 @@ gpub.spec.Processor = function(spec, cache) {
   this.originalSpec_ = spec;
 
   /**
+   * Id Generator instance
+   * @private @const {!gpub.spec.IdGen}
+   */
+  this.idGen_ = new gpub.spec.IdGen(spec.specOptions.idGenType);
+
+  /**
    * Mapping from alias to movetree.
    * @const {!gpub.util.MoveTreeCache}
    * @private
@@ -41,14 +28,6 @@ gpub.spec.Processor = function(spec, cache) {
   if (!this.mtCache_) {
     throw new Error('cache must be defined. was: ' + this.mtCache_);
   }
-
-  /**
-   * Map from alias to ID Gen instance. Each alias gets its own id generator so that IDs
-   * are sequential for a particular raw SGF.
-   *
-   * @const {!Object<string, !gpub.spec.IdGen>}
-   */
-  this.idGenMap_ = {};
 
   /**
    * Mapping from sgf alias to SGF string.
@@ -140,7 +119,7 @@ gpub.spec.Processor.prototype = {
   generatePositions_: function(posType, pos) {
     var mt = this.getMovetree_(pos);
     // Create a new ID gen instance for creating IDs.
-    var idGen = this.getIdGen_(pos);
+    var idGen = this.getIdGen_();
     switch(posType) {
       case 'GAME_COMMENTARY':
         return gpub.spec.processGameCommentary(mt, pos, idGen);
@@ -202,18 +181,10 @@ gpub.spec.Processor.prototype = {
 
   /**
    * Gets the id generator for a position object
-   * @param {!gpub.spec.Position} pos
    * @return {!gpub.spec.IdGen}
    */
-  getIdGen_: function(pos) {
-   var alias = pos.alias;
-    if (!alias) {
-      throw new Error('No alias defined for Position object: ' + JSON.stringify(pos));
-    }
-    if (!this.idGenMap_[alias]) {
-      this.idGenMap_[alias] = new gpub.spec.IdGen(alias);
-    }
-    return this.idGenMap_[alias];
- }
+  getIdGen_: function() {
+    return this.idGen_;
+  }
 };
 

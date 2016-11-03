@@ -88,12 +88,11 @@
     deepEqual(gpub.spec.Spec.deserializeJson(json), proc);
   });
 
+  var oneVar = '(;GM[1]AW[aa]AB[ba];B[bb](;W[ab]C[The End!])(;W[ac]C[Surprise!]))';
   test('Create: one simple game, with variation', function() {
     var cache = new gpub.util.MoveTreeCache();
     var opts = new gpub.Options({
-      sgfs: [
-        '(;GM[1]AW[aa]AB[ba];B[bb](;W[ab]C[The End!])(;W[ac]C[Surprise!]))'
-      ]
+      sgfs: [oneVar],
     });
     var spec = gpub.spec.create(opts, cache);
     deepEqual(Object.keys(spec.sgfMapping).length, 1, 'Should have 1 sgf');
@@ -113,5 +112,32 @@
     deepEqual(gen.positions[1].id, varId, 'var id');
     deepEqual(gen.positions[1].initialPosition, '1', 'var init');
     deepEqual(gen.positions[1].nextMovesPath, '1', 'var next moves');
+  });
+
+  test('Create with IdGenType=Path', function() {
+    var cache = new gpub.util.MoveTreeCache();
+    var opts = new gpub.Options({
+      sgfs: [oneVar],
+    });
+    var spec = gpub.spec.create(opts, cache);
+    var proc = gpub.spec.process(spec, cache);
+    var gen = proc.rootGrouping.generated['sgf-1'];
+    deepEqual(gen.positions[0].id, 'sgf-1__0__0-2')
+    deepEqual(gen.positions[1].id, 'sgf-1__1__1')
+  });
+
+  test('Create with IdGenType=Sequential', function() {
+    var cache = new gpub.util.MoveTreeCache();
+    var opts = new gpub.Options({
+      sgfs: [oneVar],
+      specOptions: {
+        idGenType: 'SEQUENTIAL',
+      }
+    });
+    var spec = gpub.spec.create(opts, cache);
+    var proc = gpub.spec.process(spec, cache);
+    var gen = proc.rootGrouping.generated['sgf-1'];
+    deepEqual(gen.positions[0].id, 'sgf-1-0')
+    deepEqual(gen.positions[1].id, 'sgf-1-1')
   });
 })();

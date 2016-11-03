@@ -51,11 +51,13 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
       if (!gen.labels[label]) {
         gen.labels[label] = [];
       }
+      var ip = ipString(prevPos);
+      var frag = fragString(sincePrevPos);
       var pos = new gpub.spec.Position({
-        id: idGen.next(),
+        id: idGen.next(alias, ip, frag),
         alias: alias,
-        initialPosition: ipString(prevPos),
-        nextMovesPath: fragString(sincePrevPos),
+        initialPosition: ip,
+        nextMovesPath: frag,
         labels: [label],
       });
       gen.labels[label].push(pos.id);
