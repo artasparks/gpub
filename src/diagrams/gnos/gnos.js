@@ -3,6 +3,13 @@ goog.provide('gpub.diagrams.gnos');
 /**
  * Gnos is a modification of the Gooe font series.
  * See https://github.com/Kashomon/go-type1.
+ *
+ * To use 'gnos', you must at the very least have these declarations at the top
+ * of your LaTeX file:
+ *
+ * \usepackage{gnos}
+ * \usepackage[cmyk]{xcolor}
+ *
  */
 gpub.diagrams.gnos = {
   /**

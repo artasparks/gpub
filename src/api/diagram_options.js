@@ -77,4 +77,10 @@ gpub.api.DiagramOptions = function(opt_options) {
    * @const {number|string|undefined}
    */
   this.goIntersectionSize = o.goIntersectionSize || undefined;
+
+  /**
+   * Option-overrides for specific diagram types.
+   * @const {!Object<gpub.diagrams.Type, !Object>}
+   */
+  this.typeOptions = o.typeOptions || {};
 };

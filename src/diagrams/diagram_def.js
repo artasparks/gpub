@@ -24,7 +24,6 @@ gpub.diagrams.Diagram;
  *
  * @typedef{{
  *  diagrams: !Array<gpub.diagrams.Diagram>,
- *  init: !Object<gpub.OutputFormat, string>,
  *  type: gpub.diagrams.Type
  * }}
  */
@@ -44,13 +43,6 @@ gpub.diagrams.DiagramRenderer = function() {};
  * @return {string} The rendered diagram
  */
 gpub.diagrams.DiagramRenderer.prototype.render = function(f, o) {};
-
-/**
- * Provide the initialization map.
- * @return {!Object<gpub.OutputFormat, string>} Diagram-type specific
- * initialization info.
- */
-gpub.diagrams.DiagramRenderer.prototype.init = function() {};
 
 /**
  * Render inline text with stone images.

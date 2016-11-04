@@ -22,19 +22,6 @@ gpub.diagrams.gnos.Renderer.prototype = {
   },
 
   /**
-   * Return initialization strings for a specific output formats.
-   * @return {!Object<gpub.OutputFormat, string>}
-   */
-  // TODO(kashomon): It's not clear to me how this should generalize, even
-  // though it is necessary for latex. It's possible that instructions for use
-  // should be given, rather than some programatic interface like this.
-  init: function() {
-    var out = {};
-    out[gpub.OutputFormat.LATEX] = '\\usepackage{gnos}';
-    return out;
-  },
-
-  /**
    * Render-inline the
    * @param {string} text
    * @param {!gpub.api.DiagramOptions} opt

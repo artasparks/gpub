@@ -7752,7 +7752,7 @@ glift.rules.AppliedTreepath;
  * little easier
  *
  *    0.1+    Take the 0th variation, then the 1st variation, then go to the end
- *    0.1x2   Take the 0th variation, then repeat taking the 1st varation twice
+ *    0.1:2   Take the 0th variation, then repeat taking the 1st varation twice
  *
  * There are two types of treepaths discussed below -- A *treepath fragment*
  * (which is what we have been describing) and an *initial treepath*.
@@ -7770,10 +7770,10 @@ glift.rules.AppliedTreepath;
  *    53            becomes [53] (the 53rd variation)
  *    2.3           becomes [2,3]
  *    0.0.0.0       becomes [0,0,0]
- *    0x4           becomes [0,0,0,0]
+ *    0:4           becomes [0,0,0,0]
  *    1+            becomes [1,0...(500 times)]
- *    1x4           becomes [1,1,1,1]
- *    1.2x1.0.2x3'  becomes [1,2,0,2,2,2]
+ *    1:4           becomes [1,1,1,1]
+ *    1.2:1.0.2:3'  becomes [1,2,0,2,2,2]
  *
  * ## Initial tree paths.
  *
@@ -7793,7 +7793,7 @@ glift.rules.AppliedTreepath;
  *    3         - Start at the 3rd move
  *    2.0       - Start at the 3rd move
  *    0.0.0.0   - Start at the 3rd move
- *    0.0x3     - Start at the 3rd move
+ *    0.0:3     - Start at the 3rd move
  *
  * As with fragments, the init position returned is an array of variation
  * numbers traversed through.  The move number is precisely the length of the
@@ -7810,7 +7810,7 @@ glift.rules.AppliedTreepath;
  *    1+        becomes [0,0,...(500 times)]
  *    0.1+      becomes [1,0,...(500 times)]
  *    0.2.6+    becomes [2,6,0,...(500 times)]
- *    0.0x3.1x3 becomes [0,0,0,1,1,1]
+ *    0.0:3.1x3 becomes [0,0,0,1,1,1]
  *
  * As mentioned before, '+' is a special symbol which means "go to the end via
  * the first variation." This is implemented with a by appending 500 0s to the
@@ -8320,6 +8320,368 @@ glift.sgf = {
   }
 };
 
+goog.provide('glift.svg');
+
+/**
+ * SVG utilities. Arguably, this should be in the Glift ui. But the utilities,
+ * modulo some dom-utilities, are agnostic to any rendering engine.
+ */
+glift.svg = {};
+
+goog.provide('glift.svg.pathutils');
+
+glift.svg.pathutils = {
+  /**
+   * Move the current position to X,Y.  Usually used in the context of creating a
+   * path.
+   * @param {number} x
+   * @param {number} y
+   * @return {string}
+   */
+  move: function(x, y) {
+    return "M" + x + " " + y;
+  },
+
+  /**
+   * Like move, but with a glift point.
+   * @param {!glift.Point} pt
+   * @return {string}
+   */
+  movePt: function(pt) {
+    return glift.svg.pathutils.move(pt.x(), pt.y());
+  },
+
+  /**
+   * Create a relative SVG line, starting from the 'current' position. I.e.,
+   * the (0,0) point is that last place drawn-to or moved-to.
+   * @param {number} x
+   * @param {number} y
+   * @return {string}
+   */
+  lineRel: function(x, y) {
+    return "l" + x + " " + y;
+  },
+
+  /**
+   * Like lineRel, but with a pt.
+   * @param {!glift.Point} pt
+   * @return {string}
+   */
+  lineRelPt: function(pt) {
+    return glift.svg.pathutils.lineRel(pt.x(), pt.y());
+  },
+
+  /**
+   * Create an absolute SVG line -- different from lower case.
+   * This form is usually preferred.
+   * @param {number} x
+   * @param {number} y
+   * @return {string}
+   */
+  lineAbs: function(x, y) {
+    return "L" + x + " " + y;
+  },
+
+  /**
+   * Like lineAbs, but with a pt.
+   * @param {!glift.Point} pt
+   * @return {string}
+   */
+  lineAbsPt: function(pt) {
+    return glift.svg.pathutils.lineAbs(pt.x(), pt.y());
+  },
+};
+
+goog.provide('glift.svg.SvgObj');
+
+/**
+ * Creats a SVG Wrapper object.
+ *
+ * @param {string} type Svg element type.
+ * @param {!Object<string>=} opt_attrObj optional attribute object.
+ */
+glift.svg.createObj = function(type, opt_attrObj) {
+   return new glift.svg.SvgObj(type, opt_attrObj);
+};
+
+/**
+ * Creates a root SVG object.
+ * @param {!Object<string>=} opt_attrObj optional attribute object.
+ * @return {!glift.svg.SvgObj}
+ */
+glift.svg.svg = function(opt_attrObj) {
+  return new glift.svg.SvgObj('svg', opt_attrObj)
+      .setAttr('version', '1.1')
+      .setAttr('xmlns', 'http://www.w3.org/2000/svg');
+};
+
+/**
+ * Creates a circle svg object.
+ * @param {!Object<string>=} opt_attrObj optional attribute object.
+ * @return {!glift.svg.SvgObj}
+ */
+glift.svg.circle = function(opt_attrObj) {
+  return new glift.svg.SvgObj('circle', opt_attrObj);
+};
+
+/**
+ * Creates a path svg object.
+ * @param {!Object<string>=} opt_attrObj optional attribute object.
+ * @return {!glift.svg.SvgObj}
+ */
+glift.svg.path = function(opt_attrObj) {
+  return new glift.svg.SvgObj('path', opt_attrObj);
+};
+
+/**
+ * Creates an rectangle svg object.
+ * @param {!Object<string>=} opt_attrObj optional attribute object.
+ * @return {!glift.svg.SvgObj}
+ */
+glift.svg.rect = function(opt_attrObj) {
+  return new glift.svg.SvgObj('rect', opt_attrObj);
+};
+
+/**
+ * Creates an image svg object.
+ * @param {!Object<string>=} opt_attrObj optional attribute object.
+ * @return {!glift.svg.SvgObj}
+ */
+glift.svg.image = function(opt_attrObj) {
+  return new glift.svg.SvgObj('image', opt_attrObj);
+};
+
+/**
+ * Creates a text svg object.
+ * @param {!Object<string>=} opt_attrObj optional attribute object.
+ * @return {!glift.svg.SvgObj}
+ */
+glift.svg.text = function(opt_attrObj) {
+  return new glift.svg.SvgObj('text', opt_attrObj);
+};
+
+/**
+ * Create a group object (without any attributes)
+ * @return {!glift.svg.SvgObj}
+ */
+glift.svg.group = function() {
+  return new glift.svg.SvgObj('g');
+};
+
+/**
+ * SVG Wrapper object.
+ * @constructor @final @struct
+ *
+ * @param {string} type Svg element type.
+ * @param {Object<string>=} opt_attrObj optional attribute object.
+ */
+glift.svg.SvgObj = function(type, opt_attrObj) {
+  /** @private {string} */
+  this.type_ = type;
+  /** @private {!Object<string>} */
+  this.attrMap_ = opt_attrObj || {};
+  /** @private {!Array<!glift.svg.SvgObj>} */
+  this.children_ = [];
+  /** @private {!Object<!glift.svg.SvgObj>} */
+  this.idMap_ = {};
+  /** @private {string} */
+  this.text_ = '';
+  /** @private {?Object} */
+  this.data_ = null;
+};
+
+glift.svg.SvgObj.prototype = {
+  /**
+   * Return the string form of the svg object.
+   * @return {string}
+   */
+  render: function() {
+    var base = '<' + this.type_;
+    for (var key in this.attrMap_) {
+      base += ' ' + key + '="' + this.attrMap_[key] + '"';
+    }
+    base += '>' + this.text_;
+    if (this.children_.length > 0) {
+      base += '\n';
+      for (var i = 0; i < this.children_.length; i++) {
+        base += this.children_[i].render() + '\n';
+      }
+      base += '</' + this.type_ + '>';
+    } else {
+      base += '</' + this.type_ + '>';
+    }
+    return base;
+  },
+
+  /** @return {string} A value in the attribute map. */
+  attr: function(key) {
+    return this.attrMap_[key];
+  },
+
+  /**
+   * Sets an SVG attribute.
+   * @param {string} key The key of an object in the map.
+   * @param {string|number} value The value to set in the map.
+   * @return {!glift.svg.SvgObj} This object.
+   */
+  setAttr: function(key, value) {
+    this.attrMap_[key] = value + '';
+    return this;
+  },
+
+  /** @return {?string} the Id of this object or null. */
+  id: function() {
+    return /** @type {?string} */ (this.attrMap_['id'] || null);
+  },
+
+  /**
+   * Convenience method to avoid null ID type.
+   * @return {string}
+   */
+  idOrThrow: function() {
+    if (this.id() == null) {
+      throw new Error('ID was null; expected to be non-null');
+    }
+    return /** @type {string} */ (this.id());
+  },
+
+  /**
+   * Sets the ID (using the Attribute object as a store).
+   * @param {string} id
+   * @return {!glift.svg.SvgObj} This object.
+   */
+  setId: function(id) {
+    if (id) {
+      this.attrMap_['id'] = id;
+    }
+    return this;
+  },
+
+  /** @return {!Object<string>} The attribute object.  */
+  attrObj: function() {
+    return this.attrMap_;
+  },
+
+  /**
+   * Sets the entire attribute object.
+   * @param {!Object<string>} attrObj
+   * @return {!glift.svg.SvgObj} This object.
+   */
+  setAttrObj: function(attrObj) {
+    if (glift.util.typeOf(attrObj) !== 'object') {
+      throw new Error('Attr obj must be of type object');
+    }
+    this.attrMap_ = attrObj;
+    return this;
+  },
+
+  /** @return {?Object} The node's data */
+  data: function() {
+    return this.data_
+  },
+
+  /**
+   * Set some internal data. Note: this data is not attached when the element is
+   * generated.
+   * @param {!Object} data
+   * @return {!glift.svg.SvgObj} This object.
+   */
+  setData: function(data) {
+    this.data_ = data;
+    return this;
+  },
+
+  /** @return {string} The text on the node. */
+  text: function() {
+    return this.text_;
+  },
+
+  /**
+   * Append some text. Usually only for text elements.
+   * @param {string} text
+   * @return {!glift.svg.SvgObj} This object.
+   */
+  setText: function(text) {
+    this.text_ = text;
+    return this;
+  },
+
+  /** @return {string} The type of this object. */
+  type: function() {
+    return this.type_;
+  },
+
+  /**
+   * Get child from an Id.
+   * @return {!glift.svg.SvgObj} The child obj.
+   */
+  child: function(id) {
+    return this.idMap_[id];
+  },
+
+  /**
+   * Remove child, based on id.
+   * @return {!glift.svg.SvgObj} This object.
+   */
+  rmChild: function(id) {
+    delete this.idMap_[id];
+    return this;
+  },
+
+  /**
+   * Get all the Children.
+   * @return {!Array<!glift.svg.SvgObj>}
+   */
+  children: function() {
+    return this.children_;
+  },
+
+  /**
+   * Empty out all the children.
+   * @return {!glift.svg.SvgObj} this object.
+   */
+  emptyChildren: function() {
+    this.children_ = [];
+    return this;
+  },
+
+  /**
+   * Add an already existing child.
+   * @param {!glift.svg.SvgObj} obj Object to add.
+   * @return {!glift.svg.SvgObj} This object.
+   */
+  append: function(obj) {
+    if (obj.id() !== undefined) {
+      this.idMap_[obj.id()] = obj;
+    }
+    this.children_.push(obj);
+    return this;
+  },
+
+  /**
+   * Add a new svg object child.
+   * @param {string} type
+   * @param {!Object<string>} attrObj
+   * @return {!glift.svg.SvgObj} This object.
+   */
+  appendNew: function(type, attrObj) {
+    var obj = glift.svg.createObj(type, attrObj);
+    return this.append(obj);
+  },
+
+  /**
+   * Create a copy of the object without any children
+   * @return {!glift.svg.SvgObj} The new object.
+   */
+  copyNoChildren: function() {
+    var newAttr = {};
+    for (var key in this.attrMap_) {
+      newAttr[key] = this.attrMap_[key];
+    }
+    return glift.svg.createObj(this.type_, newAttr);
+  }
+};
+
 /**
  * @preserve GPub: A Go publishing platform, built on Glift
  *
@@ -8686,6 +9048,12 @@ gpub.api.DiagramOptions = function(opt_options) {
    * @const {number|string|undefined}
    */
   this.goIntersectionSize = o.goIntersectionSize || undefined;
+
+  /**
+   * Option-overrides for specific diagram types.
+   * @const {!Object<gpub.diagrams.Type, !Object>}
+   */
+  this.typeOptions = o.typeOptions || {};
 };
 
 /**
@@ -9014,7 +9382,12 @@ gpub.Options.merge = function(oldobj, newobj) {
 
 goog.provide('gpub.api.SpecOptions');
 
-goog.require('gpub.api');
+goog.scope(function() {
+
+/** @type {!glift.rules.ProblemConditions} */
+var defaultProbCon = {};
+defaultProbCon[glift.rules.prop.GB] = [];
+defaultProbCon[glift.rules.prop.C] = ['Correct', 'is correct'];
 
 /**
  * The user can pass in defaults to apply to the SGFs during spec
@@ -9035,10 +9408,11 @@ gpub.api.SpecOptions = function(opt_options) {
   this.positionType = o.positionType ||
       gpub.spec.PositionType.GAME_COMMENTARY;
 
-  /** @type {!glift.rules.ProblemConditions} */
-  var defaultProbCon = {};
-  defaultProbCon[glift.rules.prop.GB] = [];
-  defaultProbCon[glift.rules.prop.C] = ['Correct', 'is correct'];
+  /**
+   * How are IDs generated?
+   * @const {!gpub.spec.IdGenType}
+   */
+  this.idGenType = o.idGenType || gpub.spec.IdGenType.PATH;
 
   /**
    * Problem conditions indicate how to determine whether a particular
@@ -9062,6 +9436,8 @@ gpub.api.SpecOptions = function(opt_options) {
    */
   this.problemConditions = o.problemConditions || defaultProbCon;
 };
+
+});
 
 goog.provide('gpub.spec')
 
@@ -9179,11 +9555,13 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
       // This node has a comment or is terminal.  Process this node and all
       // the variations.
       var pathSpec = glift.rules.treepath.findNextMovesPath(mt);
+      var ip = ipString(pathSpec.treepath);
+      var frag = fragString(pathSpec.nextMoves);
       var pos = new gpub.spec.Position({
-          id: idGen.next(),
+          id: idGen.next(alias, ip, frag),
           alias: alias,
-          initialPosition: ipString(pathSpec.treepath),
-          nextMovesPath: fragString(pathSpec.nextMoves),
+          initialPosition: ip,
+          nextMovesPath: frag,
           labels: [mainlineLbl]
       })
       gen.positions.push(pos);
@@ -9195,11 +9573,13 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
         var path = varPathBuffer[i];
         var mtz = mt.getTreeFromRoot(path);
         var varPathSpec = glift.rules.treepath.findNextMovesPath(mtz);
+        var ipz = ipString(varPathSpec.treepath);
+        var fragz = fragString(varPathSpec.nextMoves);
         var varPos = new gpub.spec.Position({
-            id: idGen.next(),
+            id: idGen.next(alias, ipz, fragz),
             alias: alias,
-            initialPosition: ipString(varPathSpec.treepath),
-            nextMovesPath: fragString(varPathSpec.nextMoves),
+            initialPosition: ipz,
+            nextMovesPath: fragz,
             labels: [variationLbl],
         });
         gen.positions.push(varPos);
@@ -9389,6 +9769,126 @@ gpub.spec.Grouping = function(opt_group) {
 };
 
 
+goog.provide('gpub.spec.IdGen');
+goog.provide('gpub.spec.IdGenType');
+
+/**
+ * @enum {string}
+ */
+gpub.spec.IdGenType = {
+  /**
+   * Keep a counter for the relevant SGF and append that to the alias.
+   */
+  SEQUENTIAL: 'SEQUENTIAL',
+
+  /**
+   * Convert the initial path and next moves into an ID. The ID is meant to be
+   * safe for file names, so the path syntax is converted as follows:
+   * 0:5->1-5
+   * 1.0->1_0
+   * 5+->5p
+   */
+  PATH: 'PATH',
+};
+
+/**
+ * Simple id generator. As currently designed, this only works for one game
+ * alias.
+ *
+ * @param {gpub.spec.IdGenType} idType
+ *
+ * @constructor @struct @final
+ * @package
+ */
+gpub.spec.IdGen = function(idType) {
+  /**
+   * @private @const {gpub.spec.IdGenType}
+   */
+  this.idType_ = idType;
+
+  /**
+   * Set verifying uniqueness of IDs.
+   * @private @const {!Object<string, boolean>}
+   */
+  this.idSet_ = {};
+
+  /**
+   * Map from alias to counter. Each alias gets its own ID counter so that IDs
+   * are sequential for a particular raw SGF. This applies only to the
+   * SEQUENTIAL IdGenType.
+   *
+   * @private @const {!Object<string, number>}
+   */
+  this.counterMap_ = {};
+};
+
+gpub.spec.IdGen.prototype = {
+  /**
+   * Gets a new Position ID for a generateda position.
+   *
+   * @param {string} alias
+   * @param {string} initPath
+   * @param {string} nextMovesPath
+   * @return {string} A new ID, with a
+   */
+  next: function(alias, initPath, nextMovesPath) {
+    var id = '';
+    if (this.idType_ == gpub.spec.IdGenType.PATH) {
+      id = this.getPathId_(alias, initPath, nextMovesPath);
+    } else {
+      // Default to sequental
+      id = this.getSequentialId_(alias);
+    }
+    if (this.idSet_[id]) {
+      throw new Error('Duplicate ID Detected: ' + id);
+    }
+    this.idSet_[id] = true;
+    return id;
+  },
+
+  /**
+   * Gets a path-ID with the following format:
+   *
+   * alias__initialpath__nextmoves
+   *
+   * Where the path string has been transformed as follows:
+   * 0:5->1-5
+   * 1.0->1_0
+   * 5+->5p
+   *
+   * @param {string} alias
+   * @param {string} initPath
+   * @param {string} nextMovesPath
+   */
+  getPathId_: function(alias, initPath, nextMovesPath) {
+    var repl = function(p) {
+      return p.replace(/:/g, '-')
+        .replace(/\./g, '_')
+        .replace(/\+/g, 'p');
+    };
+    var id = alias + '__' + repl(initPath);
+    if (nextMovesPath) {
+      id += '__' + repl(nextMovesPath);
+    }
+    return id;
+  },
+
+  /**
+   * Gets a sequential ID.
+   * @param {string} alias
+   * @return {string} new ID
+   * @private
+   */
+  getSequentialId_: function(alias) {
+    if (!this.counterMap_[alias]) {
+      this.counterMap_[alias] = 0;
+    }
+    var counter = this.counterMap_[alias];
+    this.counterMap_[alias]++;
+    return alias + '-' + counter;
+  },
+};
+
 goog.provide('gpub.spec.Position');
 goog.provide('gpub.spec.PositionTypedef');
 goog.provide('gpub.spec.PositionType');
@@ -9567,11 +10067,13 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
       if (!gen.labels[label]) {
         gen.labels[label] = [];
       }
+      var ip = ipString(prevPos);
+      var frag = fragString(sincePrevPos);
       var pos = new gpub.spec.Position({
-        id: idGen.next(),
+        id: idGen.next(alias, ip, frag),
         alias: alias,
-        initialPosition: ipString(prevPos),
-        nextMovesPath: fragString(sincePrevPos),
+        initialPosition: ip,
+        nextMovesPath: frag,
         labels: [label],
       });
       gen.labels[label].push(pos.id);
@@ -9597,27 +10099,8 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
   return gen;
 };
 
-goog.provide('gpub.spec.IdGen');
 goog.provide('gpub.spec.Processor');
 goog.provide('gpub.spec.TypeProcessor');
-
-/**
- * Simple id generator. As currently designed, this only works for one game
- * alias.
- *
- * @constructor @struct @final
- * @package
- */
-gpub.spec.IdGen = function(prefix) {
-  var idx = 0;
-
-  /** @return {string} */
-  this.next = function() {
-    var nextId = prefix + '-' + idx;
-    idx++;
-    return nextId;
-  }
-};
 
 /**
  * The process takes a basic spec and transforms it into example-diagram
@@ -9632,6 +10115,12 @@ gpub.spec.Processor = function(spec, cache) {
   this.originalSpec_ = spec;
 
   /**
+   * Id Generator instance
+   * @private @const {!gpub.spec.IdGen}
+   */
+  this.idGen_ = new gpub.spec.IdGen(spec.specOptions.idGenType);
+
+  /**
    * Mapping from alias to movetree.
    * @const {!gpub.util.MoveTreeCache}
    * @private
@@ -9640,14 +10129,6 @@ gpub.spec.Processor = function(spec, cache) {
   if (!this.mtCache_) {
     throw new Error('cache must be defined. was: ' + this.mtCache_);
   }
-
-  /**
-   * Map from alias to ID Gen instance. Each alias gets its own id generator so that IDs
-   * are sequential for a particular raw SGF.
-   *
-   * @const {!Object<string, !gpub.spec.IdGen>}
-   */
-  this.idGenMap_ = {};
 
   /**
    * Mapping from sgf alias to SGF string.
@@ -9739,7 +10220,7 @@ gpub.spec.Processor.prototype = {
   generatePositions_: function(posType, pos) {
     var mt = this.getMovetree_(pos);
     // Create a new ID gen instance for creating IDs.
-    var idGen = this.getIdGen_(pos);
+    var idGen = this.getIdGen_();
     switch(posType) {
       case 'GAME_COMMENTARY':
         return gpub.spec.processGameCommentary(mt, pos, idGen);
@@ -9801,19 +10282,11 @@ gpub.spec.Processor.prototype = {
 
   /**
    * Gets the id generator for a position object
-   * @param {!gpub.spec.Position} pos
    * @return {!gpub.spec.IdGen}
    */
-  getIdGen_: function(pos) {
-   var alias = pos.alias;
-    if (!alias) {
-      throw new Error('No alias defined for Position object: ' + JSON.stringify(pos));
-    }
-    if (!this.idGenMap_[alias]) {
-      this.idGenMap_[alias] = new gpub.spec.IdGen(alias);
-    }
-    return this.idGenMap_[alias];
- }
+  getIdGen_: function() {
+    return this.idGen_;
+  }
 };
 
 
@@ -10070,7 +10543,6 @@ gpub.diagrams.Diagram;
  *
  * @typedef{{
  *  diagrams: !Array<gpub.diagrams.Diagram>,
- *  init: !Object<gpub.OutputFormat, string>,
  *  type: gpub.diagrams.Type
  * }}
  */
@@ -10090,13 +10562,6 @@ gpub.diagrams.DiagramRenderer = function() {};
  * @return {string} The rendered diagram
  */
 gpub.diagrams.DiagramRenderer.prototype.render = function(f, o) {};
-
-/**
- * Provide the initialization map.
- * @return {!Object<gpub.OutputFormat, string>} Diagram-type specific
- * initialization info.
- */
-gpub.diagrams.DiagramRenderer.prototype.init = function() {};
 
 /**
  * Render inline text with stone images.
@@ -10236,7 +10701,6 @@ gpub.diagrams.Renderer.prototype = {
   renderMetadata: function() {
     return {
       type: this.diagramType(),
-      init: this.diagramRenderer().init(),
       diagrams: [],
     };
   },
@@ -10354,6 +10818,13 @@ goog.provide('gpub.diagrams.gnos');
 /**
  * Gnos is a modification of the Gooe font series.
  * See https://github.com/Kashomon/go-type1.
+ *
+ * To use 'gnos', you must at the very least have these declarations at the top
+ * of your LaTeX file:
+ *
+ * \usepackage{gnos}
+ * \usepackage[cmyk]{xcolor}
+ *
  */
 gpub.diagrams.gnos = {
   /**
@@ -10656,19 +11127,6 @@ gpub.diagrams.gnos.Renderer.prototype = {
    */
   render: function(flat, opt) {
     return gpub.diagrams.gnos.create(flat, opt);
-  },
-
-  /**
-   * Return initialization strings for a specific output formats.
-   * @return {!Object<gpub.OutputFormat, string>}
-   */
-  // TODO(kashomon): It's not clear to me how this should generalize, even
-  // though it is necessary for latex. It's possible that instructions for use
-  // should be given, rather than some programatic interface like this.
-  init: function() {
-    var out = {};
-    out[gpub.OutputFormat.LATEX] = '\\usepackage{gnos}';
-    return out;
   },
 
   /**
@@ -11651,7 +12109,6 @@ gpub.diagrams.svg = {
    * @return {string} The rendered text
    */
   create: function(flattened, options) {
-
   },
 
   /**

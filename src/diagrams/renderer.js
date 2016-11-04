@@ -79,7 +79,6 @@ gpub.diagrams.Renderer.prototype = {
   renderMetadata: function() {
     return {
       type: this.diagramType(),
-      init: this.diagramRenderer().init(),
       diagrams: [],
     };
   },

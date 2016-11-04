@@ -34,7 +34,6 @@ gpub.diagrams.svg = {
    * @return {string} The rendered text
    */
   create: function(flattened, options) {
-
   },
 
   /**
