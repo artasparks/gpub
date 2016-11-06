@@ -169,6 +169,7 @@ gpub.Api.prototype = {
    * Get the spec or throw an error.
    * @param {string} phase
    * @return {!gpub.spec.Spec} The spec, which must be defined
+   * @private
    */
   mustGetSpec_: function(phase) {
     var spec = this.spec();
