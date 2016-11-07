@@ -12068,6 +12068,8 @@ gpub.smartgo = {
   }
 };
 
+goog.provide('gpub.diagrams.svg');
+
 /**
  * Generate SVG go diagrams.
  *
@@ -12096,11 +12098,12 @@ gpub.smartgo = {
  * - EPub Standard: http://idpf.org/epub
  * - EPub 3.0.1 standard: http://idpf.org/epub/301
  * - http://svgmagazine.com/oct2014/Adventures%20With%20SVG%20In%20ePub.html
+ * - http://svgpocketguide.com/
  */
 gpub.diagrams.svg = {
   /**
    * @param {!glift.flattener.Flattened} flattened
-   * @param {!Object} options
+   * @param {!gpub.api.DiagramOptions} options
    * @return {string} The rendered text
    */
   create: function(flattened, options) {
@@ -12109,11 +12112,50 @@ gpub.diagrams.svg = {
   /**
    * Render go stones that exist in a block of text.
    * @param {string} text Inline text to render.
+   * @param {!gpub.api.DiagramOptions} opt
    */
-  renderInline: function(text) {
+  renderInline: function(text, opt) {
     // We probably don't want to modifify inline go stones for SVG rendering.
     return text;
   }
+};
+
+goog.provide('gpub.diagrams.svg.Renderer');
+
+/**
+ * The diagrams-specific renderer for svg.
+ * @constructor @final @struct
+ */
+gpub.diagrams.svg.Renderer = function() {};
+
+gpub.diagrams.svg.Renderer.prototype = {
+  /**
+   * Create an SVG diagarm from a flattened object.
+   * @param {!glift.flattener.Flattened} flat
+   * @param {!gpub.api.DiagramOptions} opt
+   * @return {string} The rendered diagram.
+   */
+  render: function(flat, opt) {
+    return gpub.diagrams.svg.create(flat, opt);
+  },
+
+  /**
+   * This isn't really possible with SVG, but it might be possible to rely on a
+   * font for inline-rendering. Note that inline-rendering is overloaded here
+   * because for SVG, this means raw inclusion in HTML, and here I mean
+   * processing text like 'Black 6' into stone-images within the text.
+   * @param {string} text
+   * @param {!gpub.api.DiagramOptions} opt
+   * @return {string} The processed text
+   */
+  renderInline: function(text, opt) {
+    return gpub.diagrams.svg.renderInline(text, opt);
+  }
+};
+
+// Enabled the Renderer!
+gpub.diagrams.enabledRenderers['SVG'] = function() {
+  return new gpub.diagrams.svg.Renderer();
 };
 
 goog.provide('gpub.util');
