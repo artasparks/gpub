@@ -32,6 +32,15 @@ gpub.Api.prototype = {
   diagrams: function() { return this.diagrams_; },
 
   /**
+   * @return {?gpub.diagrams.Rendered} Just the metadata for the diagrams.
+   * @export
+   */
+  diagramMetadata: function() {
+    // TODO(kashomon): Make a separate type.
+    return this.diagrams_;
+  },
+
+  /**
    * @return {string} Return the serialized JSON spec or empty string. 
    * @export
    */

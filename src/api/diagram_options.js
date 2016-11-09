@@ -21,6 +21,7 @@ gpub.api.DiagramOptions = function(opt_options) {
    *  - ASCII,
    *  - PDF,
    *  - EPS
+   *  - SVG
    *
    * @const {gpub.diagrams.Type}
    */
