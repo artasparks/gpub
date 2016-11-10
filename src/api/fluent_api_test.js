@@ -88,15 +88,23 @@
     ok(diag, 'Diagrams must be defined');
     deepEqual(diag.diagrams.length, 20);
     var idmap = {};
+    deepEqual(diag.diagrams.length, diag.metadata.length,
+        'Diagrams and metadata should have same length');
     for (var i = 0; i < diag.diagrams.length; i++) {
       var d  = diag.diagrams[i];
       ok(d.rendered, 'Must have rendered content');
       ok(d.id, 'Must have id');
       ok(!idmap[d.id], 'Duplicate ID detected: ' + d.id);
-      // Diagrams are not generally required to have comments, but due to the
-      // way game_commentary is processed, all diagrams will have comments for
-      // this type.
-      ok(d.comment, 'Must have a comment');
+
+      var m  = diag.metadata[i];
+      ok(m, 'metadata must be defined');
+      ok(m.id, 'metadata must have id');
+      ok(m.collisions, 'metadata must have collisions arr, even if empty');
+      ok(m.isOnMainPath !== undefined, 'must have isOnMainPath');
+      ok(m.startingMoveNum !== undefined, 'must have startingMoveNum');
+      ok(m.endingMoveNum !== undefined, 'must have endingMoveNum');
+      deepEqual(m.id, d.id, 'metadata id must equal digaram id');
+      ok(m.comment, 'Must have a comment because it is game commentary');
     }
   });
 

@@ -8992,6 +8992,7 @@ gpub.api.DiagramOptions = function(opt_options) {
    *  - ASCII,
    *  - PDF,
    *  - EPS
+   *  - SVG
    *
    * @const {gpub.diagrams.Type}
    */
@@ -9233,8 +9234,8 @@ gpub.Api.prototype = {
    * still contains useful metadata, but it will not contain the rendered
    * bytes.
    *
-   * @param {!function(gpub.diagrams.Diagram)} fn Void-returning processing
-   *    function.
+   * @param {!gpub.diagrams.DiagramCallback} fn Void-returning processing
+   * function.
    * @param {!gpub.api.DiagramOptions=} opt_o Optional options
    * @return {!gpub.Api} this
    * @export
@@ -9249,7 +9250,7 @@ gpub.Api.prototype = {
       });
       this.spec_ = spec;
     }
-    gpub.diagrams.renderStream(spec, cache, fn)
+    this.diagrams_ = gpub.diagrams.renderStream(spec, cache, fn)
     return this;
   },
 
@@ -10429,7 +10430,7 @@ gpub.diagrams = {
    *
    * @param {!gpub.spec.Spec} spec
    * @param {!gpub.util.MoveTreeCache} cache
-   * @param {!function(gpub.diagrams.Diagram)} fn
+   * @param {!gpub.diagrams.DiagramCallback} fn
    */
   renderStream: function(spec, cache, fn) {
     return new gpub.diagrams.Renderer(spec, spec.diagramOptions, cache)
@@ -10519,17 +10520,30 @@ gpub.diagrams = {
 };
 
 goog.provide('gpub.diagrams.Diagram');
-goog.provide('gpub.diagrams.Rendered');
 goog.provide('gpub.diagrams.DiagramRenderer');
+goog.provide('gpub.diagrams.Metadata');
+goog.provide('gpub.diagrams.Rendered');
 
 /**
- * A single diagram. Note that the comment will be an empty string if there is
- * no comment.
+ * A single rendered diagram.
+ * @typedef {{
+ *  id: string,
+ *  rendered: string,
+ * }}
+ */
+gpub.diagrams.Diagram;
+
+/**
+ * Metadata for a diagram. Includes information useful for placement in a page
+ * or other medium. Some notes about parameters:
+ * - Comment will be an empty string if none exists, but it will never be
+ *   undefined.
+ * - collisions, isOnMainPath, startingMoveNum, and endingMoveNum are useful
+ *   for figure-labels (move-number labeling, collision labeling).
  *
  * @typedef {{
  *  id: string,
  *  labels: (!Array<string>|undefined),
- *  rendered: string,
  *  comment: string,
  *  collisions: !Array<!glift.flattener.Collision>,
  *  isOnMainPath: boolean,
@@ -10537,13 +10551,16 @@ goog.provide('gpub.diagrams.DiagramRenderer');
  *  endingMoveNum: number,
  * }}
  */
-gpub.diagrams.Diagram;
+gpub.diagrams.Metadata;
 
 /**
- * Rendered diagrams plus some metadata.
+ * Rendered diagrams plus some metadata. For streamed rendering, the diagrams
+ * array will be empty. Otherwise, the metadata and diagrams arrays should be
+ * equal.
  *
  * @typedef{{
  *  diagrams: !Array<gpub.diagrams.Diagram>,
+ *  metadata: !Array<gpub.diagrams.Metadata>,
  *  type: gpub.diagrams.Type
  * }}
  */
@@ -10622,6 +10639,7 @@ gpub.diagrams.Type = {
 };
 
 goog.provide('gpub.diagrams.Renderer');
+goog.provide('gpub.diagrams.DiagramCallback');
 
 /**
  * A map from string to enabled renderers. Typically, the string key will be a
@@ -10660,6 +10678,9 @@ gpub.diagrams.Renderer = function(spec, opts, cache) {
   this.rendered_ = 0;
 };
 
+/** @typedef {function(!gpub.diagrams.Diagram, !gpub.diagrams.Metadata)} */
+gpub.diagrams.DiagramCallback;
+
 /**
  * Get a type specific renderer.
  * @param {!gpub.diagrams.Type} type
@@ -10684,34 +10705,43 @@ gpub.diagrams.Renderer.prototype = {
    * @return {!gpub.diagrams.Rendered} The rendered diagrams plus any metadata.
    */
   render: function() {
-    var metadata = this.renderMetadata();
-    var diagrams = [];
-    /** @param {!gpub.diagrams.Diagram} d */
-    var handler = function(d) {
-      diagrams.push(d);
+    var rendered = this.renderedObj();
+    /** @type {!gpub.diagrams.DiagramCallback} */
+    var handler = function(d, m) {
+      rendered.diagrams.push(d);
+      rendered.metadata.push(m);
     };
     this.renderGroups_(this.spec_.rootGrouping, handler);
-    metadata.diagrams = diagrams;
-    return metadata;
+    return rendered;
+  },
+
+  /**
+   * Stream back the rendered diagrams, but store the metadata.
+   *
+   * @param {!gpub.diagrams.DiagramCallback} fn
+   * @return {!gpub.diagrams.Rendered}
+   */
+  renderStream: function(fn) {
+    var rendered = this.renderedObj();
+    /** @type {!gpub.diagrams.DiagramCallback} */
+    var handler = function(d, m) {
+      rendered.metadata.push(m);
+      fn(d, m);
+    };
+    this.renderGroups_(this.spec_.rootGrouping, fn);
+    return rendered;
   },
 
   /**
    * Return the rendered object with just the matadata filled in.
    * @return {!gpub.diagrams.Rendered}
    */
-  renderMetadata: function() {
+  renderedObj: function() {
     return {
       type: this.diagramType(),
       diagrams: [],
+      metadata: [],
     };
-  },
-
-  /**
-   * Stream back the rendered diagrams
-   * @param {!function(gpub.diagrams.Diagram)} fn
-   */
-  renderStream: function(fn) {
-    this.renderGroups_(this.spec_.rootGrouping, fn);
   },
 
   /**
@@ -10724,7 +10754,7 @@ gpub.diagrams.Renderer.prototype = {
 
   /**
    * @param {!gpub.spec.Grouping} g
-   * @param {!function(gpub.diagrams.Diagram)} fn
+   * @param {!gpub.diagrams.DiagramCallback} fn
    * @private
    */
   renderGroups_: function(g, fn) {
@@ -10739,7 +10769,7 @@ gpub.diagrams.Renderer.prototype = {
    * positions; if there are no generated positions, we try to render the
    * original position.
    * @param {!gpub.spec.Grouping} g
-   * @param {!function(!gpub.diagrams.Diagram)} fn
+   * @param {!gpub.diagrams.DiagramCallback} fn
    * @private
    */
   renderOneGroup_: function(g, fn) {
@@ -10761,7 +10791,7 @@ gpub.diagrams.Renderer.prototype = {
   /**
    * Render a single position.
    * @param {!gpub.spec.Position} pos
-   * @param {!function(!gpub.diagrams.Diagram)} fn Handler to receive the diagrams.
+   * @param {!gpub.diagrams.DiagramCallback} fn Handler to receive the diagrams.
    * @private
    */
   renderOnePosition_: function(pos, fn) {
@@ -10791,15 +10821,18 @@ gpub.diagrams.Renderer.prototype = {
     var dr = this.diagramRenderer();
     var diagram = {
       id: pos.id,
-      labels: pos.labels,
       rendered: dr.render(flattened, this.opts_),
+    };
+    var metadata = {
+      id: pos.id,
+      labels: pos.labels,
       comment: flattened.comment(),
       collisions: flattened.collisions(),
       isOnMainPath: flattened.isOnMainPath(),
       startingMoveNum: flattened.startingMoveNum(),
       endingMoveNum: flattened.endingMoveNum(),
     };
-    fn(diagram);
+    fn(diagram, metadata);
   },
 
   /**

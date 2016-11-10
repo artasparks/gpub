@@ -1,15 +1,28 @@
 goog.provide('gpub.diagrams.Diagram');
-goog.provide('gpub.diagrams.Rendered');
 goog.provide('gpub.diagrams.DiagramRenderer');
+goog.provide('gpub.diagrams.Metadata');
+goog.provide('gpub.diagrams.Rendered');
 
 /**
- * A single diagram. Note that the comment will be an empty string if there is
- * no comment.
+ * A single rendered diagram.
+ * @typedef {{
+ *  id: string,
+ *  rendered: string,
+ * }}
+ */
+gpub.diagrams.Diagram;
+
+/**
+ * Metadata for a diagram. Includes information useful for placement in a page
+ * or other medium. Some notes about parameters:
+ * - Comment will be an empty string if none exists, but it will never be
+ *   undefined.
+ * - collisions, isOnMainPath, startingMoveNum, and endingMoveNum are useful
+ *   for figure-labels (move-number labeling, collision labeling).
  *
  * @typedef {{
  *  id: string,
  *  labels: (!Array<string>|undefined),
- *  rendered: string,
  *  comment: string,
  *  collisions: !Array<!glift.flattener.Collision>,
  *  isOnMainPath: boolean,
@@ -17,13 +30,16 @@ goog.provide('gpub.diagrams.DiagramRenderer');
  *  endingMoveNum: number,
  * }}
  */
-gpub.diagrams.Diagram;
+gpub.diagrams.Metadata;
 
 /**
- * Rendered diagrams plus some metadata.
+ * Rendered diagrams plus some metadata. For streamed rendering, the diagrams
+ * array will be empty. Otherwise, the metadata and diagrams arrays should be
+ * equal.
  *
  * @typedef{{
  *  diagrams: !Array<gpub.diagrams.Diagram>,
+ *  metadata: !Array<gpub.diagrams.Metadata>,
  *  type: gpub.diagrams.Type
  * }}
  */

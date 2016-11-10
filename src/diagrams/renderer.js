@@ -1,4 +1,5 @@
 goog.provide('gpub.diagrams.Renderer');
+goog.provide('gpub.diagrams.DiagramCallback');
 
 /**
  * A map from string to enabled renderers. Typically, the string key will be a
@@ -37,6 +38,9 @@ gpub.diagrams.Renderer = function(spec, opts, cache) {
   this.rendered_ = 0;
 };
 
+/** @typedef {function(!gpub.diagrams.Diagram, !gpub.diagrams.Metadata)} */
+gpub.diagrams.DiagramCallback;
+
 /**
  * Get a type specific renderer.
  * @param {!gpub.diagrams.Type} type
@@ -61,34 +65,43 @@ gpub.diagrams.Renderer.prototype = {
    * @return {!gpub.diagrams.Rendered} The rendered diagrams plus any metadata.
    */
   render: function() {
-    var metadata = this.renderMetadata();
-    var diagrams = [];
-    /** @param {!gpub.diagrams.Diagram} d */
-    var handler = function(d) {
-      diagrams.push(d);
+    var rendered = this.renderedObj();
+    /** @type {!gpub.diagrams.DiagramCallback} */
+    var handler = function(d, m) {
+      rendered.diagrams.push(d);
+      rendered.metadata.push(m);
     };
     this.renderGroups_(this.spec_.rootGrouping, handler);
-    metadata.diagrams = diagrams;
-    return metadata;
+    return rendered;
+  },
+
+  /**
+   * Stream back the rendered diagrams, but store the metadata.
+   *
+   * @param {!gpub.diagrams.DiagramCallback} fn
+   * @return {!gpub.diagrams.Rendered}
+   */
+  renderStream: function(fn) {
+    var rendered = this.renderedObj();
+    /** @type {!gpub.diagrams.DiagramCallback} */
+    var handler = function(d, m) {
+      rendered.metadata.push(m);
+      fn(d, m);
+    };
+    this.renderGroups_(this.spec_.rootGrouping, fn);
+    return rendered;
   },
 
   /**
    * Return the rendered object with just the matadata filled in.
    * @return {!gpub.diagrams.Rendered}
    */
-  renderMetadata: function() {
+  renderedObj: function() {
     return {
       type: this.diagramType(),
       diagrams: [],
+      metadata: [],
     };
-  },
-
-  /**
-   * Stream back the rendered diagrams
-   * @param {!function(gpub.diagrams.Diagram)} fn
-   */
-  renderStream: function(fn) {
-    this.renderGroups_(this.spec_.rootGrouping, fn);
   },
 
   /**
@@ -101,7 +114,7 @@ gpub.diagrams.Renderer.prototype = {
 
   /**
    * @param {!gpub.spec.Grouping} g
-   * @param {!function(gpub.diagrams.Diagram)} fn
+   * @param {!gpub.diagrams.DiagramCallback} fn
    * @private
    */
   renderGroups_: function(g, fn) {
@@ -116,7 +129,7 @@ gpub.diagrams.Renderer.prototype = {
    * positions; if there are no generated positions, we try to render the
    * original position.
    * @param {!gpub.spec.Grouping} g
-   * @param {!function(!gpub.diagrams.Diagram)} fn
+   * @param {!gpub.diagrams.DiagramCallback} fn
    * @private
    */
   renderOneGroup_: function(g, fn) {
@@ -138,7 +151,7 @@ gpub.diagrams.Renderer.prototype = {
   /**
    * Render a single position.
    * @param {!gpub.spec.Position} pos
-   * @param {!function(!gpub.diagrams.Diagram)} fn Handler to receive the diagrams.
+   * @param {!gpub.diagrams.DiagramCallback} fn Handler to receive the diagrams.
    * @private
    */
   renderOnePosition_: function(pos, fn) {
@@ -168,15 +181,18 @@ gpub.diagrams.Renderer.prototype = {
     var dr = this.diagramRenderer();
     var diagram = {
       id: pos.id,
-      labels: pos.labels,
       rendered: dr.render(flattened, this.opts_),
+    };
+    var metadata = {
+      id: pos.id,
+      labels: pos.labels,
       comment: flattened.comment(),
       collisions: flattened.collisions(),
       isOnMainPath: flattened.isOnMainPath(),
       startingMoveNum: flattened.startingMoveNum(),
       endingMoveNum: flattened.endingMoveNum(),
     };
-    fn(diagram);
+    fn(diagram, metadata);
   },
 
   /**

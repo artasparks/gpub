@@ -32,15 +32,6 @@ gpub.Api.prototype = {
   diagrams: function() { return this.diagrams_; },
 
   /**
-   * @return {?gpub.diagrams.Rendered} Just the metadata for the diagrams.
-   * @export
-   */
-  diagramMetadata: function() {
-    // TODO(kashomon): Make a separate type.
-    return this.diagrams_;
-  },
-
-  /**
    * @return {string} Return the serialized JSON spec or empty string. 
    * @export
    */
@@ -133,8 +124,8 @@ gpub.Api.prototype = {
    * still contains useful metadata, but it will not contain the rendered
    * bytes.
    *
-   * @param {!function(gpub.diagrams.Diagram)} fn Void-returning processing
-   *    function.
+   * @param {!gpub.diagrams.DiagramCallback} fn Void-returning processing
+   * function.
    * @param {!gpub.api.DiagramOptions=} opt_o Optional options
    * @return {!gpub.Api} this
    * @export
@@ -149,7 +140,7 @@ gpub.Api.prototype = {
       });
       this.spec_ = spec;
     }
-    gpub.diagrams.renderStream(spec, cache, fn)
+    this.diagrams_ = gpub.diagrams.renderStream(spec, cache, fn)
     return this;
   },
 

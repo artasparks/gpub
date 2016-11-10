@@ -18,7 +18,7 @@ gpub.diagrams = {
    *
    * @param {!gpub.spec.Spec} spec
    * @param {!gpub.util.MoveTreeCache} cache
-   * @param {!function(gpub.diagrams.Diagram)} fn
+   * @param {!gpub.diagrams.DiagramCallback} fn
    */
   renderStream: function(spec, cache, fn) {
     return new gpub.diagrams.Renderer(spec, spec.diagramOptions, cache)
