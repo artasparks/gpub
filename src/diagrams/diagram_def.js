@@ -46,6 +46,9 @@ gpub.diagrams.Metadata;
 gpub.diagrams.Rendered;
 
 
+/** @typedef {function(!gpub.diagrams.Diagram, !gpub.diagrams.Metadata)} */
+gpub.diagrams.DiagramCallback;
+
 /**
  * The interface for the diagram-type-specific renderers.
  * @record

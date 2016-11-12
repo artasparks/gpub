@@ -38,9 +38,6 @@ gpub.diagrams.Renderer = function(spec, opts, cache) {
   this.rendered_ = 0;
 };
 
-/** @typedef {function(!gpub.diagrams.Diagram, !gpub.diagrams.Metadata)} */
-gpub.diagrams.DiagramCallback;
-
 /**
  * Get a type specific renderer.
  * @param {!gpub.diagrams.Type} type
@@ -88,7 +85,7 @@ gpub.diagrams.Renderer.prototype = {
       rendered.metadata.push(m);
       fn(d, m);
     };
-    this.renderGroups_(this.spec_.rootGrouping, fn);
+    this.renderGroups_(this.spec_.rootGrouping, handler);
     return rendered;
   },
 

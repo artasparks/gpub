@@ -108,6 +108,29 @@
     }
   });
 
+  test('Full Diagram Creation :streamed:', function() {
+    var sgf = testdata.gogameguru_commentary;
+    var numSeen = 0;
+    var api = gpub.init({
+        sgfs: [sgf],
+        diagramOptions: {
+          maxDiagrams: 20,
+        }})
+      .createSpec()
+      .processSpec()
+      .renderDiagramsStream(function(diag, meta) {
+        ok(diag, 'diagram must be defined');
+        ok(meta, 'metadata must be defined');
+        deepEqual(diag.id, meta.id, 'IDs must be equal')
+        numSeen++;
+      });
+    deepEqual(numSeen, 20, 'Must have seen 20 diagrams');
+    ok(api.diagrams(), 'must have diagrams obj');
+    ok(api.diagrams().diagrams, 'must have rendered diagrams array');
+    deepEqual(api.diagrams().diagrams.length, 0, 'Must have zero diagrams');
+    deepEqual(api.diagrams().metadata.length, 20, 'must have 20 metadata items');
+  });
+
   test('Full Diagram Creation +(options)', function() {
     var sgf = testdata.gogameguru_commentary;
     var api = gpub.init({
