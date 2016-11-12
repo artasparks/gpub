@@ -1,4 +1,5 @@
 goog.provide('gpub.diagrams.Diagram');
+goog.provide('gpub.diagrams.DiagramCallback');
 goog.provide('gpub.diagrams.DiagramRenderer');
 goog.provide('gpub.diagrams.Metadata');
 goog.provide('gpub.diagrams.Rendered');

@@ -1,5 +1,4 @@
 goog.provide('gpub.diagrams.Renderer');
-goog.provide('gpub.diagrams.DiagramCallback');
 
 /**
  * A map from string to enabled renderers. Typically, the string key will be a

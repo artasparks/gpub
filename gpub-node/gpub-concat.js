@@ -8687,7 +8687,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.3
+ * @version 0.3.4
  * --------------------------------------
  */
 (function(w) {
@@ -10520,6 +10520,7 @@ gpub.diagrams = {
 };
 
 goog.provide('gpub.diagrams.Diagram');
+goog.provide('gpub.diagrams.DiagramCallback');
 goog.provide('gpub.diagrams.DiagramRenderer');
 goog.provide('gpub.diagrams.Metadata');
 goog.provide('gpub.diagrams.Rendered');
@@ -10566,6 +10567,9 @@ gpub.diagrams.Metadata;
  */
 gpub.diagrams.Rendered;
 
+
+/** @typedef {function(!gpub.diagrams.Diagram, !gpub.diagrams.Metadata)} */
+gpub.diagrams.DiagramCallback;
 
 /**
  * The interface for the diagram-type-specific renderers.
@@ -10639,7 +10643,6 @@ gpub.diagrams.Type = {
 };
 
 goog.provide('gpub.diagrams.Renderer');
-goog.provide('gpub.diagrams.DiagramCallback');
 
 /**
  * A map from string to enabled renderers. Typically, the string key will be a
@@ -10677,9 +10680,6 @@ gpub.diagrams.Renderer = function(spec, opts, cache) {
    */
   this.rendered_ = 0;
 };
-
-/** @typedef {function(!gpub.diagrams.Diagram, !gpub.diagrams.Metadata)} */
-gpub.diagrams.DiagramCallback;
 
 /**
  * Get a type specific renderer.
@@ -10728,7 +10728,7 @@ gpub.diagrams.Renderer.prototype = {
       rendered.metadata.push(m);
       fn(d, m);
     };
-    this.renderGroups_(this.spec_.rootGrouping, fn);
+    this.renderGroups_(this.spec_.rootGrouping, handler);
     return rendered;
   },
 
