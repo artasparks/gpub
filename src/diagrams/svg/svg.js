@@ -37,6 +37,10 @@ gpub.diagrams.svg = {
    * @return {string} The rendered text
    */
   create: function(flattened, options) {
+    var svg = glift.svg.svg();
+    // That moment when I realized much more would need to be ported to frome
+    // glift to glift-core...
+    return svg.render();
   },
 
   /**
