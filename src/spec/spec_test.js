@@ -140,4 +140,14 @@
     deepEqual(gen.positions[0].id, 'sgf-1-0')
     deepEqual(gen.positions[1].id, 'sgf-1-1')
   });
+
+  test('Create with IdGenType=Path, gggEasy44', function() {
+    var cache = new gpub.util.MoveTreeCache();
+    var opts = new gpub.Options({
+      sgfs: [testdata.sgfs.gggEasy44],
+    });
+    var spec = gpub.spec.create(opts, cache);
+    var proc = gpub.spec.process(spec, cache);
+    ok(proc, 'must have succeeded.');
+  })
 })();
