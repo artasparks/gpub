@@ -36,8 +36,6 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
    * prevPos.concat(sincePrevPos).
    */
   var pathRecurse = function(movetree, prevPos, sincePrevPos, correctness) {
-    console.log('PrevPos:::' + JSON.stringify(prevPos));
-    console.log('SincePrevPos:::' + JSON.stringify(sincePrevPos));
     var newCor = glift.rules.problems.positionCorrectness(movetree, conditions);
     // Record positions when
     // - There are comments
@@ -55,7 +53,6 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
       }
       var ip = ipString(prevPos);
       var frag = fragString(sincePrevPos);
-      console.log(ip + '__' + frag);
       var pos = new gpub.spec.Position({
         id: idGen.next(alias, ip, frag),
         alias: alias,
@@ -65,21 +62,20 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
       });
       gen.labels[label].push(pos.id);
       outPositions.push(pos);
-      prevPos = sincePrevPos;
+      prevPos = prevPos.concat(sincePrevPos);
       sincePrevPos = [];
     }
     for (var i = 0; i < movetree.node().numChildren(); i++) {
       var nmt = movetree.newTreeRef();
-      var pp = sincePrevPos.slice();
-      console.log('PP:::' + JSON.stringify(pp));
-      console.log('PrevPos:::' + JSON.stringify(prevPos));
-      pp.push(i);
+      var pp = prevPos.slice();
+      var spp = sincePrevPos.slice();
+      spp.push(i);
       nmt.moveDown(i);
       // Note: there's no indicator when to break here. In other words, we
       // assume that the whole subtree is part of the problem, which might not
       // be true, but either we make this assumption or we introduce arbitrary
       // constraints.
-      pathRecurse(nmt, prevPos, pp, newCor);
+      pathRecurse(nmt, pp, spp, newCor);
     }
   };
 
