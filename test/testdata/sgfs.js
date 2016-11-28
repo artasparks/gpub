@@ -229,23 +229,23 @@ testdata.sgfs = {
     ";W[dn]LB[en:B][do:A]C[The shape of White's four stones is called a 'bulky four'. If Black captures White's four stones, White will immediately play at A, and Black won't be able to make two eyes." +
     "If Black does nothing, White can atari at B, making a 'bulky five' shape. If Black then captures, White A still works.]" +
     "(;B[en]" +
-    ";W[]C[Even if White passes...]" +
-    ";B[cp]" +
-    ";W[do]C[Black can't make two eyes.])" +
+      ";W[]C[Even if White passes...]" +
+      ";B[cp]" +
+      ";W[do]C[Black can't make two eyes.])" +
     "(;B[]C[Black passes. Black's already dead, but for the sake of demonstration...]" +
-    ";W[en]C[Atari...]" +
-    ";B[cp]C[Capture...]" +
-    ";W[do]C[White plays on the vital point.]" +
-    "(;B[eo]" +
-    ";W[dn]C[Black can't make two eyes.])" +
-    "(;B[dn]" +
-    ";W[eo]C[Black can't make two eyes.])))" +
+      ";W[en]C[Atari...]" +
+      ";B[cp]C[Capture...]" +
+      ";W[do]C[White plays on the vital point.]" +
+      "(;B[eo]" +
+        ";W[dn]C[Black can't make two eyes.])" +
+      "(;B[dn]" +
+        ";W[eo]C[Black can't make two eyes.])))" +
     "(;B[en]C[It's already a dead shape.]" +
-    ";W[dn]" +
-    ";B[cp]" +
-    ";W[do])" +
+      ";W[dn]" +
+      ";B[cp]" +
+      ";W[do])" +
     "(;B[cp]C[It's already a dead shape.]" +
-    ";W[dn]" +
-    ";B[en]" +
-    ";W[do]))",
+      ";W[dn]" +
+      ";B[en]" +
+      ";W[do]))",
 };

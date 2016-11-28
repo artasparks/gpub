@@ -1,5 +1,6 @@
 (function() {
   module('gpub.spec.specTest');
+  /*
 
   test('create spec', function() {
     var cache = new gpub.util.MoveTreeCache();
@@ -140,11 +141,17 @@
     deepEqual(gen.positions[0].id, 'sgf-1-0')
     deepEqual(gen.positions[1].id, 'sgf-1-1')
   });
+  */
 
   test('Create with IdGenType=Path, gggEasy44', function() {
+    console.log('----------------44---------------');
     var cache = new gpub.util.MoveTreeCache();
+    console.log(glift.rules.movetree.getFromSgf(testdata.sgfs.gggEasy44));
     var opts = new gpub.Options({
       sgfs: [testdata.sgfs.gggEasy44],
+      specOptions: {
+        positionType: gpub.spec.PositionType.PROBLEM,
+      }
     });
     var spec = gpub.spec.create(opts, cache);
     var proc = gpub.spec.process(spec, cache);

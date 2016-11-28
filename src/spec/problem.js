@@ -36,6 +36,8 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
    * prevPos.concat(sincePrevPos).
    */
   var pathRecurse = function(movetree, prevPos, sincePrevPos, correctness) {
+    console.log('PrevPos:::' + JSON.stringify(prevPos));
+    console.log('SincePrevPos:::' + JSON.stringify(sincePrevPos));
     var newCor = glift.rules.problems.positionCorrectness(movetree, conditions);
     // Record positions when
     // - There are comments
@@ -45,7 +47,7 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
         movetree.node().numChildren() === 0 ||
         (prevPos.length === initPos.length && sincePrevPos.length === 0)) {
       var label = newCor;
-      if (prevPos.length === 0 && sincePrevPos.length === 0 ) {
+      if (prevPos.length === 0 && sincePrevPos.length === 0) {
         label = 'PROBLEM_ROOT';
       }
       if (!gen.labels[label]) {
@@ -53,6 +55,7 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
       }
       var ip = ipString(prevPos);
       var frag = fragString(sincePrevPos);
+      console.log(ip + '__' + frag);
       var pos = new gpub.spec.Position({
         id: idGen.next(alias, ip, frag),
         alias: alias,
@@ -67,7 +70,9 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
     }
     for (var i = 0; i < movetree.node().numChildren(); i++) {
       var nmt = movetree.newTreeRef();
-      var pp = sincePrevPos.slice()
+      var pp = sincePrevPos.slice();
+      console.log('PP:::' + JSON.stringify(pp));
+      console.log('PrevPos:::' + JSON.stringify(prevPos));
       pp.push(i);
       nmt.moveDown(i);
       // Note: there's no indicator when to break here. In other words, we
