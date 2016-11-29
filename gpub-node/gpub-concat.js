@@ -8687,7 +8687,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.4
+ * @version 0.3.5
  * --------------------------------------
  */
 (function(w) {
@@ -10063,7 +10063,7 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
         movetree.node().numChildren() === 0 ||
         (prevPos.length === initPos.length && sincePrevPos.length === 0)) {
       var label = newCor;
-      if (prevPos.length === 0 && sincePrevPos.length === 0 ) {
+      if (prevPos.length === 0 && sincePrevPos.length === 0) {
         label = 'PROBLEM_ROOT';
       }
       if (!gen.labels[label]) {
@@ -10080,19 +10080,20 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
       });
       gen.labels[label].push(pos.id);
       outPositions.push(pos);
-      prevPos = sincePrevPos;
+      prevPos = prevPos.concat(sincePrevPos);
       sincePrevPos = [];
     }
     for (var i = 0; i < movetree.node().numChildren(); i++) {
       var nmt = movetree.newTreeRef();
-      var pp = sincePrevPos.slice()
-      pp.push(i);
+      var pp = prevPos.slice();
+      var spp = sincePrevPos.slice();
+      spp.push(i);
       nmt.moveDown(i);
       // Note: there's no indicator when to break here. In other words, we
       // assume that the whole subtree is part of the problem, which might not
       // be true, but either we make this assumption or we introduce arbitrary
       // constraints.
-      pathRecurse(nmt, prevPos, pp, newCor);
+      pathRecurse(nmt, pp, spp, newCor);
     }
   };
 
@@ -12140,6 +12141,10 @@ gpub.diagrams.svg = {
    * @return {string} The rendered text
    */
   create: function(flattened, options) {
+    var svg = glift.svg.svg();
+    // That moment when I realized much more would need to be ported to frome
+    // glift to glift-core...
+    return svg.render();
   },
 
   /**

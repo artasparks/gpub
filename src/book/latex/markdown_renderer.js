@@ -1,4 +1,4 @@
-/** Creates a marked-Markdown renderer for LaEeX */
+/** Creates a marked-Markdown renderer for LaTeX */
 gpub.book.latex.renderer = function() {
   if (gpub.book.latex._rendererInstance) {
     return gpub.book.latex._rendererInstance;
