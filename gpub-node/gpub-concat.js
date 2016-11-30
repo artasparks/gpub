@@ -11564,25 +11564,24 @@ gpub.diagrams.gpubAscii.symbolMap = {
 goog.provide('gpub.diagrams.igo');
 
 /**
- *
  * Creates igo-diagrams. Note: This is only for creating books using latex.
  */
 gpub.diagrams.igo = {
   /**
-   * Font sizes supported by igo.
-   * @enum {number}
+   * Font sizes supported by igo, in pt.
+   * @type {!Object<number, number>}
    */
-  FontSize: {
-    C5: 5,
-    C6: 6,
-    C7: 7,
-    C8: 8,
-    C9: 9,
-    C10: 10,
-    C11: 11,
-    C12: 12,
-    C15: 15,
-    C20: 20
+  fontSize: {
+    5: 5,
+    6: 6,
+    7: 7,
+    8: 8,
+    9: 9,
+    10: 10,
+    11: 11,
+    12: 12,
+    15: 15,
+    20: 20
   },
 
   /**
@@ -11623,10 +11622,8 @@ gpub.diagrams.igo = {
    *
    */
   create: function(flattened, options) {
-    var optSize = options.size || 10;
-    var fontSize = gpub.diagrams.igo.FontSize['C' + optSize] ||
-        gpub.diagrams.igo.FontSize.C10;
-
+    var optSize = options.size;
+    var fontSize = gpub.diagrams.igo.fontSize[optSize] || 10;
     var boardSize = flattened.board().maxBoardSize();
     var symbolStr = glift.flattener.symbolStr;
 
@@ -11945,6 +11942,40 @@ gpub.diagrams.igo.processIntersections =
   }
 
   return tracker;
+};
+
+goog.provide('gpub.diagrams.igo.Renderer');
+
+/**
+ * @constructor @final @struct
+ */
+gpub.diagrams.igo.Renderer = function() {}
+
+gpub.diagrams.igo.Renderer.prototype = {
+  /**
+   * The create method for igo
+   * @param {!glift.flattener.Flattened} flat
+   * @param {!gpub.api.DiagramOptions} opt
+   * @return {string} The rendered diagram.
+   */
+  render: function(flat, opt) {
+    return gpub.diagrams.igo.create(flat, opt);
+  },
+
+  /**
+   * Render-inline the
+   * @param {string} text
+   * @param {!gpub.api.DiagramOptions} opt
+   * @return {string} The processed text
+   */
+  renderInline: function(text, opt) {
+    return gpub.diagrams.igo.renderInline(text, opt);
+  }
+};
+
+// Enabled the Renderer!
+gpub.diagrams.enabledRenderers['IGO'] = function() {
+  return new gpub.diagrams.igo.Renderer();
 };
 
 goog.provide('gpub.diagrams.pdf');
