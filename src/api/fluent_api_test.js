@@ -164,4 +164,21 @@
       })
     deepEqual(callCount, 20);
   });
+
+  test('Igo Diagram Creation ', function() {
+    var sgf = testdata.gogameguru_commentary;
+    var api = gpub.init({
+        sgfs: [sgf],
+      })
+      .createSpec()
+      .processSpec({
+        positionType: 'PROBLEM'
+      })
+      .renderDiagrams({
+        diagramType: 'IGO',
+        maxDiagrams: 20,
+      })
+    var diag = api.diagrams();
+    deepEqual(diag.diagrams.length, 20);
+  });
 })();
