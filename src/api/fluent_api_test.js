@@ -20,7 +20,8 @@
     deepEqual(api.opt_.sgfs, opt.sgfs);
     deepEqual(api.opt_.ids, opt.ids);
 
-    api.createSpec();
+    api = api.createSpec();
+
     var spec = api.spec();
     deepEqual(spec.version, gpub.spec.SpecVersion.V1);
     var expMap = {};
