@@ -31,6 +31,7 @@ var srcPaths = [
   'src/spec',
   'src/diagrams',
   'src/util',
+  'src/book',
 ]
 
 // Ignore the test files

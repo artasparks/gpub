@@ -155,6 +155,18 @@ gpub.Api.prototype = {
     return ref;
   },
 
+  /**
+   * Returns the book generator helper. Both the spec and the rendered diagrams
+   * must have been created before the book generator is created.
+   * @return
+   */
+  bookGenerator: function() {
+    var phase = 'creating the book generator helper';
+    var spec = this.mustGetSpec_(phase);
+    var diagrams = this.mustGetRendererd_(phase);
+    return new gpub.book.Generator(spec, diagrams);
+  },
+
   /////////////////////////////////
   //////// Private helpers ////////
   /////////////////////////////////
@@ -201,6 +213,21 @@ gpub.Api.prototype = {
       throw new Error('Spec must be defined before ' + phase + '.');
     }
     return spec;
+  },
+
+  /**
+   * Get the rendered diagram wrapper or throw an error.
+   * @param {string} phase
+   * @return {!gpub.diagrams.Rendered} The rendered diagram wrapper, which must
+   *    be defined
+   * @private
+   */
+  mustGetRendererd_: function(phase) {
+    var dia = this.diagrams();
+    if (!dia) {
+      throw new Error('Rendered must be defined before ' + phase + '.');
+    }
+    return dia;
   },
 };
 
