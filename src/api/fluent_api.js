@@ -10,6 +10,10 @@ goog.scope(function() {
  * reference. However, no care is taken to ensure deep immutability of the
  * underlying objects.
  *
+ * Usage:
+ *
+ * gpub.init({options})
+ *
  * @param {!gpub.Options} options
  * @struct @constructor @final
  */
@@ -156,15 +160,15 @@ gpub.Api.prototype = {
   },
 
   /**
-   * Returns the book generator helper. Both the spec and the rendered diagrams
+   * Returns the book maker helper. Both the spec and the rendered diagrams
    * must have been created before the book generator is created.
    * @return
    */
-  bookGenerator: function() {
-    var phase = 'creating the book generator helper';
+  bookMaker: function() {
+    var phase = 'creating the book maker helper';
     var spec = this.mustGetSpec_(phase);
     var diagrams = this.mustGetRendererd_(phase);
-    return new gpub.book.Generator(spec, diagrams);
+    return new gpub.book.BookMaker(spec, diagrams);
   },
 
   /////////////////////////////////

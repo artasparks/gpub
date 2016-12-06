@@ -43,6 +43,7 @@ var testGlob = [
   'src/spec/*_test.js',
   'src/util/*_test.js',
   'src/diagrams/**/*_test.js',
+  'src/book/**_test.js',
 
   // Don't include Glift deps
   // 'deps/**/*_test.js'
