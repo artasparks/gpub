@@ -117,9 +117,12 @@ gpub.book.BookMaker.prototype = {
    * Professional printing often requires that PDFs be compliant with PDF/X-1a
    * (or a similar standard). Here, we provide some headers for LaTeX that
    * should make this a bit easier
+   *
+   * @param {!gpub.book.PdfxOptions} options for rendering the PDFX header.
    * @return {string}
    */
-  pdfx1aHeader: function() {
+  pdfx1aHeader: function(options) {
+    return gpub.book.pdfx.header(options);
   },
 
   /////////////////////

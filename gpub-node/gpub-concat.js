@@ -8687,7 +8687,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.5
+ * @version 0.3.6
  * --------------------------------------
  */
 (function(w) {
@@ -8757,25 +8757,6 @@ gpub.create = function(options) {
 
 goog.provide('gpub.api.BookOptions');
 goog.provide('gpub.api.Frontmatter');
-goog.provide('gpub.api.ProblemAnswers');
-
-/**
- * How should the problem answers be generated?
- * @enum {string}
- */
-gpub.api.ProblemAnswers = {
-  /** Don't generate problem answers */
-  NO_ANSWERS: 'NO_ANSWERS',
-  /** Generate the answers directly after the problem grouping. */
-  AFTER_PROBLEM: 'AFTER_PROBLEM',
-  /** Generate the anwers after all the problems. */
-  AT_END: 'AT_END',
-  /**
-   * Only generate problems answers. This is useful for when users want the
-   * answers in a separate book.
-   */
-  ONLY_ANSWERS: 'ONLY_ANSWERS',
-};
 
 /**
  * @param {!gpub.api.BookOptions=} opt_options
@@ -8939,34 +8920,6 @@ gpub.api.Frontmatter = function(options) {
    * @const {?string}
    */
   this.colorProfileFilePath = o.colorProfileFilePath || null;
-
-  // TODO(kashomon): Problem answers are a function of rendering and shouldn't
-  // be part of the spec.
-  /**
-   * How should the problem answers be generated?
-   * @const {!gpub.api.ProblemAnswers}
-   */
-  this.problemAnswerType = o.problemAnswerType || gpub.api.ProblemAnswers.AT_END;
-
-  /**
-   * How many problems should be grouped together? This is only useful for the
-   * AFTER_PROBLEM type. 0 groups all the problems together and results in the
-   * same generation as the AT_END type.
-   * @const {!number}
-   */
-  this.numProblemsInGroup = o.numProblemsInGroup !== undefined ?
-      o.numProblemsInGroup : 2;
-
-  /**
-   * Some problems have dozens of answers specified in their
-   * respective Positions. To limit this answer explosion, the user can specify the
-   * maximum number of answers that will be rendered. 0 indicates there is no
-   * limit.
-   *
-   * @const {!number}
-   */
-  this.maxAnswersPerProblem  = o.maxAnswersPerProblem !== undefined ?
-      o.maxAnswersPerProblem : 2;
 };
 
 goog.provide('gpub.api.DiagramOptions');
@@ -9113,7 +9066,17 @@ goog.provide('gpub.Api');
 goog.scope(function() {
 
 /**
- * SpecPhase: Create the basic book specification.
+ * A GPub API wrapper. This is a container that has methods for processing
+ * specs, producing diagrams, and eventually, rendering books.
+ *
+ * It is shallowly immutable: Each API transformation returns a new API
+ * reference. However, no care is taken to ensure deep immutability of the
+ * underlying objects.
+ *
+ * Usage:
+ *
+ * gpub.init({options})
+ *
  * @param {!gpub.Options} options
  * @struct @constructor @final
  */
@@ -9129,6 +9092,7 @@ gpub.Api = function(options) {
 };
 
 gpub.Api.prototype = {
+
   /**
    * @return {?gpub.spec.Spec} The spec, if it exists.
    * @export
@@ -9153,55 +9117,57 @@ gpub.Api.prototype = {
    *
    * @param {(!gpub.spec.Spec|string)=} opt_spec Optionally pass in a spec, in
    *    either a serialized JSON form, or in the object form.
-   * @return {!gpub.Api} this
+   * @return {!gpub.Api} A new reference updated with a new cache and spec.
    * @export
    */
   createSpec: function(opt_spec) {
+    var ref = this.newRef_();
     if (opt_spec) {
       // The spec option has been passed in. So instead of creating a spec from
       // scratch, parse the one that's passed in.
       if (typeof opt_spec === 'string') {
         // Assume it's JSON.
         var jsonspec = /** @type {string} */ (opt_spec);
-        this.spec_ = gpub.spec.Spec.deserializeJson(jsonspec);
+        ref.spec_ = gpub.spec.Spec.deserializeJson(jsonspec);
       } else if (typeof opt_spec === 'object') {
         // Assume the types are correct and create a copy.
         var objspec = /** @type {!gpub.spec.Spec} */ (opt_spec);
-        this.spec_ = new gpub.spec.Spec(objspec);
+        ref.spec_ = new gpub.spec.Spec(objspec);
       } else {
         throw new Error('Unknown type for spec options. ' +
             'Must be serialized JSON or a gpub.spce.Spec object.');
       }
     } else {
       // No spec option has been passed in; Process the incoming SGFS.
-      var sgfs = this.opt_.sgfs;
+      var sgfs = ref.opt_.sgfs;
       if (!sgfs || glift.util.typeOf(sgfs) !== 'array' || sgfs.length === 0) {
         throw new Error('SGF array must be defined and non-empty ' +
             'before spec creation');
       }
-      this.cache_ = new gpub.util.MoveTreeCache();
-      this.spec_ = gpub.spec.create(this.opt_, this.cache_);
+      ref.cache_ = new gpub.util.MoveTreeCache();
+      ref.spec_ = gpub.spec.create(ref.opt_, ref.cache_);
     }
-    return this;
+    return ref;
   },
 
   /**
    * Process a GPub specification, generating new positions if necessary.
    * @param {(!gpub.api.SpecOptions)=} opt_o Optional Spec options.
-   * @return {!gpub.Api} this
+   * @return {!gpub.Api} A new reference with an updated spec.
    * @export
    */
   processSpec: function(opt_o) {
+    var ref = this.newRef_();
     var phase = 'processing the spec';
-    var spec = this.mustGetSpec_(phase);
-    var cache = this.getCacheOrInit_(phase);
+    var spec = ref.mustGetSpec_(phase);
+    var cache = ref.getCacheOrInit_(phase);
     if (opt_o) {
       spec = gpub.spec.Spec.merge(spec, {
         specOptions: new gpub.api.SpecOptions(opt_o)
       });
     }
-    this.spec_ = gpub.spec.process(spec, cache);
-    return this;
+    ref.spec_ = gpub.spec.process(spec, cache);
+    return ref;
   },
 
   /**
@@ -9210,21 +9176,22 @@ gpub.Api.prototype = {
    * going to write to disk anyway, consider using `renderDiagramsStream`.
    *
    * @param {(!gpub.api.DiagramOptions)=} opt_o Optional diagram options.
-   * @return {!gpub.Api} this
+   * @return {!gpub.Api} A new reference with rendered diagrams.
    * @export
    */
   renderDiagrams: function(opt_o) {
+    var ref = this.newRef_();
     var phase = 'diagram rendering';
-    var spec = this.mustGetSpec_(phase);
-    var cache = this.getCacheOrInit_(phase);
+    var spec = ref.mustGetSpec_(phase);
+    var cache = ref.getCacheOrInit_(phase);
     if (opt_o) {
       spec = gpub.spec.Spec.merge(spec, {
         diagramOptions: new gpub.api.DiagramOptions(opt_o)
       });
-      this.spec_ = spec;
+      ref.spec_ = spec;
     }
-    this.diagrams_ = gpub.diagrams.render(spec, cache);
-    return this;
+    ref.diagrams_ = gpub.diagrams.render(spec, cache);
+    return ref;
   },
 
   /**
@@ -9237,26 +9204,52 @@ gpub.Api.prototype = {
    * @param {!gpub.diagrams.DiagramCallback} fn Void-returning processing
    * function.
    * @param {!gpub.api.DiagramOptions=} opt_o Optional options
-   * @return {!gpub.Api} this
+   * @return {!gpub.Api} A new reference with rendered diagram metadata
    * @export
    */
   renderDiagramsStream: function(fn, opt_o) {
+    var ref = this.newRef_();
     var phase = 'streaming diagram rendering';
-    var spec = this.mustGetSpec_(phase);
-    var cache = this.getCacheOrInit_(phase);
+    var spec = ref.mustGetSpec_(phase);
+    var cache = ref.getCacheOrInit_(phase);
     if (opt_o) {
       spec = gpub.spec.Spec.merge(spec, {
         diagramOptions: new gpub.api.DiagramOptions(opt_o)
       });
-      this.spec_ = spec;
+      ref.spec_ = spec;
     }
-    this.diagrams_ = gpub.diagrams.renderStream(spec, cache, fn)
-    return this;
+    ref.diagrams_ = gpub.diagrams.renderStream(spec, cache, fn)
+    return ref;
+  },
+
+  /**
+   * Returns the book maker helper. Both the spec and the rendered diagrams
+   * must have been created before the book generator is created.
+   * @return
+   */
+  bookMaker: function() {
+    var phase = 'creating the book maker helper';
+    var spec = this.mustGetSpec_(phase);
+    var diagrams = this.mustGetRendererd_(phase);
+    return new gpub.book.BookMaker(spec, diagrams);
   },
 
   /////////////////////////////////
   //////// Private helpers ////////
   /////////////////////////////////
+  /**
+   * Create a new instance of the API so that we don't reuse references. This
+   * allows us to return new references upon successive .transformations.
+   * @return {!gpub.Api}
+   * @private
+   */
+  newRef_: function() {
+    var ref = new gpub.Api(this.opt_);
+    ref.spec_ = this.spec_;
+    ref.diagrams_ = this.diagrams_;
+    ref.cache_ = this.cache_;
+    return ref
+  },
 
   /**
    *  Get an existing cache or create a new one from the spec. Throws an error
@@ -9287,6 +9280,21 @@ gpub.Api.prototype = {
       throw new Error('Spec must be defined before ' + phase + '.');
     }
     return spec;
+  },
+
+  /**
+   * Get the rendered diagram wrapper or throw an error.
+   * @param {string} phase
+   * @return {!gpub.diagrams.Rendered} The rendered diagram wrapper, which must
+   *    be defined
+   * @private
+   */
+  mustGetRendererd_: function(phase) {
+    var dia = this.diagrams();
+    if (!dia) {
+      throw new Error('Rendered must be defined before ' + phase + '.');
+    }
+    return dia;
   },
 };
 
@@ -12407,3 +12415,478 @@ gpub.util.size = {
     }
   }
 };
+
+goog.provide('gpub.book');
+
+gpub.book = {
+
+};
+
+goog.provide('gpub.book.BookMaker');
+goog.provide('gpub.book.PosConfig');
+
+
+/**
+ * Position config for an ID. Really, this is a convenince helper so have
+ * several things to store in our ID map.
+ * @param {string} id Position id
+ *
+ * @struct @final @constructor
+ */
+gpub.book.PosConfig = function(id) {
+  /** @const {string} */
+  this.id = id;
+
+  /** @private @const {!Object<string, boolean>} */
+  this.labelSet = {};
+
+  /**
+   * The index of the base position (the generator position). 1-indexed if set.
+   * @private {number}
+   */
+  this.basePosIndex = -1;
+
+  /**
+   * Diagram metadata configuration for this position. Practically, should always be defined.
+   * @private {?gpub.diagrams.Metadata}
+   */
+  this.metadata = null;
+
+  /**
+   * Optional diagram. This will be an empty string if streaming-rendering was used.
+   * @private {string}
+   */
+  this.diagram = '';
+
+  /**
+   * The position object that generated this position. Sometimes useful for
+   * debugging, but not usually useful for rendering.
+   * @private {?gpub.spec.Position}
+   */
+  this.position = null;
+};
+
+
+gpub.book.PosConfig.prototype = {
+};
+
+
+/**
+ * Book maker helper. Contains helpful methods for making books.
+ *
+ * @param {!gpub.spec.Spec} spec The spec object
+ * @param {!gpub.diagrams.Rendered} rendered The diagram wrapper
+ *
+ * @struct @final @constructor
+ */
+gpub.book.BookMaker = function(spec, rendered) {
+  /** @private {number} */
+  this.seenPos_ = 0;
+
+  /**
+   * Map from position
+   * @private {!Object<string, !gpub.book.PosConfig>}
+   */
+  this.idToConfig_ = {};
+
+  /**
+   * An ordered list of all the position ids.
+   * @private {!Array<string>}
+   */
+  this.posIds_ = [];
+
+  this.initFromGrouping_(spec.rootGrouping);
+  this.initFromRendered_(rendered);
+};
+
+
+gpub.book.BookMaker.prototype = {
+  /**
+   * Looping functionality. Loop over each Position ID and Position Config.
+   * @param {function(number, !gpub.book.PosConfig)} fn Processing
+   * function that has the form:
+   *  - Diagram index
+   *  - Position config
+   */
+  forEachDiagram: function(fn) {
+    for (var i = 0; i < this.posIds_.length; i++) {
+      var id = this.posIds_[i];
+      var config = this.getConfig(id);
+      if (!config) {
+        throw new Error('Null config when looping! Should be impossible.');
+      }
+      fn(i, config);
+    }
+  },
+
+  /**
+   * Gets the position id from an index. Returns an empty string if no ID can be found.
+   * @param {number} num
+   * @return {string} the position ID
+   */
+  idFromIdx: function(num) {
+    return this.posIds_[num] || '';
+  },
+
+  /**
+   * Gets the position config for an ID.
+   * @param {string} id
+   * @return {?gpub.book.PosConfig} The relevant position config or null if none was found.
+   */
+  getConfig: function(id) {
+    return this.idToConfig_[id] || null;
+  },
+
+  /**
+   * Professional printing often requires that PDFs be compliant with PDF/X-1a
+   * (or a similar standard). Here, we provide some headers for LaTeX that
+   * should make this a bit easier
+   *
+   * @param {!gpub.book.PdfxOptions} options for rendering the PDFX header.
+   * @return {string}
+   */
+  pdfx1aHeader: function(options) {
+    return gpub.book.pdfx.header(options);
+  },
+
+  /////////////////////
+  // Private helpers //
+  /////////////////////
+
+  /**
+   * Gets a PosConfig for a given ID. If the PosConfig doesn't exist, create it.
+   * @param {string} id
+   * @return {!gpub.book.PosConfig}
+   * @private
+   */
+  getOrInitConfig_: function(id) {
+    var pos = this.idToConfig_[id];
+    if (!pos) {
+      pos = new gpub.book.PosConfig(id);
+      this.idToConfig_[id] = pos;
+    }
+    return pos;
+  },
+
+  /**
+   * Initialization function called in the book-maker constructor.
+   * @param {!gpub.spec.Grouping} group
+   * @private
+   */
+  initFromGrouping_: function(group) {
+    for (var i = 0; i < group.positions.length; i++) {
+      this.seenPos_++;
+      var index = this.seenPos_;
+      var pos = group.positions[i];
+      var gen = group.generated[pos.id];
+
+      /**
+       * @param {!gpub.spec.Position} p
+       */
+      var processPos = function(p) {
+        var config = this.getOrInitConfig_(p.id);
+        config.position = p;
+        this.posIds_.push(p.id);
+        config.basePosIndex = index;
+        for (var k = 0; k < p.labels.length; k++) {
+          config.labelSet[p.labels[k]] = true;
+        }
+      }.bind(this);
+
+      if (!gen) {
+        // There are no generated positions. Consider just the non-generated position.
+        processPos(pos);
+      } else {
+        for (var j = 0; j < gen.positions.length; j++) {
+          processPos(gen.positions[j]);
+        }
+      }
+
+      // Hopefully the user hasn't created a data structure with loops.
+      for (var i = 0; i < group.groupings.length; i++) {
+        this.initFromGrouping_(group.groupings[i]);
+      }
+    }
+  },
+
+  /**
+   * Initialize the position config from the rendered data.
+   * @param {!gpub.diagrams.Rendered} ren Rendered wrapper
+   * @private
+   */
+  initFromRendered_: function(ren) {
+    for (var i = 0; i < ren.metadata.length; i++) {
+      var m = ren.metadata[i];
+      var config = this.getOrInitConfig_(m.id);
+      config.metadata = m;
+    }
+    for (var i = 0; i < ren.diagrams.length; i++) {
+      var m = ren.diagrams[i];
+      var config = this.getOrInitConfig_(m.id);
+      if (m.rendered) {
+        config.diagram = m.rendered;
+      }
+    }
+  }
+};
+
+goog.provide('gpub.book.PageSize');
+goog.provide('gpub.book.pageDimensions');
+goog.provide('gpub.book.PageDim');
+
+
+goog.scope(function() {
+
+/**
+ * Some predefined page sizes for convenince.
+ * @enum {string}
+ */
+gpub.book.PageSize = {
+  A4: 'A4',
+  /** Standard printer paper. */
+  LETTER: 'LETTER',
+  /**
+   * 6x9. Octavo is probably the most common size for professionally printed go
+   * books.
+   */
+  OCTAVO: 'OCTAVO',
+  /**
+   * 5x7 paper. Doesn't have an official name, as far as I know, so we'll call
+   * it Notecard.
+   */
+  NOTECARD: 'NOTECARD',
+
+  /** Miscellaneous sizes, named by the size. */
+  EIGHT_TEN: 'EIGHT_TEN',
+  FIVEFIVE_EIGHTFIVE: 'FIVEFIVE_EIGHTFIVE',
+};
+
+/**
+ * @typedef{{
+ *  heightMm: number,
+ *  widthMm: number,
+ *  heightIn: number,
+ *  widthIn: number
+ * }}
+ */
+gpub.book.PageDim;
+
+/**
+ * Mapping from page-size to col-maping.
+ *
+ * Note: height and width in mm.
+ * @type {Object<gpub.book.PageSize,gpub.book.PageDim>}
+ *
+ */
+gpub.book.pageDimensions = {};
+
+var pd = gpub.book.pageDimensions;
+var ps = gpub.book.PageSize;
+
+pd[ps.A4] = {
+  heightMm: 297,
+  widthMm: 210,
+  widthIn: 8.268,
+  heightIn: 11.693
+};
+pd[ps.LETTER] = {
+ heightMm: 280,
+  widthMm: 210,
+  heightIn: 11,
+  widthIn: 8.5
+};
+pd[ps.OCTAVO] = {
+  heightMm: 229,
+  widthMm: 152,
+  heightIn: 9,
+  widthIn: 6
+};
+pd[ps.NOTECARD] = {
+  heightMm: 178,
+  widthMm: 127,
+  heightIn: 7,
+  widthIn: 5
+};
+pd[ps.EIGHT_TEN] = {
+  heightMm: 254,
+  widthMm: 203,
+  heightIn: 10,
+  widthIn: 8
+};
+pd[ps.FIVEFIVE_EIGHTFIVE] = {
+  heightMm: 216,
+  widthMm: 140,
+  heightIn: 8.5,
+  widthIn: 5.3
+};
+
+})  // goog.scope
+
+goog.provide('gpub.book.pdfx');
+goog.provide('gpub.book.PdfxOptions');
+/**
+ * Package for Pdf/X-1a:2001 compatibility for Latex.
+ *
+ * This is a package to add support for the above mentioned compatibility, which
+ * is required by some professional printers.
+ *
+ * Requirements (from http://www.prepressure.com/pdf/basics/pdfx-1a):
+ *
+ * http://tex.stackexchange.com/questions/242303/pdf-x-1a-on-tex-live-2014-for-publishing-with-pod-lightining-source
+ *
+ * Requirements that we care about:
+ * - PDF/X-1a files are regular PDF 1.3
+ * - All color data must be grayscale, CMYK or named spot colors. The file
+ *   should not contain any RGB, LAB, data.
+ * - Can't use hyperref annotations.
+ * - Have to change the stream compression to 0.
+ *
+ * Requirements should be taken care of
+ * - All fonts must be embedded in the file. -- Handled by LaTeX by default
+ * - OPI is not allowed in PDF/X-1a files.
+ *
+ * Should be irrelevant:
+ * - If there are annotations (sticky notes) in the PDF, they should be located
+ *   outside the bleed area.
+ * - The file should not contain forms or Javascript code.
+ * - Compliant files cannot contain music, movies or non-printable annotations.
+ * - Only a limited number of compression algorithms are supported.
+ * - Encryption cannot be used.
+ * - Transfer curves cannot be used.
+ *
+ * For details, see https://github.com/Kashomon/gpub/issues/23
+ */
+gpub.book.pdfx = {
+  /**
+   * Fixes this error:
+   * "PDF version is newer than 1.3"
+   * @private {string}
+   */
+  pdfMinorVersion_: '\\pdfminorversion=3',
+
+  /**
+   * Fixes this error:
+   * "Compressed object streams used"
+   * @private {string}
+   */
+  compressLevel_: '\\pdfobjcompresslevel=0',
+
+  /**
+   * Fixes the error:
+   * "OutputIntent for PDF/X missing"
+   *
+   * typicacally, the colorProfileFilePath should be something like:
+   * 'ISOcoated_v2_300_eci.icc'
+   * @param {string} colorProfileFilePath file-path to the color profile file.
+   * @return {string}
+   * @private
+   */
+  outputIntent_: function(colorProfileFilePath) {
+    return '\\immediate\\pdfobj stream attr{/N 4} file{' + colorProfileFilePath + '}\n' +
+      '\\pdfcatalog{%\n' +
+      '/OutputIntents [ <<\n' +
+      '/Type /OutputIntent\n' +
+      '/S/GTS_PDFX\n' +
+      '/DestOutputProfile \\the\\pdflastobj\\space 0 R\n' +
+      '/OutputConditionIdentifier (ISO Coated v2 300 (ECI))\n' +
+      '/Info(ISO Coated v2 300 (ECI))\n' +
+      '/RegistryName (http://www.color.org/)\n' +
+      '>> ]\n' +
+      '}\n';
+  },
+
+  /**
+   * Returns the PDF Info, which contains the title and spec (PDF/X-1a:2001)
+   * Fixes:
+   *  - "Document title empty/missing",
+   *  - "PDF/X version key (GTS_PDFXVersion) missing"
+   * @param {string} title of the work
+   * @return {string}
+   * @private
+   */
+  pdfInfo_: function(title) {
+    return '\\pdfinfo{%\n' +
+      '/Title(' + title + ')%\n' +
+      '/GTS_PDFXVersion (PDF/X-1:2001)%\n' +
+      '/GTS_PDFXConformance (PDF/X-1a:2001)%\n' +
+      '}\n';
+  },
+
+  /**
+   * Returns the relevant page boxes.
+   * @param {number} hpt
+   * @param {number} wpt
+   * @return string
+   * @private
+   */
+  pageBoxes_: function(hpt, wpt) {
+    return '\\pdfpageattr{/MediaBox[0 0 ' + wpt + ' ' + hpt + ']\n' +
+      '             /BleedBox[0 0 ' + wpt + ' ' + hpt + ']\n' +
+      '             /TrimBox[0 0 ' + wpt + ' ' + hpt + ']}\n'
+  },
+
+  /**
+   * Creates the appropriate header/metadata information for PDF/X-1a:2001
+   * comptabible documents.
+   *
+   * Note: There are still other ways to break PDF/X-1a compatibility! You must
+   * not, for example, include hyperlinks.
+   * 
+   * @param {!gpub.book.PdfxOptions} opts
+   * @return {string}
+   */
+  header: function(opts) {
+    if (!opts.title) {
+      throw new Error('title is required for PDF/X-1a header.');
+    }
+    if (!opts.colorProfileFile) {
+      throw new Error('Color profile file path not specified:' +
+          opts.colorProfileFile);
+    }
+    var wpt, hpt;
+    if (opts.pageSize) {
+      if (!gpub.book.PageSize[opts.pageSize]) {
+        throw new Error('Page size not a member of gpub.book.PageSize. ' +
+            opts.pageSize);
+      }
+      var pageObj = gpub.book.pageDimensions[opts.pageSize];
+      hpt = gpub.util.size.mmToPt(pageObj.heightMm);
+      wpt = gpub.util.size.mmToPt(pageObj.widthMm);
+    } else if (opts.pageHeightPt && opts.pageWidthPt) {
+      hpt = opts.pageHeightPt;
+      wpt = opts.pageWidthPt;
+    } else {
+      throw new Error('Either pageSize must be defined or ' +
+          'pageHeightPt and pageWidthPt must be defined. Options were: ' +
+          opts);
+    }
+    return [
+      gpub.book.pdfx.pdfMinorVersion_,
+      gpub.book.pdfx.compressLevel_,
+      gpub.book.pdfx.pageBoxes_(hpt, wpt),
+      gpub.book.pdfx.pdfInfo_(opts.title),
+      gpub.book.pdfx.outputIntent_(opts.colorProfileFile)
+    ].join('\n');
+  }
+};
+
+/**
+ * Options for constructing the PDF/X-1a header for latex. Note that one of
+ * pageSize or (pageHeightPt,pageWidthPt) most be defined.
+ *
+ * title: Title of the work.
+ * colorProfileFile: Path to a color profile file. Usually something like
+ * 'ISOcoated_v2_300_eci.icc'
+ * pageSize: Optional page size enum.
+ * pageHeightPt: Optional page height in pt
+ * pageWidthPt: Optional page width in pt
+ *
+ * @typedef {{
+ *  title: string,
+ *  colorProfileFile: string,
+ *  pageSize: (undefined|gpub.book.PageSize),
+ *  pageHeightPt: (undefined|number),
+ *  pageWidthPt: (undefined|number),
+ * }}
+ */
+gpub.book.PdfxOptions;
