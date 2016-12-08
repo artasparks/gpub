@@ -13,14 +13,36 @@ gpub.book.PosConfig = function(id) {
   /** @const {string} */
   this.id = id;
 
-  /** @const {!Object<string, boolean>} */
+  /** @private @const {!Object<string, boolean>} */
   this.labelSet = {};
 
   /**
    * The index of the base position (the generator position). 1-indexed if set.
-   * @type {number}
+   * @private {number}
    */
   this.basePosIndex = -1;
+
+  /**
+   * Diagram metadata configuration for this position
+   * @private {!gpub.digarams.Metadata}
+   */
+  this.metadata = {};
+
+  /**
+   * Optional diagram. This will be an empty string if streaming-rendering was used.
+   * @private {string}
+   */
+  this.diagram = '';
+
+  /**
+   * The position object that generated this position. Sometimes useful for
+   * debugging, but not usually useful for rendering.
+   */
+  this.positionSpec = {};
+};
+
+
+gpub.book.PosConfig.prototype = {
 };
 
 
@@ -37,26 +59,39 @@ gpub.book.BookMaker = function(spec, rendered) {
   this.seenPos_ = 0;
 
   /**
+   * Map from position
    * @private {!Object<string, !gpub.book.PosConfig>}
    */
   this.idToConfig_ = {};
 
   /**
-   * This is essentially a map from position ID to string id.
+   * An ordered list of all the position ids.
    * @private {!Array<string>}
    */
-  this.idxArr_ = [];
+  this.posIds_ = [];
 
   this.initFromGrouping_(spec.rootGrouping);
-  // this.initFromRendered_(rendered);
+  this.initFromRendered_(rendered);
 };
 
 
 gpub.book.BookMaker.prototype = {
   /**
-   * Looping functionality
+   * Looping functionality. Loop over each Position ID and Position Config.
+   * @param {function(number, !gpub.book.PosConfig} fn Processing
+   * function that has the form:
+   *  - Diagram index
+   *  - Position config
    */
-  forEachId: function(fn) {
+  forEachDiagram: function(fn) {
+    for (var i = 0; i < this.posIds_.length; i++) {
+      var id = this.posIds_[i];
+      var config = this.getConfig(id);
+      if (!config) {
+        throw new Error('Null config when looping! Should be impossible.');
+      }
+      fn(i, config);
+    }
   },
 
   /**
@@ -65,27 +100,16 @@ gpub.book.BookMaker.prototype = {
    * @return {string} the position ID
    */
   idFromIdx: function(num) {
-    return this.idxArr_[num] || '';
+    return this.posIds_[num] || '';
   },
 
   /**
-   * @param {string} id A diagram ID.
-   * @return {boolean} Whether the diagram has a particular label.
+   * Gets the position config for an ID.
+   * @param {string} id
+   * @return {?gpub.book.PosConfig} The relevant position config or null if none was found.
    */
-  hasLabel: function(id) {
-  },
-
-  /**
-   * Gets the labels for an ID.
-   * @param {string} id A diagram ID.
-   */
-  diagramMetadata: function(id) {
-  },
-
-  /**
-   * @param {string} id A diagram ID.
-   */
-  diagram: function(id) {
+  getConfig: function(id) {
+    return this.idToConfig_[id] || null;
   },
 
   /**
@@ -107,7 +131,7 @@ gpub.book.BookMaker.prototype = {
    * @return {!gpub.book.PosConfig}
    * @private
    */
-  getInitConfig_: function(id) {
+  getOrInitConfig_: function(id) {
     var pos = this.idToConfig_[id];
     if (!pos) {
       pos = new gpub.book.PosConfig(id);
@@ -132,8 +156,9 @@ gpub.book.BookMaker.prototype = {
        * @param {!gpub.spec.Position} p
        */
       var processPos = function(p) {
-        var config = this.getInitConfig_(p.id);
-        this.idxArr_.push(p.id);
+        var config = this.getOrInitConfig_(p.id);
+        config.position = p;
+        this.posIds_.push(p.id);
         config.basePosIndex = index;
         for (var k = 0; k < p.labels.length; k++) {
           config.labelSet[p.labels[k]] = true;
@@ -155,4 +180,24 @@ gpub.book.BookMaker.prototype = {
       }
     }
   },
+
+  /**
+   * Initialize the position config from the rendered data.
+   * @param {!gpub.spec.Rendered} ren Rendered wrapper
+   * @private
+   */
+  initFromRendered_: function(ren) {
+    for (var i = 0; i < ren.metadata.length; i++) {
+      var m = ren.metadata[i];
+      var config = this.getOrInitConfig_(m.id);
+      config.metadata = m;
+    }
+    for (var i = 0; i < ren.diagrams.length; i++) {
+      var m = ren.diagrams[i];
+      var config = this.getOrInitConfig_(m.id);
+      if (m.rendered) {
+        config.diagram = m.rendered;
+      }
+    }
+  }
 };
