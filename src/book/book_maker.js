@@ -23,10 +23,10 @@ gpub.book.PosConfig = function(id) {
   this.basePosIndex = -1;
 
   /**
-   * Diagram metadata configuration for this position
-   * @private {!gpub.digarams.Metadata}
+   * Diagram metadata configuration for this position. Practically, should always be defined.
+   * @private {?gpub.diagrams.Metadata}
    */
-  this.metadata = {};
+  this.metadata = null;
 
   /**
    * Optional diagram. This will be an empty string if streaming-rendering was used.
@@ -37,8 +37,9 @@ gpub.book.PosConfig = function(id) {
   /**
    * The position object that generated this position. Sometimes useful for
    * debugging, but not usually useful for rendering.
+   * @private {?gpub.spec.Position}
    */
-  this.positionSpec = {};
+  this.position = null;
 };
 
 
@@ -78,7 +79,7 @@ gpub.book.BookMaker = function(spec, rendered) {
 gpub.book.BookMaker.prototype = {
   /**
    * Looping functionality. Loop over each Position ID and Position Config.
-   * @param {function(number, !gpub.book.PosConfig} fn Processing
+   * @param {function(number, !gpub.book.PosConfig)} fn Processing
    * function that has the form:
    *  - Diagram index
    *  - Position config
@@ -183,7 +184,7 @@ gpub.book.BookMaker.prototype = {
 
   /**
    * Initialize the position config from the rendered data.
-   * @param {!gpub.spec.Rendered} ren Rendered wrapper
+   * @param {!gpub.diagrams.Rendered} ren Rendered wrapper
    * @private
    */
   initFromRendered_: function(ren) {
