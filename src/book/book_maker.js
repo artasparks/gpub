@@ -1,69 +1,80 @@
 goog.provide('gpub.book.BookMaker');
-goog.provide('gpub.book.PosConfig');
+goog.provide('gpub.book.PositionConfig');
 
 
 /**
  * Position config for an ID. Really, this is a convenince helper so have
  * several things to store in our ID map.
- * @param {string} id Position id
+ *
+ * @param {!gpub.spec.Position} pos
+ * @param {!gpub.diagrams.Metadata} meta
+ * @param {!string} diagram
+ * @param {!Object<string, boolean>} labelSet
+ * @param {number} index The base position index.
  *
  * @struct @final @constructor
  */
-gpub.book.PosConfig = function(id) {
+gpub.book.PositionConfig = function(pos, meta, diagram, labelSet, index) {
   /** @const {string} */
-  this.id = id;
-
-  /** @private @const {!Object<string, boolean>} */
-  this.labelSet = {};
-
-  /**
-   * The index of the base position (the generator position). 1-indexed if set.
-   * @private {number}
-   */
-  this.basePosIndex = -1;
-
-  /**
-   * Diagram metadata configuration for this position. Practically, should always be defined.
-   * @private {?gpub.diagrams.Metadata}
-   */
-  this.metadata = null;
-
-  /**
-   * Optional diagram. This will be an empty string if streaming-rendering was used.
-   * @private {string}
-   */
-  this.diagram = '';
+  this.id = pos.id;
 
   /**
    * The position object that generated this position. Sometimes useful for
    * debugging, but not usually useful for rendering.
-   * @private {?gpub.spec.Position}
+   * @const {!gpub.spec.Position}
    */
-  this.position = null;
+  this.position = pos;
+
+  /**
+   * Diagram metadata configuration for this position.
+   * @const {!gpub.diagrams.Metadata}
+   */
+  this.metadata = meta;
+
+  /**
+   * Optional diagram. This will be an empty string if streaming-rendering was
+   * used.
+   * @const {string}
+   */
+  this.diagram = diagram;
+
+  /** @const {!Object<string, boolean>} */
+  this.labelSet = labelSet;
+
+  /**
+   * The index of the base position; I.e., this is a way to track the index of
+   * the non-generated positions. Practically, this should be the index of the
+   * original SGF that this position came from.
+   * @const {number}
+   */
+  this.basePosIndex = index;
 };
 
 
-gpub.book.PosConfig.prototype = {
+gpub.book.PositionConfig.prototype = {
 };
 
 
 /**
  * Book maker helper. Contains helpful methods for making books.
  *
- * @param {!gpub.spec.Spec} spec The spec object
+ * @param {!gpub.spec.Grouping} rootGrouping The root position grouping
  * @param {!gpub.diagrams.Rendered} rendered The diagram wrapper
  *
  * @struct @final @constructor
  */
-gpub.book.BookMaker = function(spec, rendered) {
+gpub.book.BookMaker = function(rootGrouping, rendered) {
   /** @private {number} */
   this.seenPos_ = 0;
 
-  /**
-   * Map from position
-   * @private {!Object<string, !gpub.book.PosConfig>}
-   */
+  /** @const @private {!Object<string, !gpub.book.PositionConfig>} */
   this.idToConfig_ = {};
+
+  /** @const @private {!Object<string, string>} */
+  this.diagrams_ = {};
+
+  /** @const @private {!Object<string, !gpub.diagrams.Metadata>} */
+  this.diagramMeta_ = {};
 
   /**
    * An ordered list of all the position ids.
@@ -71,15 +82,15 @@ gpub.book.BookMaker = function(spec, rendered) {
    */
   this.posIds_ = [];
 
-  this.initFromGrouping_(spec.rootGrouping);
-  this.initFromRendered_(rendered);
+  this.initLookupsFromRendered_(rendered);
+  this.initFromGrouping_(rootGrouping);
 };
 
 
 gpub.book.BookMaker.prototype = {
   /**
    * Looping functionality. Loop over each Position ID and Position Config.
-   * @param {function(number, !gpub.book.PosConfig)} fn Processing
+   * @param {function(number, !gpub.book.PositionConfig)} fn Processing
    * function that has the form:
    *  - Diagram index
    *  - Position config
@@ -108,11 +119,24 @@ gpub.book.BookMaker.prototype = {
   /**
    * Gets the position config for an ID.
    * @param {string} id
-   * @return {?gpub.book.PosConfig} The relevant position config or null if
+   * @return {?gpub.book.PositionConfig} The relevant position config or null if
    * none was found.
    */
   getConfig: function(id) {
     return this.idToConfig_[id] || null;
+  },
+
+  /**
+   * Replace some text with inline go stones (possibly). This doesn't work for
+   * all rendering types, but is a nice addition especially for commentary.
+   * @param {gpub.diagrams.Type} dtype
+   * @param {string} text
+   * @param {!gpub.api.DiagramOptions} opt_diagramOpts
+   * @return {string} The rendered text
+   */
+  renderInline: function(dtype, text, opt_diagramOpts) {
+    var opt = opt_diagramOpts || {};
+    return gpub.diagrams.Renderer.typeRenderer(dtype).renderInline(text, opt);
   },
 
   /**
@@ -128,18 +152,21 @@ gpub.book.BookMaker.prototype = {
   /////////////////////
 
   /**
-   * Gets a PosConfig for a given ID. If the PosConfig doesn't exist, create it.
-   * @param {string} id
-   * @return {!gpub.book.PosConfig}
+   * Initialize the position config from the rendered data.
+   * @param {!gpub.diagrams.Rendered} ren Rendered wrapper
    * @private
    */
-  getOrInitConfig_: function(id) {
-    var pos = this.idToConfig_[id];
-    if (!pos) {
-      pos = new gpub.book.PosConfig(id);
-      this.idToConfig_[id] = pos;
+  initLookupsFromRendered_: function(ren) {
+    for (var i = 0; i < ren.metadata.length; i++) {
+      var m = ren.metadata[i];
+      this.diagramMeta_[m.id] = m;
     }
-    return pos;
+    for (var i = 0; i < ren.diagrams.length; i++) {
+      var d = ren.diagrams[i];
+      if (d.rendered) {
+        this.diagrams_[d.id] = d.rendered;
+      }
+    }
   },
 
   /**
@@ -158,13 +185,20 @@ gpub.book.BookMaker.prototype = {
        * @param {!gpub.spec.Position} p
        */
       var processPos = function(p) {
-        var config = this.getOrInitConfig_(p.id);
-        config.position = p;
-        this.posIds_.push(p.id);
-        config.basePosIndex = index;
-        for (var k = 0; k < p.labels.length; k++) {
-          config.labelSet[p.labels[k]] = true;
+        var meta = this.diagramMeta_[p.id];
+        if (!meta) {
+          throw new Error('Couldn\'t find diagram metadata for ID ' + p.id);
         }
+        var labelSet = {};
+        for (var k = 0; k < p.labels.length; k++) {
+          labelSet[p.labels[k]] = true;
+        }
+        var diagramStr = this.diagrams_[p.id] || '';
+
+        var config = new gpub.book.PositionConfig(
+          p, meta, diagramStr, labelSet, index);
+        this.idToConfig_[p.id] = config;
+        this.posIds_.push(p.id);
       }.bind(this);
 
       if (!gen) {
@@ -182,24 +216,4 @@ gpub.book.BookMaker.prototype = {
       }
     }
   },
-
-  /**
-   * Initialize the position config from the rendered data.
-   * @param {!gpub.diagrams.Rendered} ren Rendered wrapper
-   * @private
-   */
-  initFromRendered_: function(ren) {
-    for (var i = 0; i < ren.metadata.length; i++) {
-      var m = ren.metadata[i];
-      var config = this.getOrInitConfig_(m.id);
-      config.metadata = m;
-    }
-    for (var i = 0; i < ren.diagrams.length; i++) {
-      var m = ren.diagrams[i];
-      var config = this.getOrInitConfig_(m.id);
-      if (m.rendered) {
-        config.diagram = m.rendered;
-      }
-    }
-  }
 };

@@ -22,7 +22,7 @@ gpub.diagrams.gnos.Renderer.prototype = {
   },
 
   /**
-   * Render-inline the
+   * Render-inline some inline text via gnos.
    * @param {string} text
    * @param {!gpub.api.DiagramOptions} opt
    * @return {string} The processed text

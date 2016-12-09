@@ -1,7 +1,14 @@
 (function() {
   module('gpub.book.bookMakerTest');
 
-  test('That creation works', function() {
+  var emptyRendererd = {
+    metadata: [],
+    diagrams: []
+  };
+  var emptyGrouping = new gpub.spec.Grouping();
+  var emptyMaker = new gpub.book.BookMaker(emptyGrouping, emptyRendererd);
+
+  test('That full creation works', function() {
     // First create the spec / rendered objs.
     var problem = testdata.sgfs.veryeasy
     var maker = gpub.init({
@@ -31,4 +38,13 @@
       ok(config.position.id, config.id, i + ') position spec');
     }
   });
+
+  test('Latex Helper', function() {
+    var l = emptyMaker.latexHelper();
+    ok(l, 'latex helper must be defined');
+    var header = l.pdfx1aHeader({
+      title: 'foo', colorProfileFile: 'bar', pageSize: 'LETTER'
+    });
+    ok(/foo/.test(header))
+  })
 })();
