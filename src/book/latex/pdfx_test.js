@@ -7,7 +7,7 @@
       colorProfileFile: 'bar.icc',
       pageSize: gpub.book.PageSize.LETTER
     };
-    var header = gpub.book.pdfx.header(opts);
+    var header = gpub.book.latex.pdfx.header(opts);
     ok(header.indexOf('foo') > -1, 'Must have title. header was:' + header);
     ok(header.indexOf('bar.icc') > -1, 'Must have color profile. header was:' + header);
     var dim = gpub.book.pageDimensions[gpub.book.PageSize.LETTER];

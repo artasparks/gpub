@@ -1,5 +1,6 @@
-goog.provide('gpub.book.pdfx');
-goog.provide('gpub.book.PdfxOptions');
+goog.provide('gpub.book.latex.pdfx');
+goog.provide('gpub.book.latex.PdfxOptions');
+
 /**
  * Package for Pdf/X-1a:2001 compatibility for Latex.
  *
@@ -32,7 +33,7 @@ goog.provide('gpub.book.PdfxOptions');
  *
  * For details, see https://github.com/Kashomon/gpub/issues/23
  */
-gpub.book.pdfx = {
+gpub.book.latex.pdfx = {
   /**
    * Fixes this error:
    * "PDF version is newer than 1.3"
@@ -97,8 +98,8 @@ gpub.book.pdfx = {
    */
   pageBoxes_: function(hpt, wpt) {
     return '\\pdfpageattr{/MediaBox[0 0 ' + wpt + ' ' + hpt + ']\n' +
-      '             /BleedBox[0 0 ' + wpt + ' ' + hpt + ']\n' +
-      '             /TrimBox[0 0 ' + wpt + ' ' + hpt + ']}\n'
+           '             /BleedBox[0 0 ' + wpt + ' ' + hpt + ']\n' +
+           '             /TrimBox[0 0 ' + wpt + ' ' + hpt + ']}\n'
   },
 
   /**
@@ -108,7 +109,7 @@ gpub.book.pdfx = {
    * Note: There are still other ways to break PDF/X-1a compatibility! You must
    * not, for example, include hyperlinks.
    * 
-   * @param {!gpub.book.PdfxOptions} opts
+   * @param {!gpub.book.latex.PdfxOptions} opts
    * @return {string}
    */
   header: function(opts) {
@@ -137,11 +138,11 @@ gpub.book.pdfx = {
           opts);
     }
     return [
-      gpub.book.pdfx.pdfMinorVersion_,
-      gpub.book.pdfx.compressLevel_,
-      gpub.book.pdfx.pageBoxes_(hpt, wpt),
-      gpub.book.pdfx.pdfInfo_(opts.title),
-      gpub.book.pdfx.outputIntent_(opts.colorProfileFile)
+      gpub.book.latex.pdfx.pdfMinorVersion_,
+      gpub.book.latex.pdfx.compressLevel_,
+      gpub.book.latex.pdfx.pageBoxes_(hpt, wpt),
+      gpub.book.latex.pdfx.pdfInfo_(opts.title),
+      gpub.book.latex.pdfx.outputIntent_(opts.colorProfileFile)
     ].join('\n');
   }
 };
@@ -165,4 +166,4 @@ gpub.book.pdfx = {
  *  pageWidthPt: (undefined|number),
  * }}
  */
-gpub.book.PdfxOptions;
+gpub.book.latex.PdfxOptions;

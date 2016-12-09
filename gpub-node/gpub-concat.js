@@ -12520,7 +12520,8 @@ gpub.book.BookMaker.prototype = {
   },
 
   /**
-   * Gets the position id from an index. Returns an empty string if no ID can be found.
+   * Gets the position id from an index. Returns an empty string if no ID can
+   * be found.
    * @param {number} num
    * @return {string} the position ID
    */
@@ -12531,22 +12532,19 @@ gpub.book.BookMaker.prototype = {
   /**
    * Gets the position config for an ID.
    * @param {string} id
-   * @return {?gpub.book.PosConfig} The relevant position config or null if none was found.
+   * @return {?gpub.book.PosConfig} The relevant position config or null if
+   * none was found.
    */
   getConfig: function(id) {
     return this.idToConfig_[id] || null;
   },
 
   /**
-   * Professional printing often requires that PDFs be compliant with PDF/X-1a
-   * (or a similar standard). Here, we provide some headers for LaTeX that
-   * should make this a bit easier
-   *
-   * @param {!gpub.book.PdfxOptions} options for rendering the PDFX header.
-   * @return {string}
+   * Create a new latex helper.
+   * @return {!gpub.book.latex.LatexHelper}
    */
-  pdfx1aHeader: function(options) {
-    return gpub.book.pdfx.header(options);
+  latexHelper: function() {
+    return new gpub.book.latex.LatexHelper();
   },
 
   /////////////////////
@@ -12722,8 +12720,307 @@ pd[ps.FIVEFIVE_EIGHTFIVE] = {
 
 })  // goog.scope
 
-goog.provide('gpub.book.pdfx');
-goog.provide('gpub.book.PdfxOptions');
+goog.provide('gpub.book.latex');
+goog.provide('gpub.book.latex.LatexHelper');
+
+/*
+ * LaTeX helper utilities.
+ */
+gpub.book.latex = {
+  /**
+   * Sanitizes latex input. This isn't particularly robust, but it is meant to
+   * protect us against accidental problematic characters rather than malicious
+   * user input.
+   * @param {string} text LaTeX text to process.
+   * @return {string} processed text
+   * @package
+   */
+  sanitize: function(text) {
+    return text
+      .replace(/\\/g, '\\textbackslash')
+      .replace(/[$}{%&]/g, function(match) {
+        return '\\' + match;
+      });
+  },
+};
+
+/**
+ * A Latex Helper to make rendering LaTeX books a bit easier.
+ * @struct @final @constructor
+ */
+gpub.book.latex.LatexHelper = function() {};
+
+gpub.book.latex.LatexHelper.prototype = {
+  /**
+   * Professional printing often requires that PDFs be compliant with PDF/X-1a
+   * (or a similar standard). Here, we provide some headers for LaTeX that
+   * should make this a bit easier. Note that this provides some goo to make a
+   * document compliant, but it's still easy to screw up. In particular, adding
+   * hyperlinks breaks PDF/X-1a compliance.
+   *
+   * @param {!gpub.book.latex.PdfxOptions} options for rendering the
+   *    PDF/X-1a:2001 header.
+   * @return {string}
+   */
+  pdfx1aHeader: function(options) {
+    return gpub.book.latex.pdfx.header(options);
+  },
+
+  /**
+   * Sanitizes latex input by transforming control characters into their escaped form.
+   * @param {string} text LaTeX text to process.
+   * @return {string} processed text
+   */
+  sanitize: function(text) {
+    return gpub.book.latex.sanitize(text);
+  },
+
+  /**
+   * Render some markdown as latex.
+   * @param {string} text Markdown text to process
+   * @param {!Object=} opt_overrides Optional object containing renderer-method
+   *    overrides.
+   * @return {gpub.book.latex.ProcMarkdown} rendered latex, split into the
+   *    pramble (headers) and the body text.
+   */
+  renderMarkdown: function(text, opt_overrides) {
+    return gpub.book.latex.renderMarkdown(text, opt_overrides);
+  },
+};
+
+goog.provide('gpub.book.latex.ProcMarkdown');
+goog.provide('gpub.book.latex.MarkdownBase');
+
+/**
+ * Processed markdown.
+ * @typedef {{
+ *   preamble: string,
+ *   text: string
+ * }}
+ */
+gpub.book.latex.ProcMarkdown;
+
+/**
+ * Creates a marked-Markdown renderer for LaTe, which relies on the Marked
+ * library provided in the Glift functionality.
+ * @param {!Object=} opt_overrides Optional object containing renderer-method
+ *    overrides.
+ * @return {!glift.markdown.Renderer}
+ * @private
+ */
+gpub.book.latex.renderer_ = function(opt_overrides) {
+  var renderer = new glift.marked.Renderer();
+  for (var key in gpub.book.latex.MarkdownBase.prototype) {
+    if (opt_overrides
+        && opt_overrides[key]
+        && typeof opt_overrides[key] === 'function') {
+      renderer[key] = opt_overrides[key];
+    } else {
+      renderer[key] = gpub.book.latex.MarkdownBase.prototype[key].bind(renderer);
+    }
+  }
+  renderer.preamble_ = [];
+  return /** @type {!glift.markdown.Renderer} */ (renderer);
+};
+
+/**
+ * Transforms markdown into LaTeX.
+ * @param {string} str The text to process.
+ * @param {!Object=} opt_overrides Optional object containing renderer-method
+ *    overrides.
+ * @return {!gpub.book.latex.ProcMarkdown}
+ * @package
+ */
+gpub.book.latex.renderMarkdown = function(str, opt_overrides) {
+  var renderer = gpub.book.latex.renderer_(opt_overrides)
+  str = gpub.book.latex.sanitize(str);
+  var opts = /** @type {!glift.marked.Options} */ ({
+    renderer: renderer,
+    silent: true
+  });
+
+  var extractPreamble = function(r) {
+    return r.preamble_.join('\n');
+  };
+
+  var text = glift.marked(str, opts);
+  // Now we need to post-process and escape #
+  text = text.replace(/#/g, '\\#');
+  return {
+    preamble: extractPreamble(renderer),
+    text: text
+  };
+};
+
+
+/**
+ * A constructor type to satify the compiler
+ * @struct @constructor
+ * @private
+ */
+gpub.book.latex.MarkdownBase = function() {
+  this.preamble_ = [];
+};
+
+/** Set of markdown methods for the renderer */
+gpub.book.latex.MarkdownBase.prototype = {
+  //////////////////////////////////
+  // Block level renderer methods //
+  //////////////////////////////////
+
+  /**
+   * Note: this assumes the memoir class.
+   *
+   * # Level 1: Book
+   * ## Level 2: Part
+   * ### Level 3: Chapter
+   * ####+ Level 4+: Chapter*
+   * text: string, level: number  
+   * @param {string} text
+   * @param {number} level
+   * @return string
+   */
+  heading: function(text, level) {
+    if (level === 1) {
+      // this.preamble_.push('\\book{' + text + '}'); -- memoir only.
+      this.preamble_.push('\\part{' + text + '}');
+    } else if (level === 2) {
+      this.preamble_.push('\\chapter{' + text + '}');
+    } else if (level === 3) {
+      this.preamble_.push('\\section{' + text + '}');
+    } else if (level === 4) {
+      this.preamble_.push('\\subsection{' + text + '}');
+    } else {
+      // A chapter heading without
+      this.preamble_.push('\\subsection*{' + text + '}');
+    }
+    return ''; // Don't return anything. Header should be part of the preamble.
+    // TODO(kashomon): Should \\section{...} go here?
+  },
+
+  /** @return {string} */
+  hr: function() {
+    return '\\hrule';
+  },
+
+  /**
+   * @param {string} body
+   * @param {boolean} ordered
+   * @return string}
+   */
+  list: function(body, ordered) {
+    if (ordered) {
+      return [
+        '\\begin{enumerate}',
+        body,
+        '\\end{enumerate}'].join('\n');
+    } else {
+      return [
+        '\\begin{itemize}',
+        body,
+        '\\end{itemize}'].join('\n');
+    }
+  },
+
+  /**
+   * @param {string} text
+   * @return {string}
+   */
+  listitem: function(text) {
+    return '\\item ' + text;
+  },
+
+  /**
+   * @param {string} text
+   * @return {string}
+   */
+  paragraph: function(text) {
+    // Nothing special for paragraphs. Blank lines separate paragraphs in
+    // LaTeX.
+    return text + '\n\n';
+  },
+
+  ///////////////////////////////////
+  // Inline level renderer methods //
+  ///////////////////////////////////
+
+  /**
+   * @param {string} text
+   * @return {string}
+   */
+  strong: function(text) {
+    return '\\textbf{' +  text + '}';
+  },
+
+  /**
+   * @param {string} text
+   * @return {string}
+   */
+  em: function(text) {
+    return '\\textit{' +  text + '}';
+  },
+
+  /**
+   * @return {string}
+   */
+  br: function() {
+    // TODO(kashomon): Should this be \\\\?
+    return '\\newline{}';
+  },
+
+  /**
+   * @param {string} href
+   * @param {string} title
+   * @param {string} text
+   * @return {string}
+   */
+  // requires: \usepackage{hyperref}. Which can't be used with PDF/X-1a:2001
+  link: function(href, title, text) {
+    // For new, we just return the url.
+    return href;
+  },
+
+  /** image: string, title: string, text: string */
+  // might not be necessary
+  // image: function(href, title, text) {}
+
+  ///////////////////
+  // Not Supported //
+  ///////////////////
+  /**
+   * @param {string} code
+   * @param {string} language
+   * @return {string}
+   */
+  code: function(code, language) { return code; },
+  /**
+   * @param {string} quote
+   * @return {string}
+   */
+  blockquote: function(quote) { return quote; },
+  /**
+   * @param {string} html
+   * @return {string}
+   */
+  html: function(html) { return html; },
+  // table: function(header, body) {return table},
+  // tablerow: function(content) {},
+  // tablecell: function(content, flags) {},
+  /**
+   * @param {string} code
+   * @return {string}
+   */
+  codespan: function(code) { return code; },
+  /**
+   * @param {string} text
+   * @return {string}
+   */
+  del: function(text) { return text; }
+};
+
+goog.provide('gpub.book.latex.pdfx');
+goog.provide('gpub.book.latex.PdfxOptions');
+
 /**
  * Package for Pdf/X-1a:2001 compatibility for Latex.
  *
@@ -12756,7 +13053,7 @@ goog.provide('gpub.book.PdfxOptions');
  *
  * For details, see https://github.com/Kashomon/gpub/issues/23
  */
-gpub.book.pdfx = {
+gpub.book.latex.pdfx = {
   /**
    * Fixes this error:
    * "PDF version is newer than 1.3"
@@ -12821,8 +13118,8 @@ gpub.book.pdfx = {
    */
   pageBoxes_: function(hpt, wpt) {
     return '\\pdfpageattr{/MediaBox[0 0 ' + wpt + ' ' + hpt + ']\n' +
-      '             /BleedBox[0 0 ' + wpt + ' ' + hpt + ']\n' +
-      '             /TrimBox[0 0 ' + wpt + ' ' + hpt + ']}\n'
+           '             /BleedBox[0 0 ' + wpt + ' ' + hpt + ']\n' +
+           '             /TrimBox[0 0 ' + wpt + ' ' + hpt + ']}\n'
   },
 
   /**
@@ -12832,7 +13129,7 @@ gpub.book.pdfx = {
    * Note: There are still other ways to break PDF/X-1a compatibility! You must
    * not, for example, include hyperlinks.
    * 
-   * @param {!gpub.book.PdfxOptions} opts
+   * @param {!gpub.book.latex.PdfxOptions} opts
    * @return {string}
    */
   header: function(opts) {
@@ -12861,11 +13158,11 @@ gpub.book.pdfx = {
           opts);
     }
     return [
-      gpub.book.pdfx.pdfMinorVersion_,
-      gpub.book.pdfx.compressLevel_,
-      gpub.book.pdfx.pageBoxes_(hpt, wpt),
-      gpub.book.pdfx.pdfInfo_(opts.title),
-      gpub.book.pdfx.outputIntent_(opts.colorProfileFile)
+      gpub.book.latex.pdfx.pdfMinorVersion_,
+      gpub.book.latex.pdfx.compressLevel_,
+      gpub.book.latex.pdfx.pageBoxes_(hpt, wpt),
+      gpub.book.latex.pdfx.pdfInfo_(opts.title),
+      gpub.book.latex.pdfx.outputIntent_(opts.colorProfileFile)
     ].join('\n');
   }
 };
@@ -12889,4 +13186,4 @@ gpub.book.pdfx = {
  *  pageWidthPt: (undefined|number),
  * }}
  */
-gpub.book.PdfxOptions;
+gpub.book.latex.PdfxOptions;

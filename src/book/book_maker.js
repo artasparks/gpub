@@ -96,7 +96,8 @@ gpub.book.BookMaker.prototype = {
   },
 
   /**
-   * Gets the position id from an index. Returns an empty string if no ID can be found.
+   * Gets the position id from an index. Returns an empty string if no ID can
+   * be found.
    * @param {number} num
    * @return {string} the position ID
    */
@@ -107,22 +108,19 @@ gpub.book.BookMaker.prototype = {
   /**
    * Gets the position config for an ID.
    * @param {string} id
-   * @return {?gpub.book.PosConfig} The relevant position config or null if none was found.
+   * @return {?gpub.book.PosConfig} The relevant position config or null if
+   * none was found.
    */
   getConfig: function(id) {
     return this.idToConfig_[id] || null;
   },
 
   /**
-   * Professional printing often requires that PDFs be compliant with PDF/X-1a
-   * (or a similar standard). Here, we provide some headers for LaTeX that
-   * should make this a bit easier
-   *
-   * @param {!gpub.book.PdfxOptions} options for rendering the PDFX header.
-   * @return {string}
+   * Create a new latex helper.
+   * @return {!gpub.book.latex.LatexHelper}
    */
-  pdfx1aHeader: function(options) {
-    return gpub.book.pdfx.header(options);
+  latexHelper: function() {
+    return new gpub.book.latex.LatexHelper();
   },
 
   /////////////////////

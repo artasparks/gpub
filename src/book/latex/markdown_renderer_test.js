@@ -1,12 +1,12 @@
 (function() {
-  module('gpub.book.latex.renderer');
+  module('gpub.book.latex.rendererTest');
   var render = gpub.book.latex.renderMarkdown;
 
-  var pend = gpub.book.latex.markdown.paragraph('');
+  var pend = gpub.book.latex.MarkdownBase.prototype.paragraph('');
 
   test('Testing header (preamble) + body', function() {
     deepEqual(render('#foo\nbar'), {
-      preamble: '\\book{foo}',
+      preamble: '\\part{foo}',
       text: 'bar' + pend
     });
   });
@@ -20,7 +20,7 @@
 
   test('Header: top', function() {
     deepEqual(render('# bar'), {
-      preamble: '\\book{bar}',
+      preamble: '\\part{bar}',
       text: ''
     });
   });
@@ -53,7 +53,7 @@
         '',
         'This was the second game in a ten game match between Fujisawa Hosai 9p'
     ].join('\n')), {
-      preamble: '\\book{Fujisawa and Go}',
+      preamble: '\\part{Fujisawa and Go}',
       text: 'This was the second game in a ten game match between ' +
           'Fujisawa Hosai 9p' + pend
     });
