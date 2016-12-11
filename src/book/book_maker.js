@@ -264,8 +264,8 @@ gpub.book.BookMaker.prototype = {
       }
 
       // Hopefully the user hasn't created a data structure with loops.
-      for (var i = 0; i < group.groupings.length; i++) {
-        this.initFromGrouping_(group.groupings[i]);
+      for (var m = 0; m < group.groupings.length; m++) {
+        this.initFromGrouping_(group.groupings[m]);
       }
     }
   },

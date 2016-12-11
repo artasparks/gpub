@@ -32,6 +32,6 @@
         '\\black{a18}\n' +
         '\\black[1]{c19,c18,c17}\n' +
         '\\black[\\igotriangle]{a16}\n' +
-        '\\showgoban');
+        '\\showgoban[a9,m19]');
   });
 })();

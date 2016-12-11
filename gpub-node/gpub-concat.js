@@ -8683,7 +8683,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.6
+ * @version 0.3.8
  * --------------------------------------
  */
 (function(w) {
@@ -11598,13 +11598,18 @@ gpub.diagrams.igo = {
    * - Numbers are 1 indexed
    * - i is not used for intersections
    *
-   * So, the boards look like this:
+   * Normal Glift points are indexed from the top left.
+   *
+   * So, from Igo's perspective, the boards look like this:
    *   ...
    *   ^
    *   2
    *   ^
    *   1
    *     a->b->c->d->e->f->g->h->j->k->l...
+   * @param {!glift.Point} pt
+   * @param {number} size
+   * @return string
    */
   toIgoCoord: function(pt, size) {
     if (!pt) { throw new Error('No point'); }
@@ -11701,8 +11706,15 @@ gpub.diagrams.igo = {
       var trailer =  '}{' + label + '}';
       out.push(decl + convertPtArr(larr) + trailer);
     }
-    // TODO(kashomon): Add cropping here
-    out.push('\\showgoban');
+
+    var board = flattened.board();
+    var tl = flattened.board().ptToBoardPt(new glift.Point(0,0));
+    var br = tl.translate(board.width()-1, board.height()-1)
+    var bl = new glift.Point(tl.x(), br.y());
+    var tr = new glift.Point(br.x(), tl.y());
+
+    out.push('\\showgoban['
+        + toIgoCoord(bl, boardSize) + ',' + toIgoCoord(tr, boardSize) + ']');
 
     return out.join('\n');
   },
@@ -12684,8 +12696,8 @@ gpub.book.BookMaker.prototype = {
       }
 
       // Hopefully the user hasn't created a data structure with loops.
-      for (var i = 0; i < group.groupings.length; i++) {
-        this.initFromGrouping_(group.groupings[i]);
+      for (var m = 0; m < group.groupings.length; m++) {
+        this.initFromGrouping_(group.groupings[m]);
       }
     }
   },
