@@ -52,6 +52,18 @@ gpub.book.PositionConfig = function(pos, meta, diagram, labelSet, index) {
 
 
 gpub.book.PositionConfig.prototype = {
+  /**
+   * Create a move / collision label from the diagram metadata.
+   * @return {string}
+   */
+  createLabel: function() {
+    var m = this.metadata;
+    return glift.flattener.labels.fullLabelFromCollisions(
+      m.collisions,
+      m.isOnMainPath,
+      m.startingMoveNum,
+      m.endingMoveNum);
+  }
 };
 
 
@@ -91,9 +103,9 @@ gpub.book.BookMaker.prototype = {
   /**
    * Looping functionality. Loop over each Position ID and Position Config.
    * @param {function(number, !gpub.book.PositionConfig)} fn Processing
-   * function that has the form:
-   *  - Diagram index
-   *  - Position config
+   *  Function that has the form:
+   *    - Diagram index
+   *    - Position config
    */
   forEachDiagram: function(fn) {
     for (var i = 0; i < this.posIds_.length; i++) {

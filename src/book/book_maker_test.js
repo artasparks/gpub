@@ -37,6 +37,13 @@
       ok(config.metadata.id, config.id, i + ') metadata');
       ok(config.position.id, config.id, i + ') position spec');
     }
+
+    var id = maker.idFromIdx(1);
+    var config = maker.getConfig(id);
+
+    ok(config)
+    deepEqual(config.id, id, 'ids must be equal');
+    ok(config.createLabel(), 'label must be defined');
   });
 
   test('Latex Helper', function() {
