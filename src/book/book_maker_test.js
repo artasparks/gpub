@@ -38,12 +38,23 @@
       ok(config.position.id, config.id, i + ') position spec');
     }
 
-    var id = maker.idFromIdx(1);
+    var id = maker.idFromIdx(0);
     var config = maker.getConfig(id);
-
     ok(config)
     deepEqual(config.id, id, 'ids must be equal');
-    ok(config.createLabel(), 'label must be defined');
+    ok(config.fullAnnotation(), 'annotation must be defined');
+    deepEqual(typeof config.collisionAnnotation(), 'string');
+    ok(config.moveNumberAnnotation(), 'annotation must be defined');
+    ok(config.hasLabel('PROBLEM_ROOT'), 'must be problem root');
+
+    id = maker.idFromIdx(1);
+    config = maker.getConfig(id);
+    ok(config)
+    deepEqual(config.id, id, 'ids must be equal');
+    ok(config.fullAnnotation(), 'annotation must be defined');
+    deepEqual(typeof config.collisionAnnotation(), 'string');
+    ok(config.moveNumberAnnotation(), 'annotation must be defined');
+    ok(config.hasLabel('CORRECT'), 'must be correct');
   });
 
   test('Latex Helper', function() {

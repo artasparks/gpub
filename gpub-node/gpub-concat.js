@@ -2275,7 +2275,7 @@ glift.flattener.labels = {
    * @return {string}
    */
   createCollisionLabel: function(flattened) {
-    return glift.flattener.labels.constructCollisionLabel_(
+    return glift.flattener.labels.labelFromCollisions(
         flattened.collisions());
   },
 
@@ -2294,7 +2294,7 @@ glift.flattener.labels = {
    * @return {string}
    */
   createFullLabel: function(flattened) {
-    return glift.flattener.labels.constructFullLabel_(
+    return glift.flattener.labels.fullLabelFromCollisions(
         flattened.collisions(),
         flattened.isOnMainPath(),
         flattened.startingMoveNum(),
@@ -2308,14 +2308,13 @@ glift.flattener.labels = {
    * @param {number} endNum
    * @return {string} the processed move label or an empty string if no label
    *    should be created.
-   * @private
    */
-  constructFullLabel_: function(collisions, isOnMainPath, startNum, endNum) {
+  fullLabelFromCollisions: function(collisions, isOnMainPath, startNum, endNum) {
     var label = ''
     if (isOnMainPath) {
       label += glift.flattener.labels.constructMoveLabel(startNum, endNum);
     }
-    var col = glift.flattener.labels.constructCollisionLabel_(collisions);
+    var col = glift.flattener.labels.labelFromCollisions(collisions);
     if (label && col) {
       // If both move label and the collision label is defined, join with a
       // newline.
@@ -2331,7 +2330,6 @@ glift.flattener.labels = {
    * @param {number} startNum
    * @param {number} endNum
    * @return {string} the processed move label or an empty string if it 
-   * @private
    */
   constructMoveLabel: function(startNum, endNum) {
     var baseLabel = '';
@@ -2355,11 +2353,9 @@ glift.flattener.labels = {
    * flattened object, we must extract the collisions and the move numbers.
    *
    * @param {!Array<!glift.flattener.Collision>} collisions
-   *
    * @return {string} the processed collisions label.
-   * @private
    */
-  constructCollisionLabel_: function(collisions) {
+  labelFromCollisions: function(collisions) {
     var baseLabel = '';
 
     // No Collisions! Woohoo
@@ -12476,6 +12472,59 @@ gpub.book.PositionConfig = function(pos, meta, diagram, labelSet, index) {
 
 
 gpub.book.PositionConfig.prototype = {
+  /**
+   * Creates a full move + collision caption from the diagram metadata.
+   * If on the main path, has the form:
+   *    (Moves 1-3)
+   *    Black 10, White 13 at a
+   *    Black 14 at 5
+   *
+   * Otherwise, just an ordinary collision annotation
+   *    Black 10, White 13 at a
+   *    Black 14 at 5
+   * unless there are no collisions, in which case empty string is returned.
+   * @return {string}
+   */
+  fullAnnotation: function() {
+    var m = this.metadata;
+    return glift.flattener.labels.fullLabelFromCollisions(
+      m.collisions,
+      m.isOnMainPath,
+      m.startingMoveNum,
+      m.endingMoveNum);
+  },
+
+  /**
+   * Creates a collision annotation. Has the form
+   *    Black 10, White 13 at a
+   *    Black 14 at 5
+   * unless there are no collisions, in which case empty string is returned.
+   * @return {string}
+   */
+  collisionAnnotation: function() {
+    var m = this.metadata;
+    return glift.flattener.labels.labelFromCollisions(m.collisions);
+  },
+
+  /**
+   * Creates a move-number annotation. Has the form:
+   *    (Moves 1-3)
+   * @return {string}
+   */
+  moveNumberAnnotation: function() {
+    var m = this.metadata;
+    return glift.flattener.labels.constructMoveLabel(
+        m.startingMoveNum, m.endingMoveNum);
+  },
+
+  /**
+   * Returns true/false whether this position has a label.
+   * @param {string} label
+   * @return {boolean}
+   */
+  hasLabel: function(label) {
+    return !!this.labelSet[label];
+  },
 };
 
 
@@ -12515,9 +12564,9 @@ gpub.book.BookMaker.prototype = {
   /**
    * Looping functionality. Loop over each Position ID and Position Config.
    * @param {function(number, !gpub.book.PositionConfig)} fn Processing
-   * function that has the form:
-   *  - Diagram index
-   *  - Position config
+   *  Function that has the form:
+   *    - Diagram index
+   *    - Position config
    */
   forEachDiagram: function(fn) {
     for (var i = 0; i < this.posIds_.length; i++) {

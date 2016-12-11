@@ -53,17 +53,58 @@ gpub.book.PositionConfig = function(pos, meta, diagram, labelSet, index) {
 
 gpub.book.PositionConfig.prototype = {
   /**
-   * Create a move / collision label from the diagram metadata.
+   * Creates a full move + collision caption from the diagram metadata.
+   * If on the main path, has the form:
+   *    (Moves 1-3)
+   *    Black 10, White 13 at a
+   *    Black 14 at 5
+   *
+   * Otherwise, just an ordinary collision annotation
+   *    Black 10, White 13 at a
+   *    Black 14 at 5
+   * unless there are no collisions, in which case empty string is returned.
    * @return {string}
    */
-  createLabel: function() {
+  fullAnnotation: function() {
     var m = this.metadata;
     return glift.flattener.labels.fullLabelFromCollisions(
       m.collisions,
       m.isOnMainPath,
       m.startingMoveNum,
       m.endingMoveNum);
-  }
+  },
+
+  /**
+   * Creates a collision annotation. Has the form
+   *    Black 10, White 13 at a
+   *    Black 14 at 5
+   * unless there are no collisions, in which case empty string is returned.
+   * @return {string}
+   */
+  collisionAnnotation: function() {
+    var m = this.metadata;
+    return glift.flattener.labels.labelFromCollisions(m.collisions);
+  },
+
+  /**
+   * Creates a move-number annotation. Has the form:
+   *    (Moves 1-3)
+   * @return {string}
+   */
+  moveNumberAnnotation: function() {
+    var m = this.metadata;
+    return glift.flattener.labels.constructMoveLabel(
+        m.startingMoveNum, m.endingMoveNum);
+  },
+
+  /**
+   * Returns true/false whether this position has a label.
+   * @param {string} label
+   * @return {boolean}
+   */
+  hasLabel: function(label) {
+    return !!this.labelSet[label];
+  },
 };
 
 
