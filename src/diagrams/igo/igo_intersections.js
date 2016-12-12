@@ -1,14 +1,29 @@
 goog.provide('gpub.diagrams.igo.Intersections');
 
+goog.scope(function() {
+
+/**
+ * Convenience type
+ *
+ * @typedef{{
+ *  ptstr: glift.PtStr,
+ *  color: glift.enums.states,
+ *  label: string,
+ * }}
+ */
+var IgoStoneLabel;
+
 /**
  * Mutable container for tracking which stones and marks have been processed, in
  * a way that's useful for Igo.
+ *
  * @constructor @struct @final
  */
 gpub.diagrams.igo.Intersections = function() {
   /**
    * You can only declare stones once. You get to do this either as a mark
    * declaration, sequence declaraton, or no-label declaration.
+   * @type {!Object<!glift.PtStr,boolean>}
    */
   this.seenStones = {};
 
@@ -19,8 +34,8 @@ gpub.diagrams.igo.Intersections = function() {
    * Note that sequences is an array of arrays, where the inner arrays are the
    * relevant sequences. The inner arrays are arrays of modified-moves, which
    * are simple objects of the form
-   *    {igopt: <string>, color: <BLACK|WHITE>, label: <number-string>}
-   *    {igopt: a1, color: BLACK, label: 12}
+   *    {ptstr: <string>, color: <BLACK|WHITE>, label: <number-string>}
+   *    {ptstr: a1, color: BLACK, label: 12}
    * The modified-moves may be null, which indicase a skipped move (in the case
    * of collisions)
    *
@@ -38,6 +53,8 @@ gpub.diagrams.igo.Intersections = function() {
   /**
    * Labels for empty intersections. Because of the way Igo works, this is a map
    * from label to array of pts
+   *
+   * @const{!Object<string, !Array<glift.PtStr>>}
    */
   this.emptyTextLabels = {};
 
@@ -52,7 +69,13 @@ gpub.diagrams.igo.Intersections = function() {
  * Define the methods on Intersections.
  */
 gpub.diagrams.igo.Intersections.prototype = {
-  /** Adds a mark to the mark map. */
+  /**
+   * Adds a mark to the mark map.
+   * @param {glift.enums.states} color
+   * @param {string} mark The stringified-mark
+   * @param {!glift.PtStr} ptstr
+   * @return {!gpub.diagrams.igo.Intersections} this
+   */
   addMark: function(color, mark, ptstr) {
     if (color == null) { throw new Error('No color'); }
     if (mark == null) { throw new Error('No mark'); }
@@ -62,7 +85,12 @@ gpub.diagrams.igo.Intersections.prototype = {
     return this;
   },
 
-  /** Adds a textlabel mark for empty intersections. */
+  /**
+   * Adds a textlabel mark for empty intersections.
+   * @param {glift.PtStr} ptstr
+   * @param {string} label
+   * @return {!gpub.diagrams.igo.Intersections} this
+   */
   addEmptyTextLabel: function(ptstr, label) {
     if (ptstr == null) { throw new Error('No ptstr'); }
     if (label == null) { throw new Error('No label'); }
@@ -73,7 +101,12 @@ gpub.diagrams.igo.Intersections.prototype = {
     return this;
   },
 
-  /** Adds a stone without label or mark if it hasn't already been seen. */
+  /**
+   * Adds a stone without label or mark if it hasn't already been seen.
+   * @param {glift.PtStr} ptstr
+   * @param {!glift.rules.Move} stone
+   * @return {!gpub.diagrams.igo.Intersections} this
+   */
   addBlankStoneIfNotSeen: function(ptstr, stone) {
     if (this.seenStones[ptstr]) {
       // Already been processed.
@@ -89,16 +122,12 @@ gpub.diagrams.igo.Intersections.prototype = {
 
   /**
    * Adds an array of numeric stone labels, processing them into sequences.
-   *
-   * It it's expected that items in the stoneLabelArr have the form:
-   *  {
-   *    ptstr: '1,3',
-   *    color: 'BLACK',
-   *    label: '3'
-   *  }
+   * @param {!Array<!IgoStoneLabel>} stoneLabelArr
+   * @return {!gpub.diagrams.igo.Intersections} this
    */
   addStoneTextLabels: function(stoneLabelArr) {
     var arrCopy = [];
+    var ln = {}; // label to num
     var colors = {BLACK:'BLACK', WHITE:'WHITE'};
     for (var i = 0; i < stoneLabelArr.length; i++) {
       var item = stoneLabelArr[i];
@@ -106,9 +135,9 @@ gpub.diagrams.igo.Intersections.prototype = {
         throw new Error('Unknown color:' + item.color);
       }
 
-      // Conservatively, check here that the labels are numeric. ignore if
+      // Conservatively, check here that the labels are numeric.
       if (item.label && item.ptstr && item.color && /^\d+$/.test(item.label)) {
-        item.label = parseInt(item.label, 10);
+        ln[item.label] = parseInt(item.label, 10);
         arrCopy.push(item);
       } else {
         throw new Error('Invalid item:'
@@ -116,15 +145,19 @@ gpub.diagrams.igo.Intersections.prototype = {
       }
     }
 
-    // First, sort the stone label array by
-    arrCopy.sort(function(a, b) {
-      return a.label - b.label;
-    });
+    if (arrCopy.length > 1) {
+      // Sort the stone label array by
+      arrCopy.sort(function(a, b) {
+        return ln[a.label] - ln[b.label]
+      });
+    }
 
     // Now that it's sorted, we can construct the sequences.
     var curSequence = [];
     for (var i = 0; i < arrCopy.length; i++) {
       var item = arrCopy[i];
+
+      // This should already have been seen. Why do we mark it here?
       this.seenStones[item.ptstr] = true;
       if (curSequence.length === 0) {
         curSequence.push(item);
@@ -132,14 +165,14 @@ gpub.diagrams.igo.Intersections.prototype = {
       }
 
       var last = curSequence[curSequence.length-1];
-      if (item.color !== last.color && item.label === (last.label+1)) {
+      if (item.color !== last.color && ln[item.label] === ln[last.label]+1) {
         // It's a sequence!
         curSequence.push(item);
-      } else if (item.color === last.color && item.label === (last.label+2)) {
+      } else if (item.color === last.color && ln[item.label] === ln[last.label]+2) {
         // It's a sequence with a gap!
         curSequence.push(null);
         curSequence.push(item);
-      } else if (item.color !== last.color && item.label === (last.label+3)) {
+      } else if (item.color !== last.color && ln[item.label] === ln[last.label]+3) {
         // It's a sequence with two gaps (should be rare)
         curSequence.push(null);
         curSequence.push(null);
@@ -160,14 +193,15 @@ gpub.diagrams.igo.Intersections.prototype = {
 };
 
 /**
- * Process the marks into something more useful for Igo.
- * Takes the following maps:
- * - markMap : map from ptString to mark type (flattened enum).
- * - stoneMap : map from ptString to stone obj
- * - labelMap : map from ptString to label string
+ * Process the marks, stones, and labels into something more useful for Igo.
+ *
+ * @param {!Object<glift.PtStr, glift.flattener.symbols>} markMap
+ * @param {!Object<glift.PtStr, !glift.rules.Move>} stoneMap
+ * @param {!Object<glift.PtStr, string>} labelMap
+ * @return {!gpub.diagrams.igo.Intersections}
  */
 gpub.diagrams.igo.processIntersections =
-    function( markMap, stoneMap, labelMap) {
+    function(markMap, stoneMap, labelMap) {
   var tracker = new gpub.diagrams.igo.Intersections();
 
   var number = /^\d+$/;
@@ -176,7 +210,8 @@ gpub.diagrams.igo.processIntersections =
 
   // With stoneTextLabels, we attempt find sequences of stones, which allows for
   // more compact diagram descriptions. First, we just collect all the text
-  // labels. Then, we
+  // labels. Then we add blank stones if they haven't been seen.
+  /** @type {!Array<!IgoStoneLabel>} */
   var stoneTextLabels = [];
 
   for (var ptstr in markMap) {
@@ -222,3 +257,5 @@ gpub.diagrams.igo.processIntersections =
 
   return tracker;
 };
+
+})  // goog.scope;

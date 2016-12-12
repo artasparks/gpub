@@ -62,10 +62,14 @@ gpub.diagrams.igo = {
    * Unlike many other diagram-generators, Igo has lots of built-in logic in the
    * TEX style. Thus, we need only display the stones and marks.
    *
+   * @param {!glift.flattener.Flattened} flattened
+   * @param {!gpub.api.DiagramOptions} options
+   * @return {string} The rendered diagram.
    */
   create: function(flattened, options) {
-    var optSize = options.size;
-    var fontSize = gpub.diagrams.igo.fontSize[optSize] || 10;
+    var optSize = options.goIntersectionSize || 10;
+    var keySize = parseInt(optSize, 10);
+    var fontSize = gpub.diagrams.igo.fontSize[keySize] || 10;
     var boardSize = flattened.board().maxBoardSize();
     var symbolStr = glift.flattener.symbolStr;
 
@@ -154,6 +158,9 @@ gpub.diagrams.igo = {
 
   /**
    * Render go stones that exist in a block of text.
+   * @param {string} text
+   * @param {!gpub.api.DiagramOptions} options
+   * @return {string} The processed text
    */
   renderInline: function(text, options) {
     // TODO(kashomon): Implement at some point. See gnos for an example. IGO has

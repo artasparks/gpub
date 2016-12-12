@@ -8683,7 +8683,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.8
+ * @version 0.3.9
  * --------------------------------------
  */
 (function(w) {
@@ -11629,10 +11629,14 @@ gpub.diagrams.igo = {
    * Unlike many other diagram-generators, Igo has lots of built-in logic in the
    * TEX style. Thus, we need only display the stones and marks.
    *
+   * @param {!glift.flattener.Flattened} flattened
+   * @param {!gpub.api.DiagramOptions} options
+   * @return {string} The rendered diagram.
    */
   create: function(flattened, options) {
-    var optSize = options.size;
-    var fontSize = gpub.diagrams.igo.fontSize[optSize] || 10;
+    var optSize = options.goIntersectionSize || 10;
+    var keySize = parseInt(optSize, 10);
+    var fontSize = gpub.diagrams.igo.fontSize[keySize] || 10;
     var boardSize = flattened.board().maxBoardSize();
     var symbolStr = glift.flattener.symbolStr;
 
@@ -11721,6 +11725,9 @@ gpub.diagrams.igo = {
 
   /**
    * Render go stones that exist in a block of text.
+   * @param {string} text
+   * @param {!gpub.api.DiagramOptions} options
+   * @return {string} The processed text
    */
   renderInline: function(text, options) {
     // TODO(kashomon): Implement at some point. See gnos for an example. IGO has
@@ -11737,15 +11744,30 @@ gpub.diagrams.igo.init = {
 
 goog.provide('gpub.diagrams.igo.Intersections');
 
+goog.scope(function() {
+
+/**
+ * Convenience type
+ *
+ * @typedef{{
+ *  ptstr: glift.PtStr,
+ *  color: glift.enums.states,
+ *  label: string,
+ * }}
+ */
+var IgoStoneLabel;
+
 /**
  * Mutable container for tracking which stones and marks have been processed, in
  * a way that's useful for Igo.
+ *
  * @constructor @struct @final
  */
 gpub.diagrams.igo.Intersections = function() {
   /**
    * You can only declare stones once. You get to do this either as a mark
    * declaration, sequence declaraton, or no-label declaration.
+   * @type {!Object<!glift.PtStr,boolean>}
    */
   this.seenStones = {};
 
@@ -11775,6 +11797,8 @@ gpub.diagrams.igo.Intersections = function() {
   /**
    * Labels for empty intersections. Because of the way Igo works, this is a map
    * from label to array of pts
+   *
+   * @const{!Object<string, !Array<glift.PtStr>>}
    */
   this.emptyTextLabels = {};
 
@@ -11789,7 +11813,13 @@ gpub.diagrams.igo.Intersections = function() {
  * Define the methods on Intersections.
  */
 gpub.diagrams.igo.Intersections.prototype = {
-  /** Adds a mark to the mark map. */
+  /**
+   * Adds a mark to the mark map.
+   * @param {glift.enums.states} color
+   * @param {string} mark The stringified-mark
+   * @param {!glift.PtStr} ptstr
+   * @return {!gpub.diagrams.igo.Intersections} this
+   */
   addMark: function(color, mark, ptstr) {
     if (color == null) { throw new Error('No color'); }
     if (mark == null) { throw new Error('No mark'); }
@@ -11799,7 +11829,12 @@ gpub.diagrams.igo.Intersections.prototype = {
     return this;
   },
 
-  /** Adds a textlabel mark for empty intersections. */
+  /**
+   * Adds a textlabel mark for empty intersections.
+   * @param {glift.PtStr} ptstr
+   * @param {string} label
+   * @return {!gpub.diagrams.igo.Intersections} this
+   */
   addEmptyTextLabel: function(ptstr, label) {
     if (ptstr == null) { throw new Error('No ptstr'); }
     if (label == null) { throw new Error('No label'); }
@@ -11810,7 +11845,12 @@ gpub.diagrams.igo.Intersections.prototype = {
     return this;
   },
 
-  /** Adds a stone without label or mark if it hasn't already been seen. */
+  /**
+   * Adds a stone without label or mark if it hasn't already been seen.
+   * @param {glift.PtStr} ptstr
+   * @param {!glift.rules.Move} stone
+   * @return {!gpub.diagrams.igo.Intersections} this
+   */
   addBlankStoneIfNotSeen: function(ptstr, stone) {
     if (this.seenStones[ptstr]) {
       // Already been processed.
@@ -11826,13 +11866,8 @@ gpub.diagrams.igo.Intersections.prototype = {
 
   /**
    * Adds an array of numeric stone labels, processing them into sequences.
-   *
-   * It it's expected that items in the stoneLabelArr have the form:
-   *  {
-   *    ptstr: '1,3',
-   *    color: 'BLACK',
-   *    label: '3'
-   *  }
+   * @param {!Array<!IgoStoneLabel>} stoneLabelArr
+   * @return {!gpub.diagrams.igo.Intersections} this
    */
   addStoneTextLabels: function(stoneLabelArr) {
     var arrCopy = [];
@@ -11843,9 +11878,8 @@ gpub.diagrams.igo.Intersections.prototype = {
         throw new Error('Unknown color:' + item.color);
       }
 
-      // Conservatively, check here that the labels are numeric. ignore if
+      // Conservatively, check here that the labels are numeric.
       if (item.label && item.ptstr && item.color && /^\d+$/.test(item.label)) {
-        item.label = parseInt(item.label, 10);
         arrCopy.push(item);
       } else {
         throw new Error('Invalid item:'
@@ -11855,7 +11889,7 @@ gpub.diagrams.igo.Intersections.prototype = {
 
     // First, sort the stone label array by
     arrCopy.sort(function(a, b) {
-      return a.label - b.label;
+      return parseInt(a.label, 10) - parseInt(b.label, 10);
     });
 
     // Now that it's sorted, we can construct the sequences.
@@ -11897,14 +11931,15 @@ gpub.diagrams.igo.Intersections.prototype = {
 };
 
 /**
- * Process the marks into something more useful for Igo.
- * Takes the following maps:
- * - markMap : map from ptString to mark type (flattened enum).
- * - stoneMap : map from ptString to stone obj
- * - labelMap : map from ptString to label string
+ * Process the marks, stones, and labels into something more useful for Igo.
+ *
+ * @param {!Object<glift.PtStr, glift.flattener.symbols>} markMap
+ * @param {!Object<glift.PtStr, !glift.rules.Move>} stoneMap
+ * @param {!Object<glift.PtStr, string>} labelMap
+ * @return {!gpub.diagrams.igo.Intersections}
  */
 gpub.diagrams.igo.processIntersections =
-    function( markMap, stoneMap, labelMap) {
+    function(markMap, stoneMap, labelMap) {
   var tracker = new gpub.diagrams.igo.Intersections();
 
   var number = /^\d+$/;
@@ -11913,7 +11948,8 @@ gpub.diagrams.igo.processIntersections =
 
   // With stoneTextLabels, we attempt find sequences of stones, which allows for
   // more compact diagram descriptions. First, we just collect all the text
-  // labels. Then, we
+  // labels. Then we add blank stones if they haven't been seen.
+  /** @type {!Array<!IgoStoneLabel>} */
   var stoneTextLabels = [];
 
   for (var ptstr in markMap) {
@@ -11959,6 +11995,8 @@ gpub.diagrams.igo.processIntersections =
 
   return tracker;
 };
+
+})  // goog.scope;
 
 goog.provide('gpub.diagrams.igo.Renderer');
 
@@ -12121,31 +12159,56 @@ gpub.diagrams.senseisAscii.symbolMap = {
 goog.provide('gpub.diagrams.smartgo');
 
 /**
- * Create a smartgo diagram
- *
- * Spec: http://www.smartgo.com/pdf/gobookformat.pdf
+ * Package for Smartgo-book rendering.
  */
-gpub.smartgo = {
-  /**
-   * Note: smart go diagrams are indexed from the bottom left:
-   *
-   * 19
-   * 18
-   * ..
-   * 3
-   * 2
-   * 1
-   *   A B C D E F G H I J K
-   *
-   * Moves are spcefied
-   *
-   */
-  create: function(flattened, options) {
+gpub.diagrams.smartgo = {};
 
+goog.provide('gpub.diagrams.smartgo.Renderer');
+
+/**
+ * Spec: http://www.smartgo.com/pdf/gobookformat.pdf
+ *
+ *
+ * Some notes:
+ * -   All books must start with something like:
+ *     ::book(#mahbook) title="Example Title" author="Somebody"
+ * -   Each file contains one book -- the file extension should be .gobook.
+ *
+ * Note: smart go diagrams are indexed from the bottom left:
+ * 19
+ * 18
+ * ..
+ * 3
+ * 2
+ * 1
+ *   A B C D E F G H J K ...
+ *
+ * As with Igo, I is skipped
+ *
+ * @constructor @final @struct
+ */
+gpub.diagrams.smartgo.Renderer = function() {
+};
+
+gpub.diagrams.smartgo.Renderer.prototype = {
+  /**
+   * The create method for smartgo
+   * @param {!glift.flattener.Flattened} flat
+   * @param {!gpub.api.DiagramOptions} opt
+   * @return {string} The rendered diagram.
+   */
+  render: function(flat, opt) {
+    return '';
   },
 
-  renderInline: function(text) {
-    return text;
+  /**
+   * Render-inline the
+   * @param {string} text
+   * @param {!gpub.api.DiagramOptions} opt
+   * @return {string} The processed text
+   */
+  renderInline: function(text, opt) {
+    return '';
   }
 };
 

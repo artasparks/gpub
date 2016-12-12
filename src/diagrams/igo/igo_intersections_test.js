@@ -56,16 +56,16 @@
 
     deepEqual(t.sequences.length, 2);
     deepEqual(t.sequences[0], [
-      mklbl('1,1', 'BLACK', 1),
-      mklbl('1,2', 'WHITE', 2),
-      mklbl('1,3', 'BLACK', 3),
+      mklbl('1,1', 'BLACK', '1'),
+      mklbl('1,2', 'WHITE', '2'),
+      mklbl('1,3', 'BLACK', '3'),
     ]);
 
     deepEqual(t.sequences[1], [
-      mklbl('2,1', 'BLACK', 7),
-      mklbl('2,2', 'WHITE', 8),
-      mklbl('2,3', 'BLACK', 9),
-      mklbl('2,4', 'WHITE', 10)]);
+      mklbl('2,1', 'BLACK', '7'),
+      mklbl('2,2', 'WHITE', '8'),
+      mklbl('2,3', 'BLACK', '9'),
+      mklbl('2,4', 'WHITE', '10')]);
 
     ok(t.seenStones['1,1']);
     ok(t.seenStones['1,2']);
@@ -146,6 +146,6 @@
     ok(tracker.seenStones['1,3']);
     deepEqual(tracker.sequences.length, 1);
     deepEqual(tracker.sequences[0].length, 3);
-    deepEqual(tracker.sequences[0][2].label, 3);
+    deepEqual(tracker.sequences[0][2].label, '3');
   })
 })();
