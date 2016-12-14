@@ -10524,6 +10524,18 @@ gpub.diagrams = {
   },
 };
 
+goog.provide('gpub.diagrams.BoardPoints');
+
+
+/**
+ * Points for Board Creation for image-types. Based on
+ * glift.displays.BoardPoints;
+ *
+ * @struct @constructor @final
+ */
+gpub.diagrams.BoardPoints = function() {}
+
+
 goog.provide('gpub.diagrams.Diagram');
 goog.provide('gpub.diagrams.DiagramCallback');
 goog.provide('gpub.diagrams.DiagramRenderer');
@@ -11778,8 +11790,8 @@ gpub.diagrams.igo.Intersections = function() {
    * Note that sequences is an array of arrays, where the inner arrays are the
    * relevant sequences. The inner arrays are arrays of modified-moves, which
    * are simple objects of the form
-   *    {igopt: <string>, color: <BLACK|WHITE>, label: <number-string>}
-   *    {igopt: a1, color: BLACK, label: 12}
+   *    {ptstr: <string>, color: <BLACK|WHITE>, label: <number-string>}
+   *    {ptstr: a1, color: BLACK, label: 12}
    * The modified-moves may be null, which indicase a skipped move (in the case
    * of collisions)
    *
@@ -11871,6 +11883,7 @@ gpub.diagrams.igo.Intersections.prototype = {
    */
   addStoneTextLabels: function(stoneLabelArr) {
     var arrCopy = [];
+    var ln = {}; // label to num
     var colors = {BLACK:'BLACK', WHITE:'WHITE'};
     for (var i = 0; i < stoneLabelArr.length; i++) {
       var item = stoneLabelArr[i];
@@ -11880,6 +11893,7 @@ gpub.diagrams.igo.Intersections.prototype = {
 
       // Conservatively, check here that the labels are numeric.
       if (item.label && item.ptstr && item.color && /^\d+$/.test(item.label)) {
+        ln[item.label] = parseInt(item.label, 10);
         arrCopy.push(item);
       } else {
         throw new Error('Invalid item:'
@@ -11887,15 +11901,19 @@ gpub.diagrams.igo.Intersections.prototype = {
       }
     }
 
-    // First, sort the stone label array by
-    arrCopy.sort(function(a, b) {
-      return parseInt(a.label, 10) - parseInt(b.label, 10);
-    });
+    if (arrCopy.length > 1) {
+      // Sort the stone label array by
+      arrCopy.sort(function(a, b) {
+        return ln[a.label] - ln[b.label]
+      });
+    }
 
     // Now that it's sorted, we can construct the sequences.
     var curSequence = [];
     for (var i = 0; i < arrCopy.length; i++) {
       var item = arrCopy[i];
+
+      // This should already have been seen. Why do we mark it here?
       this.seenStones[item.ptstr] = true;
       if (curSequence.length === 0) {
         curSequence.push(item);
@@ -11903,14 +11921,14 @@ gpub.diagrams.igo.Intersections.prototype = {
       }
 
       var last = curSequence[curSequence.length-1];
-      if (item.color !== last.color && item.label === (last.label+1)) {
+      if (item.color !== last.color && ln[item.label] === ln[last.label]+1) {
         // It's a sequence!
         curSequence.push(item);
-      } else if (item.color === last.color && item.label === (last.label+2)) {
+      } else if (item.color === last.color && ln[item.label] === ln[last.label]+2) {
         // It's a sequence with a gap!
         curSequence.push(null);
         curSequence.push(item);
-      } else if (item.color !== last.color && item.label === (last.label+3)) {
+      } else if (item.color !== last.color && ln[item.label] === ln[last.label]+3) {
         // It's a sequence with two gaps (should be rare)
         curSequence.push(null);
         curSequence.push(null);
