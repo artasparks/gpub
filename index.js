@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+var nodeutils = require('./nodeutils.js')
+
 /**
  * Some base globals, so it doesn't bomb out.
  */
@@ -17,3 +19,5 @@ require('./gpub-node/gpub-concat.js');
 for (var key in gpub) {
   module.exports[key] = gpub[key];
 }
+
+module.exports.nodeutils = nodeutils;
