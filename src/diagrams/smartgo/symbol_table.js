@@ -1,9 +1,13 @@
 goog.provide('gpub.diagrams.smartgo.SymbolTable');
 
 
+/**
+ * Mapping from Flattener symbol to SmartGo symbol.
+ * @type{!Object<string, string>}
+ */
 gpub.diagrams.smartgo.SymbolTable = {
-  marks: {
-    TRIANGLE: 'tr',
-    SQUARE: 'sq',
-  }
-}
+  TRIANGLE: 'tr',
+  SQUARE: 'sq',
+  XMARK: 'ma',
+  CIRCLE: 'cr',
+};

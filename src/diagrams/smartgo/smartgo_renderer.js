@@ -36,7 +36,11 @@ gpub.diagrams.smartgo.Renderer.prototype = {
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
+    var base = '::fig' // Default to fig types.
+    var cropping = 'vw:'; // + coords
     return '';
+
+    // TODO(kashomon): Consider the labels on the diagram?
   },
 
   /**
@@ -58,7 +62,7 @@ gpub.diagrams.smartgo.Renderer.prototype = {
    * @param {number} size
    * @return string
    */
-  toSmartGoCoord: function(pt, size) {
+  toSGCoord: function(pt, size) {
     if (!pt) { throw new Error('No point'); }
     if (!size) { throw new Error('No board size'); }
     if (pt.x() < 0 || pt.y() < 0 || pt.x() > size-1 || pt.y() > size-1) {

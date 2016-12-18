@@ -144,6 +144,7 @@ gpub.diagrams.igo = {
       out.push(decl + convertPtArr(larr) + trailer);
     }
 
+    // TODO(kashomon): Move to flattener.
     var board = flattened.board();
     var tl = flattened.board().ptToBoardPt(new glift.Point(0,0));
     var br = tl.translate(board.width()-1, board.height()-1)
