@@ -1357,6 +1357,22 @@ glift.flattener.Board = function(boardArray, bbox, maxBoardSize) {
 
 glift.flattener.Board.prototype = {
   /**
+   * Gets the go-intersection at the top left, respecting cropping.
+   * @return {!glift.Point}
+   */
+  topLeft: function() {
+    return this.ptToBoardPt(new glift.Point(0,0));
+  },
+
+  /**
+   * Gets the go-intersection at the bottom right, respecting cropping.
+   * @return {!glift.Point}
+   */
+  botRight: function() {
+    return this.topLeft().translate(this.width() - 1, this.height() - 1);
+  },
+
+  /**
    * Provide a SGF Point (indexed from upper left) and retrieve the relevant
    * intersection.  This  takes into account cropping that could be indicated by
    * the bounding box.
@@ -11759,10 +11775,8 @@ gpub.diagrams.igo = {
       out.push(decl + convertPtArr(larr) + trailer);
     }
 
-    // TODO(kashomon): Move to flattener.
-    var board = flattened.board();
-    var tl = flattened.board().ptToBoardPt(new glift.Point(0,0));
-    var br = tl.translate(board.width()-1, board.height()-1)
+    var tl = flattened.board().topLeft();
+    var br = flattened.board().botRight();
     var bl = new glift.Point(tl.x(), br.y());
     var tr = new glift.Point(br.x(), tl.y());
 
