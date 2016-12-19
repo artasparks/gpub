@@ -84,6 +84,40 @@
         pt(7,0).toString());
   });
 
+  test('topLeft/botRight', function() {
+    // TopRight board.
+    var board = defaultCreate();
+    deepEqual(board.topLeft().toString(), "7,0")
+    deepEqual(board.botRight().toString(), "18,10")
+
+    var cropbox = glift.orientation.cropbox.get(
+        glift.enums.boardRegions.BOTTOM,
+        19);
+    board = defaultCreate({
+      cropbox: cropbox,
+    });
+    deepEqual(board.topLeft().toString(), "0,8")
+    deepEqual(board.botRight().toString(), "18,18")
+
+    var cropbox = glift.orientation.cropbox.get(
+        glift.enums.boardRegions.ALL,
+        19);
+    board = defaultCreate({
+      cropbox: cropbox,
+    });
+    deepEqual(board.topLeft().toString(), "0,0")
+    deepEqual(board.botRight().toString(), "18,18")
+
+    var cropbox = glift.orientation.cropbox.get(
+        glift.enums.boardRegions.ALL,
+        13);
+    board = defaultCreate({
+      cropbox: cropbox,
+    });
+    deepEqual(board.topLeft().toString(), "0,0")
+    deepEqual(board.botRight().toString(), "12,12")
+  });
+
   test('transform', function() {
     var board = defaultCreate();
     var toStr = glift.flattener.symbolStr;
@@ -172,6 +206,7 @@
     ok(diff[0].newValue.equals(diffBoard.getIntBoardPt(14, 1)),
         'New Values: Should be equal');
   });
+
 
   test('diff: non-intersection', function() {
     var BLACK = glift.enums.states.BLACK;

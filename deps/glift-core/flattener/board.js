@@ -96,6 +96,22 @@ glift.flattener.Board = function(boardArray, bbox, maxBoardSize) {
 
 glift.flattener.Board.prototype = {
   /**
+   * Gets the go-intersection at the top left, respecting cropping.
+   * @return {!glift.Point}
+   */
+  topLeft: function() {
+    return this.ptToBoardPt(new glift.Point(0,0));
+  },
+
+  /**
+   * Gets the go-intersection at the bottom right, respecting cropping.
+   * @return {!glift.Point}
+   */
+  botRight: function() {
+    return this.topLeft().translate(this.width() - 1, this.height() - 1);
+  },
+
+  /**
    * Provide a SGF Point (indexed from upper left) and retrieve the relevant
    * intersection.  This  takes into account cropping that could be indicated by
    * the bounding box.
