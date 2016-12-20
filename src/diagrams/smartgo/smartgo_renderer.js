@@ -37,6 +37,7 @@ gpub.diagrams.smartgo.Renderer.prototype = {
    */
   render: function(flat, opt) {
     var base = '::fig' // Default to fig types.
+    // TODO(kashomon): Use flattener box
     var cropping = 'vw:'; // + coords
     return '';
 
