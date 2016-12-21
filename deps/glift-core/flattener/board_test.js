@@ -82,6 +82,7 @@
     deepEqual(
         board.ptToBoardPt(board.boardPtToPt(pt(7,0))).toString(),
         pt(7,0).toString());
+    ok(board.isCropped());
   });
 
   test('topLeft/botRight', function() {
@@ -98,6 +99,7 @@
     });
     deepEqual(board.topLeft().toString(), "0,8")
     deepEqual(board.botRight().toString(), "18,18")
+    ok(board.isCropped());
 
     var cropbox = glift.orientation.cropbox.get(
         glift.enums.boardRegions.ALL,
@@ -107,6 +109,7 @@
     });
     deepEqual(board.topLeft().toString(), "0,0")
     deepEqual(board.botRight().toString(), "18,18")
+    ok(!board.isCropped());
 
     var cropbox = glift.orientation.cropbox.get(
         glift.enums.boardRegions.ALL,
@@ -116,6 +119,7 @@
     });
     deepEqual(board.topLeft().toString(), "0,0")
     deepEqual(board.botRight().toString(), "12,12")
+    ok(!board.isCropped());
   });
 
   test('transform', function() {

@@ -111,6 +111,12 @@ glift.flattener.Board.prototype = {
     return this.topLeft().translate(this.width() - 1, this.height() - 1);
   },
 
+  /** @return {boolean} Returns whether the board is cropped. */
+  isCropped: function() {
+    return this.width() !== this.maxBoardSize() ||
+        this.height() !== this.maxBoardSize();
+  },
+
   /**
    * Provide a SGF Point (indexed from upper left) and retrieve the relevant
    * intersection.  This  takes into account cropping that could be indicated by
