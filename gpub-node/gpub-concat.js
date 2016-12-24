@@ -12280,14 +12280,122 @@ gpub.diagrams.smartgo.Renderer.prototype = {
     var base = '::fig' // Default to fig types.
     var sz = flat.board().maxBoardSize();
 
+    if (sz != 19) {
+      base += ' sz:' + sz;
+    }
+
     if (flat.board().isCropped()) {
       // Add cropping only if the board is cropped.
       base += ' vw:' + this.toSGCoord(flat.board().topLeft(), sz) +
           this.toSGCoord(flat.board().botRight(), sz);
     }
-    return base;
 
-    // TODO(kashomon): Consider the labels on the diagram?
+    var abpts = '';
+    var awpts = '';
+    for (var key in flat.stoneMap()) {
+      var move = flat.stoneMap()[key];
+      var lbl = flat.labels[key] || '';
+      if (!move.point) {
+        // There should always be points for flattened objs, but it's good to
+        // check.
+        continue;
+      }
+      var sgc = this.toSGCoord(move.point, sz);
+      if (lbl) {
+        sgc += '=' + lbl;
+      }
+      if (move.color === glift.enums.states.BLACK) {
+        if (!abpts) {
+          abpts = sgc;
+        } else {
+          abpts += ' ' + sgc;
+        }
+      }
+      if (move.color === glift.enums.states.WHITE) {
+        if (!awpts) {
+          awpts = sgc;
+        } else {
+          awpts += ' ' + sgc;
+        }
+      }
+    }
+
+    var boardLabels = '';
+    for (var key in flat.labels()) {
+      if (!flat.stoneMap()[key] && flat.labels()[key]) {
+        var coord = this.toSGCoord(
+          glift.util.pointFromString(key), sz);
+        var bl = coord + '=' + flat.labels()[key];
+        if (!boardLabels) {
+          boardLabels = bl;
+        } else {
+          boardLabels += ' ' + bl;
+        }
+      }
+    }
+
+    if (boardLabels) {
+      base += ' ' + boardLabels;
+    }
+
+    if (abpts) {
+      base += ' ab:"' + abpts + '"';
+    }
+    if (awpts) {
+      base += ' aw:"' + awpts + '"';
+    }
+
+    var marks = this.marksStr_(flat);
+    for (var key in marks) {
+      var str = marks[key];
+      if (str) {
+        base += ' ' + key + ':"' + str + '"';
+      }
+    }
+    console.log(base);
+
+    return base;
+  },
+
+  /**
+   * @param {!glift.flattener.Flattened} flat
+   * @return {!Object<string, string>}
+   * @private
+   */
+  marksStr_: function(flat) {
+    var sz = flat.board().maxBoardSize();
+    /** @type {!Object<glift.flattener.symbols, string>} */
+    var markTypeMap = {};
+    markTypeMap[glift.flattener.symbols.TRIANGLE] = 'tr';
+    markTypeMap[glift.flattener.symbols.SQUARE] = 'sq';
+    markTypeMap[glift.flattener.symbols.CIRCLE] = 'cr';
+    markTypeMap[glift.flattener.symbols.XMARK] = 'ma';
+
+    var markStr = {
+      // Triangle
+      'tr': '',
+      // Square
+      'sq': '',
+      // Cross/xmark
+      'ma': '',
+      // Circle
+      'cr': '',
+    };
+    for (var key in flat.marks()) {
+      var coord = this.toSGCoord(glift.util.pointFromString(key), sz);
+      var mark = flat.marks()[key];
+      var sg = markTypeMap[mark];
+      if (!sg) {
+        // An known mark appears! Ignore
+        continue;
+      }
+      if (markStr[sg]) {
+        markStr[sg] += ' ' + coord;
+      } else {
+        markStr[sg] = coord;
+      }
+    }
+    return markStr;
   },
 
   /**

@@ -3,7 +3,7 @@
 
   var r = new gpub.diagrams.smartgo.Renderer();
   var basicSgf = '(;GB[1]C[foo]AW[aa]AB[ab][ad]LB[ab:z]LB[bc:2]' +
-      '[ad:30]TR[dd])';
+      '[ad:30]TR[dd][ee])';
   var mt = glift.parse.fromString(basicSgf)
 
   test('That point conversion works', function() {

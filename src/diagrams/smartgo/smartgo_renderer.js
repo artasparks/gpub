@@ -96,7 +96,6 @@ gpub.diagrams.smartgo.Renderer.prototype = {
     if (boardLabels) {
       base += ' ' + boardLabels;
     }
-
     if (abpts) {
       base += ' ab:"' + abpts + '"';
     }
@@ -104,7 +103,56 @@ gpub.diagrams.smartgo.Renderer.prototype = {
       base += ' aw:"' + awpts + '"';
     }
 
+    var marks = this.marksStr_(flat);
+    for (var key in marks) {
+      var str = marks[key];
+      if (str) {
+        base += ' ' + key + ':"' + str + '"';
+      }
+    }
+
     return base;
+  },
+
+  /**
+   * @param {!glift.flattener.Flattened} flat
+   * @return {!Object<string, string>}
+   * @private
+   */
+  marksStr_: function(flat) {
+    var sz = flat.board().maxBoardSize();
+    /** @type {!Object<glift.flattener.symbols, string>} */
+    var markTypeMap = {};
+    markTypeMap[glift.flattener.symbols.TRIANGLE] = 'tr';
+    markTypeMap[glift.flattener.symbols.SQUARE] = 'sq';
+    markTypeMap[glift.flattener.symbols.CIRCLE] = 'cr';
+    markTypeMap[glift.flattener.symbols.XMARK] = 'ma';
+
+    var markStr = {
+      // Triangle
+      'tr': '',
+      // Square
+      'sq': '',
+      // Cross/xmark
+      'ma': '',
+      // Circle
+      'cr': '',
+    };
+    for (var key in flat.marks()) {
+      var coord = this.toSGCoord(glift.util.pointFromString(key), sz);
+      var mark = flat.marks()[key];
+      var sg = markTypeMap[mark];
+      if (!sg) {
+        // An known mark appears! Ignore
+        continue;
+      }
+      if (markStr[sg]) {
+        markStr[sg] += ' ' + coord;
+      } else {
+        markStr[sg] = coord;
+      }
+    }
+    return markStr;
   },
 
   /**
