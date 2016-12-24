@@ -22,6 +22,12 @@ gpub.diagrams.Type = {
    */
   IGO: 'IGO',
 
+
+  /**
+   * Diagrams for the SmartGo book (GoBook) format.
+   */
+  SMARTGO: 'SMARTGO',
+
   /////////////////////////////
   // Morass of planned types //
 

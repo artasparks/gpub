@@ -197,3 +197,7 @@ gpub.diagrams.smartgo.Renderer.prototype = {
   }
 };
 
+// Enabled the Renderer!
+gpub.diagrams.enabledRenderers['SMARTGO'] = function() {
+  return new gpub.diagrams.smartgo.Renderer();
+};

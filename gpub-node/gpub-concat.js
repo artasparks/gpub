@@ -10692,6 +10692,12 @@ gpub.diagrams.Type = {
    */
   IGO: 'IGO',
 
+
+  /**
+   * Diagrams for the SmartGo book (GoBook) format.
+   */
+  SMARTGO: 'SMARTGO',
+
   /////////////////////////////
   // Morass of planned types //
 
@@ -12337,7 +12343,6 @@ gpub.diagrams.smartgo.Renderer.prototype = {
     if (boardLabels) {
       base += ' ' + boardLabels;
     }
-
     if (abpts) {
       base += ' ab:"' + abpts + '"';
     }
@@ -12352,7 +12357,6 @@ gpub.diagrams.smartgo.Renderer.prototype = {
         base += ' ' + key + ':"' + str + '"';
       }
     }
-    console.log(base);
 
     return base;
   },
@@ -12440,6 +12444,10 @@ gpub.diagrams.smartgo.Renderer.prototype = {
   }
 };
 
+// Enabled the Renderer!
+gpub.diagrams.enabledRenderers['SMARTGO'] = function() {
+  return new gpub.diagrams.smartgo.Renderer();
+};
 
 goog.provide('gpub.diagrams.smartgo.SymbolTable');
 
