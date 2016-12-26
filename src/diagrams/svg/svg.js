@@ -31,25 +31,4 @@ goog.provide('gpub.diagrams.svg');
  * - http://svgpocketguide.com/
  */
 gpub.diagrams.svg = {
-  /**
-   * @param {!glift.flattener.Flattened} flattened
-   * @param {!gpub.api.DiagramOptions} options
-   * @return {string} The rendered text
-   */
-  create: function(flattened, options) {
-    var svg = glift.svg.svg();
-    // That moment when I realized much more would need to be ported to frome
-    // glift to glift-core...
-    return svg.render();
-  },
-
-  /**
-   * Render go stones that exist in a block of text.
-   * @param {string} text Inline text to render.
-   * @param {!gpub.api.DiagramOptions} opt
-   */
-  renderInline: function(text, opt) {
-    // We probably don't want to modifify inline go stones for SVG rendering.
-    return text;
-  }
 };

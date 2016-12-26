@@ -14,7 +14,10 @@ gpub.diagrams.svg.Renderer.prototype = {
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
-    return gpub.diagrams.svg.create(flat, opt);
+    var svg = glift.svg.svg();
+    // That moment when I realized much more would need to be ported to frome
+    // glift to glift-core..
+    return svg.render();
   },
 
   /**
@@ -27,7 +30,7 @@ gpub.diagrams.svg.Renderer.prototype = {
    * @return {string} The processed text
    */
   renderInline: function(text, opt) {
-    return gpub.diagrams.svg.renderInline(text, opt);
+    return text;
   }
 };
 

@@ -1357,6 +1357,14 @@ glift.flattener.Board = function(boardArray, bbox, maxBoardSize) {
 
 glift.flattener.Board.prototype = {
   /**
+   * Returns the size of the board. Usually 9, 13 or 19.
+   * @return {number}
+   */
+  maxBoardSize: function() {
+    return this.maxBoardSize_;
+  },
+
+  /**
    * Gets the go-intersection at the top left, respecting cropping.
    * @return {!glift.Point}
    */
@@ -1372,10 +1380,37 @@ glift.flattener.Board.prototype = {
     return this.topLeft().translate(this.width() - 1, this.height() - 1);
   },
 
+  /**
+   * Returns the bounding box (in intersections) of the board.
+   * @return {!glift.orientation.BoundingBox}
+   */
+  boundingBox: function() {
+    return new glift.orientation.BoundingBox(this.topLeft(), this.botRight());
+  },
+
   /** @return {boolean} Returns whether the board is cropped. */
   isCropped: function() {
     return this.width() !== this.maxBoardSize() ||
         this.height() !== this.maxBoardSize();
+  },
+
+  /**
+   * Returns the height of the Go board in intersections. Note that this won't
+   * necessarily be the length of the board - 1 due to cropping.
+   * @return {number}
+   */
+  height: function() {
+    return this.boardArray_.length;
+  },
+
+  /**
+   * Returns the width of the Go board in intersections. Note that this won't
+   * necessarily be the length of the board - 1 due to cropping.
+   * @return {number}
+   */
+  width: function() {
+    // Here we assume that the Go board is rectangular.
+    return this.boardArray_[0].length;
   },
 
   /**
@@ -1475,33 +1510,6 @@ glift.flattener.Board.prototype = {
    */
   boardArray: function() {
     return this.boardArray_;
-  },
-
-  /**
-   * Returns the size of the board. Usually 9, 13 or 19.
-   * @return {number}
-   */
-  maxBoardSize: function() {
-    return this.maxBoardSize_;
-  },
-
-  /**
-   * Returns the height of the Go board. Note that this won't necessarily be the
-   * length of the board - 1 due to cropping.
-   * @return {number}
-   */
-  height: function() {
-    return this.boardArray_.length;
-  },
-
-  /**
-   * Returns the width of the Go board. Note that this won't necessarily be the
-   * length of the board - 1 due to cropping.
-   * @return {number}
-   */
-  width: function() {
-    // Here we assume that the Go board is rectangular.
-    return this.boardArray_[0].length;
   },
 
   /**
@@ -8705,7 +8713,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.20
+ * @version 0.3.21
  * --------------------------------------
  */
 (function(w) {
@@ -10567,7 +10575,6 @@ goog.provide('gpub.diagrams.BoardPt');
  * @typedef {{
  *  intPt: !glift.Point,
  *  coordPt: !glift.Point,
- *  bbox: !glift.orientation.BoundingBox
  * }}
  */
 gpub.diagrams.BoardPt;
@@ -10576,14 +10583,15 @@ gpub.diagrams.BoardPt;
  * Points-helper for Board Creation for image-types. Based on
  * glift.displays.BoardPoints;
  *
- * @param {!Object<!glift.PtStr, !gpub.diagrams.BoardPt>} points
+ * @param {!Array<!gpub.diagrams.BoardPt>} points
  * @param {!number} spacing Measures the side of a BoardPt bbox. Alternatively,
  * the distance between intersections.
+ * @param {!glift.orientation.BoundingBox} bbox Intersection bounding bbox.
  *
  * @struct @constructor @final
  */
-gpub.diagrams.BoardPoints = function(points, spacing) {
-  /** @const {!Object<!glift.PtStr, !gpub.diagrams.BoardPt>} */
+gpub.diagrams.BoardPoints = function(points, spacing, bbox) {
+  /** @const {!Array<!gpub.diagrams.BoardPt>} */
   this.points = points;
 
   /**
@@ -10592,6 +10600,56 @@ gpub.diagrams.BoardPoints = function(points, spacing) {
    * @const {number}
    */
   this.spacing = spacing;
+
+  /**
+   * Half the amount of spacing.
+   * @const {number}
+   */
+  this.radius = spacing / 2;
+
+  /**
+   * Intersection bbox.
+   * @const {!glift.orientation.BoundingBox}
+   */
+  this.bbox = bbox;
+};
+
+
+/**
+ * Creates a beard points wrapper from a flattened object.
+ *
+ * @param {!glift.flattener.Flattened} flat
+ * @param {number} spacing In pt.
+ */
+gpub.diagrams.BoardPoints.fromFlattened = function(flat, spacing) {
+  return gpub.diagrams.BoardPoints.fromBbox(
+      flat.board().boundingBox(), spacing);
+};
+
+/**
+ * Creates a board points wrapper.
+ *
+ * @param {glift.orientation.BoundingBox} bbox In intersections
+ * @param {number} spacing Of the intersections. In pt.
+ * @return {!gpub.diagrams.BoardPoints}
+ */
+gpub.diagrams.BoardPoints.fromBbox = function(bbox, spacing) {
+  var tl = bbox.topLeft();
+  var br = bbox.botRight();
+  var half = spacing / 2;
+  /** @type {!Array<!gpub.diagrams.BoardPt>} */
+  var bpts = [];
+  for (var x = tl.x(); x < bbox.width(); x++) {
+    for (var y = tl.y(); y < bbox.height(); y++) {
+      var i = x - tl.x();
+      var j = y - tl.y();
+      var b = {
+        intPt: new glift.Point(x, y),
+        coordPt: new glift.Point(x + half + i*spacing, y + half + j*spacing),
+      };
+    }
+  }
+  return new gpub.diagrams.BoardPoints(bpts, spacing, bbox);
 };
 
 goog.provide('gpub.diagrams.Diagram');
@@ -10698,6 +10756,11 @@ gpub.diagrams.Type = {
    */
   SMARTGO: 'SMARTGO',
 
+  /**
+   * Generate SVG Diagrams.
+   */
+  SVG: 'SVG'
+
   /////////////////////////////
   // Morass of planned types //
 
@@ -10706,12 +10769,6 @@ gpub.diagrams.Type = {
    * >> Not Currently Supported, but here for illustration.
    */
   //PDF: 'PDF',
-
-  /**
-   * Generate SVG Diagrams.
-   */
-  //SVG: 'SVG'
-  //
   /**
    * Sensei's library ASCII variant.
    */
@@ -12490,27 +12547,6 @@ goog.provide('gpub.diagrams.svg');
  * - http://svgpocketguide.com/
  */
 gpub.diagrams.svg = {
-  /**
-   * @param {!glift.flattener.Flattened} flattened
-   * @param {!gpub.api.DiagramOptions} options
-   * @return {string} The rendered text
-   */
-  create: function(flattened, options) {
-    var svg = glift.svg.svg();
-    // That moment when I realized much more would need to be ported to frome
-    // glift to glift-core...
-    return svg.render();
-  },
-
-  /**
-   * Render go stones that exist in a block of text.
-   * @param {string} text Inline text to render.
-   * @param {!gpub.api.DiagramOptions} opt
-   */
-  renderInline: function(text, opt) {
-    // We probably don't want to modifify inline go stones for SVG rendering.
-    return text;
-  }
 };
 
 goog.provide('gpub.diagrams.svg.Renderer');
@@ -12529,7 +12565,10 @@ gpub.diagrams.svg.Renderer.prototype = {
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
-    return gpub.diagrams.svg.create(flat, opt);
+    var svg = glift.svg.svg();
+    // That moment when I realized much more would need to be ported to frome
+    // glift to glift-core..
+    return svg.render();
   },
 
   /**
@@ -12542,7 +12581,7 @@ gpub.diagrams.svg.Renderer.prototype = {
    * @return {string} The processed text
    */
   renderInline: function(text, opt) {
-    return gpub.diagrams.svg.renderInline(text, opt);
+    return text;
   }
 };
 

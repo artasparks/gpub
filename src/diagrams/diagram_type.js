@@ -28,6 +28,11 @@ gpub.diagrams.Type = {
    */
   SMARTGO: 'SMARTGO',
 
+  /**
+   * Generate SVG Diagrams.
+   */
+  SVG: 'SVG'
+
   /////////////////////////////
   // Morass of planned types //
 
@@ -36,12 +41,6 @@ gpub.diagrams.Type = {
    * >> Not Currently Supported, but here for illustration.
    */
   //PDF: 'PDF',
-
-  /**
-   * Generate SVG Diagrams.
-   */
-  //SVG: 'SVG'
-  //
   /**
    * Sensei's library ASCII variant.
    */
