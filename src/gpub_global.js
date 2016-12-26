@@ -4,5 +4,5 @@ gpub.global = {
    * See: http://semver.org/
    * Currently in alpha.
    */
-  version: '0.3.12',
+  version: '0.3.13',
 };

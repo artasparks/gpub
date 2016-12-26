@@ -40,12 +40,12 @@ gpub.diagrams.smartgo.Renderer.prototype = {
     var sz = flat.board().maxBoardSize();
 
     if (sz != 19) {
-      base += ' sz:' + sz;
+      base += ' sz=' + sz;
     }
 
     if (flat.board().isCropped()) {
       // Add cropping only if the board is cropped.
-      base += ' vw:' + this.toSGCoord(flat.board().topLeft(), sz) +
+      base += ' vw=' + this.toSGCoord(flat.board().topLeft(), sz) +
           this.toSGCoord(flat.board().botRight(), sz);
     }
 
@@ -97,17 +97,17 @@ gpub.diagrams.smartgo.Renderer.prototype = {
       base += ' ' + boardLabels;
     }
     if (abpts) {
-      base += ' ab:"' + abpts + '"';
+      base += ' ab="' + abpts + '"';
     }
     if (awpts) {
-      base += ' aw:"' + awpts + '"';
+      base += ' aw="' + awpts + '"';
     }
 
     var marks = this.marksStr_(flat);
     for (var key in marks) {
       var str = marks[key];
       if (str) {
-        base += ' ' + key + ':"' + str + '"';
+        base += ' ' + key + '="' + str + '"';
       }
     }
 
