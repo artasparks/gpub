@@ -8705,7 +8705,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.12
+ * @version 0.3.14
  * --------------------------------------
  */
 (function(w) {
@@ -12300,7 +12300,7 @@ gpub.diagrams.smartgo.Renderer.prototype = {
     var awpts = '';
     for (var key in flat.stoneMap()) {
       var move = flat.stoneMap()[key];
-      var lbl = flat.labels[key] || '';
+      var lbl = flat.labels()[key] || '';
       if (!move.point) {
         // There should always be points for flattened objs, but it's good to
         // check.

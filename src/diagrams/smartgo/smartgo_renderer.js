@@ -53,7 +53,7 @@ gpub.diagrams.smartgo.Renderer.prototype = {
     var awpts = '';
     for (var key in flat.stoneMap()) {
       var move = flat.stoneMap()[key];
-      var lbl = flat.labels[key] || '';
+      var lbl = flat.labels()[key] || '';
       if (!move.point) {
         // There should always be points for flattened objs, but it's good to
         // check.
