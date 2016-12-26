@@ -8705,7 +8705,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.19
+ * @version 0.3.20
  * --------------------------------------
  */
 (function(w) {
@@ -12300,16 +12300,12 @@ gpub.diagrams.smartgo.Renderer.prototype = {
     var awpts = '';
     for (var key in flat.stoneMap()) {
       var move = flat.stoneMap()[key];
-      // var lbl = flat.labels()[key] || '';
       if (!move.point) {
         // There should always be points for flattened objs, but it's good to
         // check.
         continue;
       }
       var sgc = this.toSGCoord(move.point, sz);
-      // if (lbl) {
-        // sgc += '=' + lbl;
-      // }
       if (move.color === glift.enums.states.BLACK) {
         if (!abpts) {
           abpts = sgc;
@@ -12328,16 +12324,13 @@ gpub.diagrams.smartgo.Renderer.prototype = {
 
     var boardLabels = '';
     for (var key in flat.labels()) {
-      // if (!flat.stoneMap()[key] && flat.labels()[key]) {
-      if (flat.labels()[key]) {
-        var coord = this.toSGCoord(
-          glift.util.pointFromString(key), sz);
-        var bl = coord + '=' + flat.labels()[key];
-        if (!boardLabels) {
-          boardLabels = bl;
-        } else {
-          boardLabels += ' ' + bl;
-        }
+      var coord = this.toSGCoord(
+        glift.util.pointFromString(key), sz);
+      var bl = coord + '=' + flat.labels()[key];
+      if (!boardLabels) {
+        boardLabels = bl;
+      } else {
+        boardLabels += ' ' + bl;
       }
     }
 
