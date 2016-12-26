@@ -196,7 +196,7 @@ gulp.task('src-gen', () => {
     }));
 });
 
-gulp.task('bump-patch', () => {
+gulp.task('bump-patch', ['concat-node'], () => {
   gulp.src(['package.json', 'src/gpub_global.js', 'src/gpub.js'])
     .pipe(updateVersion({type: 'patch'}))
 });
