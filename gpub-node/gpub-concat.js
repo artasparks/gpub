@@ -1639,6 +1639,301 @@ glift.flattener.BoardDiffPt = function(prevValue, newValue, colRowPt, boardPt) {
   this.boardPt = boardPt;
 };
 
+goog.provide('glift.flattener.BoardPoints');
+goog.provide('glift.flattener.EdgeLabel');
+goog.provide('glift.flattener.BoardPt');
+
+/**
+ * A collection of values indicating in intersection  on the board. The intPt is
+ * the standard (0-18,0-18) point indexed from the upper left. The coordPt is
+ * the float point in pixel space. Lastly, each intersection on the board 'owns'
+ * an area of space, indicated by the bounding box.
+ *
+ * @typedef {{
+ *  intPt: !glift.Point,
+ *  coordPt: !glift.Point,
+ * }}
+ */
+glift.flattener.BoardPt;
+
+/**
+ * A label on the edge of the board, for when the draw board coordinates option
+ * is set.
+ *
+ * @typedef {{
+ *  label: string,
+ *  coordPt: !glift.Point
+ * }}
+ */
+glift.flattener.EdgeLabel;
+
+
+/**
+ * Options for creating a BoardPoints instance.
+ *
+ * @typedef {{
+ *  drawBoardCoords: (boolean|undefined),
+ *  padding: (number|undefined),
+ *  croppedEdgePadding: (number|undefined),
+ *  offsetPt: (!glift.Point|undefined),
+ * }}
+ *
+ * drawBoardCoords: whether to draw the board coordinates:
+ * padding: Amount of extra spacing around the edge of the board. As a fraction
+ *    of an intersection. Defaults to zero.
+ *    Example: If padding = 0.75 and spacing = 20, then the actual
+ *    padding around each edge will be 15.
+ * croppedEdgePadding: Same as padding, but only for cropped-edges and in
+ *    addition to normal padding.
+ * offsetPt: It's possible that we may want to offset the board points (as in
+ *    glift, for centering within a boardbox).
+ */
+glift.flattener.BoardPointsOptions;
+
+/**
+ * BoardPoints is a helper for actually rendering the board when pixel
+ * representations are required.
+ *
+ * In more detail: board points maintains a mapping from an intersection on the
+ * board to a coordinate in pixel-space. It also contains information about the
+ * spacing of the points and the radius (useful for drawing circles).
+ *
+ * Later, this is directly to create everything that lives on an intersection.
+ * In particular,
+ *  - lines
+ *  - star ponts
+ *  - marks
+ *  - stones
+ *  - stone shadows
+ *  - button bounding box.
+ *
+ * @param {!Array<!glift.flattener.BoardPt>} points
+ * @param {number} spacing
+ * @param {!glift.orientation.BoundingBox} intBbox
+ * @param {number} numIntersections
+ * @param {!Array<!glift.flattener.EdgeLabel>} edgeLabels
+ *
+ * @constructor @final @struct
+ */
+glift.flattener.BoardPoints = function(
+    points, spacing, intBbox, coordBbox, numIntersections, edgeLabels) {
+  /** @const {!Array<!glift.flattener.BoardPt>} */
+  this.points = points;
+
+  /** @const {!Object<!glift.PtStr, !glift.flattener.BoardPt>} */
+  this.cache = {};
+  for (var i = 0; i < this.points.length; i++) {
+    var pt = points[i];
+    this.cache[pt.intPt.toString()] = pt;
+  }
+
+  /** @const {number} */
+  this.spacing = spacing;
+  /** @const {number} */
+  this.radius = spacing / 2;
+
+  /**
+   * Bounding box for the intersections.
+   * @const {!glift.orientation.BoundingBox}
+   */
+  this.intBbox = intBbox;
+
+  /**
+   * Coordinate bounding box.
+   * @const {!glift.orientation.BoundingBox}
+   */
+  this.coordBbox = coordBbox;
+
+  /** @const {number} */
+  this.numIntersections = numIntersections;
+
+  /** @const {!Array<!glift.flattener.EdgeLabel>} */
+  this.edgeLabels = edgeLabels;
+};
+
+glift.flattener.BoardPoints.prototype = {
+  /** @return {number} intersection-width */
+  intWidth: function() { return this.intBbox.width() + 1; },
+  /** @return {number} intersection-width */
+  intHeight: function() { return this.intBbox.height() + 1; },
+
+  /**
+   * Get the coordinate for a given integer point string.  Note: the integer
+   * points are 0 indexed, i.e., 0->18 for a 19x19.  Recall that board points
+   * from the the top left (0,0) to the bottom right (18, 18).
+   *
+   * @param {!glift.Point} pt
+   * @return {!glift.flattener.BoardPt}
+   */
+  getCoord: function(pt) {
+    return this.cache[pt.toString()];
+  },
+
+  /**
+   * Return all the points as an array.
+   * @return {!Array<!glift.flattener.BoardPt>}
+   */
+  data: function() {
+    return this.points;
+  },
+
+  /**
+   * Test whether an integer point exists in the points map.
+   * @param {!glift.Point} pt
+   * @return {boolean}
+   */
+  hasCoord: function(pt) {
+    return this.cache[pt.toString()] !== undefined;
+  },
+
+  /**
+   * Return an array on integer points (0-indexed), used to indicate where star
+   * points should go. Ex. [(3,3), (3,9), (3,15), ...].  This only returns the
+   * points that are actually present in the points mapping.
+   *
+   * @return {!Array<!glift.Point>}
+   */
+  starPoints: function() {
+    var sp = glift.flattener.starpoints.allPts(this.numIntersections);
+    var out = [];
+    for (var i = 0; i < sp.length; i++) {
+      var p = sp[i];
+      if (this.hasCoord(p)) {
+        out.push(p);
+      }
+    }
+    return out;
+  }
+};
+
+/**
+ * Creates a beard points wrapper from a flattened object.
+ *
+ * @param {!glift.flattener.Flattened} flat
+ * @param {number} spacing In pt.
+ * @param {glift.flattener.BoardPointsOptions=} opt_options
+ */
+glift.flattener.BoardPoints.fromFlattened =
+    function(flat, spacing, opt_options) {
+  var opts = opt_options || {};
+  var bbox = flat.board().boundingBox();
+  return glift.flattener.BoardPoints.fromBbox(
+      bbox,
+      spacing,
+      flat.board().maxBoardSize(),
+      opts);
+};
+
+/**
+ * Creates a board points wrapper.
+ *
+ * @param {glift.orientation.BoundingBox} bbox In intersections. For a typical board,
+ *    TL is 0,0 and BR is 18,18.
+ * @param {number} spacing Of the intersections. In pt.
+ * @param {number} size
+ * @param {!glift.flattener.BoardPointsOptions} opts
+ * @return {!glift.flattener.BoardPoints}
+ */
+glift.flattener.BoardPoints.fromBbox =
+    function(bbox, spacing, size, opts) {
+  var tl = bbox.topLeft();
+  var br = bbox.botRight();
+
+  var half = spacing / 2;
+  /** @type {!Array<!glift.flattener.BoardPt>} */
+  var bpts = [];
+  /** @type {!Array<!glift.flattener.EdgeLabel>} */
+  var edgeLabels = [];
+
+  var drawBoardCoords = !!opts.drawBoardCoords;
+  var paddingFrac = opts.padding || 0;
+  var paddingAmt = paddingFrac * spacing;
+
+  // Note: Convention is to leave off the 'I' coordinate. Note that capital
+  // letters are enough for normal boards.
+  var xCoordLabels = 'ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghjklmnopqrstuvwxyz';
+
+  var offsetPt = opts.offsetPt || new glift.Point(0,0);
+
+  var raggedEdgePaddingFrac = opts.croppedEdgePadding || 0;
+  var raggedAmt = raggedEdgePaddingFrac * spacing;
+  var raggedLeft = tl.x() === 0 ? 0 : raggedAmt;
+  var raggedRight = br.x() === size-1 ? 0 : raggedAmt;
+  var raggedTop = tl.y() === 0 ? 0 : raggedAmt;
+  var raggedBottom = br.y() === size-1 ? 0 : raggedAmt;
+
+  var offset = drawBoardCoords ? 1 : 0;
+  var startX = tl.x();
+  var endX = br.x() + 2*offset;
+  var startY = tl.y();
+  var endY = br.y() + 2*offset;
+
+  var coordBbox = new glift.orientation.BoundingBox(
+    new glift.Point(0,0),
+    new glift.Point(
+        (endX-startX+1)*spacing + 2*paddingAmt + raggedLeft + raggedRight,
+        (endY-startY+1)*spacing + 2*paddingAmt + raggedTop + raggedBottom));
+
+  var isEdgeX = function(val) { return val === startX || val === endX; }
+  var isEdgeY = function(val) { return val === startY || val === endY; }
+
+  for (var x = startX; x <= endX; x++) {
+    for (var y = startY; y <= endY; y++) {
+      var i = x - startX;
+      var j = y - startY;
+      var coordPt = new glift.Point(
+          half + i*spacing + paddingAmt + offsetPt.x() + raggedLeft,
+          half + j*spacing + paddingAmt + offsetPt.y() + raggedTop)
+
+      if (drawBoardCoords && (isEdgeX(x) || isEdgeY(y))) {
+        if (isEdgeX(x) && isEdgeY(y)) {
+          // This is a corner; no coords here.
+          continue;
+        }
+
+        if (raggedLeft && i === 0) {
+          coordPt = coordPt.translate(-raggedLeft, 0);
+        }
+        if (raggedRight && x === endX) {
+          coordPt = coordPt.translate(raggedRight, 0);
+        }
+        if (raggedTop && j === 0) {
+          coordPt = coordPt.translate(0, -raggedTop);
+        }
+        if (raggedBottom && y === endY) {
+          coordPt = coordPt.translate(0, raggedBottom);
+        }
+
+        var label = '';
+        if (isEdgeY(y)) {
+          label = xCoordLabels[x-1];
+        } else if (isEdgeX(x)) {
+          label = (size-y+1) + '';
+        } else {
+          throw new Error('Yikes! Should not happen! pt:' + x + ',' + y);
+        }
+        edgeLabels.push({
+          label: label,
+          coordPt: coordPt,
+        });
+      } else {
+
+        bpts.push({
+          intPt: new glift.Point(x - offset, y - offset),
+          coordPt: coordPt,
+        });
+      }
+    }
+  }
+  return new glift.flattener.BoardPoints(
+      bpts,
+      spacing,
+      bbox,
+      coordBbox,
+      size,
+      edgeLabels);
+};
+
 goog.provide('glift.flattener.Flattened');
 goog.provide('glift.flattener.FlattenedParams');
 
@@ -2021,7 +2316,7 @@ glift.flattener.intersection = {
       baseSymb = sym.RIGHT_EDGE;
     } else if (pt.y() === intz) {
       baseSymb = sym.BOT_EDGE;
-    } else if (glift.flattener.intersection.isStarpoint_(pt, maxInts)) {
+    } else if (glift.flattener.starpoints.isPt(pt, maxInts)) {
       baseSymb = sym.CENTER_STARPOINT;
     } else {
       baseSymb = sym.CENTER;
@@ -2043,32 +2338,6 @@ glift.flattener.intersection = {
     }
 
     return intsect;
-  },
-
-  _starPointSets: {
-    9 : [{4:true}],
-    13 : [{3:true, 9:true}, {6:true}],
-    19 : [{3:true, 9:true, 15:true}]
-  },
-
-  /**
-   * Determine whether a pt is a starpoint.  Intersections is 1-indexed, but the
-   * pt is 0-indexed.
-   *
-   * @param {!glift.Point} pt
-   * @param {!number} maxInts
-   * @return {boolean} whether the point should be a star point.
-   * @private
-   */
-  isStarpoint_: function(pt, maxInts) {
-    var starPointSets = glift.flattener.intersection._starPointSets[maxInts];
-    for (var i = 0; i < starPointSets.length; i++) {
-      var set = starPointSets[i];
-      if (set[pt.x()] && set[pt.y()]) {
-        return true;
-      }
-    }
-    return false;
   },
 };
 
@@ -2506,6 +2775,69 @@ glift.flattener.labels = {
     }
     return out;
   }
+};
+
+goog.provide('glift.flattener.starpoints');
+
+glift.flattener.starpoints = {
+  /**
+   * @const {!Object<number, !Array<!Array<number>>>}
+   * @private
+   */
+  pts_: {
+    9: [[4,4]],
+    13: [
+          [3,3], [3,9],
+             [6,6],
+          [9,3], [9,9],
+        ],
+    19: [
+          [3,3],  [3,9],  [3,15],
+          [9,3],  [9,9],  [9,15],
+          [15,3], [15,9], [15,15],
+        ],
+  },
+
+  /**
+   * Lookup map for pts.
+   * @private {!Object<number, !Object<glift.PtStr, boolean>>}
+   */
+  map_: {},
+
+  /**
+   * @param {glift.Point} pt
+   * @param {number} size
+   * @return {boolean} Whether the point is a starpoint.
+   */
+  isPt: function(pt, size) {
+    var map = glift.flattener.starpoints.map_[size];
+    if (!map) {
+      var newmap = {};
+      var allPts = glift.flattener.starpoints.allPts(size);
+      for (var i = 0; i < allPts.length; i++) {
+        newmap[allPts[i].toString()] = true;
+      }
+      glift.flattener.starpoints.map_[size] = newmap;
+      map = newmap;
+    }
+    return !!map[pt.toString()];
+  },
+
+  /**
+   * @param {number} size
+   * @return {!Array<!glift.Point>} All the points that should be considered
+   * starpoints.
+   */
+  allPts: function(size) {
+    /** @type {!Array<glift.Point>} */
+    var out = [];
+    var ptz = glift.flattener.starpoints.pts_[size] || [];
+    for (var i = 0; i < ptz.length; i++) {
+      var p = ptz[i];
+      out.push(new glift.Point(p[0], p[1]));
+    }
+    return out;
+  },
 };
 
 goog.provide('glift.flattener.symbols');
@@ -10554,104 +10886,6 @@ gpub.diagrams = {
   },
 };
 
-goog.provide('gpub.diagrams.BoardPoints');
-goog.provide('gpub.diagrams.BoardPt');
-
-/**
- * A collection of values indicating in intersection  on the board. The intPt
- * is the standard (0-18,0-18) point indexed from the upper left. The coordPt
- * is the float point in rendered space, mesaured in pt. Lastly, each
- * intersection on the board 'owns' an area of space, indicated by the bounding
- * box.
- *
- * To be clear, the coordPt is the center of the bbox (indicated by the star below).
- *
- * |-------|
- * |       |
- * |   *   |
- * |       |
- * |-------|
- *
- * @typedef {{
- *  intPt: !glift.Point,
- *  coordPt: !glift.Point,
- * }}
- */
-gpub.diagrams.BoardPt;
-
-/**
- * Points-helper for Board Creation for image-types. Based on
- * glift.displays.BoardPoints;
- *
- * @param {!Array<!gpub.diagrams.BoardPt>} points
- * @param {!number} spacing Measures the side of a BoardPt bbox. Alternatively,
- * the distance between intersections.
- * @param {!glift.orientation.BoundingBox} bbox Intersection bounding bbox.
- *
- * @struct @constructor @final
- */
-gpub.diagrams.BoardPoints = function(points, spacing, bbox) {
-  /** @const {!Array<!gpub.diagrams.BoardPt>} */
-  this.points = points;
-
-  /**
-   * How far apart should the intersections be? Assumption is that this is in
-   * pt.
-   * @const {number}
-   */
-  this.spacing = spacing;
-
-  /**
-   * Half the amount of spacing.
-   * @const {number}
-   */
-  this.radius = spacing / 2;
-
-  /**
-   * Intersection bbox.
-   * @const {!glift.orientation.BoundingBox}
-   */
-  this.bbox = bbox;
-};
-
-
-/**
- * Creates a beard points wrapper from a flattened object.
- *
- * @param {!glift.flattener.Flattened} flat
- * @param {number} spacing In pt.
- */
-gpub.diagrams.BoardPoints.fromFlattened = function(flat, spacing) {
-  return gpub.diagrams.BoardPoints.fromBbox(
-      flat.board().boundingBox(), spacing);
-};
-
-/**
- * Creates a board points wrapper.
- *
- * @param {glift.orientation.BoundingBox} bbox In intersections
- * @param {number} spacing Of the intersections. In pt.
- * @return {!gpub.diagrams.BoardPoints}
- */
-gpub.diagrams.BoardPoints.fromBbox = function(bbox, spacing) {
-  var tl = bbox.topLeft();
-  var br = bbox.botRight();
-  var half = spacing / 2;
-  /** @type {!Array<!gpub.diagrams.BoardPt>} */
-  var bpts = [];
-  for (var x = tl.x(); x < bbox.width(); x++) {
-    for (var y = tl.y(); y < bbox.height(); y++) {
-      var i = x - tl.x();
-      var j = y - tl.y();
-      var b = {
-        intPt: new glift.Point(x, y),
-        coordPt: new glift.Point(x + half + i*spacing, y + half + j*spacing),
-      };
-    }
-  }
-  return new gpub.diagrams.BoardPoints(bpts, spacing, bbox);
-};
-
 goog.provide('gpub.diagrams.Diagram');
 goog.provide('gpub.diagrams.DiagramCallback');
 goog.provide('gpub.diagrams.DiagramRenderer');
@@ -12549,6 +12783,87 @@ goog.provide('gpub.diagrams.svg');
 gpub.diagrams.svg = {
 };
 
+/**
+ * Create the background lines. These are create at each individual intersection
+ * rather than as a whole so that we can clear theme out when we to draw marks
+ * on the raw board (rather than on stones).
+ *
+ * @param {!glift.flattener.Flattened} flat
+ * @param {!glift.svg.SvgObj} svg Base svg obj
+ * @param {!gpub.flattener.BoardPoints} boardPoints Board points object.
+ */
+gpub.diagrams.svg.lines = function(flat, svg, boardPoints) {
+  var data = boardPoints.data();
+  for (var i = 0; i < data.length; i++) {
+    svg.append(glift.svg.path()
+      .setAttr('d', glift.displays.board.intersectionLine(
+          data[i],
+          boardPoints.radius,
+          boardPoints.size)));
+
+      // .setAttr('stroke', theme.lines.stroke)
+      // .setAttr('stroke-width', theme.lines['stroke-width'])
+      // .setAttr('stroke-linecap', 'round'));
+  }
+};
+
+/**
+ * @param {!gpub.diagrams.BoardPt} boardPt
+ * @param {!number} radius Size of the space between the lines
+ * @param {!number} numIntersections Number of intersecitons on the board.
+ */
+gpub.diagrams.svg.intersectionLine = function(
+    boardPt, radius, numIntersections) {
+  // minIntersects: 0 indexed,
+  // maxIntersects: 0 indexed,
+  // numIntersections: 1 indexed (it's the number of intersections)
+  var minIntersects = 0,
+      maxIntersects = numIntersections - 1,
+      coordinate = boardPt.coordPt,
+      intersection = boardPt.intPt,
+      svgpath = glift.svg.pathutils;
+  var top = intersection.y() === minIntersects ?
+      coordinate.y() : coordinate.y() - radius;
+  var bottom = intersection.y() === maxIntersects ?
+      coordinate.y() : coordinate.y() + radius;
+  var left = intersection.x() === minIntersects ?
+      coordinate.x() : coordinate.x() - radius;
+  var right = intersection.x() === maxIntersects ?
+      coordinate.x() : coordinate.x() + radius;
+  var line =
+      // Vertical Line
+      svgpath.move(coordinate.x(), top) + ' '
+      + svgpath.lineAbs(coordinate.x(), bottom) + ' '
+      // Horizontal Line
+      + svgpath.move(left, coordinate.y()) + ' '
+      + svgpath.lineAbs(right, coordinate.y());
+  return line;
+};
+
+/**
+ * Create the star points.  See boardPoints.starPoints() for details about which
+ * points are used
+ *
+ * @param {!glift.flattener.Flattened} flat
+ * @param {!glift.svg.SvgObj} svg Base svg obj
+ * @param {!gpub.flattener.BoardPoints} boardPoints Board points object.
+ */
+glift.displays.board.starpoints = function(flat, svg, boardPoints) {
+  var size = 0.15 * boardPoints.spacing;
+  var starPointData = boardPoints.starPoints();
+  for (var i = 0, ii = starPointData.length; i < ii; i++) {
+    var pt = starPointData[i];
+    var coordPt = boardPoints.getCoord(pt).coordPt;
+    container.append(glift.svg.circle()
+      .setAttr('cx', coordPt.x())
+      .setAttr('cy', coordPt.y())
+      .setAttr('r', size)
+      .setAttr('fill', theme.starPoints.fill)
+      .setAttr('opacity', 1)
+      .setId(idGen.starpoint(pt)));
+  }
+};
+
 goog.provide('gpub.diagrams.svg.Renderer');
 
 /**
@@ -12585,7 +12900,7 @@ gpub.diagrams.svg.Renderer.prototype = {
   }
 };
 
-// Enabled the Renderer!
+// Enabled the Renderer.
 gpub.diagrams.enabledRenderers['SVG'] = function() {
   return new gpub.diagrams.svg.Renderer();
 };

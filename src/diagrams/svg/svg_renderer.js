@@ -34,7 +34,7 @@ gpub.diagrams.svg.Renderer.prototype = {
   }
 };
 
-// Enabled the Renderer!
+// Enabled the Renderer.
 gpub.diagrams.enabledRenderers['SVG'] = function() {
   return new gpub.diagrams.svg.Renderer();
 };
