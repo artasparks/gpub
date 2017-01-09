@@ -1,7 +1,6 @@
 /**
  * Add a mark of a particular type to the GoBoard
  *
- * @param {!glift.flattener.Flattened} flat
  * @param {!glift.svg.SvgObj} svg Base svg obj
  * @param {!glift.flattener.BoardPoints} boardPoints
  * @param {!glift.Point} pt
@@ -10,42 +9,35 @@
  * @param {!glift.enums.states} stoneColor
  */
 gpub.diagrams.svg.mark = function(
-    flat, svg, boardPoints, pt, mark, label, stoneColor) {
-  // Note: This is a static method instead of a method on intersections because,
-  // due to the way glift is compiled together, there'no s guarantee what order
-  // the files come in (beyond the base package file).  So, either we need to
-  // combine intersections.js with board.js or keep this a separate static
-  // method.
+    svg, boardPoints, pt, mark, label, stoneColor) {
   var svgpath = glift.svg.pathutils;
   var rootTwo = 1.41421356237;
   var rootThree = 1.73205080757;
   var marks = glift.enums.marks;
   var coordPt = boardPoints.getCoord(pt).coordPt;
-
   var fudge = boardPoints.radius / 8;
 
-  // TODO(kashomon): Make these configurable
+  // TODO(kashomon): Make these configurable ?
   var strokeWidth = 1;
   var fontSize = 12;
   var fill = 'black';
   var stroke = 'black';
+
+  if (stoneColor === glift.enums.states.BLACK) {
+    strokeWidth = strokeWidth * 0.4;
+    fill = 'white';
+    stroke = 'white';
+  }
 
   if (mark === marks.LABEL
       || mark === marks.VARIATION_MARKER
       || mark === marks.CORRECT_VARIATION
       || mark === marks.LABEL_ALPHA
       || mark === marks.LABEL_NUMERIC) {
-    var threeDigitMod = 1;
-    if (label.length === 3) {
-      // If the labels are 3 digits, we make them a bit smaller to fit on the
-      // stones.
-      threeDigitMod = .75;
-    }
 
-
-    if (stoneColor === glift.enums.states.BLACK) {
-      strokeWidth = strokeWidth * 0.4;
-    }
+    // If the labels are 3 digits, we make them a bit smaller to fit on the
+    // stones.
+    var threeDigitMod = label.length >= 3 ? 0.75 : 1;
     svg.append(glift.svg.text()
         .setText(label)
         .setAttr('fill', fill)

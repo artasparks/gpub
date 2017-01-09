@@ -3,23 +3,18 @@
  * rather than as a whole so that we can clear theme out when we to draw marks
  * on the raw board (rather than on stones).
  *
- * @param {!glift.flattener.Flattened} flat
  * @param {!glift.svg.SvgObj} svg Base svg obj
  * @param {!glift.flattener.BoardPoints} boardPoints Board points object.
+ * @param {!glift.Point} pt
  */
-gpub.diagrams.svg.lines = function(flat, svg, boardPoints) {
-  var data = boardPoints.data();
-  for (var i = 0; i < data.length; i++) {
-    svg.append(glift.svg.path()
-      .setAttr('d', gpub.diagrams.svg.intersectionLine(
-          data[i],
-          boardPoints.radius,
-          boardPoints.numIntersections)));
-
-      // .setAttr('stroke', theme.lines.stroke)
-      // .setAttr('stroke-width', theme.lines['stroke-width'])
-      // .setAttr('stroke-linecap', 'round'));
-  }
+gpub.diagrams.svg.lines = function(svg, boardPoints, pt) {
+  var bp = boardPoints.getCoord(pt);
+  svg.append(glift.svg.path()
+    .setAttr('stroke-linecap', 'round')
+    .setAttr('stroke', 'black')
+    .setAttr('stroke-width', 1)
+    .setAttr('d', gpub.diagrams.svg.intersectionLine(
+        bp, boardPoints.radius, boardPoints.numIntersections)));
 };
 
 /**

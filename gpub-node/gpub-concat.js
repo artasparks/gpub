@@ -12788,23 +12788,18 @@ gpub.diagrams.svg = {
  * rather than as a whole so that we can clear theme out when we to draw marks
  * on the raw board (rather than on stones).
  *
- * @param {!glift.flattener.Flattened} flat
  * @param {!glift.svg.SvgObj} svg Base svg obj
  * @param {!glift.flattener.BoardPoints} boardPoints Board points object.
+ * @param {!glift.Point} pt
  */
-gpub.diagrams.svg.lines = function(flat, svg, boardPoints) {
-  var data = boardPoints.data();
-  for (var i = 0; i < data.length; i++) {
-    svg.append(glift.svg.path()
-      .setAttr('d', gpub.diagrams.svg.intersectionLine(
-          data[i],
-          boardPoints.radius,
-          boardPoints.numIntersections)));
-
-      // .setAttr('stroke', theme.lines.stroke)
-      // .setAttr('stroke-width', theme.lines['stroke-width'])
-      // .setAttr('stroke-linecap', 'round'));
-  }
+gpub.diagrams.svg.lines = function(svg, boardPoints, pt) {
+  var bp = boardPoints.getCoord(pt);
+  svg.append(glift.svg.path()
+    .setAttr('stroke-linecap', 'round')
+    .setAttr('stroke', 'black')
+    .setAttr('stroke-width', 1)
+    .setAttr('d', gpub.diagrams.svg.intersectionLine(
+        bp, boardPoints.radius, boardPoints.numIntersections)));
 };
 
 /**
@@ -12843,7 +12838,6 @@ gpub.diagrams.svg.intersectionLine = function(
 /**
  * Add a mark of a particular type to the GoBoard
  *
- * @param {!glift.flattener.Flattened} flat
  * @param {!glift.svg.SvgObj} svg Base svg obj
  * @param {!glift.flattener.BoardPoints} boardPoints
  * @param {!glift.Point} pt
@@ -12852,42 +12846,35 @@ gpub.diagrams.svg.intersectionLine = function(
  * @param {!glift.enums.states} stoneColor
  */
 gpub.diagrams.svg.mark = function(
-    flat, svg, boardPoints, pt, mark, label, stoneColor) {
-  // Note: This is a static method instead of a method on intersections because,
-  // due to the way glift is compiled together, there'no s guarantee what order
-  // the files come in (beyond the base package file).  So, either we need to
-  // combine intersections.js with board.js or keep this a separate static
-  // method.
+    svg, boardPoints, pt, mark, label, stoneColor) {
   var svgpath = glift.svg.pathutils;
   var rootTwo = 1.41421356237;
   var rootThree = 1.73205080757;
   var marks = glift.enums.marks;
   var coordPt = boardPoints.getCoord(pt).coordPt;
-
   var fudge = boardPoints.radius / 8;
 
-  // TODO(kashomon): Make these configurable
+  // TODO(kashomon): Make these configurable ?
   var strokeWidth = 1;
   var fontSize = 12;
   var fill = 'black';
   var stroke = 'black';
+
+  if (stoneColor === glift.enums.states.BLACK) {
+    strokeWidth = strokeWidth * 0.4;
+    fill = 'white';
+    stroke = 'white';
+  }
 
   if (mark === marks.LABEL
       || mark === marks.VARIATION_MARKER
       || mark === marks.CORRECT_VARIATION
       || mark === marks.LABEL_ALPHA
       || mark === marks.LABEL_NUMERIC) {
-    var threeDigitMod = 1;
-    if (label.length === 3) {
-      // If the labels are 3 digits, we make them a bit smaller to fit on the
-      // stones.
-      threeDigitMod = .75;
-    }
 
-
-    if (stoneColor === glift.enums.states.BLACK) {
-      strokeWidth = strokeWidth * 0.4;
-    }
+    // If the labels are 3 digits, we make them a bit smaller to fit on the
+    // stones.
+    var threeDigitMod = label.length >= 3 ? 0.75 : 1;
     svg.append(glift.svg.text()
         .setText(label)
         .setAttr('fill', fill)
@@ -12980,22 +12967,35 @@ gpub.diagrams.svg.mark = function(
  * Create the star points.  See boardPoints.starpoints() for details about which
  * points are used
  *
- * @param {!glift.flattener.Flattened} flat
  * @param {!glift.svg.SvgObj} svg Base svg obj
- * @param {!glift.flattener.BoardPoints} boardPoints Board points object.
+ * @param {!glift.flattener.BoardPoints} bps
+ * @param {!glift.Point} pt
  */
-gpub.diagrams.svg.starpoints = function(flat, svg, boardPoints) {
-  var size = 0.15 * boardPoints.spacing;
-  var starPointData = boardPoints.starPoints();
-  for (var i = 0, ii = starPointData.length; i < ii; i++) {
-    var pt = starPointData[i];
-    var coordPt = boardPoints.getCoord(pt).coordPt;
-    svg.append(glift.svg.circle()
-      .setAttr('cx', coordPt.x())
-      .setAttr('cy', coordPt.y())
-      .setAttr('r', size)
-      .setAttr('fill', 'black'));
-  }
+gpub.diagrams.svg.starpoint = function(svg, bps, pt) {
+  var size = 0.15 * bps.spacing;
+  var coordPt = bps.getCoord(pt).coordPt;
+  svg.append(glift.svg.circle()
+    .setAttr('cx', coordPt.x())
+    .setAttr('cy', coordPt.y())
+    .setAttr('r', size)
+    .setAttr('fill', 'black'));
+};
+
+/**
+ * Create the Go stones.  They are initially invisible to the user, but they
+ * all exist at the time of GoBoard creation.
+ *
+ * @param {!glift.svg.SvgObj} svg Base svg obj
+ * @param {!glift.flattener.BoardPoints} bps
+ * @param {!glift.flattener.BoardPt} pt
+ * @param {!glift.enums.states} color the color of the stone
+ */
+gpub.diagrams.svg.stone = function(svg, bps, pt, color) {
+  svg.append(glift.svg.circle()
+    .setAttr('cx', pt.coordPt.x())
+    .setAttr('cy', pt.coordPt.y())
+    .setAttr('r', bps.radius - .4) // subtract for stroke
+    .setAttr('fill', color.toLowerCase()))
 };
 
 goog.provide('gpub.diagrams.svg.Renderer');
