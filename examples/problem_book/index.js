@@ -5,7 +5,6 @@ var fs = require('fs');
 var baseDir = __dirname
 var sgfDir = baseDir + '/problems';
 
-
 var fnames = gpub.nodeutils.numberSuffixSort(gpub.nodeutils.listSgfs(sgfDir));
 var contents = gpub.nodeutils.fileContents(fnames, sgfDir);
 var ids = gpub.nodeutils.createFileIds(fnames);
@@ -15,12 +14,19 @@ var ids = gpub.nodeutils.createFileIds(fnames);
  */
 var idFuncMaker = (outDir) => {
   var base_ = baseDir;
-  return (style, id) => {
+  return (style, id, suffix) => {
     return base_ + '/' + style.toLowerCase() + '/diagrams/' +
-        id + '.out.tex';
+        id + '.out.' + suffix;
   }
 };
 var idFn = idFuncMaker(baseDir);
+
+var suffix = {
+  IGO: 'tex',
+  GNOS: 'tex',
+  SMARTGO: 'gobook',
+  SVG: 'svg',
+}
 
 var g = gpub.init({
     sgfs: contents,
@@ -32,9 +38,9 @@ var g = gpub.init({
   .createSpec()
   .processSpec();
 
-['IGO', 'GNOS'].forEach(style => {
+['IGO', 'GNOS', 'SMARTGO', 'SVG'].forEach(style => {
   var bookMaker = g.renderDiagramsStream(d => {
-        fs.writeFile(idFn(style, d.id), d.rendered)
+        fs.writeFile(idFn(style, d.id, suffix[style]), d.rendered)
       }, {
         diagramType: style,
       }).bookMaker();

@@ -8,9 +8,15 @@
  * @param {!glift.enums.states} color the color of the stone
  */
 gpub.diagrams.svg.stone = function(svg, bps, pt, color) {
-  svg.append(glift.svg.circle()
+  var circ = glift.svg.circle()
     .setAttr('cx', pt.coordPt.x())
     .setAttr('cy', pt.coordPt.y())
-    .setAttr('r', bps.radius - .4) // subtract for stroke
-    .setAttr('fill', color.toLowerCase()))
+    .setAttr('fill', color.toLowerCase());
+  if (color === glift.enums.states.WHITE) {
+    circ.setAttr('stroke', 'black')
+        .setAttr('r', bps.radius - .4); // subtract for stroke
+  } else {
+    circ.setAttr('r', bps.radius);
+  }
+  svg.append(circ);
 };

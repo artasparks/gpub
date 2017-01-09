@@ -19,7 +19,7 @@ gpub.diagrams.svg.mark = function(
 
   // TODO(kashomon): Make these configurable ?
   var strokeWidth = 1;
-  var fontSize = 12;
+  var fontSize = 0.7; // Really, a multiplier.
   var fill = 'black';
   var stroke = 'black';
 
@@ -47,7 +47,7 @@ gpub.diagrams.svg.mark = function(
         .setAttr('dy', '.33em') // for vertical centering
         .setAttr('x', coordPt.x()) // x and y are the anchor points.
         .setAttr('y', coordPt.y())
-        .setAttr('font-family', 'Helvetica')
+        .setAttr('font-family', 'sans-serif')
         .setAttr('font-style', 'normal')
         .setAttr('font-size',
             threeDigitMod * boardPoints.spacing * fontSize));

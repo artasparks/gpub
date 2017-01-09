@@ -12855,7 +12855,7 @@ gpub.diagrams.svg.mark = function(
 
   // TODO(kashomon): Make these configurable ?
   var strokeWidth = 1;
-  var fontSize = 12;
+  var fontSize = 0.7; // Really, a multiplier.
   var fill = 'black';
   var stroke = 'black';
 
@@ -12883,7 +12883,7 @@ gpub.diagrams.svg.mark = function(
         .setAttr('dy', '.33em') // for vertical centering
         .setAttr('x', coordPt.x()) // x and y are the anchor points.
         .setAttr('y', coordPt.y())
-        .setAttr('font-family', 'Helvetica')
+        .setAttr('font-family', 'sans-serif')
         .setAttr('font-style', 'normal')
         .setAttr('font-size',
             threeDigitMod * boardPoints.spacing * fontSize));
@@ -12990,11 +12990,17 @@ gpub.diagrams.svg.starpoint = function(svg, bps, bpt) {
  * @param {!glift.enums.states} color the color of the stone
  */
 gpub.diagrams.svg.stone = function(svg, bps, pt, color) {
-  svg.append(glift.svg.circle()
+  var circ = glift.svg.circle()
     .setAttr('cx', pt.coordPt.x())
     .setAttr('cy', pt.coordPt.y())
-    .setAttr('r', bps.radius - .4) // subtract for stroke
-    .setAttr('fill', color.toLowerCase()))
+    .setAttr('fill', color.toLowerCase());
+  if (color === glift.enums.states.WHITE) {
+    circ.setAttr('stroke', 'black')
+        .setAttr('r', bps.radius - .4); // subtract for stroke
+  } else {
+    circ.setAttr('r', bps.radius);
+  }
+  svg.append(circ);
 };
 
 goog.provide('gpub.diagrams.svg.Renderer');

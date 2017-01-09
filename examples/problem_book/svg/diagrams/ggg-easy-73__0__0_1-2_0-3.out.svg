@@ -1,0 +1,143 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M10 0 L10 20 M10 10 L20 10"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M10 20 L10 40 M10 30 L20 30"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M10 40 L10 60 M10 50 L20 50"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M10 60 L10 80 M10 70 L20 70"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M10 80 L10 100 M10 90 L20 90"></path>
+<circle cx="10" cy="110" fill="white" stroke="black" r="9.6"></circle>
+<circle cx="10" cy="130" fill="white" stroke="black" r="9.6"></circle>
+<text fill="black" stroke="black" stroke-width="1" text-anchor="middle" dy=".33em" x="10" y="130" font-family="sans-serif" font-style="normal" font-size="14">2</text>
+<circle cx="10" cy="150" fill="black" r="10"></circle>
+<text fill="white" stroke="white" stroke-width="0.4" text-anchor="middle" dy=".33em" x="10" y="150" font-family="sans-serif" font-style="normal" font-size="14">1</text>
+<circle cx="10" cy="170" fill="white" stroke="black" r="9.6"></circle>
+<text fill="black" stroke="black" stroke-width="1" text-anchor="middle" dy=".33em" x="10" y="170" font-family="sans-serif" font-style="normal" font-size="14">6</text>
+<circle cx="10" cy="190" fill="black" r="10"></circle>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M10 200 L10 210 M10 210 L20 210"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M30 0 L30 20 M20 10 L40 10"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M30 20 L30 40 M20 30 L40 30"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M30 40 L30 60 M20 50 L40 50"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M30 60 L30 80 M20 70 L40 70"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M30 80 L30 100 M20 90 L40 90"></path>
+<circle cx="30" cy="110" fill="white" stroke="black" r="9.6"></circle>
+<circle cx="30" cy="130" fill="black" r="10"></circle>
+<text fill="white" stroke="white" stroke-width="0.4" text-anchor="middle" dy=".33em" x="30" y="130" font-family="sans-serif" font-style="normal" font-size="14">3</text>
+<circle cx="30" cy="150" fill="black" r="10"></circle>
+<text fill="white" stroke="white" stroke-width="0.4" text-anchor="middle" dy=".33em" x="30" y="150" font-family="sans-serif" font-style="normal" font-size="14">5</text>
+<circle cx="30" cy="170" fill="white" stroke="black" r="9.6"></circle>
+<text fill="black" stroke="black" stroke-width="1" text-anchor="middle" dy=".33em" x="30" y="170" font-family="sans-serif" font-style="normal" font-size="14">4</text>
+<circle cx="30" cy="190" fill="black" r="10"></circle>
+<circle cx="30" cy="210" fill="black" r="10"></circle>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M50 0 L50 20 M40 10 L60 10"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M50 20 L50 40 M40 30 L60 30"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M50 40 L50 60 M40 50 L60 50"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M50 60 L50 80 M40 70 L60 70"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M50 80 L50 100 M40 90 L60 90"></path>
+<circle cx="50" cy="110" fill="white" stroke="black" r="9.6"></circle>
+<circle cx="50" cy="130" fill="black" r="10"></circle>
+<circle cx="50" cy="150" fill="black" r="10"></circle>
+<circle cx="50" cy="170" fill="black" r="10"></circle>
+<circle cx="50" cy="190" fill="white" stroke="black" r="9.6"></circle>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M50 200 L50 210 M40 210 L60 210"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M70 0 L70 20 M60 10 L80 10"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M70 20 L70 40 M60 30 L80 30"></path>
+<circle cx="70" cy="30" r="3" fill="black"></circle>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M70 40 L70 60 M60 50 L80 50"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M70 60 L70 80 M60 70 L80 70"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M70 80 L70 100 M60 90 L80 90"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M70 100 L70 120 M60 110 L80 110"></path>
+<circle cx="70" cy="130" fill="white" stroke="black" r="9.6"></circle>
+<circle cx="70" cy="150" fill="white" stroke="black" r="9.6"></circle>
+<circle cx="70" cy="170" fill="white" stroke="black" r="9.6"></circle>
+<circle cx="70" cy="190" fill="white" stroke="black" r="9.6"></circle>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M70 200 L70 210 M60 210 L80 210"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M90 0 L90 20 M80 10 L100 10"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M90 20 L90 40 M80 30 L100 30"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M90 40 L90 60 M80 50 L100 50"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M90 60 L90 80 M80 70 L100 70"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M90 80 L90 100 M80 90 L100 90"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M90 100 L90 120 M80 110 L100 110"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M90 120 L90 140 M80 130 L100 130"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M90 140 L90 160 M80 150 L100 150"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M90 160 L90 180 M80 170 L100 170"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M90 180 L90 200 M80 190 L100 190"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M90 200 L90 210 M80 210 L100 210"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M110 0 L110 20 M100 10 L120 10"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M110 20 L110 40 M100 30 L120 30"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M110 40 L110 60 M100 50 L120 50"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M110 60 L110 80 M100 70 L120 70"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M110 80 L110 100 M100 90 L120 90"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M110 100 L110 120 M100 110 L120 110"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M110 120 L110 140 M100 130 L120 130"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M110 140 L110 160 M100 150 L120 150"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M110 160 L110 180 M100 170 L120 170"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M110 180 L110 200 M100 190 L120 190"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M110 200 L110 210 M100 210 L120 210"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M130 0 L130 20 M120 10 L140 10"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M130 20 L130 40 M120 30 L140 30"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M130 40 L130 60 M120 50 L140 50"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M130 60 L130 80 M120 70 L140 70"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M130 80 L130 100 M120 90 L140 90"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M130 100 L130 120 M120 110 L140 110"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M130 120 L130 140 M120 130 L140 130"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M130 140 L130 160 M120 150 L140 150"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M130 160 L130 180 M120 170 L140 170"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M130 180 L130 200 M120 190 L140 190"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M130 200 L130 210 M120 210 L140 210"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M150 0 L150 20 M140 10 L160 10"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M150 20 L150 40 M140 30 L160 30"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M150 40 L150 60 M140 50 L160 50"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M150 60 L150 80 M140 70 L160 70"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M150 80 L150 100 M140 90 L160 90"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M150 100 L150 120 M140 110 L160 110"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M150 120 L150 140 M140 130 L160 130"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M150 140 L150 160 M140 150 L160 150"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M150 160 L150 180 M140 170 L160 170"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M150 180 L150 200 M140 190 L160 190"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M150 200 L150 210 M140 210 L160 210"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M170 0 L170 20 M160 10 L180 10"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M170 20 L170 40 M160 30 L180 30"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M170 40 L170 60 M160 50 L180 50"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M170 60 L170 80 M160 70 L180 70"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M170 80 L170 100 M160 90 L180 90"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M170 100 L170 120 M160 110 L180 110"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M170 120 L170 140 M160 130 L180 130"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M170 140 L170 160 M160 150 L180 150"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M170 160 L170 180 M160 170 L180 170"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M170 180 L170 200 M160 190 L180 190"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M170 200 L170 210 M160 210 L180 210"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M190 0 L190 20 M180 10 L200 10"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M190 20 L190 40 M180 30 L200 30"></path>
+<circle cx="190" cy="30" r="3" fill="black"></circle>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M190 40 L190 60 M180 50 L200 50"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M190 60 L190 80 M180 70 L200 70"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M190 80 L190 100 M180 90 L200 90"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M190 100 L190 120 M180 110 L200 110"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M190 120 L190 140 M180 130 L200 130"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M190 140 L190 160 M180 150 L200 150"></path>
+<circle cx="190" cy="150" r="3" fill="black"></circle>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M190 160 L190 180 M180 170 L200 170"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M190 180 L190 200 M180 190 L200 190"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M190 200 L190 210 M180 210 L200 210"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M210 0 L210 20 M200 10 L220 10"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M210 20 L210 40 M200 30 L220 30"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M210 40 L210 60 M200 50 L220 50"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M210 60 L210 80 M200 70 L220 70"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M210 80 L210 100 M200 90 L220 90"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M210 100 L210 120 M200 110 L220 110"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M210 120 L210 140 M200 130 L220 130"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M210 140 L210 160 M200 150 L220 150"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M210 160 L210 180 M200 170 L220 170"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M210 180 L210 200 M200 190 L220 190"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M210 200 L210 210 M200 210 L220 210"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M230 0 L230 20 M220 10 L240 10"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M230 20 L230 40 M220 30 L240 30"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M230 40 L230 60 M220 50 L240 50"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M230 60 L230 80 M220 70 L240 70"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M230 80 L230 100 M220 90 L240 90"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M230 100 L230 120 M220 110 L240 110"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M230 120 L230 140 M220 130 L240 130"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M230 140 L230 160 M220 150 L240 150"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M230 160 L230 180 M220 170 L240 170"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M230 180 L230 200 M220 190 L240 190"></path>
+<path stroke-linecap="round" stroke="black" stroke-width="1" d="M230 200 L230 210 M220 210 L240 210"></path>
+</svg>
