@@ -183,7 +183,7 @@
     deepEqual(diag.diagrams.length, 20);
   });
 
-  test('Igo Diagram Creation ', function() {
+  test('SmartGo Diagram Creation ', function() {
     var sgf = testdata.gogameguru_commentary;
     var api = gpub.init({
         sgfs: [sgf],
@@ -192,6 +192,21 @@
       .processSpec()
       .renderDiagrams({
         diagramType: 'SMARTGO',
+        maxDiagrams: 20,
+      })
+    var diag = api.diagrams();
+    deepEqual(diag.diagrams.length, 20);
+  });
+
+  test('SVG Diagram Creation ', function() {
+    var sgf = testdata.gogameguru_commentary;
+    var api = gpub.init({
+        sgfs: [sgf],
+      })
+      .createSpec()
+      .processSpec()
+      .renderDiagrams({
+        diagramType: 'SVG',
         maxDiagrams: 20,
       })
     var diag = api.diagrams();

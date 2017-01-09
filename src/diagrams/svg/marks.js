@@ -3,18 +3,18 @@
  *
  * @param {!glift.svg.SvgObj} svg Base svg obj
  * @param {!glift.flattener.BoardPoints} boardPoints
- * @param {!glift.Point} pt
+ * @param {!glift.flattener.BoardPt} bpt
  * @param {!glift.enums.marks} mark
  * @param {string} label
  * @param {!glift.enums.states} stoneColor
  */
 gpub.diagrams.svg.mark = function(
-    svg, boardPoints, pt, mark, label, stoneColor) {
+    svg, boardPoints, bpt, mark, label, stoneColor) {
   var svgpath = glift.svg.pathutils;
   var rootTwo = 1.41421356237;
   var rootThree = 1.73205080757;
   var marks = glift.enums.marks;
-  var coordPt = boardPoints.getCoord(pt).coordPt;
+  var coordPt = bpt.coordPt;
   var fudge = boardPoints.radius / 8;
 
   // TODO(kashomon): Make these configurable ?

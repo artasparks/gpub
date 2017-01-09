@@ -15,8 +15,35 @@ gpub.diagrams.svg.Renderer.prototype = {
    */
   render: function(flat, opt) {
     var svg = glift.svg.svg();
-    // That moment when I realized much more would need to be ported to frome
-    // glift to glift-core..
+    var spacing = 20; // intersection spacing in pixels.
+    var bps = glift.flattener.BoardPoints.fromFlattened(flat, 20);
+    var data = bps.data();
+    var board = flat.board();
+    var sym = glift.flattener.symbols;
+    for (var i = 0; i < data.length; i++) {
+      var bpt = data[i];
+      var ion = board.getIntBoardPt(bpt.intPt);
+      // For marks, a white stone is equivalent to an empty stone.
+      var stoneCol = glift.enums.states.WHITE;
+      if (ion.stone()) {
+        if (ion.stone() === sym.BSTONE) {
+          stoneCol = glift.enums.states.BLACK;
+        }
+        gpub.diagrams.svg.stone(svg, bps, bpt, stoneCol);
+      } else {
+        // Render lines/starpoints if there's no stone.
+        gpub.diagrams.svg.lines(svg, bps, bpt);
+        if (ion.base() == sym.CENTER_STARPOINT) {
+          gpub.diagrams.svg.starpoint(svg, bps, bpt);
+        }
+      }
+
+      if (ion.mark()) {
+        var label = ion.textLabel() || '';
+        var gmark = glift.flattener.symbolMarkToMark[ion.mark()];
+        gpub.diagrams.svg.mark(svg, bps, bpt, gmark, label, stoneCol);
+      }
+    }
     return svg.render();
   },
 

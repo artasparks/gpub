@@ -5,16 +5,15 @@
  *
  * @param {!glift.svg.SvgObj} svg Base svg obj
  * @param {!glift.flattener.BoardPoints} boardPoints Board points object.
- * @param {!glift.Point} pt
+ * @param {!glift.flattener.BoardPt} bpt
  */
-gpub.diagrams.svg.lines = function(svg, boardPoints, pt) {
-  var bp = boardPoints.getCoord(pt);
+gpub.diagrams.svg.lines = function(svg, boardPoints, bpt) {
   svg.append(glift.svg.path()
     .setAttr('stroke-linecap', 'round')
     .setAttr('stroke', 'black')
     .setAttr('stroke-width', 1)
     .setAttr('d', gpub.diagrams.svg.intersectionLine(
-        bp, boardPoints.radius, boardPoints.numIntersections)));
+        bpt, boardPoints.radius, boardPoints.numIntersections)));
 };
 
 /**

@@ -12790,16 +12790,15 @@ gpub.diagrams.svg = {
  *
  * @param {!glift.svg.SvgObj} svg Base svg obj
  * @param {!glift.flattener.BoardPoints} boardPoints Board points object.
- * @param {!glift.Point} pt
+ * @param {!glift.flattener.BoardPt} bpt
  */
-gpub.diagrams.svg.lines = function(svg, boardPoints, pt) {
-  var bp = boardPoints.getCoord(pt);
+gpub.diagrams.svg.lines = function(svg, boardPoints, bpt) {
   svg.append(glift.svg.path()
     .setAttr('stroke-linecap', 'round')
     .setAttr('stroke', 'black')
     .setAttr('stroke-width', 1)
     .setAttr('d', gpub.diagrams.svg.intersectionLine(
-        bp, boardPoints.radius, boardPoints.numIntersections)));
+        bpt, boardPoints.radius, boardPoints.numIntersections)));
 };
 
 /**
@@ -12840,18 +12839,18 @@ gpub.diagrams.svg.intersectionLine = function(
  *
  * @param {!glift.svg.SvgObj} svg Base svg obj
  * @param {!glift.flattener.BoardPoints} boardPoints
- * @param {!glift.Point} pt
+ * @param {!glift.flattener.BoardPt} bpt
  * @param {!glift.enums.marks} mark
  * @param {string} label
  * @param {!glift.enums.states} stoneColor
  */
 gpub.diagrams.svg.mark = function(
-    svg, boardPoints, pt, mark, label, stoneColor) {
+    svg, boardPoints, bpt, mark, label, stoneColor) {
   var svgpath = glift.svg.pathutils;
   var rootTwo = 1.41421356237;
   var rootThree = 1.73205080757;
   var marks = glift.enums.marks;
-  var coordPt = boardPoints.getCoord(pt).coordPt;
+  var coordPt = bpt.coordPt;
   var fudge = boardPoints.radius / 8;
 
   // TODO(kashomon): Make these configurable ?
@@ -12969,11 +12968,11 @@ gpub.diagrams.svg.mark = function(
  *
  * @param {!glift.svg.SvgObj} svg Base svg obj
  * @param {!glift.flattener.BoardPoints} bps
- * @param {!glift.Point} pt
+ * @param {!glift.flattener.BoardPt} bpt
  */
-gpub.diagrams.svg.starpoint = function(svg, bps, pt) {
+gpub.diagrams.svg.starpoint = function(svg, bps, bpt) {
   var size = 0.15 * bps.spacing;
-  var coordPt = bps.getCoord(pt).coordPt;
+  var coordPt = bpt.coordPt;
   svg.append(glift.svg.circle()
     .setAttr('cx', coordPt.x())
     .setAttr('cy', coordPt.y())
@@ -13015,8 +13014,35 @@ gpub.diagrams.svg.Renderer.prototype = {
    */
   render: function(flat, opt) {
     var svg = glift.svg.svg();
-    // That moment when I realized much more would need to be ported to frome
-    // glift to glift-core..
+    var spacing = 20; // intersection spacing in pixels.
+    var bps = glift.flattener.BoardPoints.fromFlattened(flat, 20);
+    var data = bps.data();
+    var board = flat.board();
+    var sym = glift.flattener.symbols;
+    for (var i = 0; i < data.length; i++) {
+      var bpt = data[i];
+      var ion = board.getIntBoardPt(bpt.intPt);
+      // For marks, a white stone is equivalent to an empty stone.
+      var stoneCol = glift.enums.states.WHITE;
+      if (ion.stone()) {
+        if (ion.stone() === sym.BSTONE) {
+          stoneCol = glift.enums.states.BLACK;
+        }
+        gpub.diagrams.svg.stone(svg, bps, bpt, stoneCol);
+      } else {
+        // Render lines/starpoints if there's no stone.
+        gpub.diagrams.svg.lines(svg, bps, bpt);
+        if (ion.base() == sym.CENTER_STARPOINT) {
+          gpub.diagrams.svg.starpoint(svg, bps, bpt);
+        }
+      }
+
+      if (ion.mark()) {
+        var label = ion.textLabel() || '';
+        var gmark = glift.flattener.symbolMarkToMark[ion.mark()];
+        gpub.diagrams.svg.mark(svg, bps, bpt, gmark, label, stoneCol);
+      }
+    }
     return svg.render();
   },
 
