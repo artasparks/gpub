@@ -15,7 +15,7 @@ var ids = gpub.nodeutils.createFileIds(fnames);
 var idFuncMaker = (outDir) => {
   var base_ = baseDir;
   return (style, id, suffix) => {
-    return base_ + '/' + style.toLowerCase() + '/diagrams/' +
+    return base_ + '/' + style.toLowerCase() + '/gen_diagrams/' +
         id + '.out.' + suffix;
   }
 };
@@ -29,9 +29,9 @@ var suffix = {
 };
 
 var allstyles = [
-  // 'IGO',
-  // 'GNOS',
-  // 'SMARTGO',
+  'IGO',
+  'GNOS',
+  'SMARTGO',
   'SVG'
 ]
 
