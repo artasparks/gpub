@@ -16,3 +16,5 @@ test/htmltests_gen/*
 
 # Dependency directory
 node_modules
+
+gen_diagrams

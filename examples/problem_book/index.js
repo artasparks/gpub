@@ -26,7 +26,14 @@ var suffix = {
   GNOS: 'tex',
   SMARTGO: 'gobook',
   SVG: 'svg',
-}
+};
+
+var allstyles = [
+  // 'IGO',
+  // 'GNOS',
+  // 'SMARTGO',
+  'SVG'
+]
 
 var g = gpub.init({
     sgfs: contents,
@@ -38,7 +45,7 @@ var g = gpub.init({
   .createSpec()
   .processSpec();
 
-['IGO', 'GNOS', 'SMARTGO', 'SVG'].forEach(style => {
+allstyles.forEach(style => {
   var bookMaker = g.renderDiagramsStream(d => {
         fs.writeFile(idFn(style, d.id, suffix[style]), d.rendered)
       }, {

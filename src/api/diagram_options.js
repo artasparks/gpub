@@ -80,6 +80,14 @@ gpub.api.DiagramOptions = function(opt_options) {
   this.goIntersectionSize = o.goIntersectionSize || undefined;
 
   /**
+   * Very similar to goIntersectionSize: Species the distance between
+   * intersections for diagrams that are rendered (EPS, SVG, PDF, etc.).
+   *
+   * Typically in pixels.
+   */
+  this.intersectionSpacing = o.intersectionSpacing || undefined;
+
+  /**
    * Option-overrides for specific diagram types.
    * @const {!Object<gpub.diagrams.Type, !Object>}
    */

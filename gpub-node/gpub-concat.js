@@ -8836,6 +8836,15 @@ glift.svg.group = function() {
 glift.svg.SvgObj = function(type, opt_attrObj) {
   /** @private {string} */
   this.type_ = type;
+
+  /**
+   * Optional style tag. Should really only be on the top-level SVG element.
+   * For more details, see:
+   * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/style
+   * @private {string}
+   */
+  this.style_ = '';
+
   /** @private {!Object<string>} */
   this.attrMap_ = opt_attrObj || {};
   /** @private {!Array<!glift.svg.SvgObj>} */
@@ -8859,6 +8868,14 @@ glift.svg.SvgObj.prototype = {
       base += ' ' + key + '="' + this.attrMap_[key] + '"';
     }
     base += '>' + this.text_;
+    if (this.style_) {
+      base += '\n' +
+        '<style>\n' +
+        '/* <![CDATA[ */\n' +
+        this.style_ + '\n' +
+        '/* ]]> */\n' +
+        '</style>\n';
+    }
     if (this.children_.length > 0) {
       base += '\n';
       for (var i = 0; i < this.children_.length; i++) {
@@ -8884,6 +8901,16 @@ glift.svg.SvgObj.prototype = {
    */
   setAttr: function(key, value) {
     this.attrMap_[key] = value + '';
+    return this;
+  },
+
+  /**
+   * Sets the top-level CSS-styling.
+   * @param {string} s
+   * @return {!glift.svg.SvgObj} This object.
+   */
+  setStyle: function(s) {
+    this.style_ = s;
     return this;
   },
 
@@ -9360,6 +9387,14 @@ gpub.api.DiagramOptions = function(opt_options) {
    * @const {number|string|undefined}
    */
   this.goIntersectionSize = o.goIntersectionSize || undefined;
+
+  /**
+   * Very similar to goIntersectionSize: Species the distance between
+   * intersections for diagrams that are rendered (EPS, SVG, PDF, etc.).
+   *
+   * Typically in pixels.
+   */
+  this.intersectionSpacing = o.intersectionSpacing || undefined;
 
   /**
    * Option-overrides for specific diagram types.
@@ -12794,9 +12829,7 @@ gpub.diagrams.svg = {
  */
 gpub.diagrams.svg.lines = function(svg, boardPoints, bpt) {
   svg.append(glift.svg.path()
-    .setAttr('stroke-linecap', 'round')
-    .setAttr('stroke', 'black')
-    .setAttr('stroke-width', 1)
+    .setAttr('class', 'cl')
     .setAttr('d', gpub.diagrams.svg.intersectionLine(
         bpt, boardPoints.radius, boardPoints.numIntersections)));
 };
@@ -12995,10 +13028,11 @@ gpub.diagrams.svg.stone = function(svg, bps, pt, color) {
     .setAttr('cy', pt.coordPt.y())
     .setAttr('fill', color.toLowerCase());
   if (color === glift.enums.states.WHITE) {
-    circ.setAttr('stroke', 'black')
-        .setAttr('r', bps.radius - .4); // subtract for stroke
+    circ.setAttr('class', 'ws')
+      .setAttr('r', bps.radius - .4); // subtract for stroke
   } else {
-    circ.setAttr('r', bps.radius);
+    circ.setAttr('r', bps.radius)
+      .setAttr('class', 'bs')
   }
   svg.append(circ);
 };
@@ -13019,12 +13053,23 @@ gpub.diagrams.svg.Renderer.prototype = {
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
-    var svg = glift.svg.svg();
-    var spacing = 20; // intersection spacing in pixels.
+    var spacing = opt.intersectionSpacing || 40;
     var bps = glift.flattener.BoardPoints.fromFlattened(flat, 20);
     var data = bps.data();
     var board = flat.board();
     var sym = glift.flattener.symbols;
+
+    var svg = glift.svg.svg()
+      .setStyle(
+        '.bs { fill: black; }\n' +
+        '.ws { stroke: black; }\n' +
+        '.cl {\n' +
+        '  stroke-linecap: round;\n' +
+        '  stroke: black;\n' +
+        '  stroke-width: 1;\n' +
+        '}\n'
+      )
+
     for (var i = 0; i < data.length; i++) {
       var bpt = data[i];
       var ion = board.getIntBoardPt(bpt.intPt);

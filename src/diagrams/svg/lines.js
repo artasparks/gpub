@@ -9,9 +9,7 @@
  */
 gpub.diagrams.svg.lines = function(svg, boardPoints, bpt) {
   svg.append(glift.svg.path()
-    .setAttr('stroke-linecap', 'round')
-    .setAttr('stroke', 'black')
-    .setAttr('stroke-width', 1)
+    .setAttr('class', 'cl')
     .setAttr('d', gpub.diagrams.svg.intersectionLine(
         bpt, boardPoints.radius, boardPoints.numIntersections)));
 };

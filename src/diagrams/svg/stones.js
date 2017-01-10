@@ -13,10 +13,11 @@ gpub.diagrams.svg.stone = function(svg, bps, pt, color) {
     .setAttr('cy', pt.coordPt.y())
     .setAttr('fill', color.toLowerCase());
   if (color === glift.enums.states.WHITE) {
-    circ.setAttr('stroke', 'black')
-        .setAttr('r', bps.radius - .4); // subtract for stroke
+    circ.setAttr('class', 'ws')
+      .setAttr('r', bps.radius - .4); // subtract for stroke
   } else {
-    circ.setAttr('r', bps.radius);
+    circ.setAttr('r', bps.radius)
+      .setAttr('class', 'bs')
   }
   svg.append(circ);
 };

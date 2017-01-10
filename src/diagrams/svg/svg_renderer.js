@@ -14,12 +14,23 @@ gpub.diagrams.svg.Renderer.prototype = {
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
-    var svg = glift.svg.svg();
-    var spacing = 20; // intersection spacing in pixels.
+    var spacing = opt.intersectionSpacing || 40;
     var bps = glift.flattener.BoardPoints.fromFlattened(flat, 20);
     var data = bps.data();
     var board = flat.board();
     var sym = glift.flattener.symbols;
+
+    var svg = glift.svg.svg()
+      .setStyle(
+        '.bs { fill: black; }\n' +
+        '.ws { stroke: black; }\n' +
+        '.cl {\n' +
+        '  stroke-linecap: round;\n' +
+        '  stroke: black;\n' +
+        '  stroke-width: 1;\n' +
+        '}\n'
+      )
+
     for (var i = 0; i < data.length; i++) {
       var bpt = data[i];
       var ion = board.getIntBoardPt(bpt.intPt);
