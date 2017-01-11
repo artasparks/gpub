@@ -14,22 +14,14 @@ gpub.diagrams.svg.Renderer.prototype = {
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
-    var spacing = opt.intersectionSpacing || 40;
-    var bps = glift.flattener.BoardPoints.fromFlattened(flat, 20);
+    var spacing = opt.goIntersectionSize || 40;
+    var bps = glift.flattener.BoardPoints.fromFlattened(flat, spacing);
     var data = bps.data();
     var board = flat.board();
     var sym = glift.flattener.symbols;
 
     var svg = glift.svg.svg()
-      .setStyle(
-        '.bs { fill: black; }\n' +
-        '.ws { stroke: black; }\n' +
-        '.cl {\n' +
-        '  stroke-linecap: round;\n' +
-        '  stroke: black;\n' +
-        '  stroke-width: 1;\n' +
-        '}\n'
-      )
+      .setStyle(gpub.diagrams.svg.style(flat));
 
     for (var i = 0; i < data.length; i++) {
       var bpt = data[i];
@@ -41,8 +33,8 @@ gpub.diagrams.svg.Renderer.prototype = {
           stoneCol = glift.enums.states.BLACK;
         }
         gpub.diagrams.svg.stone(svg, bps, bpt, stoneCol);
-      } else {
-        // Render lines/starpoints if there's no stone.
+      } else if (!ion.textLabel()) {
+        // Render lines/starpoints if there's no stone && no text-label intersection
         gpub.diagrams.svg.lines(svg, bps, bpt);
         if (ion.base() == sym.CENTER_STARPOINT) {
           gpub.diagrams.svg.starpoint(svg, bps, bpt);

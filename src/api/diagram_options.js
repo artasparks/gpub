@@ -73,19 +73,12 @@ gpub.api.DiagramOptions = function(opt_options) {
    * is, and if it's undefined, the particular diagram type will pick the
    * default.
    *
-   * Note: If this is a number, we assume the size is in pt. Otherwise units
-   * are required: 12pt, 12mm, 1.2in, etc.
+   * Note: If this is a number, we assume the size is in pt for .tex diagrams
+   * and pixels for rendered diagrams. Otherwise units are required: 12pt,
+   * 12mm, 1.2in, etc.
    * @const {number|string|undefined}
    */
   this.goIntersectionSize = o.goIntersectionSize || undefined;
-
-  /**
-   * Very similar to goIntersectionSize: Species the distance between
-   * intersections for diagrams that are rendered (EPS, SVG, PDF, etc.).
-   *
-   * Typically in pixels.
-   */
-  this.intersectionSpacing = o.intersectionSpacing || undefined;
 
   /**
    * Option-overrides for specific diagram types.

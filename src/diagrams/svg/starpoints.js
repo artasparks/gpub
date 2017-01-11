@@ -13,5 +13,5 @@ gpub.diagrams.svg.starpoint = function(svg, bps, bpt) {
     .setAttr('cx', coordPt.x())
     .setAttr('cy', coordPt.y())
     .setAttr('r', size)
-    .setAttr('fill', 'black'));
+    .setAttr('class', 'sp'));
 };

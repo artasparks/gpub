@@ -8,41 +8,70 @@
  * @param {!glift.flattener.BoardPt} bpt
  */
 gpub.diagrams.svg.lines = function(svg, boardPoints, bpt) {
-  svg.append(glift.svg.path()
-    .setAttr('class', 'cl')
-    .setAttr('d', gpub.diagrams.svg.intersectionLine(
-        bpt, boardPoints.radius, boardPoints.numIntersections)));
+  gpub.diagrams.svg.intersectionLine(
+    svg, bpt, boardPoints.radius, boardPoints.numIntersections);
 };
 
 /**
  * @param {!glift.flattener.BoardPt} boardPt
  * @param {!number} radius Size of the space between the lines
- * @param {!number} numIntersections Number of intersecitons on the board.
+ * @param {!number} numIntersections Number of intersections on the board.
  */
 gpub.diagrams.svg.intersectionLine = function(
-    boardPt, radius, numIntersections) {
+    svg, boardPt, radius, numIntersections) {
   // minIntersects: 0 indexed,
   // maxIntersects: 0 indexed,
   // numIntersections: 1 indexed (it's the number of intersections)
   var minIntersects = 0,
       maxIntersects = numIntersections - 1,
       coordinate = boardPt.coordPt,
-      intersection = boardPt.intPt,
+      intPt = boardPt.intPt,
       svgpath = glift.svg.pathutils;
-  var top = intersection.y() === minIntersects ?
+  var top = intPt.y() === minIntersects ?
       coordinate.y() : coordinate.y() - radius;
-  var bottom = intersection.y() === maxIntersects ?
+  var bottom = intPt.y() === maxIntersects ?
       coordinate.y() : coordinate.y() + radius;
-  var left = intersection.x() === minIntersects ?
+  var left = intPt.x() === minIntersects ?
       coordinate.x() : coordinate.x() - radius;
-  var right = intersection.x() === maxIntersects ?
+  var right = intPt.x() === maxIntersects ?
       coordinate.x() : coordinate.x() + radius;
-  var line =
+
+  var vline =
       // Vertical Line
       svgpath.move(coordinate.x(), top) + ' '
-      + svgpath.lineAbs(coordinate.x(), bottom) + ' '
+      + svgpath.lineAbs(coordinate.x(), bottom);
+
+  var hline =
       // Horizontal Line
-      + svgpath.move(left, coordinate.y()) + ' '
+      svgpath.move(left, coordinate.y()) + ' '
       + svgpath.lineAbs(right, coordinate.y());
-  return line;
+
+  if ((intPt.x() === minIntersects || intPt.x() === maxIntersects) &&
+      (intPt.y() === minIntersects || intPt.y() === maxIntersects)) {
+    // both are edge-lines (corner)
+    svg.append(glift.svg.path()
+      .setAttr('class', 'nl')
+      .setAttr('d', vline + ' ' + hline));
+  } else if (intPt.x() === minIntersects || intPt.x() === maxIntersects)  {
+    // v-line is an edge
+    svg.append(glift.svg.path()
+      .setAttr('class', 'el')
+      .setAttr('d', vline));
+    svg.append(glift.svg.path()
+      .setAttr('class', 'cl')
+      .setAttr('d', hline));
+  } else if (intPt.y() === minIntersects || intPt.y() === maxIntersects) {
+    // h-line is an edge
+    svg.append(glift.svg.path()
+      .setAttr('class', 'el')
+      .setAttr('d', hline));
+    svg.append(glift.svg.path()
+      .setAttr('class', 'cl')
+      .setAttr('d', vline));
+  } else {
+    // both are center-lines
+    svg.append(glift.svg.path()
+      .setAttr('class', 'cl')
+      .setAttr('d', vline + ' ' + hline));
+  }
 };
