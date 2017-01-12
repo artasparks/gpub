@@ -1,4 +1,5 @@
 var gpub = require('../../index.js')
+var ebook = require('./ebook.js')
 
 var fs = require('fs');
 

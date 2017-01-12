@@ -14,7 +14,7 @@ gpub.diagrams.svg.Renderer.prototype = {
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
-    var spz = opt.goIntersectionSize || 40;
+    var spz = opt.goIntersectionSize || 20;
     var spacing = gpub.util.size.parseSizeToPt(spz);
     var bps = glift.flattener.BoardPoints.fromFlattened(flat, spacing);
     var data = bps.data();
