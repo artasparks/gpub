@@ -9382,19 +9382,12 @@ gpub.api.DiagramOptions = function(opt_options) {
    * is, and if it's undefined, the particular diagram type will pick the
    * default.
    *
-   * Note: If this is a number, we assume the size is in pt. Otherwise units
-   * are required: 12pt, 12mm, 1.2in, etc.
+   * Note: If this is a number, we assume the size is in pt for .tex diagrams
+   * and pixels for rendered diagrams. Otherwise units are required: 12pt,
+   * 12mm, 1.2in, etc.
    * @const {number|string|undefined}
    */
   this.goIntersectionSize = o.goIntersectionSize || undefined;
-
-  /**
-   * Very similar to goIntersectionSize: Species the distance between
-   * intersections for diagrams that are rendered (EPS, SVG, PDF, etc.).
-   *
-   * Typically in pixels.
-   */
-  this.intersectionSpacing = o.intersectionSpacing || undefined;
 
   /**
    * Option-overrides for specific diagram types.
@@ -12828,43 +12821,72 @@ gpub.diagrams.svg = {
  * @param {!glift.flattener.BoardPt} bpt
  */
 gpub.diagrams.svg.lines = function(svg, boardPoints, bpt) {
-  svg.append(glift.svg.path()
-    .setAttr('class', 'cl')
-    .setAttr('d', gpub.diagrams.svg.intersectionLine(
-        bpt, boardPoints.radius, boardPoints.numIntersections)));
+  gpub.diagrams.svg.intersectionLine(
+    svg, bpt, boardPoints.radius, boardPoints.numIntersections);
 };
 
 /**
  * @param {!glift.flattener.BoardPt} boardPt
  * @param {!number} radius Size of the space between the lines
- * @param {!number} numIntersections Number of intersecitons on the board.
+ * @param {!number} numIntersections Number of intersections on the board.
  */
 gpub.diagrams.svg.intersectionLine = function(
-    boardPt, radius, numIntersections) {
+    svg, boardPt, radius, numIntersections) {
   // minIntersects: 0 indexed,
   // maxIntersects: 0 indexed,
   // numIntersections: 1 indexed (it's the number of intersections)
   var minIntersects = 0,
       maxIntersects = numIntersections - 1,
       coordinate = boardPt.coordPt,
-      intersection = boardPt.intPt,
+      intPt = boardPt.intPt,
       svgpath = glift.svg.pathutils;
-  var top = intersection.y() === minIntersects ?
+  var top = intPt.y() === minIntersects ?
       coordinate.y() : coordinate.y() - radius;
-  var bottom = intersection.y() === maxIntersects ?
+  var bottom = intPt.y() === maxIntersects ?
       coordinate.y() : coordinate.y() + radius;
-  var left = intersection.x() === minIntersects ?
+  var left = intPt.x() === minIntersects ?
       coordinate.x() : coordinate.x() - radius;
-  var right = intersection.x() === maxIntersects ?
+  var right = intPt.x() === maxIntersects ?
       coordinate.x() : coordinate.x() + radius;
-  var line =
+
+  var vline =
       // Vertical Line
       svgpath.move(coordinate.x(), top) + ' '
-      + svgpath.lineAbs(coordinate.x(), bottom) + ' '
+      + svgpath.lineAbs(coordinate.x(), bottom);
+
+  var hline =
       // Horizontal Line
-      + svgpath.move(left, coordinate.y()) + ' '
+      svgpath.move(left, coordinate.y()) + ' '
       + svgpath.lineAbs(right, coordinate.y());
-  return line;
+
+  if ((intPt.x() === minIntersects || intPt.x() === maxIntersects) &&
+      (intPt.y() === minIntersects || intPt.y() === maxIntersects)) {
+    // both are edge-lines (corner)
+    svg.append(glift.svg.path()
+      .setAttr('class', 'nl')
+      .setAttr('d', vline + ' ' + hline));
+  } else if (intPt.x() === minIntersects || intPt.x() === maxIntersects)  {
+    // v-line is an edge
+    svg.append(glift.svg.path()
+      .setAttr('class', 'el')
+      .setAttr('d', vline));
+    svg.append(glift.svg.path()
+      .setAttr('class', 'cl')
+      .setAttr('d', hline));
+  } else if (intPt.y() === minIntersects || intPt.y() === maxIntersects) {
+    // h-line is an edge
+    svg.append(glift.svg.path()
+      .setAttr('class', 'el')
+      .setAttr('d', hline));
+    svg.append(glift.svg.path()
+      .setAttr('class', 'cl')
+      .setAttr('d', vline));
+  } else {
+    // both are center-lines
+    svg.append(glift.svg.path()
+      .setAttr('class', 'cl')
+      .setAttr('d', vline + ' ' + hline));
+  }
 };
 
 /**
@@ -12929,12 +12951,12 @@ gpub.diagrams.svg.mark = function(
         .setAttr('x', coordPt.x()) // x and y are the anchor points.
         .setAttr('y', coordPt.y())
         .setAttr('font-size',
-            threeDigitMod * boardPoints.spacing * fontSizeMultip));
+            threeDigitMod * boardPoints.spacing * fontSizeMultip);
     if (strokeWidth != 1) {
-      textmark
-        .setAttr('stroke-width', strokeWidth)
+      textmark.setAttr('stroke-width', strokeWidth)
     }
     svg.append(textmark);
+
   } else if (mark === marks.SQUARE) {
     var baseDelta = boardPoints.radius / rootTwo;
     // If the square is right next to the stone edge, it doesn't look as nice
@@ -13062,14 +13084,15 @@ gpub.diagrams.svg.Renderer.prototype = {
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
-    var spacing = opt.intersectionSpacing || 40;
-    var bps = glift.flattener.BoardPoints.fromFlattened(flat, 20);
+    var spz = opt.goIntersectionSize || 40;
+    var spacing = gpub.util.size.parseSizeToPt(spz);
+    var bps = glift.flattener.BoardPoints.fromFlattened(flat, spacing);
     var data = bps.data();
     var board = flat.board();
     var sym = glift.flattener.symbols;
 
     var svg = glift.svg.svg()
-      .setStyle(this.svgStyle());
+      .setStyle(gpub.diagrams.svg.style(flat));
 
     for (var i = 0; i < data.length; i++) {
       var bpt = data[i];
@@ -13081,8 +13104,8 @@ gpub.diagrams.svg.Renderer.prototype = {
           stoneCol = glift.enums.states.BLACK;
         }
         gpub.diagrams.svg.stone(svg, bps, bpt, stoneCol);
-      } else {
-        // Render lines/starpoints if there's no stone.
+      } else if (!ion.textLabel()) {
+        // Render lines/starpoints if there's no stone && no text-label intersection
         gpub.diagrams.svg.lines(svg, bps, bpt);
         if (ion.base() == sym.CENTER_STARPOINT) {
           gpub.diagrams.svg.starpoint(svg, bps, bpt);
@@ -13096,64 +13119,6 @@ gpub.diagrams.svg.Renderer.prototype = {
       }
     }
     return svg.render();
-  },
-
-
-  /**
-   * Return the style modifications
-   * @return {string}
-   */
-  svgStyle: function() {
-    var out =
-    // Black Stone
-    '.bs { fill: black; }\n' +
-
-    // White Stone
-    '.ws { stroke: black; }\n' +
-
-    // Center line
-    '.cl {\n' +
-    '  stroke-linecap: round;\n' +
-    '  stroke: black;\n' +
-    '  stroke-width: 1;\n' +
-    '}\n'
-
-    // Starpoint
-    '.sp { fill: black; }\n' +
-
-    // Black Label
-    '.bl { \n' +
-    '  fill: black; \n' +
-    '  stroke: black; \n' +
-    '  text-anchor: middle;\n' +
-    '  font-family: sans-serif;\n' +
-    '  font-style: normal;\n' +
-    ' }\n' +
-
-    // White Label
-    '.wl { \n' +
-    '  fill: white; \n' +
-    '  stroke: white; \n' +
-    '  text-anchor: middle;\n' +
-    '  font-family: sans-serif;\n' +
-    '  font-style: normal;\n' +
-    '}\n' +
-
-    // Black mark
-    '.bm { \n' +
-    '  fill: none; \n' +
-    '  stroke-width: 2;\n' +
-    '  stroke: black;\n' +
-    '}\n' +
-
-    // White mark
-    '.wm { \n' +
-    '  fill: none; \n' +
-    '  stroke-width: 2;\n' +
-    '  stroke: white;\n' +
-    '}\n' +
-
-    return out;
   },
 
   /**
@@ -13173,6 +13138,82 @@ gpub.diagrams.svg.Renderer.prototype = {
 // Enabled the Renderer.
 gpub.diagrams.enabledRenderers['SVG'] = function() {
   return new gpub.diagrams.svg.Renderer();
+};
+
+/**
+ * Return the style modifications
+ * @param {!glift.flattener.Flattened} flat
+ * @return {string}
+ */
+gpub.diagrams.svg.style = function(flat) {
+  var out =
+    // Black Stone
+    '.bs { fill: black; }\n' +
+
+    // White Stone
+    '.ws { stroke: black; }\n' +
+
+    // Center line
+    '.cl {\n' +
+    '  stroke: black;\n' +
+    '  stroke-width: 1;\n' +
+    '}\n' +
+
+    // Edge line
+    '.el {\n' +
+    '  stroke: black;\n' +
+    '  stroke-width: 2.5;\n' +
+    '}\n' +
+
+    // corner line
+    '.nl {\n' +
+    '  stroke-linecap: round;\n' +
+    '  stroke: black;\n' +
+    '  stroke-width: 2.5;\n' +
+    '}\n' +
+
+    // Starpoint
+    '.sp { fill: black; }\n';
+
+  if (Object.keys(flat.labels()).length > 0) {
+    out +=
+      // Black Label
+      '.bl {\n' +
+      '  fill: black;\n' +
+      '  stroke: black;\n' +
+      '  text-anchor: middle;\n' +
+      '  font-family: sans-serif;\n' +
+      '  font-style: normal;\n' +
+      ' }\n' +
+
+      // White Label
+      '.wl {\n' +
+      '  fill: white;\n' +
+      '  stroke: white;\n' +
+      '  text-anchor: middle;\n' +
+      '  font-family: sans-serif;\n' +
+      '  font-style: normal;\n' +
+      '}\n';
+  }
+
+  if (Object.keys(flat.labels()).length > 0) {
+    out +=
+      // Black mark
+      '.bm {\n' +
+      '  fill: none;\n' +
+      '  stroke-width: 2;\n' +
+      '  stroke: black;\n' +
+      '}\n' +
+
+      // White mark
+      '.wm {\n' +
+      '  fill: none;\n' +
+      '  stroke-width: 2;\n' +
+      '  stroke: white;\n' +
+      '}\n';
+  }
+
+  return out;
 };
 
 goog.provide('gpub.util');
