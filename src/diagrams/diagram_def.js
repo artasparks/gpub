@@ -9,6 +9,7 @@ goog.provide('gpub.diagrams.Rendered');
  * @typedef {{
  *  id: string,
  *  rendered: string,
+ *  fileSuffix: string
  * }}
  */
 gpub.diagrams.Diagram;

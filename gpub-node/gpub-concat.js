@@ -10925,6 +10925,7 @@ goog.provide('gpub.diagrams.Rendered');
  * @typedef {{
  *  id: string,
  *  rendered: string,
+ *  fileSuffix: string
  * }}
  */
 gpub.diagrams.Diagram;
@@ -11025,12 +11026,16 @@ gpub.diagrams.Type = {
 
   /////////////////////////////
   // Morass of planned types //
+  /////////////////////////////
 
   /**
    * Native PDF generation
    * >> Not Currently Supported, but here for illustration.
    */
   //PDF: 'PDF',
+
+  //EPS: 'EPS',
+
   /**
    * Sensei's library ASCII variant.
    */
@@ -11041,6 +11046,17 @@ gpub.diagrams.Type = {
    */
   //GPUB_ASCII: 'GPUB_ASCII',
 };
+
+/**
+ * Map from diagram type to file suffix.
+ * @type {!Object<gpub.diagrams.Type, string>}
+ */
+gpub.diagrams.fileSuffix = {};
+gpub.diagrams.fileSuffix[gpub.diagrams.Type.GOOE] = 'tex';
+gpub.diagrams.fileSuffix[gpub.diagrams.Type.GNOS] = 'tex';
+gpub.diagrams.fileSuffix[gpub.diagrams.Type.IGO] = 'tex';
+gpub.diagrams.fileSuffix[gpub.diagrams.Type.SMARTGO] = 'gobook';
+gpub.diagrams.fileSuffix[gpub.diagrams.Type.SVG] = 'svg';
 
 goog.provide('gpub.diagrams.Renderer');
 
@@ -11219,9 +11235,11 @@ gpub.diagrams.Renderer.prototype = {
     };
     var flattened = glift.flattener.flatten(mt, flattenOpts);
     var dr = this.diagramRenderer();
+    var suffix = gpub.diagrams.fileSuffix[this.diagramType()] || 'unknown';
     var diagram = {
       id: pos.id,
       rendered: dr.render(flattened, this.opts_),
+      fileSuffix: suffix,
     };
     var metadata = {
       id: pos.id,

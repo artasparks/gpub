@@ -35,12 +35,16 @@ gpub.diagrams.Type = {
 
   /////////////////////////////
   // Morass of planned types //
+  /////////////////////////////
 
   /**
    * Native PDF generation
    * >> Not Currently Supported, but here for illustration.
    */
   //PDF: 'PDF',
+
+  //EPS: 'EPS',
+
   /**
    * Sensei's library ASCII variant.
    */
@@ -51,3 +55,14 @@ gpub.diagrams.Type = {
    */
   //GPUB_ASCII: 'GPUB_ASCII',
 };
+
+/**
+ * Map from diagram type to file suffix.
+ * @type {!Object<gpub.diagrams.Type, string>}
+ */
+gpub.diagrams.fileSuffix = {};
+gpub.diagrams.fileSuffix[gpub.diagrams.Type.GOOE] = 'tex';
+gpub.diagrams.fileSuffix[gpub.diagrams.Type.GNOS] = 'tex';
+gpub.diagrams.fileSuffix[gpub.diagrams.Type.IGO] = 'tex';
+gpub.diagrams.fileSuffix[gpub.diagrams.Type.SMARTGO] = 'gobook';
+gpub.diagrams.fileSuffix[gpub.diagrams.Type.SVG] = 'svg';
