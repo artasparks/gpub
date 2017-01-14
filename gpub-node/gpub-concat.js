@@ -13418,7 +13418,6 @@ gpub.util.size = {
 goog.provide('gpub.book');
 
 gpub.book = {
-
 };
 
 goog.provide('gpub.book.BookMaker');
@@ -13785,6 +13784,104 @@ pd[ps.FIVEFIVE_EIGHTFIVE] = {
 };
 
 })  // goog.scope
+
+goog.provide('gpub.book.epub');
+
+/**
+ * Tools for generating EPub ebooks.
+ */
+gpub.book.epub = {};
+
+goog.provide('gpub.book.epub.EpubOptions');
+
+/**
+ * @param {!gpub.book.epub.EpubOptions=} opt_o
+ * @constructor @struct @final
+ */
+gpub.book.epub.EpubOptions = function(opt_o) {
+  var o = opt_o || {};
+
+  if (!o.id) {
+    throw new Error('Id was not defined. Options were: ' +
+        JSON.stringify(o))
+  }
+
+  /**
+   * Should be an ISBN, if it's available.
+   * @type {string}
+   */
+  this.id = o.id;
+
+  /** @type {string} */
+  this.isbn = o.isbn || '';
+
+  /**
+   * URI Identifier.
+   * @type {string}
+   */
+  this.uriId = o.uriId || 'http://github.com/Kashomon/gpub';
+
+  /** @type {string}  */
+  this.title = o.title || 'My Go Book';
+
+  /** @type {string} */
+  this.lang = o.lang || 'en';
+
+  /** @type {string} */
+  this.subject = o.subject || 'Go, Baduk, Wei-qi, Board Games, Strategy Games';
+
+  /** @type {string} */
+  this.description = o.description || 'A Go book!';
+
+  /** @type {string} */
+  this.rights = o.rights || 'All Rights Reserved.'
+
+  /** @type {string} */
+  this.publisher = o.publisher || '';
+
+  /** @type {string} */
+  this.creator = o.creator || ''; // AKA Author.
+
+  /** @type {string} */
+  this.relation = o.relation || 'http://github.com/Kashomon/gpub';
+
+  var dpad = function(dnum) {
+    return dnum < 10 ? '0' + dnum : '' + dnum;
+  }
+  var d = new Date();
+  /**
+   * ISO 8601 Date String
+   * @type {string}
+   */
+  this.date = o.date || (d.getUTCFullYear() +
+      '-' + dpad(d.getUTCMonth() + 1) +
+      '-' + dpad(d.getUTCDate()));
+};
+
+/**
+ * General comments:
+ *
+ * Some tools:
+ * - Kindle-gen tool: https://www.amazon.com/gp/feature.html?docId=1000765211
+ * - Epub-checking tool: https://github.com/IDPF/epubcheck
+ *
+ * Some resources:
+ * - Kindle format: https://www.amazon.com/gp/feature.html?docId=1000729511
+ * - Epub wikipedia: https://en.wikipedia.org/wiki/EPUB
+ * - Worked Epub example: http://www.hxa.name/articles/content/epub-guide_hxa7241_2007.html
+ *
+ * Specs:
+ * - EPub SVG Spec: http://www.idpf.org/epub/301/spec/epub-contentdocs.html#sec-svg
+ * - EPub Standard: http://idpf.org/epub
+ * - EPub 3.0.1 standard: http://idpf.org/epub/301
+ * - EPub OPF Spec: http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
+ *
+ * Note: currently no sanitization is done on inputs, so you must trust your inputs.
+ */
+gpub.book.epub.opsFiles = {
+
+};
+
 
 goog.provide('gpub.book.latex');
 goog.provide('gpub.book.latex.LatexHelper');
