@@ -1,5 +1,5 @@
 (function() {
-  module('glift.page.epubOptionsTest');
+  module('gpub.book.epub.epubOptionsTest');
 
   test('That options can be constructed', function() {
     var o = new gpub.book.epub.EpubOptions({
