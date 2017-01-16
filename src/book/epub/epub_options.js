@@ -1,6 +1,9 @@
 goog.provide('gpub.book.epub.EpubOptions');
 
+// TODO(kashomon): Generalize this and/or combine with book options.
+
 /**
+ * Options for ebook generation.
  * @param {!gpub.book.epub.EpubOptions=} opt_o
  * @constructor @struct @final
  */
@@ -8,7 +11,12 @@ gpub.book.epub.EpubOptions = function(opt_o) {
   var o = opt_o || {};
 
   if (!o.id) {
-    throw new Error('Id was not defined. Options were: ' +
+    throw new Error('Id was not defined. Options provided were: ' +
+        JSON.stringify(o))
+  }
+
+  if (!o.title) {
+    throw new Error('Title was not defined. Options provided were: ' +
         JSON.stringify(o))
   }
 
@@ -28,7 +36,7 @@ gpub.book.epub.EpubOptions = function(opt_o) {
   this.uriId = o.uriId || 'http://github.com/Kashomon/gpub';
 
   /** @type {string}  */
-  this.title = o.title || 'My Go Book';
+  this.title = o.title || '';
 
   /** @type {string} */
   this.lang = o.lang || 'en';
@@ -37,7 +45,7 @@ gpub.book.epub.EpubOptions = function(opt_o) {
   this.subject = o.subject || 'Go, Baduk, Wei-qi, Board Games, Strategy Games';
 
   /** @type {string} */
-  this.description = o.description || 'A Go book!';
+  this.description = o.description || '';
 
   /** @type {string} */
   this.rights = o.rights || 'All Rights Reserved.'
@@ -59,7 +67,16 @@ gpub.book.epub.EpubOptions = function(opt_o) {
    * ISO 8601 Date String
    * @type {string}
    */
-  this.date = o.date || (d.getUTCFullYear() +
+  this.generationDate = o.generationDate || (d.getUTCFullYear() +
       '-' + dpad(d.getUTCMonth() + 1) +
       '-' + dpad(d.getUTCDate()));
+
+  /** @type {string} */
+  this.publicationDate = o.publicationDate || '';
+  if (this.publicationDate && (
+      !/\d\d\d\d/.test(this.publicationDate) ||
+      !/\d\d\d\d-\d\d-\d\d/.test(this.publicationDate))) {
+    throw new Error('Publication date must have the form YYYY-MM-DD. ' +
+        'Was: ' + this.publicationDate);
+  }
 };
