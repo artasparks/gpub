@@ -29,7 +29,7 @@ intermediate representation and for the ultimate rendering diagrams for print
    is gnos.
 3. Install [NodeJS](https://nodejs.org/)
 4. Use NPM to install `gpub-go`. See
-   [GPub-Examples](www.github.com/Kashomon/gpub-examples) for some worked
+   [GPub-Examples](https://www.github.com/Kashomon/gpub-examples) for some worked
    examples how to use GPub.
 
 ## --Deprecated Information--
