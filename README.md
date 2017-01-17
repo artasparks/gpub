@@ -4,7 +4,7 @@
 
 ## Overview
 
-<img src="https://cdn.rawgit.com/Kashomon/gpub/master/marks-demo.svg" width="100%" height="100%">
+<img src="https://cdn.rawgit.com/Kashomon/gpub/master/marks-demo.svg" width="100%">
 
 _Note: GPub is under active development and users may find unexpected API-breaking
 changes until a 1.0.0 release occurs_
@@ -15,8 +15,8 @@ quickly making high-quality books without the need for auxilary software.
 Currently, I am working to support generating books in 3 formats: PDF (for
 print), GoBooks (SmartGo), and EPub (Ebooks).
 
-GPub that relies on the same Go logic that [Glift](www.gliftgo.com) uses. This
-library (called [glift-core](github.com/Kashomon/glift-core) is is responsible
+GPub that relies on the same Go logic that [Glift](http://www.gliftgo.com) uses. This
+library (called [glift-core](https://github.com/Kashomon/glift-core) is is responsible
 for providing an understanding of Go files and generated a flattened
 representation of a go position, while GPub is responsible for generating an
 intermediate representation and for the ultimate rendering diagrams for print
