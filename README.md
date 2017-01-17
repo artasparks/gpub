@@ -4,7 +4,7 @@
 
 ## Overview
 
-<img src="marks-demo.svg" width="100%">
+<img src="https://rawgithub.com/Kashomon/gpub/blob/master/marks-demo.svg" width="100%">
 
 _Note: GPub is under active development and users may find unexpected API-breaking
 changes until a 1.0.0 release occurs_
