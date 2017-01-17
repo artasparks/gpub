@@ -4,7 +4,7 @@
 
 ## Overview
 
-![Marks Demo](/marks-demo.svg)
+<img src="marks-demo.svg" width="100%">
 
 _Note: GPub is under active development and users may find unexpected API-breaking
 changes until a 1.0.0 release occurs_
