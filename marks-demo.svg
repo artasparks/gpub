@@ -1,0 +1,495 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+<style>
+/* <![CDATA[ */
+.bs { fill: black; }
+.ws { stroke: black; }
+.cl {
+  stroke: black;
+  stroke-width: 1;
+}
+.el {
+  stroke: black;
+  stroke-width: 2.5;
+}
+.nl {
+  stroke-linecap: round;
+  stroke: black;
+  stroke-width: 2.5;
+}
+.sp { fill: black; }
+.bl {
+  fill: black;
+  stroke: black;
+  text-anchor: middle;
+  font-family: sans-serif;
+  font-style: normal;
+ }
+.wl {
+  fill: white;
+  stroke: white;
+  text-anchor: middle;
+  font-family: sans-serif;
+  font-style: normal;
+}
+.bm {
+  fill: none;
+  stroke-width: 2;
+  stroke: black;
+}
+.wm {
+  fill: none;
+  stroke-width: 2;
+  stroke: white;
+}
+
+/* ]]> */
+</style>
+
+<path class="nl" d="M20 20 L20 40 M20 20 L40 20"></path>
+<path class="el" d="M20 40 L20 80"></path>
+<path class="cl" d="M20 60 L40 60"></path>
+<path class="el" d="M20 80 L20 120"></path>
+<path class="cl" d="M20 100 L40 100"></path>
+<path class="el" d="M20 120 L20 160"></path>
+<path class="cl" d="M20 140 L40 140"></path>
+<path class="el" d="M20 160 L20 200"></path>
+<path class="cl" d="M20 180 L40 180"></path>
+<path class="el" d="M20 200 L20 240"></path>
+<path class="cl" d="M20 220 L40 220"></path>
+<path class="el" d="M20 240 L20 280"></path>
+<path class="cl" d="M20 260 L40 260"></path>
+<path class="el" d="M20 280 L20 320"></path>
+<path class="cl" d="M20 300 L40 300"></path>
+<path class="el" d="M20 320 L20 360"></path>
+<path class="cl" d="M20 340 L40 340"></path>
+<path class="el" d="M20 360 L20 400"></path>
+<path class="cl" d="M20 380 L40 380"></path>
+<path class="el" d="M20 400 L20 440"></path>
+<path class="cl" d="M20 420 L40 420"></path>
+<path class="el" d="M20 440 L20 480"></path>
+<path class="cl" d="M20 460 L40 460"></path>
+<path class="el" d="M20 480 L20 520"></path>
+<path class="cl" d="M20 500 L40 500"></path>
+<path class="el" d="M20 520 L20 560"></path>
+<path class="cl" d="M20 540 L40 540"></path>
+<path class="el" d="M20 560 L20 600"></path>
+<path class="cl" d="M20 580 L40 580"></path>
+<path class="el" d="M20 600 L20 640"></path>
+<path class="cl" d="M20 620 L40 620"></path>
+<path class="el" d="M20 640 L20 680"></path>
+<path class="cl" d="M20 660 L40 660"></path>
+<path class="el" d="M20 680 L20 720"></path>
+<path class="cl" d="M20 700 L40 700"></path>
+<path class="nl" d="M20 720 L20 740 M20 740 L40 740"></path>
+<path class="el" d="M40 20 L80 20"></path>
+<path class="cl" d="M60 20 L60 40"></path>
+<path class="cl" d="M60 40 L60 80 M40 60 L80 60"></path>
+<path class="cl" d="M60 80 L60 120 M40 100 L80 100"></path>
+<path class="cl" d="M60 120 L60 160 M40 140 L80 140"></path>
+<path class="cl" d="M60 160 L60 200 M40 180 L80 180"></path>
+<path class="cl" d="M60 200 L60 240 M40 220 L80 220"></path>
+<path class="cl" d="M60 240 L60 280 M40 260 L80 260"></path>
+<path class="cl" d="M60 280 L60 320 M40 300 L80 300"></path>
+<path class="cl" d="M60 320 L60 360 M40 340 L80 340"></path>
+<path class="cl" d="M60 360 L60 400 M40 380 L80 380"></path>
+<path class="cl" d="M60 400 L60 440 M40 420 L80 420"></path>
+<path class="cl" d="M60 440 L60 480 M40 460 L80 460"></path>
+<path class="cl" d="M60 480 L60 520 M40 500 L80 500"></path>
+<path class="cl" d="M60 520 L60 560 M40 540 L80 540"></path>
+<path class="cl" d="M60 560 L60 600 M40 580 L80 580"></path>
+<path class="cl" d="M60 600 L60 640 M40 620 L80 620"></path>
+<path class="cl" d="M60 640 L60 680 M40 660 L80 660"></path>
+<path class="cl" d="M60 680 L60 720 M40 700 L80 700"></path>
+<path class="el" d="M40 740 L80 740"></path>
+<path class="cl" d="M60 720 L60 740"></path>
+<path class="el" d="M80 20 L120 20"></path>
+<path class="cl" d="M100 20 L100 40"></path>
+<path class="cl" d="M100 40 L100 80 M80 60 L120 60"></path>
+<path class="cl" d="M100 80 L100 120 M80 100 L120 100"></path>
+<path class="cl" d="M100 120 L100 160 M80 140 L120 140"></path>
+<path class="cl" d="M100 160 L100 200 M80 180 L120 180"></path>
+<path class="cl" d="M100 200 L100 240 M80 220 L120 220"></path>
+<path class="cl" d="M100 240 L100 280 M80 260 L120 260"></path>
+<path class="cl" d="M100 280 L100 320 M80 300 L120 300"></path>
+<path class="cl" d="M100 320 L100 360 M80 340 L120 340"></path>
+<path class="cl" d="M100 360 L100 400 M80 380 L120 380"></path>
+<path class="cl" d="M100 400 L100 440 M80 420 L120 420"></path>
+<path class="cl" d="M100 440 L100 480 M80 460 L120 460"></path>
+<path class="cl" d="M100 480 L100 520 M80 500 L120 500"></path>
+<path class="cl" d="M100 520 L100 560 M80 540 L120 540"></path>
+<path class="cl" d="M100 560 L100 600 M80 580 L120 580"></path>
+<path class="cl" d="M100 600 L100 640 M80 620 L120 620"></path>
+<path class="cl" d="M100 640 L100 680 M80 660 L120 660"></path>
+<path class="cl" d="M100 680 L100 720 M80 700 L120 700"></path>
+<path class="el" d="M80 740 L120 740"></path>
+<path class="cl" d="M100 720 L100 740"></path>
+<path class="el" d="M120 20 L160 20"></path>
+<path class="cl" d="M140 20 L140 40"></path>
+<path class="cl" d="M140 40 L140 80 M120 60 L160 60"></path>
+<path class="cl" d="M140 80 L140 120 M120 100 L160 100"></path>
+<path class="cl" d="M140 120 L140 160 M120 140 L160 140"></path>
+<circle cx="140" cy="140" r="6" class="sp"></circle>
+<path class="cl" d="M140 160 L140 200 M120 180 L160 180"></path>
+<path class="cl" d="M140 200 L140 240 M120 220 L160 220"></path>
+<path class="cl" d="M140 240 L140 280 M120 260 L160 260"></path>
+<path class="cl" d="M140 280 L140 320 M120 300 L160 300"></path>
+<path class="cl" d="M140 320 L140 360 M120 340 L160 340"></path>
+<path class="cl" d="M140 360 L140 400 M120 380 L160 380"></path>
+<circle cx="140" cy="380" r="6" class="sp"></circle>
+<path class="cl" d="M140 400 L140 440 M120 420 L160 420"></path>
+<path class="cl" d="M140 440 L140 480 M120 460 L160 460"></path>
+<path class="cl" d="M140 480 L140 520 M120 500 L160 500"></path>
+<path class="cl" d="M140 520 L140 560 M120 540 L160 540"></path>
+<path class="cl" d="M140 560 L140 600 M120 580 L160 580"></path>
+<path class="cl" d="M140 600 L140 640 M120 620 L160 620"></path>
+<circle cx="140" cy="620" r="6" class="sp"></circle>
+<path class="cl" d="M140 640 L140 680 M120 660 L160 660"></path>
+<path class="cl" d="M140 680 L140 720 M120 700 L160 700"></path>
+<path class="el" d="M120 740 L160 740"></path>
+<path class="cl" d="M140 720 L140 740"></path>
+<path class="el" d="M160 20 L200 20"></path>
+<path class="cl" d="M180 20 L180 40"></path>
+<path class="cl" d="M180 40 L180 80 M160 60 L200 60"></path>
+<path class="cl" d="M180 80 L180 120 M160 100 L200 100"></path>
+<path class="cl" d="M180 120 L180 160 M160 140 L200 140"></path>
+<path class="cl" d="M180 160 L180 200 M160 180 L200 180"></path>
+<path class="cl" d="M180 200 L180 240 M160 220 L200 220"></path>
+<path class="cl" d="M180 240 L180 280 M160 260 L200 260"></path>
+<path class="cl" d="M180 280 L180 320 M160 300 L200 300"></path>
+<path class="cl" d="M180 320 L180 360 M160 340 L200 340"></path>
+<path class="cl" d="M180 360 L180 400 M160 380 L200 380"></path>
+<path class="cl" d="M180 400 L180 440 M160 420 L200 420"></path>
+<path class="cl" d="M180 440 L180 480 M160 460 L200 460"></path>
+<path class="cl" d="M180 480 L180 520 M160 500 L200 500"></path>
+<path class="cl" d="M180 520 L180 560 M160 540 L200 540"></path>
+<path class="cl" d="M180 560 L180 600 M160 580 L200 580"></path>
+<path class="cl" d="M180 600 L180 640 M160 620 L200 620"></path>
+<path class="cl" d="M180 640 L180 680 M160 660 L200 660"></path>
+<path class="cl" d="M180 680 L180 720 M160 700 L200 700"></path>
+<path class="el" d="M160 740 L200 740"></path>
+<path class="cl" d="M180 720 L180 740"></path>
+<path class="el" d="M200 20 L240 20"></path>
+<path class="cl" d="M220 20 L220 40"></path>
+<path class="cl" d="M220 40 L220 80 M200 60 L240 60"></path>
+<path class="cl" d="M220 80 L220 120 M200 100 L240 100"></path>
+<path class="cl" d="M220 120 L220 160 M200 140 L240 140"></path>
+<path class="cl" d="M220 160 L220 200 M200 180 L240 180"></path>
+<path class="cl" d="M220 200 L220 240 M200 220 L240 220"></path>
+<path class="cl" d="M220 240 L220 280 M200 260 L240 260"></path>
+<path class="cl" d="M220 280 L220 320 M200 300 L240 300"></path>
+<path class="cl" d="M220 320 L220 360 M200 340 L240 340"></path>
+<path class="cl" d="M220 360 L220 400 M200 380 L240 380"></path>
+<path class="cl" d="M220 400 L220 440 M200 420 L240 420"></path>
+<path class="cl" d="M220 440 L220 480 M200 460 L240 460"></path>
+<path class="cl" d="M220 480 L220 520 M200 500 L240 500"></path>
+<path class="cl" d="M220 520 L220 560 M200 540 L240 540"></path>
+<path class="cl" d="M220 560 L220 600 M200 580 L240 580"></path>
+<path class="cl" d="M220 600 L220 640 M200 620 L240 620"></path>
+<path class="cl" d="M220 640 L220 680 M200 660 L240 660"></path>
+<path class="cl" d="M220 680 L220 720 M200 700 L240 700"></path>
+<path class="el" d="M200 740 L240 740"></path>
+<path class="cl" d="M220 720 L220 740"></path>
+<path class="el" d="M240 20 L280 20"></path>
+<path class="cl" d="M260 20 L260 40"></path>
+<path class="cl" d="M260 40 L260 80 M240 60 L280 60"></path>
+<path class="cl" d="M260 80 L260 120 M240 100 L280 100"></path>
+<path class="cl" d="M260 120 L260 160 M240 140 L280 140"></path>
+<path class="cl" d="M260 160 L260 200 M240 180 L280 180"></path>
+<path class="cl" d="M260 200 L260 240 M240 220 L280 220"></path>
+<path class="cl" d="M260 240 L260 280 M240 260 L280 260"></path>
+<path class="cl" d="M260 280 L260 320 M240 300 L280 300"></path>
+<path class="cl" d="M260 320 L260 360 M240 340 L280 340"></path>
+<path class="cl" d="M260 360 L260 400 M240 380 L280 380"></path>
+<path class="cl" d="M260 400 L260 440 M240 420 L280 420"></path>
+<path class="cl" d="M260 440 L260 480 M240 460 L280 460"></path>
+<path class="cl" d="M260 480 L260 520 M240 500 L280 500"></path>
+<path class="cl" d="M260 520 L260 560 M240 540 L280 540"></path>
+<path class="cl" d="M260 560 L260 600 M240 580 L280 580"></path>
+<path class="cl" d="M260 600 L260 640 M240 620 L280 620"></path>
+<path class="cl" d="M260 640 L260 680 M240 660 L280 660"></path>
+<path class="cl" d="M260 680 L260 720 M240 700 L280 700"></path>
+<path class="el" d="M240 740 L280 740"></path>
+<path class="cl" d="M260 720 L260 740"></path>
+<path class="el" d="M280 20 L320 20"></path>
+<path class="cl" d="M300 20 L300 40"></path>
+<path class="cl" d="M300 40 L300 80 M280 60 L320 60"></path>
+<path class="cl" d="M300 80 L300 120 M280 100 L320 100"></path>
+<path class="cl" d="M300 120 L300 160 M280 140 L320 140"></path>
+<path class="cl" d="M300 160 L300 200 M280 180 L320 180"></path>
+<path class="cl" d="M300 200 L300 240 M280 220 L320 220"></path>
+<path class="cl" d="M300 240 L300 280 M280 260 L320 260"></path>
+<path class="cl" d="M300 280 L300 320 M280 300 L320 300"></path>
+<path class="cl" d="M300 320 L300 360 M280 340 L320 340"></path>
+<path class="cl" d="M300 360 L300 400 M280 380 L320 380"></path>
+<path class="cl" d="M300 400 L300 440 M280 420 L320 420"></path>
+<path class="cl" d="M300 440 L300 480 M280 460 L320 460"></path>
+<path class="cl" d="M300 480 L300 520 M280 500 L320 500"></path>
+<path class="cl" d="M300 520 L300 560 M280 540 L320 540"></path>
+<path class="cl" d="M300 560 L300 600 M280 580 L320 580"></path>
+<path class="cl" d="M300 600 L300 640 M280 620 L320 620"></path>
+<path class="cl" d="M300 640 L300 680 M280 660 L320 660"></path>
+<path class="cl" d="M300 680 L300 720 M280 700 L320 700"></path>
+<path class="el" d="M280 740 L320 740"></path>
+<path class="cl" d="M300 720 L300 740"></path>
+<path class="el" d="M320 20 L360 20"></path>
+<path class="cl" d="M340 20 L340 40"></path>
+<path class="cl" d="M340 40 L340 80 M320 60 L360 60"></path>
+<path class="cl" d="M340 80 L340 120 M320 100 L360 100"></path>
+<path class="cl" d="M340 120 L340 160 M320 140 L360 140"></path>
+<path class="cl" d="M340 160 L340 200 M320 180 L360 180"></path>
+<path class="cl" d="M340 200 L340 240 M320 220 L360 220"></path>
+<path class="cl" d="M340 240 L340 280 M320 260 L360 260"></path>
+<path class="cl" d="M340 280 L340 320 M320 300 L360 300"></path>
+<path class="cl" d="M340 320 L340 360 M320 340 L360 340"></path>
+<path class="cl" d="M340 360 L340 400 M320 380 L360 380"></path>
+<path class="cl" d="M340 400 L340 440 M320 420 L360 420"></path>
+<path class="cl" d="M340 440 L340 480 M320 460 L360 460"></path>
+<path class="cl" d="M340 480 L340 520 M320 500 L360 500"></path>
+<path class="cl" d="M340 520 L340 560 M320 540 L360 540"></path>
+<path class="cl" d="M340 560 L340 600 M320 580 L360 580"></path>
+<path class="cl" d="M340 600 L340 640 M320 620 L360 620"></path>
+<path class="cl" d="M340 640 L340 680 M320 660 L360 660"></path>
+<path class="cl" d="M340 680 L340 720 M320 700 L360 700"></path>
+<path class="el" d="M320 740 L360 740"></path>
+<path class="cl" d="M340 720 L340 740"></path>
+<circle cx="380" cy="20" fill="white" class="ws" r="19.6"></circle>
+<circle cx="380" cy="60" fill="black" r="20" class="bs"></circle>
+<path class="cl" d="M380 80 L380 120 M360 100 L400 100"></path>
+<path class="cl" d="M380 120 L380 160 M360 140 L400 140"></path>
+<circle cx="380" cy="140" r="6" class="sp"></circle>
+<path class="cl" d="M380 160 L380 200 M360 180 L400 180"></path>
+<path class="cl" d="M380 200 L380 240 M360 220 L400 220"></path>
+<path class="cl" d="M380 240 L380 280 M360 260 L400 260"></path>
+<path class="cl" d="M380 280 L380 320 M360 300 L400 300"></path>
+<path class="cl" d="M380 320 L380 360 M360 340 L400 340"></path>
+<path class="cl" d="M380 360 L380 400 M360 380 L400 380"></path>
+<circle cx="380" cy="380" r="6" class="sp"></circle>
+<path class="cl" d="M380 400 L380 440 M360 420 L400 420"></path>
+<path class="cl" d="M380 440 L380 480 M360 460 L400 460"></path>
+<path class="cl" d="M380 480 L380 520 M360 500 L400 500"></path>
+<path class="cl" d="M380 520 L380 560 M360 540 L400 540"></path>
+<path class="cl" d="M380 560 L380 600 M360 580 L400 580"></path>
+<path class="cl" d="M380 600 L380 640 M360 620 L400 620"></path>
+<circle cx="380" cy="620" r="6" class="sp"></circle>
+<path class="cl" d="M380 640 L380 680 M360 660 L400 660"></path>
+<path class="cl" d="M380 680 L380 720 M360 700 L400 700"></path>
+<path class="el" d="M360 740 L400 740"></path>
+<path class="cl" d="M380 720 L380 740"></path>
+<circle cx="420" cy="20" fill="white" class="ws" r="19.6"></circle>
+<text class="bl" dy=".33em" x="420" y="20" font-size="28">a</text>
+<circle cx="420" cy="60" fill="black" r="20" class="bs"></circle>
+<text class="wl" dy=".33em" x="420" y="60" font-size="28" stroke-width="0.4">b</text>
+<text class="bl" dy=".33em" x="420" y="100" font-size="28">c</text>
+<text class="bl" dy=".33em" x="420" y="140" font-size="28">d</text>
+<text class="bl" dy=".33em" x="420" y="180" font-size="28">e</text>
+<text class="bl" dy=".33em" x="420" y="220" font-size="28">f</text>
+<text class="bl" dy=".33em" x="420" y="260" font-size="28">g</text>
+<path class="cl" d="M420 280 L420 320 M400 300 L440 300"></path>
+<path class="cl" d="M420 320 L420 360 M400 340 L440 340"></path>
+<path class="cl" d="M420 360 L420 400 M400 380 L440 380"></path>
+<path class="cl" d="M420 400 L420 440 M400 420 L440 420"></path>
+<path class="cl" d="M420 440 L420 480 M400 460 L440 460"></path>
+<path class="cl" d="M420 480 L420 520 M400 500 L440 500"></path>
+<path class="cl" d="M420 520 L420 560 M400 540 L440 540"></path>
+<path class="cl" d="M420 560 L420 600 M400 580 L440 580"></path>
+<path class="cl" d="M420 600 L420 640 M400 620 L440 620"></path>
+<path class="cl" d="M420 640 L420 680 M400 660 L440 660"></path>
+<path class="cl" d="M420 680 L420 720 M400 700 L440 700"></path>
+<path class="el" d="M400 740 L440 740"></path>
+<path class="cl" d="M420 720 L420 740"></path>
+<circle cx="460" cy="20" fill="white" class="ws" r="19.6"></circle>
+<text class="bl" dy=".33em" x="460" y="20" font-size="28">六</text>
+<circle cx="460" cy="60" fill="black" r="20" class="bs"></circle>
+<text class="wl" dy=".33em" x="460" y="60" font-size="28" stroke-width="0.4">七</text>
+<text class="bl" dy=".33em" x="460" y="100" font-size="28">八</text>
+<text class="bl" dy=".33em" x="460" y="140" font-size="28">九</text>
+<text class="bl" dy=".33em" x="460" y="180" font-size="28">十</text>
+<path class="cl" d="M460 200 L460 240 M440 220 L480 220"></path>
+<path class="cl" d="M460 240 L460 280 M440 260 L480 260"></path>
+<path class="cl" d="M460 280 L460 320 M440 300 L480 300"></path>
+<path class="cl" d="M460 320 L460 360 M440 340 L480 340"></path>
+<path class="cl" d="M460 360 L460 400 M440 380 L480 380"></path>
+<path class="cl" d="M460 400 L460 440 M440 420 L480 420"></path>
+<path class="cl" d="M460 440 L460 480 M440 460 L480 460"></path>
+<path class="cl" d="M460 480 L460 520 M440 500 L480 500"></path>
+<path class="cl" d="M460 520 L460 560 M440 540 L480 540"></path>
+<path class="cl" d="M460 560 L460 600 M440 580 L480 580"></path>
+<path class="cl" d="M460 600 L460 640 M440 620 L480 620"></path>
+<path class="cl" d="M460 640 L460 680 M440 660 L480 660"></path>
+<path class="cl" d="M460 680 L460 720 M440 700 L480 700"></path>
+<path class="el" d="M440 740 L480 740"></path>
+<path class="cl" d="M460 720 L460 740"></path>
+<circle cx="500" cy="20" fill="white" class="ws" r="19.6"></circle>
+<text class="bl" dy=".33em" x="500" y="20" font-size="28">一</text>
+<circle cx="500" cy="60" fill="black" r="20" class="bs"></circle>
+<text class="wl" dy=".33em" x="500" y="60" font-size="28" stroke-width="0.4">二</text>
+<text class="bl" dy=".33em" x="500" y="100" font-size="28">三</text>
+<text class="bl" dy=".33em" x="500" y="140" font-size="28">四</text>
+<text class="bl" dy=".33em" x="500" y="180" font-size="28">五</text>
+<path class="cl" d="M500 200 L500 240 M480 220 L520 220"></path>
+<path class="cl" d="M500 240 L500 280 M480 260 L520 260"></path>
+<path class="cl" d="M500 280 L500 320 M480 300 L520 300"></path>
+<path class="cl" d="M500 320 L500 360 M480 340 L520 340"></path>
+<path class="cl" d="M500 360 L500 400 M480 380 L520 380"></path>
+<path class="cl" d="M500 400 L500 440 M480 420 L520 420"></path>
+<path class="cl" d="M500 440 L500 480 M480 460 L520 460"></path>
+<path class="cl" d="M500 480 L500 520 M480 500 L520 500"></path>
+<path class="cl" d="M500 520 L500 560 M480 540 L520 540"></path>
+<path class="cl" d="M500 560 L500 600 M480 580 L520 580"></path>
+<path class="cl" d="M500 600 L500 640 M480 620 L520 620"></path>
+<path class="cl" d="M500 640 L500 680 M480 660 L520 660"></path>
+<path class="cl" d="M500 680 L500 720 M480 700 L520 700"></path>
+<path class="el" d="M480 740 L520 740"></path>
+<path class="cl" d="M500 720 L500 740"></path>
+<circle cx="540" cy="20" fill="white" class="ws" r="19.6"></circle>
+<path class="bm" d="M540 20 L528.3578643762381 8.3578643762381 M540 20 L551.6421356237619 8.3578643762381 M540 20 L528.3578643762381 31.642135623761902 M540 20 L551.6421356237619 31.642135623761902"></path>
+<circle cx="540" cy="60" fill="black" r="20" class="bs"></circle>
+<path class="wm" d="M540 60 L528.3578643762381 48.3578643762381 M540 60 L551.6421356237619 48.3578643762381 M540 60 L528.3578643762381 71.6421356237619 M540 60 L551.6421356237619 71.6421356237619"></path>
+<path class="cl" d="M540 80 L540 120 M520 100 L560 100"></path>
+<path class="bm" d="M540 100 L528.3578643762381 88.3578643762381 M540 100 L551.6421356237619 88.3578643762381 M540 100 L528.3578643762381 111.6421356237619 M540 100 L551.6421356237619 111.6421356237619"></path>
+<path class="cl" d="M540 120 L540 160 M520 140 L560 140"></path>
+<text class="bl" dy=".33em" x="540" y="180" font-size="28">9</text>
+<text class="bl" dy=".33em" x="540" y="220" font-size="28">15</text>
+<text class="bl" dy=".33em" x="540" y="260" font-size="28">22</text>
+<path class="cl" d="M540 280 L540 320 M520 300 L560 300"></path>
+<path class="cl" d="M540 320 L540 360 M520 340 L560 340"></path>
+<path class="cl" d="M540 360 L540 400 M520 380 L560 380"></path>
+<path class="cl" d="M540 400 L540 440 M520 420 L560 420"></path>
+<path class="cl" d="M540 440 L540 480 M520 460 L560 460"></path>
+<path class="cl" d="M540 480 L540 520 M520 500 L560 500"></path>
+<path class="cl" d="M540 520 L540 560 M520 540 L560 540"></path>
+<path class="cl" d="M540 560 L540 600 M520 580 L560 580"></path>
+<path class="cl" d="M540 600 L540 640 M520 620 L560 620"></path>
+<path class="cl" d="M540 640 L540 680 M520 660 L560 660"></path>
+<path class="cl" d="M540 680 L540 720 M520 700 L560 700"></path>
+<path class="el" d="M520 740 L560 740"></path>
+<path class="cl" d="M540 720 L540 740"></path>
+<circle cx="580" cy="20" fill="white" class="ws" r="19.6"></circle>
+<text class="bl" dy=".33em" x="580" y="20" font-size="28">1</text>
+<circle cx="580" cy="60" fill="black" r="20" class="bs"></circle>
+<text class="wl" dy=".33em" x="580" y="60" font-size="28" stroke-width="0.4">2</text>
+<text class="bl" dy=".33em" x="580" y="100" font-size="28">3</text>
+<path class="cl" d="M580 120 L580 160 M560 140 L600 140"></path>
+<text class="bl" dy=".33em" x="580" y="180" font-size="28">8</text>
+<text class="bl" dy=".33em" x="580" y="220" font-size="28">14</text>
+<text class="bl" dy=".33em" x="580" y="260" font-size="28">44</text>
+<path class="cl" d="M580 280 L580 320 M560 300 L600 300"></path>
+<path class="cl" d="M580 320 L580 360 M560 340 L600 340"></path>
+<path class="cl" d="M580 360 L580 400 M560 380 L600 380"></path>
+<path class="cl" d="M580 400 L580 440 M560 420 L600 420"></path>
+<path class="cl" d="M580 440 L580 480 M560 460 L600 460"></path>
+<path class="cl" d="M580 480 L580 520 M560 500 L600 500"></path>
+<path class="cl" d="M580 520 L580 560 M560 540 L600 540"></path>
+<path class="cl" d="M580 560 L580 600 M560 580 L600 580"></path>
+<path class="cl" d="M580 600 L580 640 M560 620 L600 620"></path>
+<path class="cl" d="M580 640 L580 680 M560 660 L600 660"></path>
+<path class="cl" d="M580 680 L580 720 M560 700 L600 700"></path>
+<path class="el" d="M560 740 L600 740"></path>
+<path class="cl" d="M580 720 L580 740"></path>
+<circle cx="620" cy="20" fill="white" class="ws" r="19.6"></circle>
+<text class="bl" dy=".33em" x="620" y="20" font-size="28">A</text>
+<circle cx="620" cy="60" fill="black" r="20" class="bs"></circle>
+<text class="wl" dy=".33em" x="620" y="60" font-size="28" stroke-width="0.4">B</text>
+<text class="bl" dy=".33em" x="620" y="100" font-size="28">C</text>
+<text class="bl" dy=".33em" x="620" y="140" font-size="28">D</text>
+<text class="bl" dy=".33em" x="620" y="180" font-size="28">7</text>
+<text class="bl" dy=".33em" x="620" y="220" font-size="28">13</text>
+<text class="bl" dy=".33em" x="620" y="260" font-size="21">100</text>
+<path class="cl" d="M620 280 L620 320 M600 300 L640 300"></path>
+<path class="cl" d="M620 320 L620 360 M600 340 L640 340"></path>
+<path class="cl" d="M620 360 L620 400 M600 380 L640 380"></path>
+<circle cx="620" cy="380" r="6" class="sp"></circle>
+<path class="cl" d="M620 400 L620 440 M600 420 L640 420"></path>
+<path class="cl" d="M620 440 L620 480 M600 460 L640 460"></path>
+<path class="cl" d="M620 480 L620 520 M600 500 L640 500"></path>
+<path class="cl" d="M620 520 L620 560 M600 540 L640 540"></path>
+<path class="cl" d="M620 560 L620 600 M600 580 L640 580"></path>
+<path class="cl" d="M620 600 L620 640 M600 620 L640 620"></path>
+<circle cx="620" cy="620" r="6" class="sp"></circle>
+<path class="cl" d="M620 640 L620 680 M600 660 L640 660"></path>
+<path class="cl" d="M620 680 L620 720 M600 700 L640 700"></path>
+<path class="el" d="M600 740 L640 740"></path>
+<path class="cl" d="M620 720 L620 740"></path>
+<circle cx="660" cy="20" fill="white" class="ws" r="19.6"></circle>
+<circle class="bm" cx="660" cy="20" r="10"></circle>
+<circle cx="660" cy="60" fill="black" r="20" class="bs"></circle>
+<circle class="wm" cx="660" cy="60" r="10"></circle>
+<path class="cl" d="M660 80 L660 120 M640 100 L680 100"></path>
+<circle class="bm" cx="660" cy="100" r="10"></circle>
+<path class="cl" d="M660 120 L660 160 M640 140 L680 140"></path>
+<text class="bl" dy=".33em" x="660" y="180" font-size="28">6</text>
+<text class="bl" dy=".33em" x="660" y="220" font-size="28">11</text>
+<path class="cl" d="M660 240 L660 280 M640 260 L680 260"></path>
+<path class="cl" d="M660 280 L660 320 M640 300 L680 300"></path>
+<path class="cl" d="M660 320 L660 360 M640 340 L680 340"></path>
+<path class="cl" d="M660 360 L660 400 M640 380 L680 380"></path>
+<path class="cl" d="M660 400 L660 440 M640 420 L680 420"></path>
+<path class="cl" d="M660 440 L660 480 M640 460 L680 460"></path>
+<path class="cl" d="M660 480 L660 520 M640 500 L680 500"></path>
+<path class="cl" d="M660 520 L660 560 M640 540 L680 540"></path>
+<path class="cl" d="M660 560 L660 600 M640 580 L680 580"></path>
+<path class="cl" d="M660 600 L660 640 M640 620 L680 620"></path>
+<path class="cl" d="M660 640 L660 680 M640 660 L680 660"></path>
+<path class="cl" d="M660 680 L660 720 M640 700 L680 700"></path>
+<path class="el" d="M640 740 L680 740"></path>
+<path class="cl" d="M660 720 L660 740"></path>
+<circle cx="700" cy="20" fill="white" class="ws" r="19.6"></circle>
+<rect class="bm" x="688.3578643762381" y="8.3578643762381" width="23.2842712475238" height="23.2842712475238"></rect>
+<circle cx="700" cy="60" fill="black" r="20" class="bs"></circle>
+<rect class="wm" x="688.3578643762381" y="48.3578643762381" width="23.2842712475238" height="23.2842712475238"></rect>
+<path class="cl" d="M700 80 L700 120 M680 100 L720 100"></path>
+<rect class="bm" x="688.3578643762381" y="88.3578643762381" width="23.2842712475238" height="23.2842712475238"></rect>
+<path class="cl" d="M700 120 L700 160 M680 140 L720 140"></path>
+<text class="bl" dy=".33em" x="700" y="180" font-size="28">5</text>
+<text class="bl" dy=".33em" x="700" y="220" font-size="28">12</text>
+<path class="cl" d="M700 240 L700 280 M680 260 L720 260"></path>
+<path class="cl" d="M700 280 L700 320 M680 300 L720 300"></path>
+<path class="cl" d="M700 320 L700 360 M680 340 L720 340"></path>
+<path class="cl" d="M700 360 L700 400 M680 380 L720 380"></path>
+<path class="cl" d="M700 400 L700 440 M680 420 L720 420"></path>
+<path class="cl" d="M700 440 L700 480 M680 460 L720 460"></path>
+<path class="cl" d="M700 480 L700 520 M680 500 L720 500"></path>
+<path class="cl" d="M700 520 L700 560 M680 540 L720 540"></path>
+<path class="cl" d="M700 560 L700 600 M680 580 L720 580"></path>
+<path class="cl" d="M700 600 L700 640 M680 620 L720 620"></path>
+<path class="cl" d="M700 640 L700 680 M680 660 L720 660"></path>
+<path class="cl" d="M700 680 L700 720 M680 700 L720 700"></path>
+<path class="el" d="M680 740 L720 740"></path>
+<path class="cl" d="M700 720 L700 740"></path>
+<circle cx="740" cy="20" fill="white" class="ws" r="19.6"></circle>
+<path class="bm" d="M740 4 L726.14359353944 28 L753.85640646056 28 L740 4"></path>
+<circle cx="740" cy="60" fill="black" r="20" class="bs"></circle>
+<path class="wm" d="M740 44 L726.14359353944 68 L753.85640646056 68 L740 44"></path>
+<path class="el" d="M740 80 L740 120"></path>
+<path class="cl" d="M720 100 L740 100"></path>
+<path class="bm" d="M740 84 L726.14359353944 108 L753.85640646056 108 L740 84"></path>
+<path class="el" d="M740 120 L740 160"></path>
+<path class="cl" d="M720 140 L740 140"></path>
+<text class="bl" dy=".33em" x="740" y="180" font-size="28">4</text>
+<text class="bl" dy=".33em" x="740" y="220" font-size="28">10</text>
+<path class="el" d="M740 240 L740 280"></path>
+<path class="cl" d="M720 260 L740 260"></path>
+<path class="el" d="M740 280 L740 320"></path>
+<path class="cl" d="M720 300 L740 300"></path>
+<path class="el" d="M740 320 L740 360"></path>
+<path class="cl" d="M720 340 L740 340"></path>
+<path class="el" d="M740 360 L740 400"></path>
+<path class="cl" d="M720 380 L740 380"></path>
+<path class="el" d="M740 400 L740 440"></path>
+<path class="cl" d="M720 420 L740 420"></path>
+<path class="el" d="M740 440 L740 480"></path>
+<path class="cl" d="M720 460 L740 460"></path>
+<path class="el" d="M740 480 L740 520"></path>
+<path class="cl" d="M720 500 L740 500"></path>
+<path class="el" d="M740 520 L740 560"></path>
+<path class="cl" d="M720 540 L740 540"></path>
+<path class="el" d="M740 560 L740 600"></path>
+<path class="cl" d="M720 580 L740 580"></path>
+<path class="el" d="M740 600 L740 640"></path>
+<path class="cl" d="M720 620 L740 620"></path>
+<path class="el" d="M740 640 L740 680"></path>
+<path class="cl" d="M720 660 L740 660"></path>
+<path class="el" d="M740 680 L740 720"></path>
+<path class="cl" d="M720 700 L740 700"></path>
+<path class="nl" d="M740 720 L740 740 M720 740 L740 740"></path>
+</svg>

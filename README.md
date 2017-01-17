@@ -4,57 +4,22 @@
 
 ## Overview
 
+![Marks Demo](marks-demo.svg)
+
 _Note: GPub is under active development and users may find unexpected API-breaking
 changes until a 1.0.0 release occurs_
 
-GPub is a book-generating platform that relies on [Glift](www.gliftgo.com).
-Generally speaking, Glift is responsible for providing an understanding of Go
-files and generated a flattened representation of a go position, while GPub is
-responsible for generating an intermediate representation and for the ultimate
-rendering.
+GPub is a book-generating platform written in JavaScript, with the goal of
+quickly making high-quality books without the need for auxilary software.
 
-The JavaScript API for book generation is:
+Currently, I am working to support generating books in 3 formats: PDF (for
+print), GoBooks (SmartGo), and EPub (Ebooks).
 
-```javascript
-gpub.create({
-  sgfs: [sgf1, sgf2, ...],
-  ...options...
-});
-```
-
-This returns the string output of the book.
-
-### Options
-
-The rough structure of the options object in the API
-
-```javascript
-{
-  // The goal of book generation.  This specifies how we generate the Glift
-  // spec.
-  bookPurpose: <gpub.bookPurpose, default='GAME_COMMENTARY'>,
-
-  // The format of the book generated.
-  outputFormat: <gpub.outputFormat, default='LATEX'>,
-
-  // The default board region to display.
-  boardRegion: <glift.enums.boardRegion, default='AUTO'>,
-
-  // The type of diagrams to generate within the book.
-  diagramType: <gpub.diagrams.diagramType, default='GNOS'>,
-
-  // Override the template to use. By default, gpub uses a default template
-  // based on the output format
-  template: null,
-
-  // Options specificaly for book processors.  These options are generally 
-  // specified within the template. Note: This is also where the frontmatter
-  // is specified.
-  bookOptions: {
-    introduction: 'This is **my** introduction' // Input in markdown.
-  }
-};
-```
+GPub that relies on the same Go logic that [Glift](www.gliftgo.com) uses. This
+library (called [glift-core](github.com/Kashomon/glift-core) is is responsible
+for providing an understanding of Go files and generated a flattened
+representation of a go position, while GPub is responsible for generating an
+intermediate representation and for the ultimate rendering diagrams for print
 
 ### Installation
 
@@ -63,23 +28,15 @@ The rough structure of the options object in the API
    [Kashomon/go-type1](https://www.github.com/Kashomon/go-type1). The recommended font
    is gnos.
 3. Install [NodeJS](https://nodejs.org/)
-3. Download this repository and in your `.bashrc` or `.bash_profile` (whichever
-   makes most sense), set:
+4. Use NPM to install `gpub-go`. See
+   [GPub-Examples](www.github.com/Kashomon/gpub-examples) for some worked
+   examples how to use GPub.
 
-```shell
-PATH=/Users/kashomon/inprogress/gpub/scripts:$PATH
-```
+## --Deprecated Information--
 
+**Below is no-longer current information that I need to re-write**
 
 ### Book Generation
-
-The easiest way to generate a book is to use `scripts/book_gen.js` script
-
-```shell
-book_gen.js foo.sgf bar.sgf
-```
-
-Book generation proceeds in two phases:
 
 1. Determine which digarams should be generate for the relevant SGFs. The output
    of this step is a Glift Spec, although most users won't deal with this phase.
