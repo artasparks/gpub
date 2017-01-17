@@ -13426,10 +13426,17 @@ goog.provide('gpub.book.File');
  * Represents a file that should be written to disk. Some books (like ebooks)
  * are aggregates of multiple files.
  *
+ * For mimetype, the most common will be
+ *
+ * - application/xhtml+xml
+ * - image/svg+xml
+ * - text/css
+ *
  * @typedef {{
  *  contents: string,
  *  path: (string|undefined),
  *  mimetype: (string|undefined),
+ *  id: (string|undefined),
  * }}
  */
 gpub.book.File;
@@ -13860,12 +13867,23 @@ gpub.book.epub = {
    * - Spec: http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
    *
    * @param {!gpub.book.epub.EpubOptions} opt
+   * @param {!Array<!gpub.book.File>} files
+   * @param {!Array<string>} spineIds
    * @return {!gpub.book.File}
    */
-  opfContent: function(opt) {
+  opfContent: function(opt, files, spineIds) {
     if (!opt) {
       throw new Error('Options must be defined');
     }
+    if (!files || !files.length > 0) {
+      throw new Error('Files must be defined and > 0. Was: '
+          + JSON.stringify(files));
+    }
+    if (!spineIds || !spineIds.length > 0) {
+      throw new Error('Spine IDs must be defined and > 0. Was: '
+          + JSON.stringify(spineIds));
+    }
+
     var buffer = '<?xml version="1.0"?>\n' +
       '\n' +
       '<package xmlns="http://www.idpf.org/2007/opf" ' +
@@ -13874,9 +13892,9 @@ gpub.book.epub = {
 
     buffer += gpub.book.epub.opfMetadata(opt)
      + '\n'
-     + gpub.book.epub.opfManifest(opt)
+     + gpub.book.epub.opfManifest(files)
      + '\n'
-     + gpub.book.epub.opfSpine(opt)
+     + gpub.book.epub.opfSpine(files, spineIds)
      + '\n'
      + gpub.book.epub.opfGuide(opt)
      + '\n'
@@ -13955,22 +13973,56 @@ gpub.book.epub = {
    * publication. The manifest also includes fallback declarations for files of
    * types not supported by this specification.
    *
-   * @param {!gpub.book.epub.EpubOptions} opt
+   * @param {!Array<!gpub.book.File>} files
    * @return {string}
    */
-  opfManifest:  function(opt) {
-    return '';
+  opfManifest:  function(files) {
+    var out = '  <manifest>\n'
+    for (var i = 0; i < files.length; i++) {
+      var f = files[i];
+      if (!f.path || !f.mimetype || !f.id) {
+        throw new Error('EPub Manifest files must hava a path, mimetype, and ID. ' +
+            'File [' + i + '] was: ' + JSON.stringify(f));
+      }
+      out += '    <item id="' + f.id + '" href="' + f.path
+        + '" media-type="' + f.mimetype + '" />\n'
+    }
+    out += '  </manifest>\n';
+    return out;
   },
 
   /**
    * Generates the OPF Spine.
    *
    * An arrangement of documents providing a linear reading order.
-   * @param {!gpub.book.epub.EpubOptions} opt
+   * @param {!Array<!gpub.book.File>} files
+   * @param {!Array<string>} spineIds
    * @return {string}
    */
-  opfSpine: function(opt) {
-    return '';
+  opfSpine: function(files, spineIds) {
+    var out = '  <spine toc="ncx">\n';
+    var fmap = {};
+    for (var i = 0; i < files.length; i++) {
+      fmap[files[i].id] = files[i];
+    }
+    for (var i = 0; i < spineIds.length; i++) {
+      var id = spineIds[i];
+      var file = fmap[id];
+      if (!file) {
+        throw new Error('For every spineId, there must exist a file in the manifest. '
+            + 'Files: ' + JSON.stringify(files) + ' SpineIDs: ' + JSON.stringify(spineIds));
+      }
+      if (!(file.mimetype === 'application/xhtml+xml' ||
+          file.mimetype === 'application/x-dtbook+xml')) {
+        throw new Error('File mimetype must be application/xhtml+xml ' +
+            'or application/x-dtbook+xml. Was: ' + file.mimetype);
+      }
+      // TODO(kashomon): Should this support non-linear readings? Might be
+      // useful for problem-answers.
+      out += '    <itemref idref="' + id + '" />\n';
+    }
+    out += '  </spine>\n';
+    return out;
   },
 
   /**
