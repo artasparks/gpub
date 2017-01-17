@@ -4,7 +4,7 @@
 
 ## Overview
 
-![Marks Demo](marks-demo.svg)
+![Marks Demo](/marks-demo.svg)
 
 _Note: GPub is under active development and users may find unexpected API-breaking
 changes until a 1.0.0 release occurs_
