@@ -10,14 +10,15 @@ _Note: GPub is under active development and users may find unexpected API-breaki
 changes until a 1.0.0 release occurs_
 
 GPub is a book-generating platform written in JavaScript, with the goal of
-quickly making high-quality books without the need for auxilary software.
+quickly making high-quality Go/Baduk/Wei-Qi books without the need for auxilary
+software.
 
 Currently, I am working to support generating books in 3 formats: PDF (for
 print), GoBooks (SmartGo), and EPub (Ebooks).
 
-GPub that relies on the same Go logic that [Glift](http://www.gliftgo.com) uses. This
-library (called [glift-core](https://github.com/Kashomon/glift-core) is is responsible
-for providing an understanding of Go files and generated a flattened
+GPub that relies on the same logic that [Glift](http://www.gliftgo.com) uses. This
+library (called [glift-core](https://github.com/Kashomon/glift-core)) is is responsible
+for providing an understanding of go files and generated a flattened
 representation of a go position, while GPub is responsible for generating an
 intermediate representation and for the ultimate rendering diagrams for print
 
