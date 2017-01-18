@@ -13821,12 +13821,21 @@ goog.provide('gpub.book.epub');
  * - Worked Epub example: http://www.hxa.name/articles/content/epub-guide_hxa7241_2007.html
  *
  * Specs:
+ * - EPub Specs: http://idpf.org/epub
  * - EPub SVG Spec: http://www.idpf.org/epub/301/spec/epub-contentdocs.html#sec-svg
  * - EPub Standard: http://idpf.org/epub
  * - EPub 3.0.1 standard: http://idpf.org/epub/301
  * - EPub OPF Spec: http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
  *
- * Note: currently no sanitization is done on inputs, so you must trust your inputs.
+ * Notes:
+ * - currently no sanitization is done on inputs, so you must trust your inputs.
+ * - it will generally be preferable to control page breaks for go
+ * diagrams directly with directly with CSS:
+ * .group {
+ *   page-break-inside: {avoid|always}
+ *   page-break-before: {avoid|always}
+ *   page-break-after: {avoid|always}
+ * } 
  */
 gpub.book.epub = {
   /**
@@ -14026,15 +14035,16 @@ gpub.book.epub = {
   },
 
   /**
-   * Generates the OPF Guide.
+   * Generates the OPF Guide. The guide is optional.
    *
    * A set of references to fundamental structural features of the publication,
    * such as table of contents, foreword, bibliography, etc.
+   *
    * @param {!gpub.book.epub.EpubOptions} opt
    * @return {string}
    */
   opfGuide: function(opt) {
-    return '';
+    return '<!-- OPF Guide would be here -->';
   },
 };
 
