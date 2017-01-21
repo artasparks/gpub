@@ -14048,6 +14048,18 @@ gpub.book.epub = {
   },
 };
 
+/**
+ * Genenerate epub content.
+ * @param {string} filename
+ * @return {!gpub.book.File}
+ */
+gpub.book.epub.content = function(filename) {
+  return {
+    contents: '',
+    path: 'OEBPS/' + filename + '.html',
+  };
+}
+
 goog.provide('gpub.book.epub.EpubOptions');
 
 // TODO(kashomon): Generalize this and/or combine with book options.
