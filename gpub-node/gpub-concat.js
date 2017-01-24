@@ -10,10 +10,13 @@
 // compiler works off of regular expressions, so this shouldn't be an issue.
 // This allows us to use goog.require and goog.provides in dev mode.
 if (window && !window['goog']) {
-  window['goog'] = {}
+  window['goog'] = {};
+  /** Override default closure function */
   window['goog']['require'] = function(ns) {
   };
-  window['goog']['scope'] = function(fn) { fn() };
+  /** Override goog.scope function */
+  window['goog']['scope'] = function(fn) { fn(); };
+  /** Override goog.provide function */
   window['goog']['provide'] = function(ns) {
   };
 }
@@ -26,25 +29,28 @@ var g;
 if (typeof glift !== 'undefined') {
   g = glift;
 } else if (typeof w.glift !== 'undefined') {
-  g = w.glift
+  g = w.glift;
 } else {
   g = {};
 }
 if (w) {
   // expose Glift as a global.
-  w.glift = g ;
+  w.glift = g;
 }
 })(window);
 
 goog.provide('glift.util');
 
+goog.require('glift');
+
+
 glift.util = {
   /**
    * Log a message. Allows the for the possibility of overwriting for tests.
+   * @param {*} msg
    */
   logz: function(msg) {
     console.log(msg);
-    return null; // default value to return.
   },
 
   /**
@@ -110,6 +116,9 @@ glift.util = {
 
   /**
    * Set methods in the base object.  Usually used in conjunction with beget.
+   * @param {!Object} base
+   * @param {!Object} methods
+   * @return {!Object}
    */
   setMethods: function(base, methods) {
     for (var key in methods) {
@@ -121,9 +130,10 @@ glift.util = {
   /**
    * A utility method -- for prototypal inheritence.
    *
-   * @template T
    * @param {T} o
    * @return {T}
+   *
+   * @template T
    */
   beget: function (o) {
     /** @constructor */
@@ -137,9 +147,10 @@ glift.util = {
    * types.  It does not copy functions (which it leaves alone), nor does it
    * address problems with recursive objects.
    *
-   * @template T
    * @param {T} obj
    * @return {T}
+   *
+   * @template T
    */
   simpleClone: function(obj) {
     // Handle immutable types (null, Boolean, Number, String) and functions.
@@ -171,10 +182,19 @@ glift.util = {
 
 goog.provide('glift.array');
 
+goog.require('glift');
+
 /**
  * Collection of utility methods for arrays
  */
 glift.array = {
+  /**
+   * @param {!Array<!T>} arr
+   * @param {!T} elem
+   * @return {!Array<!T>} The array with the element removed.
+   *
+   * @template T
+   */
   remove: function(arr, elem) {
     var index = arr.indexOf(elem);
     if (index > -1) {
@@ -183,6 +203,14 @@ glift.array = {
     return arr;
   },
 
+  /**
+   * @param {!Array<!T>} arr
+   * @param {!T} elem
+   * @param {!T} elemRep
+   * @return {!Array<!T>} The array with the element replaced.
+   *
+   * @template T
+   */
   replace: function(arr, elem, elemRep) {
     var index = arr.indexOf(elem);
     if (index > -1) {
@@ -193,6 +221,8 @@ glift.array = {
 };
 
 goog.provide('glift.util.colors');
+
+goog.require('glift.util');
 
 glift.util.colors = {
   /**
@@ -207,6 +237,8 @@ glift.util.colors = {
 };
 
 goog.provide('glift.enums');
+
+goog.require('glift');
 
 /**
  * Various constants used throughout glift.
@@ -345,6 +377,8 @@ glift.enums.rotations = {
 
 goog.provide('glift.util.obj');
 
+goog.require('glift.util');
+
 glift.util.obj = {
   /**
    * A helper for merging obj information (typically CSS or SVG rules).  This
@@ -352,6 +386,7 @@ glift.util.obj = {
    *
    * @param {!Object} base object
    * @param {...!Object} var_args
+   * @return {!Object}
    */
   flatMerge: function(base, var_args) {
     var newObj = {};
@@ -375,6 +410,7 @@ glift.util.obj = {
   /**
    * Returns true if an object is empty. False otherwise.
    * @param {!Object} obj
+   * @return {boolean}
    */
   isEmpty: function(obj) {
     for (var key in obj) {
@@ -384,9 +420,13 @@ glift.util.obj = {
   }
 };
 
-goog.provide('glift.util.point');
 goog.provide('glift.Point');
 goog.provide('glift.PtStr');
+goog.provide('glift.util.point');
+
+goog.require('glift');
+goog.require('glift.util');
+
 
 /**
  * A point string is just a string with the format '<Number>,<Number>'. We use
@@ -402,7 +442,7 @@ glift.PtStr;
  * Create a point.  We no longer cache points
  * @param {number} x
  * @param {number} y
- * return {!glift.Point}
+ * @return {!glift.Point}
  */
 glift.util.point = function(x, y) {
   return new glift.Point(x, y);
@@ -411,7 +451,7 @@ glift.util.point = function(x, y) {
 /**
  * @param {number} x
  * @param {number} y
- * return {!glift.PtStr}
+ * @return {!glift.PtStr}
  */
 glift.util.coordToString = function(x, y) {
   return x + ',' + y;
@@ -493,7 +533,7 @@ glift.util.pointFromSgfCoord = function(str) {
     throw 'Unknown SGF Coord length: ' + str.length +
         'for property ' + str;
   }
-  var a = 'a'.charCodeAt(0)
+  var a = 'a'.charCodeAt(0);
   return glift.util.point(str.charCodeAt(0) - a, str.charCodeAt(1) - a);
 };
 
@@ -505,9 +545,9 @@ glift.util.pointFromSgfCoord = function(str) {
  * It was originally cached, with private variables and immutability.  However,
  * I found that all this protection was too tedious.
  *
- * @constructor
- * @struct
- * @final
+ * @param {number} xIn
+ * @param {number} yIn
+ * @constructor @struct @final
  */
 glift.Point = function(xIn, yIn) {
   /**
@@ -524,15 +564,15 @@ glift.Point = function(xIn, yIn) {
 
 glift.Point.prototype = {
   /** @return {number} x value */
-  x: function() { return this.x_ },
+  x: function() { return this.x_; },
   /** @return {number} y value */
-  y: function() { return this.y_ },
+  y: function() { return this.y_; },
   /**
    * @param {?Object} inpt
    * @return {boolean} Whether this point equals another obj.
    */
   equals: function(inpt) {
-    if (!inpt) { return false; };
+    if (!inpt) { return false; }
     if (!inpt.x && !inpt.y) { return false; }
     var pt = /** @type {!glift.Point} */ (inpt);
     return this.x_ === pt.x() && this.y_ === pt.y();
@@ -617,13 +657,13 @@ glift.Point.prototype = {
    * @return {!glift.Point} A rotated point.
    */
   antirotate: function(maxIntersections, rotation) {
-    var rotations = glift.enums.rotations
+    var rotations = glift.enums.rotations;
     if (rotation === rotations.CLOCKWISE_90) {
-      return this.rotate(maxIntersections, rotations.CLOCKWISE_270)
+      return this.rotate(maxIntersections, rotations.CLOCKWISE_270);
     } else if (rotation === rotations.CLOCKWISE_180) {
-      return this.rotate(maxIntersections, rotations.CLOCKWISE_180)
+      return this.rotate(maxIntersections, rotations.CLOCKWISE_180);
     } else if (rotation === rotations.CLOCKWISE_270) {
-      return this.rotate(maxIntersections, rotations.CLOCKWISE_90)
+      return this.rotate(maxIntersections, rotations.CLOCKWISE_90);
     } else {
       return this.rotate(maxIntersections, rotation);
     }
@@ -1444,7 +1484,7 @@ glift.flattener.Board.prototype = {
       var pt = glift.util.point(
           /** @type {number} */ (ptOrX), /** @type {number} */ (opt_y));
     } else {
-      var pt = ptOrX;
+      var pt = /** @type {!glift.Point} */ (ptOrX);
     }
     return this.getInt(this.boardPtToPt(pt));
   },
