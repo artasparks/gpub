@@ -1,6 +1,6 @@
 {
   "name": "gpub-go",
-  "version": "0.3.24",
+  "version": "0.3.25",
   "description": "GPub: Create and publish go books with Glift!",
   "license": "MIT",
   "repository": "Kashomon/gpub",
