@@ -14090,6 +14090,9 @@ gpub.book.epub = {
 
 /**
  * Genenerate epub content.
+ *
+ * For more details, see:
+ * - http://www.idpf.org/epub/301/spec/epub-contentdocs.html
  * @param {string} filename
  * @return {!gpub.book.File}
  */
