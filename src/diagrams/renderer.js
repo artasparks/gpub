@@ -175,11 +175,11 @@ gpub.diagrams.Renderer.prototype = {
     };
     var flattened = glift.flattener.flatten(mt, flattenOpts);
     var dr = this.diagramRenderer();
-    var suffix = gpub.diagrams.fileSuffix[this.diagramType()] || 'unknown';
+    var suffix = gpub.diagrams.fileExtension[this.diagramType()] || 'unknown';
     var diagram = {
       id: pos.id,
       rendered: dr.render(flattened, this.opts_),
-      fileSuffix: suffix,
+      extension: suffix,
     };
     var metadata = {
       id: pos.id,

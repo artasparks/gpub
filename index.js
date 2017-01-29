@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var nodeutils = require('./nodeutils/nodeutils.js')
+var nodeutils = require('./nodeutils')
 
 /**
  * Some base globals, so it doesn't bomb out.

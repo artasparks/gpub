@@ -9112,7 +9112,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.23
+ * @version 0.3.24
  * --------------------------------------
  */
 (function(w) {
@@ -10965,7 +10965,7 @@ goog.provide('gpub.diagrams.Rendered');
  * @typedef {{
  *  id: string,
  *  rendered: string,
- *  fileSuffix: string
+ *  extension: string
  * }}
  */
 gpub.diagrams.Diagram;
@@ -11091,12 +11091,12 @@ gpub.diagrams.Type = {
  * Map from diagram type to file suffix.
  * @type {!Object<gpub.diagrams.Type, string>}
  */
-gpub.diagrams.fileSuffix = {};
-gpub.diagrams.fileSuffix[gpub.diagrams.Type.GOOE] = 'tex';
-gpub.diagrams.fileSuffix[gpub.diagrams.Type.GNOS] = 'tex';
-gpub.diagrams.fileSuffix[gpub.diagrams.Type.IGO] = 'tex';
-gpub.diagrams.fileSuffix[gpub.diagrams.Type.SMARTGO] = 'gobook';
-gpub.diagrams.fileSuffix[gpub.diagrams.Type.SVG] = 'svg';
+gpub.diagrams.fileExtension = {};
+gpub.diagrams.fileExtension[gpub.diagrams.Type.GOOE] = 'tex';
+gpub.diagrams.fileExtension[gpub.diagrams.Type.GNOS] = 'tex';
+gpub.diagrams.fileExtension[gpub.diagrams.Type.IGO] = 'tex';
+gpub.diagrams.fileExtension[gpub.diagrams.Type.SMARTGO] = 'gobook';
+gpub.diagrams.fileExtension[gpub.diagrams.Type.SVG] = 'svg';
 
 goog.provide('gpub.diagrams.Renderer');
 
@@ -11275,11 +11275,11 @@ gpub.diagrams.Renderer.prototype = {
     };
     var flattened = glift.flattener.flatten(mt, flattenOpts);
     var dr = this.diagramRenderer();
-    var suffix = gpub.diagrams.fileSuffix[this.diagramType()] || 'unknown';
+    var suffix = gpub.diagrams.fileExtension[this.diagramType()] || 'unknown';
     var diagram = {
       id: pos.id,
       rendered: dr.render(flattened, this.opts_),
-      fileSuffix: suffix,
+      extension: suffix,
     };
     var metadata = {
       id: pos.id,

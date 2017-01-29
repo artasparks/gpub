@@ -22,13 +22,6 @@ var idFuncMaker = (outDir) => {
 };
 var idFn = idFuncMaker(baseDir);
 
-var suffix = {
-  IGO: 'tex',
-  GNOS: 'tex',
-  SMARTGO: 'gobook',
-  SVG: 'svg',
-};
-
 var allstyles = [
   'IGO',
   'GNOS',
@@ -48,7 +41,7 @@ var g = gpub.init({
 
 allstyles.forEach(style => {
   var bookMaker = g.renderDiagramsStream(d => {
-        fs.writeFile(idFn(style, d.id, suffix[style]), d.rendered)
+        fs.writeFile(idFn(style, d.id, d.extension), d.rendered)
       }, {
         diagramType: style,
       }).bookMaker();
