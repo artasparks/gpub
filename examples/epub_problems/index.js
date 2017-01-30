@@ -27,5 +27,7 @@ var bookMaker = gpub.init({
 
 var files = ebook.create(bookMaker);
 files.forEach(f => {
-  // write the file.
+  if (f.path) {
+    fs.writeFileSync(f.path, f.contents);
+  }
 });
