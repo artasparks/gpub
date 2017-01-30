@@ -122,7 +122,7 @@
       .renderDiagramsStream(function(diag, meta) {
         ok(diag, 'diagram must be defined');
         ok(diag.rendered, 'diagram.rendered must be defined');
-        deepEqual(diag.ext, 'tex');
+        deepEqual(diag.extension, 'tex');
         ok(meta, 'metadata must be defined');
         ok(meta.comment !== undefined, 'comment must be defined');
         deepEqual(diag.id, meta.id, 'IDs must be equal')
