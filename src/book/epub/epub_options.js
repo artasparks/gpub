@@ -54,7 +54,7 @@ gpub.book.epub.EpubOptions = function(opt_o) {
   this.publisher = o.publisher || '';
 
   /** @type {string} */
-  this.creator = o.creator || ''; // AKA Author.
+  this.author = o.author || ''; // AKA Author.
 
   /** @type {string} */
   this.relation = o.relation || 'http://github.com/Kashomon/gpub';

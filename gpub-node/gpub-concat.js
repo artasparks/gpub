@@ -13883,7 +13883,7 @@ gpub.book.epub = {
    * file.
    * @return {!gpub.book.File}
    */
-  mimetype: function() {
+  mimetypeFile: function() {
     return {
       contents: 'application/epub+zip',
       path: 'mimetype',
@@ -13894,7 +13894,7 @@ gpub.book.epub = {
    * Returns the XML container file. Static. A reference to the OPF file.
    * @return {!gpub.book.File}
    */
-  container: function() {
+  containerFile: function() {
     var contents =
       '<?xml version="1.0" encoding="UTF-8" ?>\n' +
       '<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">\n' +
@@ -14001,9 +14001,9 @@ gpub.book.epub = {
       content +=
       '    <dc:publisher>' + opt.publisher + '</dc:publisher>\n';
     }
-    if (opt.creator) {
+    if (opt.author) {
       content +=
-      '    <dc:creator>' + opt.creator + '</dc:creator>\n';
+      '    <dc:creator>' + opt.author + '</dc:author>\n';
     }
     if (opt.publicationDate) {
       content +=
@@ -14095,11 +14095,12 @@ gpub.book.epub = {
  * - http://www.idpf.org/epub/301/spec/epub-contentdocs.html
  * - http://www.hxa.name/articles/content/epub-guide_hxa7241_2007.html
  * @param {string} filename
+ * @param {contents} centents
  * @return {!gpub.book.File}
  */
 gpub.book.epub.contentDoc = function(filename, contents) {
   var id = filename.replace(/\..*$/, filename, '');
-  if (!/.\(xhtml\|html\|xml\)$/.test(filename)) {
+  if (!/.(xhtml|html|xml)$/.test(filename)) {
     throw new Error('Extension must be xhtml, html, or xml. ' +
         'Filename was: ' + filename);
   }
@@ -14178,7 +14179,7 @@ gpub.book.epub.EpubOptions = function(opt_o) {
   this.publisher = o.publisher || '';
 
   /** @type {string} */
-  this.creator = o.creator || ''; // AKA Author.
+  this.author = o.author || ''; // AKA Author.
 
   /** @type {string} */
   this.relation = o.relation || 'http://github.com/Kashomon/gpub';

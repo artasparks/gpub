@@ -35,7 +35,7 @@ gpub.book.epub = {
    * file.
    * @return {!gpub.book.File}
    */
-  mimetype: function() {
+  mimetypeFile: function() {
     return {
       contents: 'application/epub+zip',
       path: 'mimetype',
@@ -46,7 +46,7 @@ gpub.book.epub = {
    * Returns the XML container file. Static. A reference to the OPF file.
    * @return {!gpub.book.File}
    */
-  container: function() {
+  containerFile: function() {
     var contents =
       '<?xml version="1.0" encoding="UTF-8" ?>\n' +
       '<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">\n' +
@@ -153,9 +153,9 @@ gpub.book.epub = {
       content +=
       '    <dc:publisher>' + opt.publisher + '</dc:publisher>\n';
     }
-    if (opt.creator) {
+    if (opt.author) {
       content +=
-      '    <dc:creator>' + opt.creator + '</dc:creator>\n';
+      '    <dc:creator>' + opt.author + '</dc:author>\n';
     }
     if (opt.publicationDate) {
       content +=

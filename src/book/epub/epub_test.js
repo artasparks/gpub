@@ -10,7 +10,7 @@
   };
 
   test('create mimetype file', function() {
-    var f = epub.mimetype();
+    var f = epub.mimetypeFile();
     var reg = /epub\+zip/
 
     ok(f.path);
@@ -19,7 +19,7 @@
   });
 
   test('create container file', function() {
-    var f = epub.container();
+    var f = epub.containerFile();
     var reg = /OEBPS\/content\.opf/;
 
     ok(f.path);

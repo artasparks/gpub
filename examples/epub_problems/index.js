@@ -2,6 +2,7 @@ var gpub = require('../../index.js')
 var ebook = require('./ebook.js')
 
 var fs = require('fs');
+var path = require('path');
 
 var baseDir = __dirname
 var sgfDir = baseDir + '/problems';
@@ -28,6 +29,6 @@ var bookMaker = gpub.init({
 var files = ebook.create(bookMaker);
 files.forEach(f => {
   if (f.path) {
-    fs.writeFileSync(f.path, f.contents);
+    fs.writeFileSync(path.join(baseDir,  'epub-book', f.path), f.contents);
   }
 });

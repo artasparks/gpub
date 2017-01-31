@@ -10,7 +10,7 @@
  */
 gpub.book.epub.contentDoc = function(filename, contents) {
   var id = filename.replace(/\..*$/, filename, '');
-  if (!/.\(xhtml\|html\|xml\)$/.test(filename)) {
+  if (!/.(xhtml|html|xml)$/.test(filename)) {
     throw new Error('Extension must be xhtml, html, or xml. ' +
         'Filename was: ' + filename);
   }
