@@ -14095,7 +14095,7 @@ gpub.book.epub = {
  * - http://www.idpf.org/epub/301/spec/epub-contentdocs.html
  * - http://www.hxa.name/articles/content/epub-guide_hxa7241_2007.html
  * @param {string} filename
- * @param {contents} centents
+ * @param {string} contents
  * @return {!gpub.book.File}
  */
 gpub.book.epub.contentDoc = function(filename, contents) {
