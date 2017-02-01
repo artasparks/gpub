@@ -79,7 +79,7 @@ gulp.task('update-html-watch', () => {
 gulp.task('compile', () => {
   return gulp.src(jsSrcGlobGen(srcPaths, srcIgnore))
     .pipe(closureCompiler({
-      compilerPath: './compiler-latest/compiler.jar',
+      compilerPath: './tools/compiler-latest/compiler.jar',
       fileName: 'gpub.js',
       compilerFlags: {
         // TODO(kashomon): Turn on ADVANCED_OPTIMIZATIONS when all the right

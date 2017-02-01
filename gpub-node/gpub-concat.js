@@ -13865,7 +13865,8 @@ goog.provide('gpub.book.epub');
  * - EPub SVG Spec: http://www.idpf.org/epub/301/spec/epub-contentdocs.html#sec-svg
  * - EPub Standard: http://idpf.org/epub
  * - EPub 3.0.1 standard: http://idpf.org/epub/301
- * - EPub OPF Spec: http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
+ * - EPub 2.0 OPF Spec: http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
+ * - EPUb 3.0 OPF http://www.idpf.org/epub/301/spec/epub-ocf.html
  *
  * Notes:
  * - currently no sanitization is done on inputs, so you must trust your inputs.
@@ -13936,7 +13937,7 @@ gpub.book.epub = {
     var buffer = '<?xml version="1.0"?>\n' +
       '\n' +
       '<package xmlns="http://www.idpf.org/2007/opf" ' +
-          'unique-identifier="' + opt.id + '" version="2.0">"\n' +
+          'unique-identifier="' + opt.id + '" version="3.0">"\n' +
       '\n';
 
     buffer += gpub.book.epub.opfMetadata(opt)
@@ -14003,7 +14004,7 @@ gpub.book.epub = {
     }
     if (opt.author) {
       content +=
-      '    <dc:creator>' + opt.author + '</dc:author>\n';
+      '    <dc:creator>' + opt.author + '</dc:creator>\n';
     }
     if (opt.publicationDate) {
       content +=
@@ -14099,7 +14100,7 @@ gpub.book.epub = {
  * @return {!gpub.book.File}
  */
 gpub.book.epub.contentDoc = function(filename, contents) {
-  var id = filename.replace(/\..*$/, filename, '');
+  var id = filename.replace(/\..*$/, '');
   if (!/.(xhtml|html|xml)$/.test(filename)) {
     throw new Error('Extension must be xhtml, html, or xml. ' +
         'Filename was: ' + filename);
@@ -14108,7 +14109,8 @@ gpub.book.epub.contentDoc = function(filename, contents) {
     contents: contents,
     id: id,
     mimetype: 'application/xhtml+xml',
-    path: 'OEBPS/' + filename,
+    // Path is relative to the OEBPS directory.
+    path: filename,
   };
 }
 

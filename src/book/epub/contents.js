@@ -9,7 +9,7 @@
  * @return {!gpub.book.File}
  */
 gpub.book.epub.contentDoc = function(filename, contents) {
-  var id = filename.replace(/\..*$/, filename, '');
+  var id = filename.replace(/\..*$/, '');
   if (!/.(xhtml|html|xml)$/.test(filename)) {
     throw new Error('Extension must be xhtml, html, or xml. ' +
         'Filename was: ' + filename);
@@ -18,7 +18,8 @@ gpub.book.epub.contentDoc = function(filename, contents) {
     contents: contents,
     id: id,
     mimetype: 'application/xhtml+xml',
-    path: 'OEBPS/' + filename,
+    // Path is relative to the OEBPS directory.
+    path: filename,
   };
 }
 
