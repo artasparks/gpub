@@ -1,23 +1,23 @@
 <?xml version="1.0"?>
 
-<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="my-book" version="3.0">"
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="my-book" version="3.0">
 
-  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" 
-    xmlns:dcterms="http://purl.org/dc/terms/"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:opf="http://www.idpf.org/2007/opf">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:dcterms="http://purl.org/dc/terms/"
+      xmlns:opf="http://www.idpf.org/2007/opf">
     <dc:title>My Go Book!</dc:title>
     <dc:language xsi:type="dcterms:RFC3066">en</dc:language>
     <dc:subject>Go, Baduk, Wei-qi, Board Games, Strategy Games</dc:subject>
     <dc:rights>All Rights Reserved.</dc:rights>
-    <dc:date opf:event="generation">2017-02-01</dc:date>
+    <dc:date opf:event="generation">2017-02-02</dc:date>
     <dc:identifier id="my-book" opf:scheme="URI">http://github.com/Kashomon/gpub</dc:identifier>
     <dc:relation>http://github.com/Kashomon/gpub</dc:relation>
     <dc:creator>kashomon</dc:creator>
   </metadata>
 
   <manifest>
-    <item id="chap1" href="chap1.xhtml" media-type="application/xhtml+xml" />
+    <item id="chap1" href="OEBPS/chap1.xhtml" media-type="application/xhtml+xml" />
   </manifest>
 
   <spine toc="ncx">

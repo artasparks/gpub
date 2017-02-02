@@ -24,9 +24,9 @@ var create = function(bookMaker) {
     id: 'my-book',
     title: 'My Go Book!',
     author: 'kashomon',
-  })
+  });
 
-  var opfFile = epub.opfContent(opfOptions, allFiles, spineIds);
+  var opfFile = epub.opf.content(opfOptions, allFiles, spineIds);
   outfiles.push(opfFile);
 
   return outfiles;

@@ -19,7 +19,7 @@ gpub.book.epub.contentDoc = function(filename, contents) {
     id: id,
     mimetype: 'application/xhtml+xml',
     // Path is relative to the OEBPS directory.
-    path: filename,
+    path: 'OEBPS/' + filename,
   };
 }
 

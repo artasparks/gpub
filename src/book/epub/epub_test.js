@@ -35,7 +35,7 @@
     var files = [bkFile];
     var spineIds = ['foo-file'];
 
-    var f = epub.opfContent(opt, files, spineIds);
+    var f = epub.opf.content(opt, files, spineIds);
 
     var reg = /unique-identifier/;
     ok(f.path);
