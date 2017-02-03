@@ -13466,17 +13466,21 @@ goog.provide('gpub.book.File');
  * Represents a file that should be written to disk. Some books (like ebooks)
  * are aggregates of multiple files.
  *
- * For mimetype, the most common will be
+ * Some notes about the parameters:
  *
+ * For mimetype, the most common will be
  * - application/xhtml+xml
  * - image/svg+xml
  * - text/css
+ *
+ * Title: for use in table of contents / navigation, if applicable.
  *
  * @typedef {{
  *  contents: string,
  *  path: (string|undefined),
  *  mimetype: (string|undefined),
  *  id: (string|undefined),
+ *  title: (string|undefined),
  * }}
  */
 gpub.book.File;
@@ -13909,6 +13913,26 @@ gpub.book.epub = {
       path: 'META-INF/container.xml',
     }
   },
+
+
+  /** @private {!RegExp} */
+  oebpsRex_: /OEBPS\/(.*)/,
+
+  /**
+   * Strips the OEBPS from file path, for the purposes of being used in manifests / navigation.
+   * I.e.,
+   *
+   * @param {string} fpath
+   * @return {string}
+   */
+  oebpsPath: function(fpath) {
+    if (gpub.book.epub.oebpsRex_.test(fpath)) {
+      fpath = fpath.replace(gpub.book.epub.oebpsRex_, function(match, p1) {
+        return p1;
+      });
+    }
+    return fpath;
+  },
 };
 
 /**
@@ -13922,7 +13946,7 @@ gpub.book.epub = {
  * @param {string} contents
  * @return {!gpub.book.File}
  */
-gpub.book.epub.contentDoc = function(filename, contents) {
+gpub.book.epub.contentDoc = function(filename, contents, title) {
   var id = filename.replace(/\..*$/, '');
   if (!/.(xhtml|html|xml)$/.test(filename)) {
     throw new Error('Extension must be xhtml, html, or xml. ' +
@@ -14047,9 +14071,11 @@ gpub.book.epub.opf = {
    * @param {!gpub.book.epub.EpubOptions} opt
    * @param {!Array<!gpub.book.File>} files
    * @param {!Array<string>} spineIds
+   * @param {!gpub.book.File=} opt_toc Optional table of contents file
    * @return {!gpub.book.File}
    */
-  content: function(opt, files, spineIds) {
+  // TODO(kashomon): Probably needs to a be a more complex builder or similar.
+  content: function(opt, files, spineIds, opt_toc) {
     if (!opt) {
       throw new Error('Options must be defined');
     }
@@ -14057,9 +14083,14 @@ gpub.book.epub.opf = {
       throw new Error('Files must be defined and > 0. Was: '
           + JSON.stringify(files));
     }
+
     if (!spineIds || !spineIds.length > 0) {
       throw new Error('Spine IDs must be defined and > 0. Was: '
           + JSON.stringify(spineIds));
+    }
+
+    if (opt_toc) {
+      files.push(opt_toc);
     }
 
     var buffer = '<?xml version="1.0"?>\n' +
@@ -14072,7 +14103,7 @@ gpub.book.epub.opf = {
      + '\n'
      + gpub.book.epub.opf.manifest(files)
      + '\n'
-     + gpub.book.epub.opf.spine(files, spineIds)
+     + gpub.book.epub.opf.spine(files, spineIds, opt_toc)
      + '\n'
      + '</package>\n';
 
@@ -14169,20 +14200,13 @@ gpub.book.epub.opf = {
    */
   manifest:  function(files) {
     var out = '  <manifest>\n'
-    var oebpsRex = /OEBPS\/(.*)/;
     for (var i = 0; i < files.length; i++) {
       var f = files[i];
       if (!f.path || !f.mimetype || !f.id) {
         throw new Error('EPub Manifest files must hava a path, mimetype, and ID. ' +
             'File [' + i + '] was: ' + JSON.stringify(f));
       }
-      var fpath = f.path;
-      if (oebpsRex.test(fpath)) {
-        fpath = fpath.replace(oebpsRex, function(match, p1) {
-          return p1;
-        });
-      }
-      out += '    <item id="' + f.id + '" href="' + fpath
+      out += '    <item id="' + f.id + '" href="' + gpub.book.epub.oebpsPath(f.path)
         + '" media-type="' + f.mimetype + '" />\n'
     }
     out += '  </manifest>\n';
@@ -14195,10 +14219,16 @@ gpub.book.epub.opf = {
    * An arrangement of documents providing a linear reading order.
    * @param {!Array<!gpub.book.File>} files
    * @param {!Array<string>} spineIds
+   * @param {!gpub.book.File=} opt_toc Table of contents file
    * @return {string}
    */
-  spine: function(files, spineIds) {
-    var out = '  <spine toc="ncx">\n';
+  spine: function(files, spineIds, opt_toc) {
+    var out = '  <spine ';
+    if (opt_toc) {
+      out += 'toc="' + opt_toc.id + '"';
+    }
+    out += '>\n';
+
     var fmap = {};
     for (var i = 0; i < files.length; i++) {
       fmap[files[i].id] = files[i];
@@ -14215,13 +14245,45 @@ gpub.book.epub.opf = {
         throw new Error('File mimetype must be application/xhtml+xml ' +
             'or application/x-dtbook+xml. Was: ' + file.mimetype);
       }
-      // TODO(kashomon): Should this support non-linear readings? Might be
-      // useful for problem-answers.
       out += '    <itemref idref="' + id + '" />\n';
     }
     out += '  </spine>\n';
     return out;
   },
+};
+
+/**
+ * Creates the table of contents.
+ * @param {!Array<!gpub.book.File>} files
+ * @return {!gpub.book.File} The TOC file
+ */
+gpub.book.epub.toc = function(files) {
+  var contents =
+      '<nav epub:type="toc" id="toc">\n' +
+      '  <ol>\n';
+  for (var i = 0; i < files.length; i++) {
+    var f = files[i];
+    if (!f.path) {
+      throw new Error('All files in the TOC must have a path. Error file: '
+          + JSON.stringify(f));
+    }
+    var path = gpub.book.epub.oebpsPath(f.path);
+    var title = f.title || path;
+    contents +=
+      '    <li>\n' +
+      '      <a href="' + path + '">' + title + '</a>\n' +
+      '    </li>\n';
+  }
+  contents +=
+      '  </ol>\n' +
+      '</nav>'
+  return {
+    id: 'ncx',
+    path: 'OEBPS/toc.ncx',
+    mimetype: 'application/x-dtbncx+xml',
+    title: 'Table of Contents',
+    contents: contents,
+  };
 };
 
 goog.provide('gpub.book.latex');

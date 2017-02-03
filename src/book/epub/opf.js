@@ -14,9 +14,11 @@ gpub.book.epub.opf = {
    * @param {!gpub.book.epub.EpubOptions} opt
    * @param {!Array<!gpub.book.File>} files
    * @param {!Array<string>} spineIds
+   * @param {!gpub.book.File=} opt_toc Optional table of contents file
    * @return {!gpub.book.File}
    */
-  content: function(opt, files, spineIds) {
+  // TODO(kashomon): Probably needs to a be a more complex builder or similar.
+  content: function(opt, files, spineIds, opt_toc) {
     if (!opt) {
       throw new Error('Options must be defined');
     }
@@ -24,9 +26,14 @@ gpub.book.epub.opf = {
       throw new Error('Files must be defined and > 0. Was: '
           + JSON.stringify(files));
     }
+
     if (!spineIds || !spineIds.length > 0) {
       throw new Error('Spine IDs must be defined and > 0. Was: '
           + JSON.stringify(spineIds));
+    }
+
+    if (opt_toc) {
+      files.push(opt_toc);
     }
 
     var buffer = '<?xml version="1.0"?>\n' +
@@ -39,7 +46,7 @@ gpub.book.epub.opf = {
      + '\n'
      + gpub.book.epub.opf.manifest(files)
      + '\n'
-     + gpub.book.epub.opf.spine(files, spineIds)
+     + gpub.book.epub.opf.spine(files, spineIds, opt_toc)
      + '\n'
      + '</package>\n';
 
@@ -136,20 +143,13 @@ gpub.book.epub.opf = {
    */
   manifest:  function(files) {
     var out = '  <manifest>\n'
-    var oebpsRex = /OEBPS\/(.*)/;
     for (var i = 0; i < files.length; i++) {
       var f = files[i];
       if (!f.path || !f.mimetype || !f.id) {
         throw new Error('EPub Manifest files must hava a path, mimetype, and ID. ' +
             'File [' + i + '] was: ' + JSON.stringify(f));
       }
-      var fpath = f.path;
-      if (oebpsRex.test(fpath)) {
-        fpath = fpath.replace(oebpsRex, function(match, p1) {
-          return p1;
-        });
-      }
-      out += '    <item id="' + f.id + '" href="' + fpath
+      out += '    <item id="' + f.id + '" href="' + gpub.book.epub.oebpsPath(f.path)
         + '" media-type="' + f.mimetype + '" />\n'
     }
     out += '  </manifest>\n';
@@ -162,10 +162,16 @@ gpub.book.epub.opf = {
    * An arrangement of documents providing a linear reading order.
    * @param {!Array<!gpub.book.File>} files
    * @param {!Array<string>} spineIds
+   * @param {!gpub.book.File=} opt_toc Table of contents file
    * @return {string}
    */
-  spine: function(files, spineIds) {
-    var out = '  <spine toc="ncx">\n';
+  spine: function(files, spineIds, opt_toc) {
+    var out = '  <spine ';
+    if (opt_toc) {
+      out += 'toc="' + opt_toc.id + '"';
+    }
+    out += '>\n';
+
     var fmap = {};
     for (var i = 0; i < files.length; i++) {
       fmap[files[i].id] = files[i];
@@ -182,8 +188,6 @@ gpub.book.epub.opf = {
         throw new Error('File mimetype must be application/xhtml+xml ' +
             'or application/x-dtbook+xml. Was: ' + file.mimetype);
       }
-      // TODO(kashomon): Should this support non-linear readings? Might be
-      // useful for problem-answers.
       out += '    <itemref idref="' + id + '" />\n';
     }
     out += '  </spine>\n';

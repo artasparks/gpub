@@ -61,4 +61,24 @@ gpub.book.epub = {
       path: 'META-INF/container.xml',
     }
   },
+
+
+  /** @private {!RegExp} */
+  oebpsRex_: /OEBPS\/(.*)/,
+
+  /**
+   * Strips the OEBPS from file path, for the purposes of being used in manifests / navigation.
+   * I.e.,
+   *
+   * @param {string} fpath
+   * @return {string}
+   */
+  oebpsPath: function(fpath) {
+    if (gpub.book.epub.oebpsRex_.test(fpath)) {
+      fpath = fpath.replace(gpub.book.epub.oebpsRex_, function(match, p1) {
+        return p1;
+      });
+    }
+    return fpath;
+  },
 };
