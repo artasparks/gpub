@@ -27,7 +27,16 @@ gpub.book.epub.EpubOptions = function(opt_o) {
   this.id = o.id;
 
   /** @type {string} */
-  this.isbn = o.isbn || '';
+  this.idType = o.idType || 'uuid';
+
+  /** @type {string} */
+  this.idName = o.idName || 'baduk-epub-id';
+
+  /** @type {string} */
+  this.isbn10 = o.isbn10 || '';
+
+  /** @type {string} */
+  this.isbn13 = o.isbn13 || '';
 
   /**
    * URI Identifier.
@@ -48,7 +57,7 @@ gpub.book.epub.EpubOptions = function(opt_o) {
   this.description = o.description || '';
 
   /** @type {string} */
-  this.rights = o.rights || 'All Rights Reserved.'
+  this.rights = o.rights || 'All Rights Reserved.';
 
   /** @type {string} */
   this.publisher = o.publisher || '';
@@ -67,9 +76,11 @@ gpub.book.epub.EpubOptions = function(opt_o) {
    * ISO 8601 Date String
    * @type {string}
    */
-  this.generationDate = o.generationDate || (d.getUTCFullYear() +
-      '-' + dpad(d.getUTCMonth() + 1) +
-      '-' + dpad(d.getUTCDate()));
+  this.generationDate = o.generationDate ||
+      d.toISOString().substring(0,19) + 'Z';
+  // this.generationDate = o.generationDate || (d.getUTCFullYear() +
+      // '-' + dpad(d.getUTCMonth() + 1) +
+      // '-' + dpad(d.getUTCDate()));
 
   /** @type {string} */
   this.publicationDate = o.publicationDate || '';

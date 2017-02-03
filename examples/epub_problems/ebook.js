@@ -16,9 +16,14 @@ var create = function(bookMaker) {
   spineIds.push(contentFile.id);
 
   contentFile.contents =
-      epub.contentDocHeader() +
-      'Ebook!\n' +
-      epub.contentDocFooter();
+      '<html xmlns="http://www.w3.org/1999/xhtml"\n' +
+      '    xmlns:epub="http://www.idpf.org/2007/ops"\n' +
+      '    xmlns:ev="http://www.w3.org/2001/xml-events">\n' +
+      '  <head></head>\n' +
+      '  <body>\n' +
+      '    <p>Hello Ebook!\n </p>' +
+      '  </body>\n' +
+      '</html>';
 
   var opfOptions = new epub.EpubOptions({
     id: 'my-book',

@@ -13916,6 +13916,7 @@ gpub.book.epub = {
  *
  * For more details, see:
  * - http://www.idpf.org/epub/301/spec/epub-contentdocs.html
+ * - http://www.idpf.org/epub/30/spec/epub30-contentdocs.html
  * - http://www.hxa.name/articles/content/epub-guide_hxa7241_2007.html
  * @param {string} filename
  * @param {string} contents
@@ -13934,17 +13935,6 @@ gpub.book.epub.contentDoc = function(filename, contents) {
     // Path is relative to the OEBPS directory.
     path: 'OEBPS/' + filename,
   };
-}
-
-gpub.book.epub.contentDocHeader = function() {
-  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"\n' +
-    '   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n' +
-    '<html xmlns="http://www.w3.org/1999/xhtml">\n';
-};
-
-gpub.book.epub.contentDocFooter = function() {
-  return '</html>\n';
 };
 
 goog.provide('gpub.book.epub.EpubOptions');
@@ -13976,7 +13966,16 @@ gpub.book.epub.EpubOptions = function(opt_o) {
   this.id = o.id;
 
   /** @type {string} */
-  this.isbn = o.isbn || '';
+  this.idType = o.idType || 'uuid';
+
+  /** @type {string} */
+  this.idName = o.idName || 'baduk-epub-id';
+
+  /** @type {string} */
+  this.isbn10 = o.isbn10 || '';
+
+  /** @type {string} */
+  this.isbn13 = o.isbn13 || '';
 
   /**
    * URI Identifier.
@@ -13997,7 +13996,7 @@ gpub.book.epub.EpubOptions = function(opt_o) {
   this.description = o.description || '';
 
   /** @type {string} */
-  this.rights = o.rights || 'All Rights Reserved.'
+  this.rights = o.rights || 'All Rights Reserved.';
 
   /** @type {string} */
   this.publisher = o.publisher || '';
@@ -14016,9 +14015,11 @@ gpub.book.epub.EpubOptions = function(opt_o) {
    * ISO 8601 Date String
    * @type {string}
    */
-  this.generationDate = o.generationDate || (d.getUTCFullYear() +
-      '-' + dpad(d.getUTCMonth() + 1) +
-      '-' + dpad(d.getUTCDate()));
+  this.generationDate = o.generationDate ||
+      d.toISOString().substring(0,19) + 'Z';
+  // this.generationDate = o.generationDate || (d.getUTCFullYear() +
+      // '-' + dpad(d.getUTCMonth() + 1) +
+      // '-' + dpad(d.getUTCDate()));
 
   /** @type {string} */
   this.publicationDate = o.publicationDate || '';
@@ -14064,7 +14065,7 @@ gpub.book.epub.opf = {
     var buffer = '<?xml version="1.0"?>\n' +
       '\n' +
       '<package xmlns="http://www.idpf.org/2007/opf" ' +
-          'unique-identifier="' + opt.id + '" version="3.0">\n' +
+          'unique-identifier="' + opt.idName + '" version="3.0">\n' +
       '\n';
 
     buffer += gpub.book.epub.opf.metadata(opt)
@@ -14072,8 +14073,6 @@ gpub.book.epub.opf = {
      + gpub.book.epub.opf.manifest(files)
      + '\n'
      + gpub.book.epub.opf.spine(files, spineIds)
-     + '\n'
-     + gpub.book.epub.opf.guide(opt)
      + '\n'
      + '</package>\n';
 
@@ -14101,24 +14100,39 @@ gpub.book.epub.opf = {
       '      xmlns:dcterms="http://purl.org/dc/terms/"\n' +
       '      xmlns:opf="http://www.idpf.org/2007/opf">\n' +
       '    <dc:title>' + opt.title + '</dc:title>\n' +
-      '    <dc:language xsi:type="dcterms:RFC3066">' + opt.lang + '</dc:language>\n' +
+      '    <dc:language>' + opt.lang + '</dc:language>\n' +
       '    <dc:subject>' + opt.subject + '</dc:subject>\n' +
       '    <dc:rights>' + opt.rights + '</dc:rights>\n' +
-      '    <dc:date opf:event="generation">' + opt.generationDate + '</dc:date>\n';
+      // '    <dc:date event="generation">' + opt.generationDate + '</dc:date>\n';
+      '    <meta property="dcterms:modified">' + opt.generationDate + '</meta>\n';
 
     if (opt.description) {
       content +=
       '    <dc:description>' + opt.description + '</dc:description>\n';
     }
 
-    if (opt.isbn) {
+    if (opt.id) {
       content +=
-      '    <dc:identifier id="' + opt.id + '" opf:scheme="ISBN">\n' +
-          opt.isbn + '</dc:identifier>\n';
-    } else {
+      '    <dc:identifier id="' + opt.idName + '">' + opt.id + '</dc:identifier>\n' +
+      '    <meta refines="#' + opt.idName + '"\n' +
+      '        property="identifier-type"\n' +
+      '        scheme="xsd:string">' + opt.idType + '</meta>\n';
+    }
+    if (opt.isbn10) {
       content +=
-      '    <dc:identifier id="' + opt.id + '" opf:scheme="URI">' + opt.uriId +
-          '</dc:identifier>\n';
+      '    <dc:identifier' +
+      '        id="isbn10">urn:isbn:' + opt.isbn10 + '</dc:identifier>' +
+      '    <meta refines="#isbn10"\n' +
+      '        property="identifier-type"\n' +
+      '        scheme="onix:codelist5">2</meta>\n';
+    }
+    if (opt.isbn13) {
+      content +=
+      '    <dc:identifier' +
+      '        id="isbn13">urn:isbn:' + opt.isbn13 + '</dc:identifier>' +
+      '    <meta refines="#isbn13"\n' +
+      '        property="identifier-type"\n' +
+      '        scheme="onix:codelist5">15</meta>\n';
     }
 
     if (opt.relation) {
@@ -14135,7 +14149,7 @@ gpub.book.epub.opf = {
     }
     if (opt.publicationDate) {
       content +=
-      '    <dc:date opf:event="publication">' + opt.publicationDate + '</dc:date>\n';
+      '    <dc:date>' + opt.publicationDate + '</dc:date>\n';
     }
     content +=
       '  </metadata>\n';
@@ -14155,6 +14169,7 @@ gpub.book.epub.opf = {
    */
   manifest:  function(files) {
     var out = '  <manifest>\n'
+    var oebpsRex = /OEBPS\/(.*)/;
     for (var i = 0; i < files.length; i++) {
       var f = files[i];
       if (!f.path || !f.mimetype || !f.id) {
@@ -14162,8 +14177,10 @@ gpub.book.epub.opf = {
             'File [' + i + '] was: ' + JSON.stringify(f));
       }
       var fpath = f.path;
-      if (fpath.indexOf('OEBPS/')) {
-        fpath = fpath.substring(fpath.indexOf('OEBPS/'));
+      if (oebpsRex.test(fpath)) {
+        fpath = fpath.replace(oebpsRex, function(match, p1) {
+          return p1;
+        });
       }
       out += '    <item id="' + f.id + '" href="' + fpath
         + '" media-type="' + f.mimetype + '" />\n'
@@ -14204,19 +14221,6 @@ gpub.book.epub.opf = {
     }
     out += '  </spine>\n';
     return out;
-  },
-
-  /**
-   * Generates the OPF Guide. The guide is optional.
-   *
-   * A set of references to fundamental structural features of the publication,
-   * such as table of contents, foreword, bibliography, etc.
-   *
-   * @param {!gpub.book.epub.EpubOptions} opt
-   * @return {string}
-   */
-  guide: function(opt) {
-    return '<!-- OPF Guide would be here -->';
   },
 };
 
