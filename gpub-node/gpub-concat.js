@@ -14055,6 +14055,51 @@ gpub.book.epub.EpubOptions = function(opt_o) {
   }
 };
 
+/**
+ * Creates the table of contents.
+ * @param {!Array<!gpub.book.File>} files
+ * @return {!gpub.book.File} The TOC file
+ */
+gpub.book.epub.nav = function(files) {
+  var contents =
+      '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<html xmlns="http://www.w3.org/1999/xhtml" ' +
+          'xmlns:epub="http://www.idpf.org/2007/ops">\n' +
+      '  <head>\n' +
+      '    <title>TODO TITLE</title>\n' +
+      '    <meta charset="utf-8" />\n' +
+      // '    <link href="../css/default.css" rel="stylesheet" type="text/css" />
+      '  </head>\n' +
+      '  <body>\n' +
+      '    <nav epub:type="toc" id="toc">\n' +
+      '      <ol>\n';
+  for (var i = 0; i < files.length; i++) {
+    var f = files[i];
+    if (!f.path) {
+      throw new Error('All files in the TOC must have a path. Error file: '
+          + JSON.stringify(f));
+    }
+    var path = gpub.book.epub.oebpsPath(f.path);
+    var title = f.title || path;
+    contents +=
+      '      <li>\n' +
+      '        <a href="' + path + '">' + title + '</a>\n' +
+      '      </li>\n';
+  }
+  contents +=
+      '      </ol>\n' +
+      '    </nav>\n' +
+      '  </body>\n' +
+      '</html>\n';
+  return {
+    id: 'nav',
+    path: 'OEBPS/nav.xhtml',
+    mimetype: 'application/xhtml+xml',
+    title: 'Table of Contents',
+    contents: contents,
+  };
+};
+
 goog.provide('gpub.book.epub.opf');
 
 /**
@@ -14071,11 +14116,10 @@ gpub.book.epub.opf = {
    * @param {!gpub.book.epub.EpubOptions} opt
    * @param {!Array<!gpub.book.File>} files
    * @param {!Array<string>} spineIds
-   * @param {!gpub.book.File=} opt_toc Optional table of contents file
    * @return {!gpub.book.File}
    */
   // TODO(kashomon): Probably needs to a be a more complex builder or similar.
-  content: function(opt, files, spineIds, opt_toc) {
+  content: function(opt, files, spineIds, nav) {
     if (!opt) {
       throw new Error('Options must be defined');
     }
@@ -14089,10 +14133,6 @@ gpub.book.epub.opf = {
           + JSON.stringify(spineIds));
     }
 
-    if (opt_toc) {
-      files.push(opt_toc);
-    }
-
     var buffer = '<?xml version="1.0"?>\n' +
       '\n' +
       '<package xmlns="http://www.idpf.org/2007/opf" ' +
@@ -14103,7 +14143,7 @@ gpub.book.epub.opf = {
      + '\n'
      + gpub.book.epub.opf.manifest(files)
      + '\n'
-     + gpub.book.epub.opf.spine(files, spineIds, opt_toc)
+     + gpub.book.epub.opf.spine(files, spineIds)
      + '\n'
      + '</package>\n';
 
@@ -14206,8 +14246,14 @@ gpub.book.epub.opf = {
         throw new Error('EPub Manifest files must hava a path, mimetype, and ID. ' +
             'File [' + i + '] was: ' + JSON.stringify(f));
       }
-      out += '    <item id="' + f.id + '" href="' + gpub.book.epub.oebpsPath(f.path)
-        + '" media-type="' + f.mimetype + '" />\n'
+      out += '    <item id="' + f.id
+        + '" href="' + gpub.book.epub.oebpsPath(f.path)
+        + '" media-type="' + f.mimetype + '" ';
+      if (f.id == 'nav') {
+        out += 'properties="nav "';
+      }
+
+      out += '/>\n';
     }
     out += '  </manifest>\n';
     return out;
@@ -14219,14 +14265,12 @@ gpub.book.epub.opf = {
    * An arrangement of documents providing a linear reading order.
    * @param {!Array<!gpub.book.File>} files
    * @param {!Array<string>} spineIds
-   * @param {!gpub.book.File=} opt_toc Table of contents file
+   * @param {!gpub.book.File=} opt_nav Table of contents file
    * @return {string}
    */
-  spine: function(files, spineIds, opt_toc) {
+  spine: function(files, spineIds) {
     var out = '  <spine ';
-    if (opt_toc) {
-      out += 'toc="' + opt_toc.id + '"';
-    }
+    // Could insert a TOC ncx id here.
     out += '>\n';
 
     var fmap = {};
@@ -14250,40 +14294,6 @@ gpub.book.epub.opf = {
     out += '  </spine>\n';
     return out;
   },
-};
-
-/**
- * Creates the table of contents.
- * @param {!Array<!gpub.book.File>} files
- * @return {!gpub.book.File} The TOC file
- */
-gpub.book.epub.toc = function(files) {
-  var contents =
-      '<nav epub:type="toc" id="toc">\n' +
-      '  <ol>\n';
-  for (var i = 0; i < files.length; i++) {
-    var f = files[i];
-    if (!f.path) {
-      throw new Error('All files in the TOC must have a path. Error file: '
-          + JSON.stringify(f));
-    }
-    var path = gpub.book.epub.oebpsPath(f.path);
-    var title = f.title || path;
-    contents +=
-      '    <li>\n' +
-      '      <a href="' + path + '">' + title + '</a>\n' +
-      '    </li>\n';
-  }
-  contents +=
-      '  </ol>\n' +
-      '</nav>'
-  return {
-    id: 'ncx',
-    path: 'OEBPS/toc.ncx',
-    mimetype: 'application/x-dtbncx+xml',
-    title: 'Table of Contents',
-    contents: contents,
-  };
 };
 
 goog.provide('gpub.book.latex');

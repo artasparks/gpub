@@ -14,11 +14,10 @@ gpub.book.epub.opf = {
    * @param {!gpub.book.epub.EpubOptions} opt
    * @param {!Array<!gpub.book.File>} files
    * @param {!Array<string>} spineIds
-   * @param {!gpub.book.File=} opt_toc Optional table of contents file
    * @return {!gpub.book.File}
    */
   // TODO(kashomon): Probably needs to a be a more complex builder or similar.
-  content: function(opt, files, spineIds, opt_toc) {
+  content: function(opt, files, spineIds, nav) {
     if (!opt) {
       throw new Error('Options must be defined');
     }
@@ -32,10 +31,6 @@ gpub.book.epub.opf = {
           + JSON.stringify(spineIds));
     }
 
-    if (opt_toc) {
-      files.push(opt_toc);
-    }
-
     var buffer = '<?xml version="1.0"?>\n' +
       '\n' +
       '<package xmlns="http://www.idpf.org/2007/opf" ' +
@@ -46,7 +41,7 @@ gpub.book.epub.opf = {
      + '\n'
      + gpub.book.epub.opf.manifest(files)
      + '\n'
-     + gpub.book.epub.opf.spine(files, spineIds, opt_toc)
+     + gpub.book.epub.opf.spine(files, spineIds)
      + '\n'
      + '</package>\n';
 
@@ -149,8 +144,14 @@ gpub.book.epub.opf = {
         throw new Error('EPub Manifest files must hava a path, mimetype, and ID. ' +
             'File [' + i + '] was: ' + JSON.stringify(f));
       }
-      out += '    <item id="' + f.id + '" href="' + gpub.book.epub.oebpsPath(f.path)
-        + '" media-type="' + f.mimetype + '" />\n'
+      out += '    <item id="' + f.id
+        + '" href="' + gpub.book.epub.oebpsPath(f.path)
+        + '" media-type="' + f.mimetype + '" ';
+      if (f.id == 'nav') {
+        out += 'properties="nav "';
+      }
+
+      out += '/>\n';
     }
     out += '  </manifest>\n';
     return out;
@@ -162,14 +163,12 @@ gpub.book.epub.opf = {
    * An arrangement of documents providing a linear reading order.
    * @param {!Array<!gpub.book.File>} files
    * @param {!Array<string>} spineIds
-   * @param {!gpub.book.File=} opt_toc Table of contents file
+   * @param {!gpub.book.File=} opt_nav Table of contents file
    * @return {string}
    */
-  spine: function(files, spineIds, opt_toc) {
+  spine: function(files, spineIds) {
     var out = '  <spine ';
-    if (opt_toc) {
-      out += 'toc="' + opt_toc.id + '"';
-    }
+    // Could insert a TOC ncx id here.
     out += '>\n';
 
     var fmap = {};
