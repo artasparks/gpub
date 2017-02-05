@@ -1,9 +1,11 @@
 'use strict';
 
+
 var gulp = require('gulp'),
     qunit = require('gulp-qunit'),
     size = require('gulp-size'),
     concat = require('gulp-concat'),
+    chmod = require('gulp-chmod'),
     closureCompiler = require('gulp-closure-compiler'),
     through = require('through2'),
     nglob = require('glob'),
@@ -129,14 +131,12 @@ gulp.task('compile', () => {
 gulp.task('concat', () => {
   return gulp.src(jsSrcGlobGen(srcPaths, srcIgnore))
     .pipe(concat('gpub-concat.js'))
-    .pipe(size())
     .pipe(gulp.dest('./compiled/'))
 })
 
 gulp.task('concat-node', () => {
   return gulp.src(jsSrcGlobGen(srcPaths, srcIgnore))
     .pipe(concat('gpub-concat.js'))
-    .pipe(size())
     .pipe(gulp.dest('./gpub-node/'))
 })
 

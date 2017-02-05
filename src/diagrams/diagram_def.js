@@ -23,7 +23,7 @@ gpub.diagrams.Diagram;
  *
  * @typedef {{
  *  id: string,
- *  extension: string
+ *  extension: string,
  *  labels: (!Array<string>|undefined),
  *  comment: string,
  *  collisions: !Array<!glift.flattener.Collision>,
