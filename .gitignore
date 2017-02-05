@@ -18,4 +18,4 @@ test/htmltests_gen/*
 node_modules
 
 gen_diagrams
-epub-book/*
+epub-book
