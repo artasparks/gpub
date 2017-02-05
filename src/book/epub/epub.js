@@ -29,6 +29,9 @@ goog.provide('gpub.book.epub');
  *   page-break-before: {avoid|always}
  *   page-break-after: {avoid|always}
  * } 
+ *
+ * - SVG is supported by AZW3, which implies 4gen+ kindle (2011)
+ *   https://en.wikipedia.org/wiki/Amazon_Kindle#Format_support_by_device
  */
 gpub.book.epub = {
   /**

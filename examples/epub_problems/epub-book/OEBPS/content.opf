@@ -10,7 +10,7 @@
     <dc:language>en</dc:language>
     <dc:subject>Go, Baduk, Wei-qi, Board Games, Strategy Games</dc:subject>
     <dc:rights>All Rights Reserved.</dc:rights>
-    <meta property="dcterms:modified">2017-02-04T18:34:56Z</meta>
+    <meta property="dcterms:modified">2017-02-05T07:07:26Z</meta>
     <dc:identifier id="baduk-epub-id">my-book</dc:identifier>
     <meta refines="#baduk-epub-id"
         property="identifier-type"
@@ -21,6 +21,47 @@
 
   <manifest>
     <item id="chap1" href="chap1.xhtml" media-type="application/xhtml+xml" />
+    <item id="ggg-easy-01__0" href="svg/ggg-easy-01__0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-01__0__0-3" href="svg/ggg-easy-01__0__0-3.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-01__0__0-2_1" href="svg/ggg-easy-01__0__0-2_1.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-01__0__1_0-3" href="svg/ggg-easy-01__0__1_0-3.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-01__0__1_0_1_0" href="svg/ggg-easy-01__0__1_0_1_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-01__0__1_0_2_0" href="svg/ggg-easy-01__0__1_0_2_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-01__0__2_0-5" href="svg/ggg-easy-01__0__2_0-5.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-01__0__2_0-3_1_0" href="svg/ggg-easy-01__0__2_0-3_1_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-01__0__2_0_1_0" href="svg/ggg-easy-01__0__2_0_1_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-01__0__2_0_2_0" href="svg/ggg-easy-01__0__2_0_2_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-01__0__3_0" href="svg/ggg-easy-01__0__3_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-02__0" href="svg/ggg-easy-02__0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-02__0__0-3" href="svg/ggg-easy-02__0__0-3.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-02__0__0_1_0" href="svg/ggg-easy-02__0__0_1_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-02__0__1_0" href="svg/ggg-easy-02__0__1_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-02__0__2_0" href="svg/ggg-easy-02__0__2_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-02__0__3_0-2" href="svg/ggg-easy-02__0__3_0-2.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-03__0" href="svg/ggg-easy-03__0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-03__0__0-5" href="svg/ggg-easy-03__0__0-5.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-03__0__0-4_1_0" href="svg/ggg-easy-03__0__0-4_1_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-03__0__0-2_1_0" href="svg/ggg-easy-03__0__0-2_1_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-03__0__1_0-3" href="svg/ggg-easy-03__0__1_0-3.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-03__0__1_0_1_0" href="svg/ggg-easy-03__0__1_0_1_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-03__0__2_0-2" href="svg/ggg-easy-03__0__2_0-2.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-03__0__3_0" href="svg/ggg-easy-03__0__3_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-03__0__4_0-4" href="svg/ggg-easy-03__0__4_0-4.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-04__0" href="svg/ggg-easy-04__0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-04__0__0" href="svg/ggg-easy-04__0__0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-04__0__1_0-5" href="svg/ggg-easy-04__0__1_0-5.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-04__0__1_0_1_0" href="svg/ggg-easy-04__0__1_0_1_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-04__0__2_0-5" href="svg/ggg-easy-04__0__2_0-5.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-04__0__3_0" href="svg/ggg-easy-04__0__3_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-05__0" href="svg/ggg-easy-05__0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-05__0__0-3" href="svg/ggg-easy-05__0__0-3.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-05__0__1_0-3" href="svg/ggg-easy-05__0__1_0-3.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-05__0__1_0_1_0" href="svg/ggg-easy-05__0__1_0_1_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-05__0__2_0" href="svg/ggg-easy-05__0__2_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-05__0__3_0" href="svg/ggg-easy-05__0__3_0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-06__0" href="svg/ggg-easy-06__0.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-06__0__0-3" href="svg/ggg-easy-06__0__0-3.svg" media-type="image/svg+xml" />
+    <item id="ggg-easy-06__0__1_0" href="svg/ggg-easy-06__0__1_0.svg" media-type="image/svg+xml" />
     <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav "/>
   </manifest>
 

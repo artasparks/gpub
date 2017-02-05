@@ -9,7 +9,6 @@ goog.provide('gpub.diagrams.Rendered');
  * @typedef {{
  *  id: string,
  *  rendered: string,
- *  extension: string
  * }}
  */
 gpub.diagrams.Diagram;
@@ -24,6 +23,7 @@ gpub.diagrams.Diagram;
  *
  * @typedef {{
  *  id: string,
+ *  extension: string
  *  labels: (!Array<string>|undefined),
  *  comment: string,
  *  collisions: !Array<!glift.flattener.Collision>,

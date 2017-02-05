@@ -40,8 +40,8 @@ var g = gpub.init({
   .processSpec();
 
 allstyles.forEach(style => {
-  var bookMaker = g.renderDiagramsStream(d => {
-        fs.writeFile(idFn(style, d.id, d.extension), d.rendered)
+  var bookMaker = g.renderDiagramsStream((d, m) => {
+        fs.writeFile(idFn(style, d.id, m.extension), d.rendered)
       }, {
         diagramType: style,
       }).bookMaker();

@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 
-var createId = function(file) {
+var createId_ = function(file) {
   return path.basename(file).replace(/\.sgf$/, '').replace('\.', '_');
 };
 
@@ -34,6 +34,10 @@ module.exports = {
   },
   /** Create IDs from filenames for a list of SGFs */
   createFileIds: function(fnames) {
-    return fnames.map(f => createId(f))
+    return fnames.map(f => createId_(f))
+  },
+  /** Create ID form filename */
+  createId: function(f) {
+    return createId_(f);
   },
 };

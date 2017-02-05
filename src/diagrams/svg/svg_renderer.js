@@ -22,7 +22,9 @@ gpub.diagrams.svg.Renderer.prototype = {
     var sym = glift.flattener.symbols;
 
     var svg = glift.svg.svg()
-      .setStyle(gpub.diagrams.svg.style(flat));
+      .setStyle(gpub.diagrams.svg.style(flat))
+      .setViewBox(0, 0,
+          bps.coordBbox.botRight().x(), bps.coordBbox.botRight().y());
 
     for (var i = 0; i < data.length; i++) {
       var bpt = data[i];

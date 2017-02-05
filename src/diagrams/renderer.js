@@ -179,10 +179,10 @@ gpub.diagrams.Renderer.prototype = {
     var diagram = {
       id: pos.id,
       rendered: dr.render(flattened, this.opts_),
-      extension: suffix,
     };
     var metadata = {
       id: pos.id,
+      extension: suffix,
       labels: pos.labels,
       comment: flattened.comment(),
       collisions: flattened.collisions(),

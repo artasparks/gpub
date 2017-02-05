@@ -47,4 +47,12 @@
     ok(/circle \{/.test(out));
     ok(/svg/.test(out));
   });
+
+  test('viewBox', function() {
+    var out = svg.svg()
+        .setViewBox(0, 0, 200, 300)
+        .render();
+    ok(/viewBox.*0 0 200 300/.test(out), 'viewbox');
+    ok(/preserveAspectRatio/.test(out), 'preserveAspectRatio');
+  });
 })();

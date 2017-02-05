@@ -163,7 +163,6 @@ gpub.book.epub.opf = {
    * An arrangement of documents providing a linear reading order.
    * @param {!Array<!gpub.book.File>} files
    * @param {!Array<string>} spineIds
-   * @param {!gpub.book.File=} opt_nav Table of contents file
    * @return {string}
    */
   spine: function(files, spineIds) {

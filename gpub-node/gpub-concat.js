@@ -8791,6 +8791,18 @@ glift.svg.pathutils = {
 };
 
 goog.provide('glift.svg.SvgObj');
+goog.provide('glift.svg.ViewBox');
+
+/**
+ * @typedef {{
+ *  tlX: number,
+ *  tlY: number,
+ *  brX: number,
+ *  brY: number
+ * }}
+ */
+glift.svg.ViewBox;
+
 
 /**
  * Creats a SVG Wrapper object.
@@ -8893,6 +8905,8 @@ glift.svg.SvgObj = function(type, opt_attrObj) {
   this.idMap_ = {};
   /** @private {string} */
   this.text_ = '';
+  /** @private {!glift.svg.ViewBox|undefined} */
+  this.viewBox_ = undefined;
   /** @private {?Object} */
   this.data_ = null;
 };
@@ -8907,10 +8921,19 @@ glift.svg.SvgObj.prototype = {
     for (var key in this.attrMap_) {
       base += ' ' + key + '="' + this.attrMap_[key] + '"';
     }
+    if (this.viewBox_) {
+      var vb = this.viewBox_;
+      base += ' viewBox="' +
+          vb.tlX + ' ' +
+          vb.tlY + ' ' +
+          vb.brX + ' ' +
+          vb.brY + '"' +
+          ' preserveAspectRatio="xMidYMidmeet"';
+    }
     base += '>' + this.text_;
     if (this.style_) {
       base += '\n' +
-        '<style>\n' +
+        '<style type="text/css">\n' +
         '/* <![CDATA[ */\n' +
         this.style_ + '\n' +
         '/* ]]> */\n' +
@@ -8951,6 +8974,26 @@ glift.svg.SvgObj.prototype = {
    */
   setStyle: function(s) {
     this.style_ = s;
+    return this;
+  },
+
+  /**
+   * Sets the view-box for the SVG element. 
+   * https://css-tricks.com/scale-svg/
+   *
+   * @param {number} tlX tl.y
+   * @param {number} tlY tl.x
+   * @param {number} brX br.y
+   * @param {number} brY br.x
+   * @return {!glift.svg.SvgObj} this
+   */
+  setViewBox: function(tlX, tlY, brX, brY) {
+    this.viewBox_ = {
+      tlX: tlX,
+      tlY: tlY,
+      brX: brX,
+      brY: brY,
+    };
     return this;
   },
 
@@ -10965,7 +11008,6 @@ goog.provide('gpub.diagrams.Rendered');
  * @typedef {{
  *  id: string,
  *  rendered: string,
- *  extension: string
  * }}
  */
 gpub.diagrams.Diagram;
@@ -10980,6 +11022,7 @@ gpub.diagrams.Diagram;
  *
  * @typedef {{
  *  id: string,
+ *  extension: string
  *  labels: (!Array<string>|undefined),
  *  comment: string,
  *  collisions: !Array<!glift.flattener.Collision>,
@@ -11279,10 +11322,10 @@ gpub.diagrams.Renderer.prototype = {
     var diagram = {
       id: pos.id,
       rendered: dr.render(flattened, this.opts_),
-      extension: suffix,
     };
     var metadata = {
       id: pos.id,
+      extension: suffix,
       labels: pos.labels,
       comment: flattened.comment(),
       collisions: flattened.collisions(),
@@ -13150,7 +13193,9 @@ gpub.diagrams.svg.Renderer.prototype = {
     var sym = glift.flattener.symbols;
 
     var svg = glift.svg.svg()
-      .setStyle(gpub.diagrams.svg.style(flat));
+      .setStyle(gpub.diagrams.svg.style(flat))
+      .setViewBox(0, 0,
+          bps.coordBbox.botRight().x(), bps.coordBbox.botRight().y());
 
     for (var i = 0; i < data.length; i++) {
       var bpt = data[i];
@@ -13881,6 +13926,9 @@ goog.provide('gpub.book.epub');
  *   page-break-before: {avoid|always}
  *   page-break-after: {avoid|always}
  * } 
+ *
+ * - SVG is supported by AZW3, which implies 4gen+ kindle (2011)
+ *   https://en.wikipedia.org/wiki/Amazon_Kindle#Format_support_by_device
  */
 gpub.book.epub = {
   /**
@@ -14265,7 +14313,6 @@ gpub.book.epub.opf = {
    * An arrangement of documents providing a linear reading order.
    * @param {!Array<!gpub.book.File>} files
    * @param {!Array<string>} spineIds
-   * @param {!gpub.book.File=} opt_nav Table of contents file
    * @return {string}
    */
   spine: function(files, spineIds) {
