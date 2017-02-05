@@ -5,7 +5,7 @@ var fs = require('fs');
 var path = require('path');
 
 var baseDir = __dirname
-var sgfDir = baseDir + '/problems';
+var sgfDir = path.join(baseDir, 'problems');
 
 var fnames = gpub.nodeutils.numberSuffixSort(gpub.nodeutils.listSgfs(sgfDir));
 var contents = gpub.nodeutils.fileContents(fnames, sgfDir);
@@ -26,9 +26,16 @@ var bookMaker = gpub.init({
   .renderDiagrams()
   .bookMaker()
 
+var seenDir = {};
 var files = ebook.create(bookMaker);
 files.forEach(f => {
+  var fpath = path.join(baseDir, 'epub-book', f.path);
+  var dir = path.dirname(fpath);
+  if (!seenDir[dir]) {
+    seenDir[dir] = true;
+    gpub.nodeutils.createDirsSync(dir);
+  }
   if (f.path) {
-    fs.writeFileSync(path.join(baseDir,  'epub-book', f.path), f.contents);
+    fs.writeFileSync(fpath, f.contents);
   }
 });
