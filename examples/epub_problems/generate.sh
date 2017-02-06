@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -e
+
 # set working directory to this directory
 cd "$(dirname "$0")"
 

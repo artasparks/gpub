@@ -17,7 +17,7 @@ gpub.book.epub.opf = {
    * @return {!gpub.book.File}
    */
   // TODO(kashomon): Probably needs to a be a more complex builder or similar.
-  content: function(opt, files, spineIds, nav) {
+  content: function(opt, files, spineIds) {
     if (!opt) {
       throw new Error('Options must be defined');
     }
@@ -140,9 +140,17 @@ gpub.book.epub.opf = {
     var out = '  <manifest>\n'
     for (var i = 0; i < files.length; i++) {
       var f = files[i];
-      if (!f.path || !f.mimetype || !f.id) {
-        throw new Error('EPub Manifest files must hava a path, mimetype, and ID. ' +
-            'File [' + i + '] was: ' + JSON.stringify(f));
+      if (!f.path) { 
+        throw new Error('EPub Manifest files must hava a path. ' +
+            'File path [' + i + '] was: ' + f.path);
+      }
+      if (!f.mimetype) {
+        throw new Error('EPub Manifest files must hava a mimetype. ' +
+            'File mimetype [' + i + '] was: ' + f.mimetype);
+      }
+      if (!f.id) {
+        throw new Error('EPub Manifest files must hava an ID.' +
+            'File ID [' + i + '] was: ' + f.id);
       }
       out += '    <item id="' + f.id
         + '" href="' + gpub.book.epub.oebpsPath(f.path)

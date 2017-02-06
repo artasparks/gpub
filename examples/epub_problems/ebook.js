@@ -3,18 +3,15 @@ var gpub = require('../../index.js')
 var create = function(bookMaker) {
   var epub = gpub.book.epub;
 
-  var outfiles = []
-  outfiles.push(epub.mimetypeFile());
-  outfiles.push(epub.containerFile());
+  var opfOptions = new epub.EpubOptions({
+    id: 'my-book',
+    title: 'My Go Book!',
+    author: 'kashomon',
+  });
 
-  var manifestFiles = [];
-  var spineIds = [];
+  var builder = new epub.Builder(opfOptions);
 
   var contentFile = epub.contentDoc('chap1.xhtml', '');
-  outfiles.push(contentFile);
-  manifestFiles.push(contentFile);
-  spineIds.push(contentFile.id);
-
 
   var contents =
       '<html xmlns="http://www.w3.org/1999/xhtml"\n' +
@@ -28,9 +25,6 @@ var create = function(bookMaker) {
   var problems = '';
   var answers = '';
   bookMaker.forEachDiagram((idx, config) => {
-    if (config.basePosIndex > 6) {
-      return;
-    }
     var m = config.metadata;
     var filename = 'svg/' + gpub.nodeutils.createId(m.id)
         + '.' + m.extension;
@@ -42,11 +36,10 @@ var create = function(bookMaker) {
       id: config.id,
       mimetype: 'image/svg+xml',
     };
-    outfiles.push(svgFile);
-    manifestFiles.push(svgFile);
+    builder.addManifestFile(svgFile);
 
-    d += indent + '<p>Problem: ' + config.basePosIndex + '</p>\n';
     d += indent + '<img src="./' + filename + '" />\n';
+    d += indent + '<p>Problem: ' + config.basePosIndex + '</p>\n';
     if (m.comment) {
       d += indent + '<p>' + m.comment + '</p>\n';
     }
@@ -70,20 +63,9 @@ var create = function(bookMaker) {
 
   contentFile.contents = contents;
 
-  var opfOptions = new epub.EpubOptions({
-    id: 'my-book',
-    title: 'My Go Book!',
-    author: 'kashomon',
-  });
+  builder.addContentFile(contentFile);
 
-  var nav = gpub.book.epub.nav([contentFile]);
-  manifestFiles.push(nav);
-  outfiles.push(nav);
-
-  var opfFile = epub.opf.content(opfOptions, manifestFiles, spineIds, nav);
-  outfiles.push(opfFile);
-
-  return outfiles;
+  return builder.build();
 };
 
 module.exports = {
