@@ -8928,7 +8928,7 @@ glift.svg.SvgObj.prototype = {
           vb.tlY + ' ' +
           vb.brX + ' ' +
           vb.brY + '"' +
-          ' preserveAspectRatio="xMidYMidmeet"';
+          ' preserveAspectRatio="xMidYMid"';
     }
     base += '>' + this.text_;
     if (this.style_) {
@@ -9155,7 +9155,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.25
+ * @version 0.3.26
  * --------------------------------------
  */
 (function(w) {
@@ -13194,6 +13194,7 @@ gpub.diagrams.svg.Renderer.prototype = {
 
     var svg = glift.svg.svg()
       .setStyle(gpub.diagrams.svg.style(flat))
+      // .setAttr('width', '10em')
       .setViewBox(0, 0,
           bps.coordBbox.botRight().x(), bps.coordBbox.botRight().y());
 

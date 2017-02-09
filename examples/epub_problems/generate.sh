@@ -5,7 +5,9 @@ set -e
 # set working directory to this directory
 cd "$(dirname "$0")"
 
-rm -R epub-book
+if [ -d "epub-book" ]; then
+  rm -R epub-book
+fi
 
 echo " ** Generating ebook ** "
 node index.js
