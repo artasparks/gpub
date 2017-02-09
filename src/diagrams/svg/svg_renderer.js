@@ -23,6 +23,7 @@ gpub.diagrams.svg.Renderer.prototype = {
 
     var svg = glift.svg.svg()
       .setStyle(gpub.diagrams.svg.style(flat))
+      // TODO(kashomon): Add the ability to specify width/height
       // .setAttr('width', '10em')
       .setViewBox(0, 0,
           bps.coordBbox.botRight().x(), bps.coordBbox.botRight().y());

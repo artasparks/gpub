@@ -14,11 +14,11 @@ var create = function(bookMaker) {
   var cssContent = ''
       // Diagram Group.
       + '.d-gp {\n'
-      + '  page-break-inside: avoid\n'
-      + '}\n'
-      + '.sp {\n'
-      + '  fill: black;\n'
-      + '}';
+      + '  page-break-inside: avoid;\n'
+      + '}\n';
+      + '.s-img {\n'
+      + '  page-break-after: avoid;\n'
+      + '}\n';
 
   var cssFile = {
     contents: cssContent,
@@ -60,7 +60,7 @@ var create = function(bookMaker) {
     };
 
     d += indent + '<div class="d-gp">\n';
-    d += indent + '  <img src="./' + filename + '" />\n';
+    d += indent + '  <img class="s-img" src="./' + filename + '" />\n';
     d += indent + '  <p>Problem: ' + config.basePosIndex + '</p>\n';
     if (m.comment) {
       d += indent + '  <p>' + m.comment + '</p>\n';
