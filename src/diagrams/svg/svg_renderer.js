@@ -14,6 +14,8 @@ gpub.diagrams.svg.Renderer.prototype = {
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
+    var svgOptions = this.getSvgOptions(opt);
+
     var spz = opt.goIntersectionSize || 20;
     var spacing = gpub.util.size.parseSizeToPt(spz);
     var bps = glift.flattener.BoardPoints.fromFlattened(flat, spacing);
@@ -66,6 +68,18 @@ gpub.diagrams.svg.Renderer.prototype = {
    */
   renderInline: function(text, opt) {
     return text;
+  },
+
+  /**
+   * Gets the SVG options from a diagram options object.
+   * @param {!gpub.api.DiagramOptions} opt
+   * @return {!gpub.diagrams.svg.Options}
+   */
+  getSvgOptions: function(opt) {
+    // Probably shouldn't default this...
+    var typeOptions = opt.typeOptions || {};
+    return new gpub.diagrams.svg.Options(
+        /** @type {!gpub.diagrams.svg.Options} */ (typeOptions[gpub.diagrams.Type.SVG]))
   }
 };
 

@@ -9155,7 +9155,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.26
+ * @version 0.3.27
  * --------------------------------------
  */
 (function(w) {
@@ -13169,6 +13169,31 @@ gpub.diagrams.svg.stone = function(svg, bps, pt, color) {
   svg.append(circ);
 };
 
+goog.provide('gpub.diagrams.svg.Options');
+
+/**
+ * Options for SVG diagram generation
+ *
+ * @param {!gpub.diagrams.svg.Options=} opt_options
+ *
+ * @constructor @struct @final
+ */
+gpub.diagrams.svg.Options = function(opt_options) {
+  var o = opt_options || {};
+
+  /**
+   * Height of the SVG. Ignored if 0.
+   * @type {number}
+   */
+  this.height = o.height || 0;
+
+  /**
+   * Width of the SVG. Ignored if 0.
+   * @type {number}
+   */
+  this.width = o.width || 0;
+};
+
 goog.provide('gpub.diagrams.svg.Renderer');
 
 /**
@@ -13185,6 +13210,8 @@ gpub.diagrams.svg.Renderer.prototype = {
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
+    var svgOptions = this.getSvgOptions(opt);
+
     var spz = opt.goIntersectionSize || 20;
     var spacing = gpub.util.size.parseSizeToPt(spz);
     var bps = glift.flattener.BoardPoints.fromFlattened(flat, spacing);
@@ -13237,6 +13264,18 @@ gpub.diagrams.svg.Renderer.prototype = {
    */
   renderInline: function(text, opt) {
     return text;
+  },
+
+  /**
+   * Gets the SVG options from a diagram options object.
+   * @param {!gpub.api.DiagramOptions} opt
+   * @return {!gpub.diagrams.svg.Options}
+   */
+  getSvgOptions: function(opt) {
+    // Probably shouldn't default this...
+    var typeOptions = opt.typeOptions || {};
+    return new gpub.diagrams.svg.Options(
+        /** @type {!gpub.diagrams.svg.Options} */ (typeOptions[gpub.diagrams.Type.SVG]))
   }
 };
 
