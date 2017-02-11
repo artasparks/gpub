@@ -11,14 +11,14 @@ gpub.diagrams.svg.Options = function(opt_options) {
   var o = opt_options || {};
 
   /**
-   * Height of the SVG. Ignored if 0.
-   * @type {number}
+   * Height of the SVG. Ignored if undefined. Units should be provided. ('10em')
+   * @type {string|undefined}
    */
-  this.height = o.height || 0;
+  this.height = o.height || undefined;
 
   /**
-   * Width of the SVG. Ignored if 0.
-   * @type {number}
+   * Width of the SVG. Ignored if undefined. Units should be provided. ('10em')
+   * @type {string|undefined}
    */
-  this.width = o.width || 0;
+  this.width = o.width || undefined;
 };

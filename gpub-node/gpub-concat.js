@@ -13182,16 +13182,16 @@ gpub.diagrams.svg.Options = function(opt_options) {
   var o = opt_options || {};
 
   /**
-   * Height of the SVG. Ignored if 0.
-   * @type {number}
+   * Height of the SVG. Ignored if undefined. Units should be provided. ('10em')
+   * @type {string|undefined}
    */
-  this.height = o.height || 0;
+  this.height = o.height || undefined;
 
   /**
-   * Width of the SVG. Ignored if 0.
-   * @type {number}
+   * Width of the SVG. Ignored if undefined. Units should be provided. ('10em')
+   * @type {string|undefined}
    */
-  this.width = o.width || 0;
+  this.width = o.width || undefined;
 };
 
 goog.provide('gpub.diagrams.svg.Renderer');
@@ -13210,7 +13210,7 @@ gpub.diagrams.svg.Renderer.prototype = {
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
-    var svgOptions = this.getSvgOptions(opt);
+    var sopts = this.getSvgOptions(opt);
 
     var spz = opt.goIntersectionSize || 20;
     var spacing = gpub.util.size.parseSizeToPt(spz);
@@ -13225,6 +13225,12 @@ gpub.diagrams.svg.Renderer.prototype = {
       // .setAttr('width', '10em')
       .setViewBox(0, 0,
           bps.coordBbox.botRight().x(), bps.coordBbox.botRight().y());
+    if (sopts.width) {
+      svg.setAttr('width', sopts.width);
+    }
+    if (sopts.height) {
+      svg.setAttr('height', sopts.height);
+    }
 
     for (var i = 0; i < data.length; i++) {
       var bpt = data[i];
