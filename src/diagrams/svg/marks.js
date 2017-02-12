@@ -120,7 +120,8 @@ gpub.diagrams.svg.mark = function(
             svgpath.movePt(topNode) + ' ' +
             svgpath.lineAbsPt(leftNode) + ' ' +
             svgpath.lineAbsPt(rightNode) + ' ' +
-            svgpath.lineAbsPt(topNode)));
+            svgpath.lineAbsPt(topNode) + ' ' +
+            'Z')) // Connect up the paths
   } else if (mark === marks.KO_LOCATION) {
     svg.append(glift.svg.circle()
         .setAttr('class', clazz)

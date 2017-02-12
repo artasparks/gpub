@@ -13112,7 +13112,8 @@ gpub.diagrams.svg.mark = function(
             svgpath.movePt(topNode) + ' ' +
             svgpath.lineAbsPt(leftNode) + ' ' +
             svgpath.lineAbsPt(rightNode) + ' ' +
-            svgpath.lineAbsPt(topNode)));
+            svgpath.lineAbsPt(topNode) + ' ' +
+            'Z')) // Connect up the paths
   } else if (mark === marks.KO_LOCATION) {
     svg.append(glift.svg.circle()
         .setAttr('class', clazz)
@@ -13192,6 +13193,33 @@ gpub.diagrams.svg.Options = function(opt_options) {
    * @type {string|undefined}
    */
   this.width = o.width || undefined;
+
+  /**
+   * Style (css) rules for the SVG diagrams.
+   * Map from class object of properties to values.
+   *
+   * Example:
+   *  {
+   *    '.bs': {
+   *      'fill': black
+   *    }
+   *  }
+   *
+   * @type {!Object<string, !Object<string, string>>}
+   */
+  this.style = o.style || {};
+  for (var clazz in gpub.diagrams.svg.styleDefaults) {
+    var def = gpub.diagrams.svg.styleDefaults[clazz];
+    if (!this.style[clazz]) {
+      this.style[clazz] = def;
+    } else {
+      for (var key in def) {
+        if (!this.style[clazz][key]) {
+          this.style[clazz][key] = def[key];
+        }
+      }
+    }
+  };
 };
 
 goog.provide('gpub.diagrams.svg.Renderer');
@@ -13220,7 +13248,7 @@ gpub.diagrams.svg.Renderer.prototype = {
     var sym = glift.flattener.symbols;
 
     var svg = glift.svg.svg()
-      .setStyle(gpub.diagrams.svg.style(flat))
+      .setStyle(gpub.diagrams.svg.style(sopts.style, flat))
       // TODO(kashomon): Add the ability to specify width/height
       // .setAttr('width', '10em')
       .setViewBox(0, 0,
@@ -13290,81 +13318,113 @@ gpub.diagrams.enabledRenderers['SVG'] = function() {
   return new gpub.diagrams.svg.Renderer();
 };
 
+goog.provide('gpub.diagrams.svg.styleDefaults');
+
+goog.scope(function() {
+
+/** @type {!Object<string, !Object<string, string>>} */
+gpub.diagrams.svg.styleDefaults = {};
+
+var sdef = gpub.diagrams.svg.styleDefaults
+
+// Black stones
+sdef['.bs'] = {
+  fill: 'black',
+};
+
+// White stones
+sdef['.ws'] = {
+  stroke: 'black',
+};
+
+// Center Line
+sdef['.cl'] = {
+  stroke: 'black',
+  'stroke-width': '1',
+};
+
+// Edge line
+sdef['.el'] = {
+  stroke: 'black',
+  'stroke-width': '2.5',
+};
+
+// Corner line
+sdef['.nl'] = {
+  'stroke-linecap': 'round',
+  stroke: 'black',
+  'stroke-width': '2.5',
+};
+
+sdef['.sp'] = {
+  fill: 'black',
+};
+
+// Black Label
+sdef['.bl'] = {
+  fill: 'black',
+  stroke: 'black',
+  'text-anchor': 'middle',
+  'font-family': 'sans-serif',
+  'font-style': 'normal',
+}
+
+// White Label
+sdef['.wl'] = {
+  fill: 'white',
+  stroke: 'white',
+  'text-anchor': 'middle',
+  'font-family': 'sans-serif',
+  'font-style': 'normal',
+};
+
+// Black mark
+sdef['.bm'] = {
+  fill: 'none',
+  'stroke-width': '2',
+  stroke: 'black',
+};
+
+// White mark
+sdef['.wm'] = {
+  fill: 'none',
+  'stroke-width': '2',
+   stroke: 'white',
+};
+
 /**
  * Return the style modifications
+ * @param {!Object<string, !Object<string, string>>} defs
  * @param {!glift.flattener.Flattened} flat
  * @return {string}
  */
-gpub.diagrams.svg.style = function(flat) {
-  var out =
-    // Black Stone
-    '.bs { fill: black; }\n' +
+gpub.diagrams.svg.style = function(defs, flat) {
+  var out = '';
+  for (var clazz in defs) {
+    var d = defs[clazz];
 
-    // White Stone
-    '.ws { stroke: black; }\n' +
+    // Only add b/w labels if we actually have labels.
+    // if ((clazz == '.bl' || clazz == 'wl') &&
+        // Object.keys(flat.labels()).length == 0) {
+      // continue;
+    // }
 
-    // Center line
-    '.cl {\n' +
-    '  stroke: black;\n' +
-    '  stroke-width: 1;\n' +
-    '}\n' +
+    // Only add marks style if we actually have marks
+    // if ((clazz == '.bl' || clazz == 'wl') &&
+        // Object.keys(flat.marks()).length == 0) {
+      // continue;
+    // }
 
-    // Edge line
-    '.el {\n' +
-    '  stroke: black;\n' +
-    '  stroke-width: 2.5;\n' +
-    '}\n' +
-
-    // corner line
-    '.nl {\n' +
-    '  stroke-linecap: round;\n' +
-    '  stroke: black;\n' +
-    '  stroke-width: 2.5;\n' +
-    '}\n' +
-
-    // Starpoint
-    '.sp { fill: black; }\n';
-
-  if (Object.keys(flat.labels()).length > 0) {
-    out +=
-      // Black Label
-      '.bl {\n' +
-      '  fill: black;\n' +
-      '  stroke: black;\n' +
-      '  text-anchor: middle;\n' +
-      '  font-family: sans-serif;\n' +
-      '  font-style: normal;\n' +
-      ' }\n' +
-
-      // White Label
-      '.wl {\n' +
-      '  fill: white;\n' +
-      '  stroke: white;\n' +
-      '  text-anchor: middle;\n' +
-      '  font-family: sans-serif;\n' +
-      '  font-style: normal;\n' +
-      '}\n';
+    out += clazz + ' {\n';
+    for (var key in d) {
+      out += '  ' + key + ': ' + d[key] + ';\n';
+    }
+    out += '}\n\n'
   }
-
-  if (Object.keys(flat.labels()).length > 0) {
-    out +=
-      // Black mark
-      '.bm {\n' +
-      '  fill: none;\n' +
-      '  stroke-width: 2;\n' +
-      '  stroke: black;\n' +
-      '}\n' +
-
-      // White mark
-      '.wm {\n' +
-      '  fill: none;\n' +
-      '  stroke-width: 2;\n' +
-      '  stroke: white;\n' +
-      '}\n';
-  }
-
   return out;
 };
+
+});
 
 goog.provide('gpub.util');
 
