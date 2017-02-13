@@ -4,9 +4,9 @@ var create = function(bookMaker) {
   var epub = gpub.book.epub;
 
   var opfOptions = new epub.EpubOptions({
-    id: 'my-book',
-    title: 'My Go Book!',
-    author: 'kashomon',
+    id: 'ggg-easy',
+    title: 'Go Game Guru: Easy Problems',
+    author: 'Go Game Guru',
   });
 
   var builder = new epub.Builder(opfOptions);
@@ -40,7 +40,7 @@ var create = function(bookMaker) {
       '    <link rel="stylesheet" type="text/css" href="css/epub.css"/>\n' +
       '  </head>\n' +
       '  <body>\n' +
-      '    <h1> Book!! </h1>';
+      '    <h1> Go Game Guru: Easy Problems </h1>';
 
 
   var indent = '    ';
