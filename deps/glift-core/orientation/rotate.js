@@ -1,16 +1,29 @@
+goog.provide('glift.orientation.AutoRotatePrefs');
+
 /**
- * Calculates the desired rotation. Returns one of
+ * @typedef {{
+ *  corner: glift.enums.boardRegions,
+ *  side: glift.enums.boardRegions,
+ * }}
+ */
+glift.orientation.AutoRotatePrefs;
+
+/**
+ * Automatically calculates the desired rotation for a movetree, based on
+ * rotation preferences and the movetrees quad-crop. Returns one of
  * glift.enums.rotations.
  *
  * Region ordering should specify what regions the rotation algorithm should
- * target. It has the format:
- * {
- *  corner: <boardregions>
- *  side: <boardregions>
- * }
+ * target. If not specified, defaults to TOP_RIGHT / TOP.
  *
+ * This is primarily intended to be used for problems. It doesn't make sense to
+ * rotate commentary diagrams.
+ *
+ * @param {!glift.rules.MoveTree} movetree
+ * @param {!glift.orientation.AutoRotatePrefs=} opt_prefs
+ * @return {!glift.enums.rotations} The rotation that should be performed.
  */
-glift.orientation.findCanonicalRotation = function(movetree, regionOrdering) {
+glift.orientation.autoRotate = function(movetree, opt_prefs) {
   var boardRegions = glift.enums.boardRegions;
   var rotations = glift.enums.rotations;
   var cornerRegions = {
@@ -26,8 +39,9 @@ glift.orientation.findCanonicalRotation = function(movetree, regionOrdering) {
     RIGHT: 270
   };
 
-  if (!regionOrdering) {
-    regionOrdering = {
+  var prefs = opt_prefs;
+  if (!prefs) {
+    prefs = {
       corner: boardRegions.TOP_RIGHT,
       side: boardRegions.TOP
     };
@@ -40,17 +54,22 @@ glift.orientation.findCanonicalRotation = function(movetree, regionOrdering) {
     var start = 0, end = 0;
     if (cornerRegions[region] !== undefined) {
       start = cornerRegions[region];
-      end = cornerRegions[regionOrdering.corner];
+      end = cornerRegions[prefs.corner];
     }
 
     if (sideRegions[region] !== undefined) {
       start = sideRegions[region];
-      end = sideRegions[regionOrdering.side];
+      end = sideRegions[prefs.side];
     }
 
     var rot = (360 + start - end) % 360;
-    if (rot === 0) { return rotations.NO_ROTATION; }
-    return 'CLOCKWISE_' + rot;
+    switch(rot) {
+      case 0: return rotations.NO_ROTATION;
+      case 90: return rotations.CLOCKWISE_90;
+      case 180: return rotations.CLOCKWISE_180;
+      case 270: return rotations.CLOCKWISE_270;
+      default: return rotations.NO_ROTATION;
+    }
   }
 
   // No rotations. We only rotate when the quad crop region is either a corner

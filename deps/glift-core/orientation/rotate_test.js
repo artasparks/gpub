@@ -9,7 +9,7 @@
   };
 
   test('findCanonicalRotation: corner', function() {
-    var find = glift.orientation.findCanonicalRotation;
+    var find = glift.orientation.autoRotate;
     var mt = glift.rules.movetree.getFromSgf('(;GM[1];B[aa])');
     deepEqual(find(mt, ordering), rotations.CLOCKWISE_90);
 
@@ -24,7 +24,7 @@
   });
 
   test('findCanonicalRotation: side', function() {
-    var find = glift.orientation.findCanonicalRotation;
+    var find = glift.orientation.autoRotate;
     var mt = glift.rules.movetree.getFromSgf('(;GM[1];B[aa];W[ma])');
     deepEqual(find(mt, ordering), rotations.NO_ROTATION);
 

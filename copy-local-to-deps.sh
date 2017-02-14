@@ -49,10 +49,9 @@ readonly SRC_PATH="${REPO_PATH}src"
 
 readonly LIB_PATH=$(echo $0 | sed "s/\\/[^/]*$/\\//g")deps/$name
 
-echo "Copying $SRC_PATH to $LIB_PATH"
+# echo "Copying $SRC_PATH to $LIB_PATH"
 
 # Ensure that the dirs are readonly.
-# rsync -r $SRC_PATH/* $LIB_PATH
+rsync -r $SRC_PATH/* $LIB_PATH
 
-# find $LIB_PATH -name "*.js" -print | xargs chmod a-w
-find $LIB_PATH -name "*.js" -print | xargs echo
+find $LIB_PATH -name "*.js" -print | xargs chmod a-w
