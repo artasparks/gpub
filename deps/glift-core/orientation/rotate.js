@@ -1,6 +1,10 @@
 goog.provide('glift.orientation.AutoRotatePrefs');
 
 /**
+ * Options for cropping
+ * - What are the preferred cropping-regions.
+ *
+ *
  * @typedef {{
  *  corner: glift.enums.boardRegions,
  *  side: glift.enums.boardRegions,
@@ -9,9 +13,30 @@ goog.provide('glift.orientation.AutoRotatePrefs');
 glift.orientation.AutoRotatePrefs;
 
 /**
- * Automatically calculates the desired rotation for a movetree, based on
- * rotation preferences and the movetrees quad-crop. Returns one of
- * glift.enums.rotations.
+ * Automatically rotate a movetree. Relies on findCanonicalRotation to find the
+ * correct orientation.
+ *
+ * Size is determined by examining the sz property of the game.
+ * @param {!glift.rules.MoveTree} movetree
+ * @param {!glift.orientation.AutoRotatePrefs=} opt_prefs
+ * @return {!glift.rules.MoveTree}
+ */
+glift.orientation.autoRotate = function(movetree, opt_prefs) {
+  var nmt = movetree.newTreeRef();
+  var rotation = glift.orientation.findCanonicalRotation(movetree, opt_prefs);
+  nmt.recurseFromRoot(function(mt) {
+    var props = mt.properties();
+    props.forEach(function(prop, vals) {
+      var size = movetree.getIntersections();
+      props.rotate(prop, size, rotation);
+    });
+  });
+  return nmt;
+};
+
+/**
+ * Calculates the desired rotation for a movetree, based on rotation
+ * preferences and the movetrees quad-crop.
  *
  * Region ordering should specify what regions the rotation algorithm should
  * target. If not specified, defaults to TOP_RIGHT / TOP.
@@ -21,9 +46,12 @@ glift.orientation.AutoRotatePrefs;
  *
  * @param {!glift.rules.MoveTree} movetree
  * @param {!glift.orientation.AutoRotatePrefs=} opt_prefs
+ * @param {!(glift.rules.Treepath|string)=} opt_nextMovesPath
+ *    Optional next moves path for cropping along a specific path.
  * @return {!glift.enums.rotations} The rotation that should be performed.
  */
-glift.orientation.autoRotate = function(movetree, opt_prefs) {
+glift.orientation.findCanonicalRotation =
+    function(movetree, opt_prefs, opt_nextMovesPath) {
   var boardRegions = glift.enums.boardRegions;
   var rotations = glift.enums.rotations;
   var cornerRegions = {
@@ -47,7 +75,8 @@ glift.orientation.autoRotate = function(movetree, opt_prefs) {
     };
   }
 
-  var region = glift.orientation.getQuadCropFromMovetree(movetree);
+  var region = glift.orientation.getQuadCropFromMovetree(
+      movetree, opt_nextMovesPath);
 
   if (cornerRegions[region] !== undefined ||
       sideRegions[region] !== undefined) {

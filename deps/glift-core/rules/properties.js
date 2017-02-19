@@ -243,6 +243,16 @@ glift.rules.Properties.prototype = {
   },
 
   /**
+   * Loop over each property / value list.
+   * @param {!function(glift.rules.prop, !Array<string>)} func
+   */
+  forEach: function(func) {
+    for (var p in this.propMap) {
+      func(p, this.propMap[p]);
+    }
+  },
+
+  /**
    * Tests wether a prop contains a value
    *
    * @param {glift.rules.prop} prop
