@@ -23,6 +23,8 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
 
   var initPos = mt.treepathToHere();
 
+  gen.labels[gpub.spec.PositionType.PROBLEM] = [];
+
   /**
    * @param {!glift.rules.MoveTree} movetree
    * @param {!glift.rules.Treepath} prevPos Path to the previous position
@@ -58,9 +60,11 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
         alias: alias,
         initialPosition: ip,
         nextMovesPath: frag,
-        labels: [label],
+        labels: [label, gpub.spec.PositionType.PROBLEM],
       });
       gen.labels[label].push(pos.id);
+      gen.labels[gpub.spec.PositionType.PROBLEM].push(pos.id);
+
       outPositions.push(pos);
       prevPos = prevPos.concat(sincePrevPos);
       sincePrevPos = [];

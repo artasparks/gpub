@@ -2,6 +2,8 @@
 
 set -e
 
+gulp concat-node
+
 # set working directory to this directory
 cd "$(dirname "$0")"
 

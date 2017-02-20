@@ -18,14 +18,15 @@
     deepEqual(gen.positions[0].id, id + '-0', 'gen-1 id');
     deepEqual(gen.positions[0].initialPosition, '0', 'gen-1 init pos');
     deepEqual(gen.positions[0].nextMovesPath, undefined, 'gen-1 next-moves');
-    deepEqual(gen.positions[0].labels, ['MAINLINE'], 'gen-1 lbl');
+    deepEqual(gen.positions[0].labels, ['MAINLINE', 'GAME_COMMENTARY'], 'gen-1 lbl');
 
     deepEqual(gen.positions[1].id, id + '-1', 'gen-2 id');
     deepEqual(gen.positions[1].initialPosition, '0', 'gen-2 init pos');
     deepEqual(gen.positions[1].nextMovesPath, '0', 'gen-2 next moves');
-    deepEqual(gen.positions[1].labels, ['MAINLINE'], 'gen-2 lbl');
+    deepEqual(gen.positions[1].labels, ['MAINLINE', 'GAME_COMMENTARY'], 'gen-2 lbl');
 
     deepEqual(gen.labels['MAINLINE'].length, 2);
+    deepEqual(gen.labels['GAME_COMMENTARY'].length, 2);
   });
 
   test('Process game commentary with variations', function() {
@@ -43,7 +44,8 @@
     deepEqual(gen.positions.length, 4);
     deepEqual(gen.labels['MAINLINE'].length, 3);
     deepEqual(gen.labels['VARIATION'].length, 1);
-    deepEqual(gen.positions[3].labels, ['VARIATION'], 'gen-3 lbl');
+    deepEqual(gen.labels['GAME_COMMENTARY'].length, 4);
+    deepEqual(gen.positions[3].labels, ['VARIATION', 'GAME_COMMENTARY'], 'gen-3 lbl');
   });
 
   test('Process gamebook', function() {

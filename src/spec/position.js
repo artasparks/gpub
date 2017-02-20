@@ -3,6 +3,39 @@ goog.provide('gpub.spec.PositionTypedef');
 goog.provide('gpub.spec.PositionType');
 
 /**
+ * The type or interpretation of the Position.
+ *
+ * @enum {string}
+ */
+gpub.spec.PositionType = {
+  /**
+   * A flat diagram without any special meaning. All other types can be
+   * converted into one or more EXAMPLE types. EXAMPLE types are ultimately the
+   * types rendered by Gpub.
+   */
+  EXAMPLE: 'EXAMPLE',
+
+  /** A mainline path plus variations. */
+  GAME_COMMENTARY: 'GAME_COMMENTARY',
+
+  /**
+   * A problem position. In problems, there isn't usually a concept of a mainline
+   * vairation. Each variation indicates either a correct or incorrect solution.
+   */
+  PROBLEM: 'PROBLEM',
+
+  /**
+   * A set of variations for a position. This type is rare and is a combination
+   * of GAME_COMMENTARY and PROBLEM. This type is usually used for Joseki
+   * diagrams where there's no concept of mainline variation nor of right or
+   * wrong -- there's simple a base position and variations on that position.
+   *
+   * **CURRENTLY UNSUPPORTED**
+   */
+  POSITION_VARIATIONS: 'POSITION_VARIATIONS',
+};
+
+/**
  * @typedef {{
  *  alias: (string|undefined),
  *  id: (string|undefined),
@@ -90,35 +123,4 @@ gpub.spec.Position.prototype = {
     }
     return this;
   }
-};
-
-/**
- * The type or interpretation of the Position.
- *
- * @enum {string}
- */
-gpub.spec.PositionType = {
-  /**
-   * A flat diagram without any special meaning. All other types can be
-   * converted into one or more EXAMPLE types. EXAMPLE types are ultimately the
-   * types rendered by Gpub.
-   */
-  EXAMPLE: 'EXAMPLE',
-
-  /** A mainline path plus variations. */
-  GAME_COMMENTARY: 'GAME_COMMENTARY',
-
-  /**
-   * A problem position. In problems, there isn't usually a concept of a mainline
-   * vairation. Each variation indicates either a correct or incorrect solution.
-   */
-  PROBLEM: 'PROBLEM',
-
-  /**
-   * A set of variations for a position. This type is rare and is a combination
-   * of GAME_COMMENTARY and PROBLEM. This type is usually used for Joseki
-   * diagrams where there's no concept of mainline variation nor of right or
-   * wrong -- there's simple a base position and variations on that position.
-   */
-  POSITION_VARIATIONS: 'POSITION_VARIATIONS',
 };

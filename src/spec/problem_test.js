@@ -21,9 +21,10 @@
       id: id + '-' + 0,
       alias: id,
       initialPosition: '0',
-      labels: ['PROBLEM_ROOT'],
+      labels: ['PROBLEM_ROOT', 'PROBLEM'],
     });
-    deepEqual(generated.labels['PROBLEM_ROOT'].length, 1, 'num problem roots');
+    deepEqual(generated.labels['PROBLEM_ROOT'].length, 1, 'num problem root lbl');
+    deepEqual(generated.labels['PROBLEM'].length, 8, 'num problem lbl');
     deepEqual(generated.labels['PROBLEM_ROOT'][0], root.id, 'problem root id');
     deepEqual(generated.positions[0], root, 'problem root pos');
 
@@ -32,7 +33,7 @@
       alias: id,
       initialPosition: '0.1',
       nextMovesPath: '0',
-      labels: ['INDETERMINATE'],
+      labels: ['INDETERMINATE', 'PROBLEM'],
     });
     deepEqual(generated.labels['INDETERMINATE'].length, 1, 'num indeterminate');
     deepEqual(generated.labels['INDETERMINATE'][0], indet.id, 'indeterminate id');
@@ -43,7 +44,7 @@
       alias: id,
       initialPosition: '0',
       nextMovesPath: '0:2',
-      labels: ['INCORRECT'],
+      labels: ['INCORRECT', 'PROBLEM'],
     });
     deepEqual(generated.labels['INCORRECT'].length, 3, 'num incorrect');
     deepEqual(generated.labels['INCORRECT'][0], incor.id, 'incorrect id');
@@ -54,7 +55,7 @@
       alias: id,
       initialPosition: '0',
       nextMovesPath: '1',
-      labels: ['CORRECT'],
+      labels: ['CORRECT', 'PROBLEM'],
     });
     deepEqual(generated.labels['CORRECT'].length, 3);
     deepEqual(generated.labels['CORRECT'][0], cor.id, 'correct id');

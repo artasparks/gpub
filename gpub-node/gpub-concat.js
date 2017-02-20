@@ -5222,19 +5222,60 @@ glift.orientation.getDisplayPts_ = function(movetree, opt_nextMovesPath) {
   return pts;
 };
 
+goog.provide('glift.orientation.AutoRotatePrefs');
+
 /**
- * Calculates the desired rotation. Returns one of
- * glift.enums.rotations.
+ * Options for cropping
+ * - What are the preferred cropping-regions.
+ *
+ *
+ * @typedef {{
+ *  corner: glift.enums.boardRegions,
+ *  side: glift.enums.boardRegions,
+ * }}
+ */
+glift.orientation.AutoRotatePrefs;
+
+/**
+ * Automatically rotate a movetree. Relies on findCanonicalRotation to find the
+ * correct orientation.
+ *
+ * Size is determined by examining the sz property of the game.
+ * @param {!glift.rules.MoveTree} movetree
+ * @param {!glift.orientation.AutoRotatePrefs=} opt_prefs
+ * @return {!glift.rules.MoveTree}
+ */
+glift.orientation.autoRotate = function(movetree, opt_prefs) {
+  var nmt = movetree.newTreeRef();
+  var rotation = glift.orientation.findCanonicalRotation(movetree, opt_prefs);
+  nmt.recurseFromRoot(function(mt) {
+    var props = mt.properties();
+    props.forEach(function(prop, vals) {
+      var size = movetree.getIntersections();
+      props.rotate(prop, size, rotation);
+    });
+  });
+  return nmt;
+};
+
+/**
+ * Calculates the desired rotation for a movetree, based on rotation
+ * preferences and the movetrees quad-crop.
  *
  * Region ordering should specify what regions the rotation algorithm should
- * target. It has the format:
- * {
- *  corner: <boardregions>
- *  side: <boardregions>
- * }
+ * target. If not specified, defaults to TOP_RIGHT / TOP.
  *
+ * This is primarily intended to be used for problems. It doesn't make sense to
+ * rotate commentary diagrams.
+ *
+ * @param {!glift.rules.MoveTree} movetree
+ * @param {!glift.orientation.AutoRotatePrefs=} opt_prefs
+ * @param {!(glift.rules.Treepath|string)=} opt_nextMovesPath
+ *    Optional next moves path for cropping along a specific path.
+ * @return {!glift.enums.rotations} The rotation that should be performed.
  */
-glift.orientation.findCanonicalRotation = function(movetree, regionOrdering) {
+glift.orientation.findCanonicalRotation =
+    function(movetree, opt_prefs, opt_nextMovesPath) {
   var boardRegions = glift.enums.boardRegions;
   var rotations = glift.enums.rotations;
   var cornerRegions = {
@@ -5250,31 +5291,38 @@ glift.orientation.findCanonicalRotation = function(movetree, regionOrdering) {
     RIGHT: 270
   };
 
-  if (!regionOrdering) {
-    regionOrdering = {
+  var prefs = opt_prefs;
+  if (!prefs) {
+    prefs = {
       corner: boardRegions.TOP_RIGHT,
       side: boardRegions.TOP
     };
   }
 
-  var region = glift.orientation.getQuadCropFromMovetree(movetree);
+  var region = glift.orientation.getQuadCropFromMovetree(
+      movetree, opt_nextMovesPath);
 
   if (cornerRegions[region] !== undefined ||
       sideRegions[region] !== undefined) {
     var start = 0, end = 0;
     if (cornerRegions[region] !== undefined) {
       start = cornerRegions[region];
-      end = cornerRegions[regionOrdering.corner];
+      end = cornerRegions[prefs.corner];
     }
 
     if (sideRegions[region] !== undefined) {
       start = sideRegions[region];
-      end = sideRegions[regionOrdering.side];
+      end = sideRegions[prefs.side];
     }
 
     var rot = (360 + start - end) % 360;
-    if (rot === 0) { return rotations.NO_ROTATION; }
-    return 'CLOCKWISE_' + rot;
+    switch(rot) {
+      case 0: return rotations.NO_ROTATION;
+      case 90: return rotations.CLOCKWISE_90;
+      case 180: return rotations.CLOCKWISE_180;
+      case 270: return rotations.CLOCKWISE_270;
+      default: return rotations.NO_ROTATION;
+    }
   }
 
   // No rotations. We only rotate when the quad crop region is either a corner
@@ -7765,6 +7813,16 @@ glift.rules.Properties.prototype = {
   },
 
   /**
+   * Loop over each property / value list.
+   * @param {!function(glift.rules.prop, !Array<string>)} func
+   */
+  forEach: function(func) {
+    for (var p in this.propMap) {
+      func(p, this.propMap[p]);
+    }
+  },
+
+  /**
    * Tests wether a prop contains a value
    *
    * @param {glift.rules.prop} prop
@@ -8927,8 +8985,10 @@ glift.svg.SvgObj.prototype = {
           vb.tlX + ' ' +
           vb.tlY + ' ' +
           vb.brX + ' ' +
-          vb.brY + '"' +
-          ' preserveAspectRatio="xMidYMid"';
+          vb.brY + '"';
+      if (!this.attrMap_['preserveAspectRatio']) {
+        base += ' preserveAspectRatio="xMidYMid"'
+      }
     }
     base += '>' + this.text_;
     if (this.style_) {
@@ -9455,9 +9515,26 @@ gpub.api.DiagramOptions = function(opt_options) {
    *
    * Note: this may change if we ever support minimal/close-cropping.
    *
-   * @const {!Array<glift.enums.boardRegions>}
+   * @const {!Array<glift.enums.boardRegions>|undefined}
    */
   this.regionRestrictions = o.regionRestrictions || undefined;
+
+  /**
+   * AutoRotatePrefs controls whether auto-rotation is performed. If not
+   * specifed, no autorotation takes place.
+   *
+   * @const {!glift.orientation.AutoRotatePrefs|undefined}
+   */
+  this.autoRotatePrefs = o.autoRotatePrefs || undefined;
+
+  /**
+   * Specifies what positionType should have autorotation applied.
+   * @const {!Array<!gpub.spec.PositionType>}
+   */
+  this.autoRotateTypes = o.autoRotateTypes || [
+    gpub.spec.PositionType.PROBLEM,
+    gpub.spec.PositionType.POSITION_VARIATIONS,
+  ];
 
   /**
    * What size should the intersections be? Defaults to undefined since
@@ -10020,8 +10097,10 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
   });
   var mainlineLbl = 'MAINLINE';
   var variationLbl = 'VARIATION';
+
   gen.labels[mainlineLbl] = [];
   gen.labels[variationLbl] = [];
+  gen.labels[gpub.spec.PositionType.GAME_COMMENTARY] = [];
 
   while (node) {
     if (!mt.properties().getComment() && node.numChildren() > 0) {
@@ -10041,10 +10120,11 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
           alias: alias,
           initialPosition: ip,
           nextMovesPath: frag,
-          labels: [mainlineLbl]
+          labels: [mainlineLbl, gpub.spec.PositionType.GAME_COMMENTARY]
       })
       gen.positions.push(pos);
       gen.labels[mainlineLbl].push(pos.id);
+      gen.labels[gpub.spec.PositionType.GAME_COMMENTARY].push(pos.id);
 
       varPathBuffer = varPathBuffer.concat(
           gpub.spec.variationPaths(mt));
@@ -10059,10 +10139,11 @@ gpub.spec.processGameCommentary = function(mt, position, idGen) {
             alias: alias,
             initialPosition: ipz,
             nextMovesPath: fragz,
-            labels: [variationLbl],
+            labels: [variationLbl, gpub.spec.PositionType.GAME_COMMENTARY],
         });
         gen.positions.push(varPos);
         gen.labels[variationLbl].push(varPos.id);
+        gen.labels[gpub.spec.PositionType.GAME_COMMENTARY].push(varPos.id);
       }
       varPathBuffer = [];
     }
@@ -10373,6 +10454,39 @@ goog.provide('gpub.spec.PositionTypedef');
 goog.provide('gpub.spec.PositionType');
 
 /**
+ * The type or interpretation of the Position.
+ *
+ * @enum {string}
+ */
+gpub.spec.PositionType = {
+  /**
+   * A flat diagram without any special meaning. All other types can be
+   * converted into one or more EXAMPLE types. EXAMPLE types are ultimately the
+   * types rendered by Gpub.
+   */
+  EXAMPLE: 'EXAMPLE',
+
+  /** A mainline path plus variations. */
+  GAME_COMMENTARY: 'GAME_COMMENTARY',
+
+  /**
+   * A problem position. In problems, there isn't usually a concept of a mainline
+   * vairation. Each variation indicates either a correct or incorrect solution.
+   */
+  PROBLEM: 'PROBLEM',
+
+  /**
+   * A set of variations for a position. This type is rare and is a combination
+   * of GAME_COMMENTARY and PROBLEM. This type is usually used for Joseki
+   * diagrams where there's no concept of mainline variation nor of right or
+   * wrong -- there's simple a base position and variations on that position.
+   *
+   * **CURRENTLY UNSUPPORTED**
+   */
+  POSITION_VARIATIONS: 'POSITION_VARIATIONS',
+};
+
+/**
  * @typedef {{
  *  alias: (string|undefined),
  *  id: (string|undefined),
@@ -10462,37 +10576,6 @@ gpub.spec.Position.prototype = {
   }
 };
 
-/**
- * The type or interpretation of the Position.
- *
- * @enum {string}
- */
-gpub.spec.PositionType = {
-  /**
-   * A flat diagram without any special meaning. All other types can be
-   * converted into one or more EXAMPLE types. EXAMPLE types are ultimately the
-   * types rendered by Gpub.
-   */
-  EXAMPLE: 'EXAMPLE',
-
-  /** A mainline path plus variations. */
-  GAME_COMMENTARY: 'GAME_COMMENTARY',
-
-  /**
-   * A problem position. In problems, there isn't usually a concept of a mainline
-   * vairation. Each variation indicates either a correct or incorrect solution.
-   */
-  PROBLEM: 'PROBLEM',
-
-  /**
-   * A set of variations for a position. This type is rare and is a combination
-   * of GAME_COMMENTARY and PROBLEM. This type is usually used for Joseki
-   * diagrams where there's no concept of mainline variation nor of right or
-   * wrong -- there's simple a base position and variations on that position.
-   */
-  POSITION_VARIATIONS: 'POSITION_VARIATIONS',
-};
-
 
 /**
  * Process a problem position, creating a generated return object.
@@ -10517,6 +10600,8 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
   });
 
   var initPos = mt.treepathToHere();
+
+  gen.labels[gpub.spec.PositionType.PROBLEM] = [];
 
   /**
    * @param {!glift.rules.MoveTree} movetree
@@ -10553,9 +10638,11 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
         alias: alias,
         initialPosition: ip,
         nextMovesPath: frag,
-        labels: [label],
+        labels: [label, gpub.spec.PositionType.PROBLEM],
       });
       gen.labels[label].push(pos.id);
+      gen.labels[gpub.spec.PositionType.PROBLEM].push(pos.id);
+
       outPositions.push(pos);
       prevPos = prevPos.concat(sincePrevPos);
       sincePrevPos = [];

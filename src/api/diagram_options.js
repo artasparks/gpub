@@ -63,9 +63,26 @@ gpub.api.DiagramOptions = function(opt_options) {
    *
    * Note: this may change if we ever support minimal/close-cropping.
    *
-   * @const {!Array<glift.enums.boardRegions>}
+   * @const {!Array<glift.enums.boardRegions>|undefined}
    */
   this.regionRestrictions = o.regionRestrictions || undefined;
+
+  /**
+   * AutoRotatePrefs controls whether auto-rotation is performed. If not
+   * specifed, no autorotation takes place.
+   *
+   * @const {!glift.orientation.AutoRotatePrefs|undefined}
+   */
+  this.autoRotatePrefs = o.autoRotatePrefs || undefined;
+
+  /**
+   * Specifies what positionType should have autorotation applied.
+   * @const {!Array<!gpub.spec.PositionType>}
+   */
+  this.autoRotateTypes = o.autoRotateTypes || [
+    gpub.spec.PositionType.PROBLEM,
+    gpub.spec.PositionType.POSITION_VARIATIONS,
+  ];
 
   /**
    * What size should the intersections be? Defaults to undefined since
