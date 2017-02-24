@@ -730,9 +730,9 @@ glift.flattener = {};
  *  nextMovesPath: (!glift.rules.Treepath|string|!Array<number>|undefined),
  *  startingMoveNum: (number|undefined),
  *  boardRegion: (glift.enums.boardRegions|undefined),
+ *  autoRotateCropPrefs: (!glift.orientation.AutoRotateCropPrefs|undefined),
  *  regionRestrictions: (!Array<glift.enums.boardRegions>|undefined),
  *  showNextVariationsType: (glift.enums.showVariations|undefined),
- *  autoBoxCropOnNextMoves: (boolean|undefined),
  *  markLastMove: (boolean|undefined),
  *  selectedNextMove: (?glift.rules.Move|undefined),
  *  showKoLocation: (boolean|undefined),
@@ -5222,7 +5222,7 @@ glift.orientation.getDisplayPts_ = function(movetree, opt_nextMovesPath) {
   return pts;
 };
 
-goog.provide('glift.orientation.AutoRotatePrefs');
+goog.provide('glift.orientation.AutoRotateCropPrefs');
 
 /**
  * Options for cropping
@@ -5234,7 +5234,7 @@ goog.provide('glift.orientation.AutoRotatePrefs');
  *  side: glift.enums.boardRegions,
  * }}
  */
-glift.orientation.AutoRotatePrefs;
+glift.orientation.AutoRotateCropPrefs;
 
 /**
  * Automatically rotate a movetree. Relies on findCanonicalRotation to find the
@@ -5242,10 +5242,10 @@ glift.orientation.AutoRotatePrefs;
  *
  * Size is determined by examining the sz property of the game.
  * @param {!glift.rules.MoveTree} movetree
- * @param {!glift.orientation.AutoRotatePrefs=} opt_prefs
+ * @param {!glift.orientation.AutoRotateCropPrefs=} opt_prefs
  * @return {!glift.rules.MoveTree}
  */
-glift.orientation.autoRotate = function(movetree, opt_prefs) {
+glift.orientation.autoRotateCrop = function(movetree, opt_prefs) {
   var nmt = movetree.newTreeRef();
   var rotation = glift.orientation.findCanonicalRotation(movetree, opt_prefs);
   nmt.recurseFromRoot(function(mt) {
@@ -5269,13 +5269,11 @@ glift.orientation.autoRotate = function(movetree, opt_prefs) {
  * rotate commentary diagrams.
  *
  * @param {!glift.rules.MoveTree} movetree
- * @param {!glift.orientation.AutoRotatePrefs=} opt_prefs
- * @param {!(glift.rules.Treepath|string)=} opt_nextMovesPath
- *    Optional next moves path for cropping along a specific path.
+ * @param {!glift.orientation.AutoRotateCropPrefs=} opt_prefs
  * @return {!glift.enums.rotations} The rotation that should be performed.
  */
 glift.orientation.findCanonicalRotation =
-    function(movetree, opt_prefs, opt_nextMovesPath) {
+    function(movetree, opt_prefs) {
   var boardRegions = glift.enums.boardRegions;
   var rotations = glift.enums.rotations;
   var cornerRegions = {
@@ -5299,8 +5297,7 @@ glift.orientation.findCanonicalRotation =
     };
   }
 
-  var region = glift.orientation.getQuadCropFromMovetree(
-      movetree, opt_nextMovesPath);
+  var region = glift.orientation.getQuadCropFromMovetree(movetree);
 
   if (cornerRegions[region] !== undefined ||
       sideRegions[region] !== undefined) {
@@ -9215,7 +9212,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.27
+ * @version 0.3.28
  * --------------------------------------
  */
 (function(w) {
@@ -9522,6 +9519,9 @@ gpub.api.DiagramOptions = function(opt_options) {
   /**
    * AutoRotatePrefs controls whether auto-rotation is performed. If not
    * specifed, no autorotation takes place.
+   *
+   * Be careful with this option! This will break horribly if multiple types of
+   * positions (e.g., game commentary, problems) are combined into one SGF.
    *
    * @const {!glift.orientation.AutoRotatePrefs|undefined}
    */
@@ -11251,14 +11251,24 @@ gpub.diagrams.enabledRenderers = {};
  * @constructor @struct @final
  */
 gpub.diagrams.Renderer = function(spec, opts, cache) {
-  /** @const {!gpub.spec.Spec} */
+  /** @private @const {!gpub.spec.Spec} */
   this.spec_ = spec;
 
-  /** @const {!gpub.api.DiagramOptions} */
+  /** @private @const {!gpub.api.DiagramOptions} */
   this.opts_ = opts;
 
-  /** @const {!gpub.util.MoveTreeCache} */
+  /** @private @const {!gpub.util.MoveTreeCache} */
   this.cache_ = cache;
+
+  /**
+   * A set used to determine whether a movetree has been considered for
+   * rotation. There is an implicit assumption that each movetree has a
+   * well-defined categorization. If this is not true -- i.e., there's
+   * commentary *and* problems in one SGF/movetree -- everything breaks.
+   *
+   * @private @const {!Object<string, boolean>}
+   */
+  this.rotatedMovetrees_ = {};
 
   /**
    * Number of diagrams that have been rendered.

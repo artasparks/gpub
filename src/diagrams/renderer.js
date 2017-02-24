@@ -21,14 +21,24 @@ gpub.diagrams.enabledRenderers = {};
  * @constructor @struct @final
  */
 gpub.diagrams.Renderer = function(spec, opts, cache) {
-  /** @const {!gpub.spec.Spec} */
+  /** @private @const {!gpub.spec.Spec} */
   this.spec_ = spec;
 
-  /** @const {!gpub.api.DiagramOptions} */
+  /** @private @const {!gpub.api.DiagramOptions} */
   this.opts_ = opts;
 
-  /** @const {!gpub.util.MoveTreeCache} */
+  /** @private @const {!gpub.util.MoveTreeCache} */
   this.cache_ = cache;
+
+  /**
+   * A set used to determine whether a movetree has been considered for
+   * rotation. There is an implicit assumption that each movetree has a
+   * well-defined categorization. If this is not true -- i.e., there's
+   * commentary *and* problems in one SGF/movetree -- everything breaks.
+   *
+   * @private @const {!Object<string, boolean>}
+   */
+  this.rotatedMovetrees_ = {};
 
   /**
    * Number of diagrams that have been rendered.

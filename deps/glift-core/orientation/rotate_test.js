@@ -44,14 +44,14 @@
       '(;GM[1]B[cb]C[foo];W[ac])');
 
     deepEqual(mt.properties().getAsPoint('B'),  pt(2, 1));
-    var nmt = glift.orientation.autoRotate(mt, {
+    var nmt = glift.orientation.autoRotateCrop(mt, {
       corner: boardRegions.TOP_LEFT,
       side: boardRegions.TOP
     });
     deepEqual(nmt.properties().getAsPoint('B'),  pt(2, 1));
     deepEqual(nmt.properties().getOneValue('C'), 'foo');
 
-    nmt = glift.orientation.autoRotate(mt, {
+    nmt = glift.orientation.autoRotateCrop(mt, {
       corner: boardRegions.TOP_RIGHT,
       side: boardRegions.TOP
     });
@@ -60,13 +60,13 @@
     nmt.moveDown();
     deepEqual(nmt.properties().getAsPoint('W'),  pt(16, 0));
 
-    nmt = glift.orientation.autoRotate(mt, {
+    nmt = glift.orientation.autoRotateCrop(mt, {
       corner: boardRegions.BOTTOM_RIGHT,
       side: boardRegions.TOP
     });
     deepEqual(nmt.properties().getAsPoint('B'),  pt(16, 17));
 
-    nmt = glift.orientation.autoRotate(mt, {
+    nmt = glift.orientation.autoRotateCrop(mt, {
       corner: boardRegions.BOTTOM_LEFT,
       side: boardRegions.TOP
     });

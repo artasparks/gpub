@@ -1,4 +1,4 @@
-goog.provide('glift.orientation.AutoRotatePrefs');
+goog.provide('glift.orientation.AutoRotateCropPrefs');
 
 /**
  * Options for cropping
@@ -10,7 +10,7 @@ goog.provide('glift.orientation.AutoRotatePrefs');
  *  side: glift.enums.boardRegions,
  * }}
  */
-glift.orientation.AutoRotatePrefs;
+glift.orientation.AutoRotateCropPrefs;
 
 /**
  * Automatically rotate a movetree. Relies on findCanonicalRotation to find the
@@ -18,10 +18,10 @@ glift.orientation.AutoRotatePrefs;
  *
  * Size is determined by examining the sz property of the game.
  * @param {!glift.rules.MoveTree} movetree
- * @param {!glift.orientation.AutoRotatePrefs=} opt_prefs
+ * @param {!glift.orientation.AutoRotateCropPrefs=} opt_prefs
  * @return {!glift.rules.MoveTree}
  */
-glift.orientation.autoRotate = function(movetree, opt_prefs) {
+glift.orientation.autoRotateCrop = function(movetree, opt_prefs) {
   var nmt = movetree.newTreeRef();
   var rotation = glift.orientation.findCanonicalRotation(movetree, opt_prefs);
   nmt.recurseFromRoot(function(mt) {
@@ -45,13 +45,11 @@ glift.orientation.autoRotate = function(movetree, opt_prefs) {
  * rotate commentary diagrams.
  *
  * @param {!glift.rules.MoveTree} movetree
- * @param {!glift.orientation.AutoRotatePrefs=} opt_prefs
- * @param {!(glift.rules.Treepath|string)=} opt_nextMovesPath
- *    Optional next moves path for cropping along a specific path.
+ * @param {!glift.orientation.AutoRotateCropPrefs=} opt_prefs
  * @return {!glift.enums.rotations} The rotation that should be performed.
  */
 glift.orientation.findCanonicalRotation =
-    function(movetree, opt_prefs, opt_nextMovesPath) {
+    function(movetree, opt_prefs) {
   var boardRegions = glift.enums.boardRegions;
   var rotations = glift.enums.rotations;
   var cornerRegions = {
@@ -75,8 +73,7 @@ glift.orientation.findCanonicalRotation =
     };
   }
 
-  var region = glift.orientation.getQuadCropFromMovetree(
-      movetree, opt_nextMovesPath);
+  var region = glift.orientation.getQuadCropFromMovetree(movetree);
 
   if (cornerRegions[region] !== undefined ||
       sideRegions[region] !== undefined) {
