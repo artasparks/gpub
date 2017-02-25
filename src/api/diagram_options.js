@@ -68,31 +68,6 @@ gpub.api.DiagramOptions = function(opt_options) {
   this.regionRestrictions = o.regionRestrictions || undefined;
 
   /**
-   * AutoRotateCropPrefs controls whether auto-rotation is performed for a
-   * cropping. As an example: if the crop-corner specified is TOP_LEFT and the
-   * crop used is TOP_RIGHT, the sgf will be rotated 90 degrees to the left.
-   *
-   * If not specifed, no autorotation takes place. This is generally
-   * intended for problems to ensure that problems consistently in a corner or
-   * on a side.
-   *
-   * Be careful with this option! This will break horribly if multiple types of
-   * positions (e.g., game commentary, problems) are combined into one SGF.
-   *
-   * @const {!glift.orientation.AutoRotateCropPrefs|undefined}
-   */
-  this.autoRotateCorpPrefs = o.autoRotateCorpPrefs || undefined;
-
-  /**
-   * Specifies what positionType should have autorotation applied.
-   * @const {!Array<!gpub.spec.PositionType>}
-   */
-  this.autoRotateTypes = o.autoRotateTypes || [
-    gpub.spec.PositionType.PROBLEM,
-    //gpub.spec.PositionType.POSITION_VARIATIONS,
-  ];
-
-  /**
    * What size should the intersections be? Defaults to undefined since
    * different diagram types may have a different idea of what a good default
    * is, and if it's undefined, the particular diagram type will pick the

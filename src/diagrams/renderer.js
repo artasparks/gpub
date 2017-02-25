@@ -31,16 +31,6 @@ gpub.diagrams.Renderer = function(spec, opts, cache) {
   this.cache_ = cache;
 
   /**
-   * A set used to determine whether a movetree has been considered for
-   * rotation. There is an implicit assumption that each movetree has a
-   * well-defined categorization. If this is not true -- i.e., there's
-   * commentary *and* problems in one SGF/movetree -- everything breaks.
-   *
-   * @private @const {!Object<string, boolean>}
-   */
-  this.rotatedMovetrees_ = {};
-
-  /**
    * Number of diagrams that have been rendered.
    * @private {number}
    */

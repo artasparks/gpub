@@ -9517,26 +9517,6 @@ gpub.api.DiagramOptions = function(opt_options) {
   this.regionRestrictions = o.regionRestrictions || undefined;
 
   /**
-   * AutoRotatePrefs controls whether auto-rotation is performed. If not
-   * specifed, no autorotation takes place.
-   *
-   * Be careful with this option! This will break horribly if multiple types of
-   * positions (e.g., game commentary, problems) are combined into one SGF.
-   *
-   * @const {!glift.orientation.AutoRotatePrefs|undefined}
-   */
-  this.autoRotatePrefs = o.autoRotatePrefs || undefined;
-
-  /**
-   * Specifies what positionType should have autorotation applied.
-   * @const {!Array<!gpub.spec.PositionType>}
-   */
-  this.autoRotateTypes = o.autoRotateTypes || [
-    gpub.spec.PositionType.PROBLEM,
-    gpub.spec.PositionType.POSITION_VARIATIONS,
-  ];
-
-  /**
    * What size should the intersections be? Defaults to undefined since
    * different diagram types may have a different idea of what a good default
    * is, and if it's undefined, the particular diagram type will pick the
@@ -9991,6 +9971,31 @@ gpub.api.SpecOptions = function(opt_options) {
    * @const {!glift.rules.ProblemConditions}
    */
   this.problemConditions = o.problemConditions || defaultProbCon;
+
+  /**
+   * AutoRotateCropPrefs controls whether auto-rotation is performed for a
+   * cropping. As an example: if the crop-corner specified is TOP_LEFT and the
+   * crop used is TOP_RIGHT, the sgf will be rotated 90 degrees to the left.
+   *
+   * If not specifed, no autorotation takes place. This is generally
+   * intended for problems to ensure that problems consistently in a corner or
+   * on a side.
+   *
+   * Be careful with this option! This will break horribly if multiple types of
+   * positions (e.g., game commentary, problems) are combined into one SGF.
+   *
+   * @const {!glift.orientation.AutoRotateCropPrefs|undefined}
+   */
+  this.autoRotateCropPrefs = o.autoRotateCropPrefs || undefined;
+
+  /**
+   * Specifies what positionType should have autorotation applied.
+   * @const {!Array<!gpub.spec.PositionType>}
+   */
+  this.autoRotateTypes = o.autoRotateTypes || [
+    gpub.spec.PositionType.PROBLEM,
+    //gpub.spec.PositionType.POSITION_VARIATIONS,
+  ];
 };
 
 });
@@ -11259,16 +11264,6 @@ gpub.diagrams.Renderer = function(spec, opts, cache) {
 
   /** @private @const {!gpub.util.MoveTreeCache} */
   this.cache_ = cache;
-
-  /**
-   * A set used to determine whether a movetree has been considered for
-   * rotation. There is an implicit assumption that each movetree has a
-   * well-defined categorization. If this is not true -- i.e., there's
-   * commentary *and* problems in one SGF/movetree -- everything breaks.
-   *
-   * @private @const {!Object<string, boolean>}
-   */
-  this.rotatedMovetrees_ = {};
 
   /**
    * Number of diagrams that have been rendered.
