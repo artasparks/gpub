@@ -118,6 +118,9 @@ gpub.spec.Processor.prototype = {
    */
   generatePositions_: function(posType, pos) {
     var mt = this.getMovetree_(pos);
+    mt = this.possiblyRotate_(
+        mt, pos.alias, posType, this.originalSpec_.specOptions);
+
     // Create a new ID gen instance for creating IDs.
     var idGen = this.getIdGen_();
     switch(posType) {
@@ -128,6 +131,9 @@ gpub.spec.Processor.prototype = {
         return gpub.spec.processProblems(
             mt, pos, idGen, this.originalSpec_.specOptions);
         break;
+
+      case 'POSITION_VARIATIONS':
+        throw new Error('Not supported');
 
       case 'EXAMPLE':
         return null;
@@ -153,6 +159,26 @@ gpub.spec.Processor.prototype = {
           + JSON.stringify(position));
     }
     return this.mtCache_.get(alias);
+  },
+
+  /**
+   * Gets a movetree for an position
+   *
+   * @param {!glift.rules.MoveTree} movetree
+   * @param {string} alias
+   * @param {!gpub.spec.PositionType} posType
+   * @param {!gpub.api.SpecOptions} opts
+   * @return {!glift.rules.MoveTree}
+   * @private
+   */
+  possiblyRotate_: function(movetree, alias, posType, opts) {
+    if (opts.autoRotateCropTypes[posType] && opts.autoRotateCropPrefs) {
+      var nmt = glift.orientation.autoRotateCrop(
+          movetree, opts.autoRotateCropPrefs)
+      this.mtCache_.set(alias, nmt);
+      return nmt.getTreeFromRoot();
+    }
+    return movetree;
   },
 
   /**
@@ -187,4 +213,3 @@ gpub.spec.Processor.prototype = {
     return this.idGen_;
   }
 };
-

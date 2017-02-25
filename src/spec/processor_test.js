@@ -50,4 +50,46 @@
     });
   });
 
+  test('Process one SGF: no rotate (game)', function() {
+    var sgfZed = '(;GM[1]GN[Zed];B[aa];W[bb]C[So good!];B[cc])';
+    var cache = new gpub.util.MoveTreeCache();
+    var id = 'Zed';
+    var spec = gpub.spec.create(new gpub.Options({
+      sgfs: [sgfZed],
+      ids: [id],
+      specOptions: {
+        positionType: 'PROBLEM',
+        autoRotateCropPrefs: {
+          corner: 'TOP_RIGHT',
+          side: 'RIGHT',
+        }
+      }
+    }), cache);
+
+    var proc = gpub.spec.process(spec, cache);
+    var nmt = cache.get(id)
+    nmt.moveDown();
+    deepEqual(nmt.properties().getOneValue('B'), 'sa');
+  });
+
+  test('Process one SGF: no rotate (game)', function() {
+    var sgfZed = '(;GM[1]GN[Zed];B[aa];W[bb]C[So good!];B[cc])';
+    var cache = new gpub.util.MoveTreeCache();
+    var id = 'Zed';
+    var spec = gpub.spec.create(new gpub.Options({
+      sgfs: [sgfZed],
+      ids: [id],
+      specOptions: {
+        autoRotateCropPrefs: {
+          corner: 'TOP_RIGHT',
+          side: 'RIGHT',
+        }
+      }
+    }), cache);
+
+    var proc = gpub.spec.process(spec, cache);
+    var nmt = cache.get(id)
+    nmt.moveDown();
+    deepEqual(nmt.properties().getOneValue('B'), 'aa', 'no-change: not problem')
+  });
 })();

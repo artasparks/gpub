@@ -31,7 +31,7 @@ glift.orientation.autoRotateCrop = function(movetree, opt_prefs) {
       props.rotate(prop, size, rotation);
     });
   });
-  return nmt;
+  return nmt.getTreeFromRoot();
 };
 
 /**

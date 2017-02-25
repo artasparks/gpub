@@ -5255,7 +5255,7 @@ glift.orientation.autoRotateCrop = function(movetree, opt_prefs) {
       props.rotate(prop, size, rotation);
     });
   });
-  return nmt;
+  return nmt.getTreeFromRoot();
 };
 
 /**
@@ -9972,6 +9972,21 @@ gpub.api.SpecOptions = function(opt_options) {
    */
   this.problemConditions = o.problemConditions || defaultProbCon;
 
+
+  // Rotation options
+  //
+  // Some notes: It may seem like rotation should be at the diagram-level, and
+  // it's certainly possible to put it there with some work. However, rotations
+  // affect the entire movetree permanently (it's not just a rendering-change)
+  // and so should be performed early in the GPub-generation process. The spec
+  // is the earliest point at which this makes sense.
+  //
+  // They will also break if multiple types of positions (e.g., game
+  // commentary, problems) are combined into one SGF.
+  //
+  // It's generally recommended that the SGFs be rotated with a script and then
+  // saved that way. However, this might not always make sense.
+
   /**
    * AutoRotateCropPrefs controls whether auto-rotation is performed for a
    * cropping. As an example: if the crop-corner specified is TOP_LEFT and the
@@ -9981,21 +9996,18 @@ gpub.api.SpecOptions = function(opt_options) {
    * intended for problems to ensure that problems consistently in a corner or
    * on a side.
    *
-   * Be careful with this option! This will break horribly if multiple types of
-   * positions (e.g., game commentary, problems) are combined into one SGF.
-   *
    * @const {!glift.orientation.AutoRotateCropPrefs|undefined}
    */
   this.autoRotateCropPrefs = o.autoRotateCropPrefs || undefined;
 
   /**
    * Specifies what positionType should have autorotation applied.
-   * @const {!Array<!gpub.spec.PositionType>}
+   * @const {!Object<!gpub.spec.PositionType, boolean>}
    */
-  this.autoRotateTypes = o.autoRotateTypes || [
-    gpub.spec.PositionType.PROBLEM,
-    //gpub.spec.PositionType.POSITION_VARIATIONS,
-  ];
+  this.autoRotateCropTypes = o.autoRotateCropTypes || {
+    'PROBLEM': true,
+    'POSITION_VARIATIONS': true,
+  };
 };
 
 });
@@ -10791,6 +10803,9 @@ gpub.spec.Processor.prototype = {
    */
   generatePositions_: function(posType, pos) {
     var mt = this.getMovetree_(pos);
+    mt = this.possiblyRotate_(
+        mt, pos.alias, posType, this.originalSpec_.specOptions);
+
     // Create a new ID gen instance for creating IDs.
     var idGen = this.getIdGen_();
     switch(posType) {
@@ -10801,6 +10816,9 @@ gpub.spec.Processor.prototype = {
         return gpub.spec.processProblems(
             mt, pos, idGen, this.originalSpec_.specOptions);
         break;
+
+      case 'POSITION_VARIATIONS':
+        throw new Error('Not supported');
 
       case 'EXAMPLE':
         return null;
@@ -10826,6 +10844,26 @@ gpub.spec.Processor.prototype = {
           + JSON.stringify(position));
     }
     return this.mtCache_.get(alias);
+  },
+
+  /**
+   * Gets a movetree for an position
+   *
+   * @param {!glift.rules.MoveTree} movetree
+   * @param {string} alias
+   * @param {!gpub.spec.PositionType} posType
+   * @param {!gpub.api.SpecOptions} opts
+   * @return {!glift.rules.MoveTree}
+   * @private
+   */
+  possiblyRotate_: function(movetree, alias, posType, opts) {
+    if (opts.autoRotateCropTypes[posType] && opts.autoRotateCropPrefs) {
+      var nmt = glift.orientation.autoRotateCrop(
+          movetree, opts.autoRotateCropPrefs)
+      this.mtCache_.set(alias, nmt);
+      return nmt.getTreeFromRoot();
+    }
+    return movetree;
   },
 
   /**
@@ -10860,7 +10898,6 @@ gpub.spec.Processor.prototype = {
     return this.idGen_;
   }
 };
-
 
 goog.provide('gpub.spec.SpecVersion');
 goog.provide('gpub.spec.Spec');
@@ -13604,7 +13641,7 @@ gpub.util.MoveTreeCache.prototype = {
   get: function(alias) {
     var mt = this.mtCache[alias];
     if (mt) {
-      return mt;
+      return mt.getTreeFromRoot();
     }
     if (this.sgfMap[alias]) {
       var str = this.sgfMap[alias];
@@ -13614,7 +13651,20 @@ gpub.util.MoveTreeCache.prototype = {
       throw new Error('No SGF found for alias in sgfMap: ' + alias);
     }
     return mt.getTreeFromRoot();
-  }
+  },
+
+  /**
+   * Replace a movetree / SGF.
+   * @param {string} alias
+   * @param {!glift.rules.MoveTree} movetree
+   */
+  set: function(alias, movetree) {
+    if (!alias) {
+      throw new Error('Alias must be defined.');
+    }
+    this.mtCache[alias] = movetree
+    this.sgfMap[alias] = movetree.toSgf();
+  },
 };
 
 gpub.util.size = {

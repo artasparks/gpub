@@ -54,6 +54,21 @@ gpub.api.SpecOptions = function(opt_options) {
    */
   this.problemConditions = o.problemConditions || defaultProbCon;
 
+
+  // Rotation options
+  //
+  // Some notes: It may seem like rotation should be at the diagram-level, and
+  // it's certainly possible to put it there with some work. However, rotations
+  // affect the entire movetree permanently (it's not just a rendering-change)
+  // and so should be performed early in the GPub-generation process. The spec
+  // is the earliest point at which this makes sense.
+  //
+  // They will also break if multiple types of positions (e.g., game
+  // commentary, problems) are combined into one SGF.
+  //
+  // It's generally recommended that the SGFs be rotated with a script and then
+  // saved that way. However, this might not always make sense.
+
   /**
    * AutoRotateCropPrefs controls whether auto-rotation is performed for a
    * cropping. As an example: if the crop-corner specified is TOP_LEFT and the
@@ -63,21 +78,18 @@ gpub.api.SpecOptions = function(opt_options) {
    * intended for problems to ensure that problems consistently in a corner or
    * on a side.
    *
-   * Be careful with this option! This will break horribly if multiple types of
-   * positions (e.g., game commentary, problems) are combined into one SGF.
-   *
    * @const {!glift.orientation.AutoRotateCropPrefs|undefined}
    */
   this.autoRotateCropPrefs = o.autoRotateCropPrefs || undefined;
 
   /**
    * Specifies what positionType should have autorotation applied.
-   * @const {!Array<!gpub.spec.PositionType>}
+   * @const {!Object<!gpub.spec.PositionType, boolean>}
    */
-  this.autoRotateTypes = o.autoRotateTypes || [
-    gpub.spec.PositionType.PROBLEM,
-    //gpub.spec.PositionType.POSITION_VARIATIONS,
-  ];
+  this.autoRotateCropTypes = o.autoRotateCropTypes || {
+    'PROBLEM': true,
+    'POSITION_VARIATIONS': true,
+  };
 };
 
 });

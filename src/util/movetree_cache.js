@@ -33,7 +33,7 @@ gpub.util.MoveTreeCache.prototype = {
   get: function(alias) {
     var mt = this.mtCache[alias];
     if (mt) {
-      return mt;
+      return mt.getTreeFromRoot();
     }
     if (this.sgfMap[alias]) {
       var str = this.sgfMap[alias];
@@ -43,5 +43,18 @@ gpub.util.MoveTreeCache.prototype = {
       throw new Error('No SGF found for alias in sgfMap: ' + alias);
     }
     return mt.getTreeFromRoot();
-  }
+  },
+
+  /**
+   * Replace a movetree / SGF.
+   * @param {string} alias
+   * @param {!glift.rules.MoveTree} movetree
+   */
+  set: function(alias, movetree) {
+    if (!alias) {
+      throw new Error('Alias must be defined.');
+    }
+    this.mtCache[alias] = movetree
+    this.sgfMap[alias] = movetree.toSgf();
+  },
 };
