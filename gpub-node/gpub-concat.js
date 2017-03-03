@@ -9494,7 +9494,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.28
+ * @version 0.3.29
  * --------------------------------------
  */
 (function(w) {
@@ -10898,6 +10898,11 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
   var alias = position.alias;
   mt = mt.newTreeRef();
 
+  if (opt.autoRotateCropPrefs &&
+      opt.autoRotateCropTypes[gpub.spec.PositionType.PROBLEM]) {
+    mt = glift.orientation.autoRotateCrop(mt, opt.autoRotateCropPrefs);
+  }
+
   var ipString = glift.rules.treepath.toInitPathString;
   var fragString = glift.rules.treepath.toFragmentString;
 
@@ -10905,6 +10910,7 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
     id: position.id
   });
 
+  // Should be empty now.
   var initPos = mt.treepathToHere();
 
   gen.labels[gpub.spec.PositionType.PROBLEM] = [];
