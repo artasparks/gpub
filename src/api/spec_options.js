@@ -90,6 +90,13 @@ gpub.api.SpecOptions = function(opt_options) {
     'PROBLEM': true,
     'POSITION_VARIATIONS': true,
   };
+
+  /**
+   * Whether to autorotate Game commentary types so that the first move is
+   * always in the upper-right. Defaults to true.
+   * @const {boolean}
+   */
+  this.autoRotateGames = o.autoRotateGames !== undefined ? !!o.autoRotateGames : true;
 };
 
 });
