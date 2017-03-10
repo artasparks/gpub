@@ -35,6 +35,7 @@ var srcPaths = [
   'src/util',
   'src/book',
   'src/book/latex',
+  'src/templates',
 ]
 
 // Ignore the test files
