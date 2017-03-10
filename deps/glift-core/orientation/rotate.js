@@ -5,13 +5,14 @@ goog.provide('glift.orientation.AutoRotateCropPrefs');
  * - What are the destination cropping-regions? Either (or both) a side or
  *   corner can be indicated.
  * - Should the points be flipped over the X or Y axis to get to the desired
- *   crop? By default we rotate, but this can be overridden to do prefer doing
- *   flips (if possible).
+ *   crop? By default we flip, but this can be overridden to do prefer doing
+ *   rotates (if possible). Rotation might seem like the natural approach, but
+ *   it's not usually ideal due to asymmetry in the crop-boxes.
  *
  * @typedef {{
  *  corner: (glift.enums.boardRegions|undefined),
  *  side: (glift.enums.boardRegions|undefined),
- *  preferFlips: (boolean|undefined),
+ *  preferRotate: (boolean|undefined),
  * }}
  */
 glift.orientation.AutoRotateCropPrefs;
@@ -80,11 +81,12 @@ glift.orientation.autoRotateCrop = function(movetree, opt_prefs) {
     return nmt.getTreeFromRoot();
   }
 
-  var doFlips = !!opt_prefs.preferFlips;
+  var doRots = !!opt_prefs.preferRotate;
   var flip = glift.enums.Flip.NO_FLIP;
-  if (doFlips) {
+  if (!doRots) {
     flip = glift.orientation.flipForRotation_(region, rotation);
   }
+
   if (flip !== glift.enums.Flip.NO_FLIP) {
     glift.orientation.flipMovetree(movetree, flip);
   } else {

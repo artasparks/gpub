@@ -46,14 +46,16 @@
     deepEqual(mt.properties().getAsPoint('B'),  pt(2, 1));
     var nmt = glift.orientation.autoRotateCrop(mt, {
       corner: boardRegions.TOP_LEFT,
-      side: boardRegions.TOP
+      side: boardRegions.TOP,
+      preferRotate: true,
     });
     deepEqual(nmt.properties().getAsPoint('B'),  pt(2, 1));
     deepEqual(nmt.properties().getOneValue('C'), 'foo');
 
     nmt = glift.orientation.autoRotateCrop(mt, {
       corner: boardRegions.TOP_RIGHT,
-      side: boardRegions.TOP
+      side: boardRegions.TOP,
+      preferRotate: true,
     });
     deepEqual(nmt.properties().getAsPoint('B'),  pt(17, 2));
     deepEqual(nmt.properties().getOneValue('C'), 'foo');
@@ -62,13 +64,15 @@
 
     nmt = glift.orientation.autoRotateCrop(mt, {
       corner: boardRegions.BOTTOM_RIGHT,
-      side: boardRegions.TOP
+      side: boardRegions.TOP,
+      preferRotate: true,
     });
     deepEqual(nmt.properties().getAsPoint('B'),  pt(16, 17));
 
     nmt = glift.orientation.autoRotateCrop(mt, {
       corner: boardRegions.BOTTOM_LEFT,
-      side: boardRegions.TOP
+      side: boardRegions.TOP,
+      preferRotate: true,
     });
     deepEqual(nmt.properties().getAsPoint('B'),  pt(1, 16));
   });
@@ -82,7 +86,7 @@
     // Should be no flip
     var nmt = glift.orientation.autoRotateCrop(mt, {
       corner: boardRegions.TOP_LEFT,
-      preferFlips: true,
+      preferRotate: false,
     });
     deepEqual(nmt.properties().getAsPoint('B'),  pt(2, 1));
     deepEqual(nmt.properties().getOneValue('C'), 'foo');
@@ -91,7 +95,7 @@
     mt = glift.rules.movetree.getFromSgf(sgf);
     nmt = glift.orientation.autoRotateCrop(mt, {
       corner: boardRegions.TOP_RIGHT,
-      preferFlips: true,
+      preferRotate: false,
     });
     deepEqual(nmt.properties().getAsPoint('B'),  pt(16, 1));
     deepEqual(nmt.properties().getOneValue('C'), 'foo');
@@ -102,7 +106,7 @@
     mt = glift.rules.movetree.getFromSgf(sgf);
     nmt = glift.orientation.autoRotateCrop(mt, {
       corner: boardRegions.BOTTOM_LEFT,
-      preferFlips: true,
+      preferRotate: false,
     });
     deepEqual(nmt.properties().getAsPoint('B'),  pt(2, 17));
     deepEqual(nmt.properties().getOneValue('C'), 'foo');
@@ -119,7 +123,7 @@
     // Should be no flip
     var nmt = glift.orientation.autoRotateCrop(mt, {
       side: boardRegions.TOP,
-      preferFlips: true,
+      preferRotate: false,
     });
     nmt.moveDown();
     deepEqual(nmt.properties().getAsPoint('B').toString(),  pt(2, 1).toString());
@@ -129,7 +133,7 @@
     mt = glift.rules.movetree.getFromSgf(sgf);
     nmt = glift.orientation.autoRotateCrop(mt, {
       side: boardRegions.BOTTOM,
-      preferFlips: true,
+      preferRotate: false,
     });
     deepEqual(nmt.properties().getAsPoint('AB').toString(),  pt(0, 18).toString());
     nmt.moveDown();
@@ -140,7 +144,7 @@
     mt = glift.rules.movetree.getFromSgf(sgf);
     nmt = glift.orientation.autoRotateCrop(mt, {
       side: boardRegions.RIGHT,
-      preferFlips: true,
+      preferRotate: false,
     });
     deepEqual(nmt.properties().getAsPoint('AB'),  pt(18, 0));
     nmt.moveDown();
