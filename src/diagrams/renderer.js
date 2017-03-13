@@ -172,6 +172,7 @@ gpub.diagrams.Renderer.prototype = {
       nextMovesPath: glift.rules.treepath.parseFragment(pos.nextMovesPath  || ''),
       autoBoxCropOnVariation: this.opts_.autoBoxCropOnVariation,
       regionRestrictions: this.opts_.regionRestrictions,
+      clearMarks: this.opts_.clearMarks,
     };
     var flattened = glift.flattener.flatten(mt, flattenOpts);
     var dr = this.diagramRenderer();

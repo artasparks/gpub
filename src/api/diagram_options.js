@@ -81,6 +81,13 @@ gpub.api.DiagramOptions = function(opt_options) {
   this.goIntersectionSize = o.goIntersectionSize || undefined;
 
   /**
+   * Whether or not to clear the marks from the diagram. Note: this just
+   * affects marks that exist as part of the movetree.
+   * @const {boolean|undefined}
+   */
+  this.clearMarks = o.clearMarks || undefined;
+
+  /**
    * Option-overrides for specific diagram types.
    * @const {!Object<gpub.diagrams.Type, !Object>}
    */
