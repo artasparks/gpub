@@ -9505,7 +9505,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.29
+ * @version 0.3.30
  * --------------------------------------
  */
 (function(w) {
@@ -15456,9 +15456,11 @@ gpub.book.latex.PdfxOptions;
 
 goog.provide('gpub.templates');
 goog.provide('gpub.templates.Style');
-goog.provide('gpub.templates.Templater');
 
 
+/**
+ * Namespace for templates library.
+ */
 gpub.templates = {};
 
 
@@ -15484,14 +15486,42 @@ gpub.templates.Style = {
   PROBLEM_EBOOK: 'PROBLEM_EBOOK',
 };
 
-
 /**
- * @private {!Object<gpub.templates.Style, gpub.templates.Templater>}
+ * @param {gpub.templates.Style} style
+ * @return {!gpub.templates.Templater} template function
  */
-gpub.templates.registry_ = {};
+gpub.templates.getTemplater = function(style) {
+  switch(style) {
+    default:
+      throw new Error('Unknown or unsupported style: ' + style);
+  }
+};
 
+goog.provide('gpub.templates.Templater');
+goog.provide('gpub.templates.Input');
+goog.provide('gpub.templates.Output');
 
 /**
- * @typedef {function()}
+ * Input options to a Templater function.
+ * @typedef {(!gpub.Options|!gpub.spec.Spec)}
+ */
+gpub.templates.Input;
+
+/**
+ * Output options to a templater function
+ * @typedef {{
+ *  files: !Array<!gpub.book.File>,
+ *  spec: gpub.spec.Spec
+ * }}
+ */
+gpub.templates.Output;
+
+/**
+ * @typedef {function(gpub.templates.Input):!gpub.templates.Output}
  */
 gpub.templates.Templater;
+
+
+goog.scope(function() {
+
+});

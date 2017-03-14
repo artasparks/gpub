@@ -1,8 +1,10 @@
 goog.provide('gpub.templates');
 goog.provide('gpub.templates.Style');
-goog.provide('gpub.templates.Templater');
 
 
+/**
+ * Namespace for templates library.
+ */
 gpub.templates = {};
 
 
@@ -28,14 +30,13 @@ gpub.templates.Style = {
   PROBLEM_EBOOK: 'PROBLEM_EBOOK',
 };
 
-
 /**
- * @private {!Object<gpub.templates.Style, gpub.templates.Templater>}
+ * @param {gpub.templates.Style} style
+ * @return {!gpub.templates.Templater} template function
  */
-gpub.templates.registry_ = {};
-
-
-/**
- * @typedef {function()}
- */
-gpub.templates.Templater;
+gpub.templates.getTemplater = function(style) {
+  switch(style) {
+    default:
+      throw new Error('Unknown or unsupported style: ' + style);
+  }
+};

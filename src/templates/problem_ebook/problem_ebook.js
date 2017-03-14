@@ -1,0 +1,4 @@
+
+goog.scope(function() {
+
+});
