@@ -9585,61 +9585,22 @@ gpub.api.BookOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
-   * The format of the 'book' output that is produced by GPub.
-   * See gpub.outputFormat.
+   * The type of template to use.
    *
-   * @const {gpub.OutputFormat}
+   * @const {gpub.templates.Style}
    */
-  this.outputFormat = o.outputFormat || gpub.OutputFormat.LATEX;
+  this.template = o.template ||
+      gpub.templates.Style.RELENTLESS_COMMENTARY_LATEX;
 
   /**
-   * The size of the page. Element of gpub.book.page.type.
-   *
-   * @const {gpub.PageSize}
+   * @const {!gpub.book.Metadata}
    */
-  this.pageSize = o.pageSize || gpub.PageSize.LETTER;
-
-  /**
-   * Size of the intersections in the diagrams. If no units are specified, the
-   * number is assumed to be in pt. Can also be specified in 'in', 'mm', or
-   * 'em'.
-   *
-   * @const {string}
-   */
-  this.goIntersectionSize = o.goIntersectionSize || '12pt';
-
-  /**
-   * Override the default template.
-   * A false-y template will result in using the default template.
-   *
-   * @const {?string}
-   */
-  this.template = o.template || null;
-
-  /**
-   * Any additional setup that needs to be done in the header. I.e.,
-   * for diagram packages. Note, this is rather LaTeX specific, so should,
-   * perhaps, be moved somewhere else.
-   *
-   * @type {string}
-   */
-  // TODO(kashomon): Get rid of this.
-  this.init = o.init || '';
-
-  /** @type {?string} */
-  this.title = o.title || 'My Book';
-
-  /** @type {?string} */
-  this.subtitle = o.subtitle || null;
-
-  /** @type {?string} */
-  this.publisher = o.publisher || 'GPub';
-
-  /** @type {!Array<string>} */
-  this.authors = o.authors || [];
-
-  /** @type {?string} */
-  this.year = o.year || null;
+  this.metadata = o.metadata ?
+      new gpub.book.Metadata(o.metadata) :
+      new gpub.book.Metadata({
+        id: gpub.book.Metadata.guid(),
+        title: 'My Go Book!',
+      });
 
   /**
    * Frontmatter is text supporting the bulk of the the work that comes
@@ -9651,16 +9612,17 @@ gpub.api.BookOptions = function(opt_options) {
    * Not all of these will be supported by all the book-generators. For those
    * that do support the relevant sections, the frontmatter and backmatter are
    * dumped into the book options.
+   *
+   * @type {!gpub.api.Frontmatter}
    */
   this.frontmatter = new gpub.api.Frontmatter(o.frontmatter);
 
-  // TODO(kashomon): Give a real constructor to the appendices.
-  var app = o.appendices || {};
-
-  this.appendices = {};
-
-  /** @type {?string} */
-  this.appendices.glossary = app.glossary || null;
+  /**
+   * Appendices. E.g., Glossary, index, etc.
+   * @const {!Object<string, string>}
+   */
+  // TODO(kashomon): Give a real options constructor to the appendices.
+  this.appendices = o.appendices || {};
 };
 
 /**
@@ -9834,57 +9796,6 @@ gpub.api.DiagramOptions = function(opt_options) {
    * @const {!Object<gpub.diagrams.Type, !Object>}
    */
   this.typeOptions = o.typeOptions || {};
-};
-
-/**
- * The format for gpub output.
- *
- * @enum {string}
- */
-gpub.OutputFormat = {
-  /** Construct a book in ASCII format. */
-  ASCII: 'ASCII',
-
-  /** Constructs a EPub book. */
-  EPUB: 'EPUB',
-
-  /** Constructs a full HTML page. This is often useful for testing. */
-  HTMLPAGE: 'HTMLPAGE',
-
-  /** Construct a book with a LaTeX format. */
-  LATEX: 'LATEX'
-
-  /** Construct a book in Smart Go format. */
-  // SMART_GO: 'SMART_GO'
-
-  // Future Work:
-  // - ONLY_DIAGRAMS
-  // - ASCII
-  // - SmartGo Books
-};
-
-
-/**
- * Enum-like type enumerating the supported page sizes. The sizes here are meant
- * to represent sizes that professional printers will realistically print at.
- *
- * TODO(kashomon): IIt's possible that the height/width should be specified as
- * two separat params, but this helps prevents errors.
- *
- * @enum {string}
- */
-gpub.PageSize = {
-  A4: 'A4',
-  /** 8.5 x 11 */
-  LETTER: 'LETTER',
-  /** 6 x 9 */
-  OCTAVO: 'OCTAVO',
-  /** 5 x 7 */
-  NOTECARD: 'NOTECARD',
-  /** 8 x 10 */
-  EIGHT_TEN: 'EIGHT_TEN',
-  /** 5.5 x 8.5 */
-  FIVEFIVE_EIGHTFIVE: 'FIVEFIVE_EIGHTFIVE',
 };
 
 goog.provide('gpub.Api');
@@ -14366,6 +14277,117 @@ gpub.book.BookMaker.prototype = {
   },
 };
 
+goog.provide('gpub.book.Metadata');
+
+/**
+ * Grab bag of options for book generation.
+ *
+ * @param {!gpub.book.Metadata=} opt_o
+ * @constructor @struct @final
+ */
+gpub.book.Metadata = function(opt_o) {
+  var o = opt_o || {};
+
+  if (!o.id) {
+    throw new Error('Id was not defined. Options provided were: ' +
+        JSON.stringify(o))
+  }
+
+  if (!o.title) {
+    throw new Error('Title was not defined. Options provided were: ' +
+        JSON.stringify(o))
+  }
+
+  /**
+   * Unique identifier for this book.
+   * @type {string}
+   */
+  this.id = o.id;
+
+  /** @type {string} */
+  this.idType = o.idType || 'uuid';
+
+  /** @type {string} */
+  this.idName = o.idName || 'baduk-epub-id';
+
+  /** @type {string} */
+  this.isbn10 = o.isbn10 || '';
+
+  /** @type {string} */
+  this.isbn13 = o.isbn13 || '';
+
+  /**
+   * URI Identifier.
+   * @type {string}
+   */
+  this.uriId = o.uriId || 'http://github.com/Kashomon/gpub';
+
+  /** @type {string}  */
+  this.title = o.title || '';
+
+  // TODO(kashomon): Add subtitles. Maybe.
+  // https://www.mobileread.com/forums/showthread.php?t=210812
+  // this.subtitle
+
+  /** @type {string} */
+  this.lang = o.lang || 'en';
+
+  /** @type {string} */
+  this.subject = o.subject || 'Go, Baduk, Wei-qi, Board Games, Strategy Games';
+
+  /** @type {string} */
+  this.description = o.description || '';
+
+  /** @type {string} */
+  this.rights = o.rights || 'All Rights Reserved.';
+
+  /** @type {string} */
+  this.publisher = o.publisher || '';
+
+  /** @type {!Array<string>} */
+  this.authors = o.authors || '';
+
+  /** @type {string} */
+  this.relation = o.relation || 'http://github.com/Kashomon/gpub';
+
+  // simple padding function.
+  var dpad = function(dnum) {
+    return dnum < 10 ? '0' + dnum : '' + dnum;
+  }
+
+  var d = new Date();
+  /**
+   * ISO 8601 Date String
+   * @type {string}
+   */
+  this.generationDate = o.generationDate ||
+      d.toISOString().substring(0,19) + 'Z';
+  // this.generationDate = o.generationDate || (d.getUTCFullYear() +
+      // '-' + dpad(d.getUTCMonth() + 1) +
+      // '-' + dpad(d.getUTCDate()));
+
+  /** @type {string} */
+  this.publicationDate = o.publicationDate || '';
+  if (this.publicationDate && (
+      !/\d\d\d\d/.test(this.publicationDate) ||
+      !/\d\d\d\d-\d\d-\d\d/.test(this.publicationDate))) {
+    throw new Error('Publication date must have the form YYYY-MM-DD. ' +
+        'Was: ' + this.publicationDate);
+  }
+};
+
+/**
+ * A simple guide function
+ * @return {string} guid with the format
+ */
+gpub.book.Metadata.guid = function() {
+  // from stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+      return v.toString(16);
+  });
+};
+
 goog.provide('gpub.book.PageSize');
 goog.provide('gpub.book.pageDimensions');
 goog.provide('gpub.book.PageDim');
@@ -14392,8 +14414,9 @@ gpub.book.PageSize = {
    */
   NOTECARD: 'NOTECARD',
 
-  /** Miscellaneous sizes, named by the size. */
+  /** 8x10. Miscellaneous sizes, named by the size. */
   EIGHT_TEN: 'EIGHT_TEN',
+  /** 5.5 x 8.5 */
   FIVEFIVE_EIGHTFIVE: 'FIVEFIVE_EIGHTFIVE',
 };
 
@@ -14572,110 +14595,16 @@ gpub.book.epub.contentDoc = function(filename, contents, title) {
   };
 };
 
-goog.provide('gpub.book.epub.EpubOptions');
-
-// TODO(kashomon): Generalize this and/or combine with book options.
-
-/**
- * Options for ebook generation.
- * @param {!gpub.book.epub.EpubOptions=} opt_o
- * @constructor @struct @final
- */
-gpub.book.epub.EpubOptions = function(opt_o) {
-  var o = opt_o || {};
-
-  if (!o.id) {
-    throw new Error('Id was not defined. Options provided were: ' +
-        JSON.stringify(o))
-  }
-
-  if (!o.title) {
-    throw new Error('Title was not defined. Options provided were: ' +
-        JSON.stringify(o))
-  }
-
-  /**
-   * Should be an ISBN, if it's available.
-   * @type {string}
-   */
-  this.id = o.id;
-
-  /** @type {string} */
-  this.idType = o.idType || 'uuid';
-
-  /** @type {string} */
-  this.idName = o.idName || 'baduk-epub-id';
-
-  /** @type {string} */
-  this.isbn10 = o.isbn10 || '';
-
-  /** @type {string} */
-  this.isbn13 = o.isbn13 || '';
-
-  /**
-   * URI Identifier.
-   * @type {string}
-   */
-  this.uriId = o.uriId || 'http://github.com/Kashomon/gpub';
-
-  /** @type {string}  */
-  this.title = o.title || '';
-
-  /** @type {string} */
-  this.lang = o.lang || 'en';
-
-  /** @type {string} */
-  this.subject = o.subject || 'Go, Baduk, Wei-qi, Board Games, Strategy Games';
-
-  /** @type {string} */
-  this.description = o.description || '';
-
-  /** @type {string} */
-  this.rights = o.rights || 'All Rights Reserved.';
-
-  /** @type {string} */
-  this.publisher = o.publisher || '';
-
-  /** @type {string} */
-  this.author = o.author || ''; // AKA Author.
-
-  /** @type {string} */
-  this.relation = o.relation || 'http://github.com/Kashomon/gpub';
-
-  var dpad = function(dnum) {
-    return dnum < 10 ? '0' + dnum : '' + dnum;
-  }
-  var d = new Date();
-  /**
-   * ISO 8601 Date String
-   * @type {string}
-   */
-  this.generationDate = o.generationDate ||
-      d.toISOString().substring(0,19) + 'Z';
-  // this.generationDate = o.generationDate || (d.getUTCFullYear() +
-      // '-' + dpad(d.getUTCMonth() + 1) +
-      // '-' + dpad(d.getUTCDate()));
-
-  /** @type {string} */
-  this.publicationDate = o.publicationDate || '';
-  if (this.publicationDate && (
-      !/\d\d\d\d/.test(this.publicationDate) ||
-      !/\d\d\d\d-\d\d-\d\d/.test(this.publicationDate))) {
-    throw new Error('Publication date must have the form YYYY-MM-DD. ' +
-        'Was: ' + this.publicationDate);
-  }
-};
-
 goog.provide('gpub.book.epub.Builder');
 
 
 /**
  * Helper for building an ebook.
- * @param {!gpub.book.epub.EpubOptions} opts
+ * @param {!gpub.book.Metadata} opts
  * @constructor @struct @final
  */
 gpub.book.epub.Builder = function(opts) {
-  /** @type {!gpub.book.epub.EpubOptions} */
+  /** @type {!gpub.book.Metadata} */
   this.opts = opts;
 
   /**
@@ -14796,7 +14725,7 @@ gpub.book.epub.opf = {
    * See the following for more info:
    * - Spec: http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
    *
-   * @param {!gpub.book.epub.EpubOptions} opt
+   * @param {!gpub.book.Metadata} opt
    * @param {!Array<!gpub.book.File>} files
    * @param {!Array<string>} spineIds
    * @return {!gpub.book.File}
@@ -14844,7 +14773,7 @@ gpub.book.epub.opf = {
    * For more details about the fields, see:
    * http://dublincore.org/documents/2004/12/20/dces/
    *
-   * @param {!gpub.book.epub.EpubOptions} opt
+   * @param {!gpub.book.Metadata} opt
    * @return {string} The metadata block.
    */
   metadata: function(opt) {
@@ -14897,9 +14826,12 @@ gpub.book.epub.opf = {
       content +=
       '    <dc:publisher>' + opt.publisher + '</dc:publisher>\n';
     }
-    if (opt.author) {
-      content +=
-      '    <dc:creator>' + opt.author + '</dc:creator>\n';
+    if (opt.authors && opt.authors.length) {
+      for (var i = 0; i < opt.authors.length; i++) {
+        var a = opt.authors[i];
+        content +=
+        '    <dc:creator>' + a + '</dc:creator>\n';
+      }
     }
     if (opt.publicationDate) {
       content +=
@@ -15522,6 +15454,9 @@ gpub.templates.Output;
 gpub.templates.Templater;
 
 
-goog.scope(function() {
+/**
+ * Create an ebook.
+ */
+gpub.templates.problemEbook = {
 
-});
+};

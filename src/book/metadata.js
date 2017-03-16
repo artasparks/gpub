@@ -1,13 +1,12 @@
-goog.provide('gpub.book.epub.EpubOptions');
-
-// TODO(kashomon): Generalize this and/or combine with book options.
+goog.provide('gpub.book.Metadata');
 
 /**
- * Options for ebook generation.
- * @param {!gpub.book.epub.EpubOptions=} opt_o
+ * Grab bag of options for book generation.
+ *
+ * @param {!gpub.book.Metadata=} opt_o
  * @constructor @struct @final
  */
-gpub.book.epub.EpubOptions = function(opt_o) {
+gpub.book.Metadata = function(opt_o) {
   var o = opt_o || {};
 
   if (!o.id) {
@@ -21,7 +20,7 @@ gpub.book.epub.EpubOptions = function(opt_o) {
   }
 
   /**
-   * Should be an ISBN, if it's available.
+   * Unique identifier for this book.
    * @type {string}
    */
   this.id = o.id;
@@ -47,6 +46,10 @@ gpub.book.epub.EpubOptions = function(opt_o) {
   /** @type {string}  */
   this.title = o.title || '';
 
+  // TODO(kashomon): Add subtitles. Maybe.
+  // https://www.mobileread.com/forums/showthread.php?t=210812
+  // this.subtitle
+
   /** @type {string} */
   this.lang = o.lang || 'en';
 
@@ -62,15 +65,17 @@ gpub.book.epub.EpubOptions = function(opt_o) {
   /** @type {string} */
   this.publisher = o.publisher || '';
 
-  /** @type {string} */
-  this.author = o.author || ''; // AKA Author.
+  /** @type {!Array<string>} */
+  this.authors = o.authors || '';
 
   /** @type {string} */
   this.relation = o.relation || 'http://github.com/Kashomon/gpub';
 
+  // simple padding function.
   var dpad = function(dnum) {
     return dnum < 10 ? '0' + dnum : '' + dnum;
   }
+
   var d = new Date();
   /**
    * ISO 8601 Date String
@@ -90,4 +95,16 @@ gpub.book.epub.EpubOptions = function(opt_o) {
     throw new Error('Publication date must have the form YYYY-MM-DD. ' +
         'Was: ' + this.publicationDate);
   }
+};
+
+/**
+ * A simple guide function
+ * @return {string} guid with the format
+ */
+gpub.book.Metadata.guid = function() {
+  // from stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+      return v.toString(16);
+  });
 };

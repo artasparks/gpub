@@ -4,29 +4,19 @@
 
   test('Process options: default', function() {
     var o = new gpub.Options();
-    deepEqual(o, defaultOptions);
+    ok(o, 'make sure it works');
+    ok(o.bookOptions.metadata.id, 'make sure it has an id');
   });
 
   test('Process options: default', function() {
     var o = new gpub.Options({
       bookOptions: {
-        title: 'Zed'
+        metadata: {
+          title: 'Zed',
+          id: 'foo',
+        }
       }
     });
-    deepEqual(o.bookOptions.title, 'Zed');
-    deepEqual(o.bookOptions.publisher,
-        defaultOptions.bookOptions.publisher);
-  });
-
-  test('Process options: gnosFontSize', function() {
-    var o = new gpub.Options();
-    deepEqual(o.bookOptions.goIntersectionSize, '12pt');
-
-    o = new gpub.Options({
-      bookOptions: {
-        goIntersectionSize: '14'
-      }
-    });
-    deepEqual(o.bookOptions.goIntersectionSize, '14');
+    deepEqual(o.bookOptions.metadata.title, 'Zed');
   });
 })();

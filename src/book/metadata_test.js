@@ -1,8 +1,8 @@
 (function() {
-  module('gpub.book.epub.epubOptionsTest');
+  module('gpub.book.metadataTest');
 
   test('That options can be constructed', function() {
-    var o = new gpub.book.epub.EpubOptions({
+    var o = new gpub.book.Metadata({
       id: 'zip',
       title: 'Zap',
     })

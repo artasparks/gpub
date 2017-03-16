@@ -24,8 +24,9 @@ gpub.book.PageSize = {
    */
   NOTECARD: 'NOTECARD',
 
-  /** Miscellaneous sizes, named by the size. */
+  /** 8x10. Miscellaneous sizes, named by the size. */
   EIGHT_TEN: 'EIGHT_TEN',
+  /** 5.5 x 8.5 */
   FIVEFIVE_EIGHTFIVE: 'FIVEFIVE_EIGHTFIVE',
 };
 

@@ -28,7 +28,7 @@
   });
 
   test('create basic opf file', function() {
-    var opt = new epub.EpubOptions({
+    var opt = new gpub.book.Metadata({
       id: 'zed',
       title: 'Zog Buuk!',
     });

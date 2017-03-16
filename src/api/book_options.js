@@ -10,61 +10,22 @@ gpub.api.BookOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
-   * The format of the 'book' output that is produced by GPub.
-   * See gpub.outputFormat.
+   * The type of template to use.
    *
-   * @const {gpub.OutputFormat}
+   * @const {gpub.templates.Style}
    */
-  this.outputFormat = o.outputFormat || gpub.OutputFormat.LATEX;
+  this.template = o.template ||
+      gpub.templates.Style.RELENTLESS_COMMENTARY_LATEX;
 
   /**
-   * The size of the page. Element of gpub.book.page.type.
-   *
-   * @const {gpub.PageSize}
+   * @const {!gpub.book.Metadata}
    */
-  this.pageSize = o.pageSize || gpub.PageSize.LETTER;
-
-  /**
-   * Size of the intersections in the diagrams. If no units are specified, the
-   * number is assumed to be in pt. Can also be specified in 'in', 'mm', or
-   * 'em'.
-   *
-   * @const {string}
-   */
-  this.goIntersectionSize = o.goIntersectionSize || '12pt';
-
-  /**
-   * Override the default template.
-   * A false-y template will result in using the default template.
-   *
-   * @const {?string}
-   */
-  this.template = o.template || null;
-
-  /**
-   * Any additional setup that needs to be done in the header. I.e.,
-   * for diagram packages. Note, this is rather LaTeX specific, so should,
-   * perhaps, be moved somewhere else.
-   *
-   * @type {string}
-   */
-  // TODO(kashomon): Get rid of this.
-  this.init = o.init || '';
-
-  /** @type {?string} */
-  this.title = o.title || 'My Book';
-
-  /** @type {?string} */
-  this.subtitle = o.subtitle || null;
-
-  /** @type {?string} */
-  this.publisher = o.publisher || 'GPub';
-
-  /** @type {!Array<string>} */
-  this.authors = o.authors || [];
-
-  /** @type {?string} */
-  this.year = o.year || null;
+  this.metadata = o.metadata ?
+      new gpub.book.Metadata(o.metadata) :
+      new gpub.book.Metadata({
+        id: gpub.book.Metadata.guid(),
+        title: 'My Go Book!',
+      });
 
   /**
    * Frontmatter is text supporting the bulk of the the work that comes
@@ -76,16 +37,17 @@ gpub.api.BookOptions = function(opt_options) {
    * Not all of these will be supported by all the book-generators. For those
    * that do support the relevant sections, the frontmatter and backmatter are
    * dumped into the book options.
+   *
+   * @type {!gpub.api.Frontmatter}
    */
   this.frontmatter = new gpub.api.Frontmatter(o.frontmatter);
 
-  // TODO(kashomon): Give a real constructor to the appendices.
-  var app = o.appendices || {};
-
-  this.appendices = {};
-
-  /** @type {?string} */
-  this.appendices.glossary = app.glossary || null;
+  /**
+   * Appendices. E.g., Glossary, index, etc.
+   * @const {!Object<string, string>}
+   */
+  // TODO(kashomon): Give a real options constructor to the appendices.
+  this.appendices = o.appendices || {};
 };
 
 /**
