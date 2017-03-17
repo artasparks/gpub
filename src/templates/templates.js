@@ -31,6 +31,7 @@ gpub.templates.Style = {
 };
 
 /**
+ * Gets a templater function.
  * @param {gpub.templates.Style} style
  * @return {!gpub.templates.Templater} template function
  */
