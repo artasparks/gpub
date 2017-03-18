@@ -14278,11 +14278,21 @@ gpub.book.BookMaker.prototype = {
 };
 
 goog.provide('gpub.book.Metadata');
+goog.provide('gpub.book.MetadataDef');
+
+/**
+ * TODO(kashomon): Fill this out
+ * @typedef {{
+ *  id: string,
+ *  title: string,
+ * }}
+ */
+gpub.book.MetadataDef
 
 /**
  * Grab bag of options for book generation.
  *
- * @param {!gpub.book.Metadata=} opt_o
+ * @param {(!gpub.book.Metadata|!gpub.book.MetadataDef)=} opt_o
  * @constructor @struct @final
  */
 gpub.book.Metadata = function(opt_o) {
