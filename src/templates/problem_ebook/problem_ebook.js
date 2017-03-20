@@ -1,5 +1,8 @@
 goog.provide('gpub.templates.ProblemEbook');
 
+/**
+ * Namespace for ebooky things.
+ */
 gpub.templates.ProblemEbook = {};
 
 /**
