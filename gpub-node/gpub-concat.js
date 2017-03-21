@@ -9573,135 +9573,6 @@ gpub.create = function(options) {
   return 'foo';
 };
 
-goog.provide('gpub.api.BookOptions');
-goog.provide('gpub.api.Frontmatter');
-
-/**
- * @param {!gpub.api.BookOptions=} opt_options
- *
- * @constructor @struct @final
- */
-gpub.api.BookOptions = function(opt_options) {
-  var o = opt_options || {};
-
-  /**
-   * The type of template to use.
-   *
-   * @const {gpub.templates.Style}
-   */
-  this.template = o.template ||
-      gpub.templates.Style.RELENTLESS_COMMENTARY_LATEX;
-
-  /**
-   * @const {!gpub.book.Metadata}
-   */
-  this.metadata = o.metadata ?
-      new gpub.book.Metadata(o.metadata) :
-      new gpub.book.Metadata({
-        id: gpub.book.Metadata.guid(),
-        title: 'My Go Book!',
-      });
-
-  /**
-   * Frontmatter is text supporting the bulk of the the work that comes
-   * before/after the mainmatter of the book.
-   *
-   * Note: It's expected that the frontmatter (except for the copyright page)
-   * will be specified as a markdown-string.
-   *
-   * Not all of these will be supported by all the book-generators. For those
-   * that do support the relevant sections, the frontmatter and backmatter are
-   * dumped into the book options.
-   *
-   * @type {!gpub.api.Frontmatter}
-   */
-  this.frontmatter = new gpub.api.Frontmatter(o.frontmatter);
-
-  /**
-   * Appendices. E.g., Glossary, index, etc.
-   * @const {!Object<string, string>}
-   */
-  // TODO(kashomon): Give a real options constructor to the appendices.
-  this.appendices = o.appendices || {};
-};
-
-/**
- * @param {!gpub.api.Frontmatter} options
- *
- * @constructor @struct @final
- */
-gpub.api.Frontmatter = function(options) {
-  var o = options || {};
-
-  // epigraph: null, // AKA Quote Page
-
-  /** @type {?string} */
-  this.foreword = o.foreword || null;  // Author or unrelated person
-
-  /** @type {?string} */
-  this.preface = o.foreword || null; // Author
-
-  /** @type {?string} */
-  this.acknowledgements = o.acknowledgements || null;
-
-  /** @type {?string} */
-  this.introduction = o.introduction || null;
-
-  /**
-   * Generate the Table of Contents or just 'Contents'.
-   * @type {boolean}
-   */
-  this.generateToc = !!o.generateToc;
-
-  /**
-   * Generates the copyright page. Copyright should be an object with the
-   * format listed below:
-   *
-   *  {
-   *     "publisher": "Foo Publisher",
-   *     "license": "All rights reserved.",
-   *     "publishYear": 2015,
-   *     "firstEditionYear": 2015,
-   *     "isbn": "1-1-123-123456-1",
-   *     "issn": "1-123-12345-1",
-   *     "addressLines": [
-   *        "PO #1111",
-   *        "1111 Mainville Road Rd, Ste 120",
-   *        "Fooville",
-   *        "CA 90001",
-   *        "www.fooblar.com"
-   *     ],
-   *     "showPermanenceOfPaper": true,
-   *     "printingRunNum": 1
-   *  }
-   * @type {!Object}
-   */
-  // TODO(kashomon): Make a proper type.
-  this.copyright = o.copyright || null;
-
-  /////////////////////
-  // Special Options //
-  /////////////////////
-
-  /**
-   * Whether or not to generate PDF/X-1a compatibile PDFs. Note: this only
-   * applies to output formats that generate PDFs (latex).
-   *
-   * Most printers will require this option to be set.
-   *
-   * @const {boolean}
-   */
-  this.pdfx1a = o.pdfx1a || false;
-
-  /**
-   * An option only for PDF/X-1a. For this spceification, you must specify a
-   * color profile file (e.g., ISOcoated_v2_300_eci.icc).
-   *
-   * @const {?string}
-   */
-  this.colorProfileFilePath = o.colorProfileFilePath || null;
-};
-
 goog.provide('gpub.api.DiagramOptions');
 
 /**
@@ -10103,9 +9974,9 @@ gpub.Options = function(opt_options) {
 
   /**
    * Options specific to book processing (Phase 4)
-   * @const {!gpub.api.BookOptions}
+   * @const {!gpub.api.TemplateOptions}
    */
-  this.bookOptions = new gpub.api.BookOptions(o.bookOptions);
+  this.templateOptions = new gpub.api.TemplateOptions(o.templateOptions);
 
   /**
    * Whether or not debug information should be displayed (initia
@@ -10230,6 +10101,118 @@ gpub.api.SpecOptions = function(opt_options) {
 
 });
 
+goog.provide('gpub.api.TemplateOptions');
+goog.provide('gpub.api.Frontmatter');
+
+/**
+ * @param {!gpub.api.TemplateOptions=} opt_options
+ *
+ * @constructor @struct @final
+ */
+gpub.api.TemplateOptions = function(opt_options) {
+  var o = opt_options || {};
+
+  /**
+   * The type of template to use.
+   *
+   * @const {gpub.templates.Style}
+   */
+  this.template = o.template ||
+      gpub.templates.Style.RELENTLESS_COMMENTARY_LATEX;
+
+  /**
+   * @const {!gpub.book.Metadata}
+   */
+  this.metadata = o.metadata ?
+      new gpub.book.Metadata(o.metadata) :
+      new gpub.book.Metadata({
+        id: gpub.book.Metadata.guid(),
+        title: 'My Go Book!',
+      });
+
+  /**
+   * Frontmatter is text supporting the bulk of the the work that comes
+   * before/after the mainmatter of the book.
+   *
+   * Note: It's expected that the frontmatter (except for the copyright page)
+   * will be specified as a markdown-string.
+   *
+   * Not all of these will be supported by all the book-generators. For those
+   * that do support the relevant sections, the frontmatter and backmatter are
+   * dumped into the book options.
+   *
+   * @type {!gpub.api.Frontmatter}
+   */
+  this.frontmatter = new gpub.api.Frontmatter(o.frontmatter);
+
+  /**
+   * Appendices. E.g., Glossary, index, etc.
+   * @const {!Object<string, string>}
+   */
+  // TODO(kashomon): Give a real options constructor to the appendices.
+  this.appendices = o.appendices || {};
+};
+
+/**
+ * @param {!gpub.api.Frontmatter} options
+ *
+ * @constructor @struct @final
+ */
+gpub.api.Frontmatter = function(options) {
+  var o = options || {};
+
+  // epigraph: null, // AKA Quote Page
+
+  /** @type {string|undefined} */
+  this.foreword = o.foreword || undefined;  // Author or unrelated person
+
+  /** @type {string|undefined} */
+  this.preface = o.foreword || undefined; // Author
+
+  /** @type {string|undefined} */
+  this.acknowledgements = o.acknowledgements || undefined;
+
+  /** @type {string|undefined} */
+  this.introduction = o.introduction || undefined;
+
+  /**
+   * Generate the Table of Contents or just 'Contents'. Defaults to true.
+   * @type {boolean}
+   */
+  this.generateToc = o.generateToc !== undefined ? !!o.generateToc : true;
+
+  /////////////////////
+  // Special Options //
+  /////////////////////
+
+  /**
+   * Whether or not to generate PDF/X-1a compatibile PDFs. Note: this only
+   * applies to output formats that generate PDFs (latex).
+   *
+   * Most printers will require this option to be set.
+   *
+   * @const {boolean}
+   */
+  this.pdfx1a = o.pdfx1a || false;
+
+  /**
+   * An option only for PDF/X-1a. For this spceification, you must specify a
+   * color profile file (e.g., ISOcoated_v2_300_eci.icc).
+   *
+   * @const {string|undefined}
+   */
+  this.colorProfileFilePath = o.colorProfileFilePath || undefined;
+};
+
+/**
+ * Merge a new options object into this object
+ * @param {!gpub.api.TemplateOptions} opt
+ * @return {!gpub.api.TemplateOptions}
+ */
+gpub.api.TemplateOptions.prototype.merge = function(opt) {
+  return new gpub.api.TemplateOptions
+};
+
 goog.provide('gpub.spec')
 
 /**
@@ -10256,7 +10239,7 @@ gpub.spec = {
     var spec = new gpub.spec.Spec({
       specOptions: options.specOptions,
       diagramOptions: options.diagramOptions,
-      bookOptions: options.bookOptions
+      templateOptions: options.templateOptions,
     });
 
     var rootGrouping = spec.rootGrouping;
@@ -10966,7 +10949,7 @@ gpub.spec.Processor.prototype = {
       sgfMapping: this.sgfMapping_,
       specOptions: this.originalSpec_.specOptions,
       diagramOptions: this.originalSpec_.diagramOptions,
-      bookOptions: this.originalSpec_.bookOptions,
+      templateOptions: this.originalSpec_.templateOptions,
     });
   },
 
@@ -11133,7 +11116,7 @@ goog.provide('gpub.spec.Spec');
  *  sgfMapping: (!Object<string, string>|undefined),
  *  specOptions: (!gpub.api.SpecOptions|undefined),
  *  diagramOptions: (!gpub.api.DiagramOptions|undefined),
- *  bookOptions: (!gpub.api.BookOptions|undefined),
+ *  templateOptions: (!gpub.api.TemplateOptions|undefined),
  * }}
  */
 gpub.spec.SpecTypedef;
@@ -11204,9 +11187,9 @@ gpub.spec.Spec = function(opt_spec) {
 
   /**
    * Options specific to book processing (Phase 4)
-   * @const {!gpub.api.BookOptions}
+   * @const {!gpub.api.TemplateOptions}
    */
-  this.bookOptions = new gpub.api.BookOptions(o.bookOptions);
+  this.templateOptions = new gpub.api.TemplateOptions(o.templateOptions);
 };
 
 /**
@@ -14281,10 +14264,26 @@ goog.provide('gpub.book.Metadata');
 goog.provide('gpub.book.MetadataDef');
 
 /**
- * TODO(kashomon): Fill this out
+ * Many of these fields are specific to Ebooks.
+ *
  * @typedef {{
  *  id: string,
  *  title: string,
+ *  idType: (string|undefined),
+ *  idName: (string|undefined),
+ *  isbn10: (string|undefined),
+ *  isbn13: (string|undefined),
+ *  uriId: (string|undefined),
+ *  lang: (string|undefined),
+ *  subject: (string|undefined),
+ *  description: (string|undefined),
+ *  rights: (string|undefined),
+ *  publisher: (string|undefined),
+ *  authors: (!Array<string>|undefined),
+ *  generationDate: (string|undefined),
+ *  addressLines: (!Array<string>|undefined),
+ *  printingRunNum: (number|undefined),
+ *  permanenceOfPaper: (boolean|undefined),
  * }}
  */
 gpub.book.MetadataDef
@@ -14314,16 +14313,41 @@ gpub.book.Metadata = function(opt_o) {
    */
   this.id = o.id;
 
-  /** @type {string} */
+  /**
+   * Title of the book. Must be defined.
+   * @type {string}
+   */
+  this.title = o.title;
+
+  // TODO(kashomon): Add subtitles. Maybe.
+  // https://www.mobileread.com/forums/showthread.php?t=210812
+  // this.subtitle
+
+  /**
+   * What kind of ID is the ID?
+   * @type {string}
+   */
   this.idType = o.idType || 'uuid';
 
-  /** @type {string} */
+  /**
+   * ID by which to identify the ID. This probably doesn't need to be changed.
+   * @type {string}
+   */
   this.idName = o.idName || 'baduk-epub-id';
 
-  /** @type {string} */
+  /**
+   * The 10-digit ISBN. Sometimes called the ISSN. ISSN contains not publisher
+   * information.
+   * http://www.bl.uk/bibliographic/issn.html
+   * @type {string}
+   */
   this.isbn10 = o.isbn10 || '';
 
-  /** @type {string} */
+  /**
+   * The 13-digit ISBN (the standard ISBN). The prefix identifies the
+   * publisher.
+   * @type {string}
+   */
   this.isbn13 = o.isbn13 || '';
 
   /**
@@ -14332,33 +14356,40 @@ gpub.book.Metadata = function(opt_o) {
    */
   this.uriId = o.uriId || 'http://github.com/Kashomon/gpub';
 
-  /** @type {string}  */
-  this.title = o.title || '';
-
-  // TODO(kashomon): Add subtitles. Maybe.
-  // https://www.mobileread.com/forums/showthread.php?t=210812
-  // this.subtitle
-
-  /** @type {string} */
+  /**
+   * Language of the text.
+   * https://idpf.github.io/a11y-guidelines/content/xhtml/lang.html
+   * @type {string}
+   */
   this.lang = o.lang || 'en';
 
-  /** @type {string} */
+  /**
+   * Subject matter.
+   * @type {string}
+   */
   this.subject = o.subject || 'Go, Baduk, Wei-qi, Board Games, Strategy Games';
 
-  /** @type {string} */
+  /**
+   * Description of the book. Generally a good idea to fill in.
+   * @type {string}
+   */
   this.description = o.description || '';
 
-  /** @type {string} */
+  /**
+   * What should the copyright should be used? By default: all rights reserved.
+   * @type {string}
+   */
   this.rights = o.rights || 'All Rights Reserved.';
 
   /** @type {string} */
   this.publisher = o.publisher || '';
 
+  var auth = o.authors
+  if (auth && typeof auth == 'string') {
+    auth = [auth];
+  }
   /** @type {!Array<string>} */
-  this.authors = o.authors || '';
-
-  /** @type {string} */
-  this.relation = o.relation || 'http://github.com/Kashomon/gpub';
+  this.authors = auth || [];
 
   // simple padding function.
   var dpad = function(dnum) {
@@ -14384,6 +14415,38 @@ gpub.book.Metadata = function(opt_o) {
     throw new Error('Publication date must have the form YYYY-MM-DD. ' +
         'Was: ' + this.publicationDate);
   }
+
+  /**
+   * Address lines. Generally for a copyright page.
+   * @type {!Array<string>}
+   */
+  this.addressLines = o.addressLines || [];
+
+  /**
+   * Year this book was first published.
+   * @type {number|undefined}
+   */
+  this.publishYear = o.publishYear || undefined;
+
+  ///////////////////////////
+  // Types used for print. //
+  ///////////////////////////
+
+  /**
+   * The printing run of the book. Generally only applies to print-books and is
+   * only for the copyright page.
+   * @type {number|undefined}
+   */
+  this.printingRunNum = o.printingRunNum || undefined;
+
+  /**
+   * Permanence of paper marker. If true (the default), the symbol is displayed
+   * (if the book-type supports the symbol).
+   *
+   * @type {boolean}
+   */
+  this.permanenceOfPaper = o.permanenceOfPaper !== undefined ?
+      !!o.permanenceOfPaper : true;
 };
 
 /**
@@ -14391,7 +14454,7 @@ gpub.book.Metadata = function(opt_o) {
  * @return {string} guid with the format
  */
 gpub.book.Metadata.guid = function() {
-  // from stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+  // From stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
       return v.toString(16);
@@ -14828,10 +14891,6 @@ gpub.book.epub.opf = {
       '        scheme="onix:codelist5">15</meta>\n';
     }
 
-    if (opt.relation) {
-      content +=
-      '    <dc:relation>' + opt.relation + '</dc:relation>\n';
-    }
     if (opt.publisher) {
       content +=
       '    <dc:publisher>' + opt.publisher + '</dc:publisher>\n';
@@ -15466,6 +15525,9 @@ gpub.templates.Templater;
 
 goog.provide('gpub.templates.ProblemEbook');
 
+/**
+ * Namespace for ebooky things.
+ */
 gpub.templates.ProblemEbook = {};
 
 /**

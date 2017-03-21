@@ -64,9 +64,9 @@ gpub.Options = function(opt_options) {
 
   /**
    * Options specific to book processing (Phase 4)
-   * @const {!gpub.api.BookOptions}
+   * @const {!gpub.api.TemplateOptions}
    */
-  this.bookOptions = new gpub.api.BookOptions(o.bookOptions);
+  this.templateOptions = new gpub.api.TemplateOptions(o.templateOptions);
 
   /**
    * Whether or not debug information should be displayed (initia

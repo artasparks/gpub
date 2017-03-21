@@ -1,12 +1,12 @@
-goog.provide('gpub.api.BookOptions');
+goog.provide('gpub.api.TemplateOptions');
 goog.provide('gpub.api.Frontmatter');
 
 /**
- * @param {!gpub.api.BookOptions=} opt_options
+ * @param {!gpub.api.TemplateOptions=} opt_options
  *
  * @constructor @struct @final
  */
-gpub.api.BookOptions = function(opt_options) {
+gpub.api.TemplateOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
@@ -60,49 +60,23 @@ gpub.api.Frontmatter = function(options) {
 
   // epigraph: null, // AKA Quote Page
 
-  /** @type {?string} */
-  this.foreword = o.foreword || null;  // Author or unrelated person
+  /** @type {string|undefined} */
+  this.foreword = o.foreword || undefined;  // Author or unrelated person
 
-  /** @type {?string} */
-  this.preface = o.foreword || null; // Author
+  /** @type {string|undefined} */
+  this.preface = o.foreword || undefined; // Author
 
-  /** @type {?string} */
-  this.acknowledgements = o.acknowledgements || null;
+  /** @type {string|undefined} */
+  this.acknowledgements = o.acknowledgements || undefined;
 
-  /** @type {?string} */
-  this.introduction = o.introduction || null;
+  /** @type {string|undefined} */
+  this.introduction = o.introduction || undefined;
 
   /**
-   * Generate the Table of Contents or just 'Contents'.
+   * Generate the Table of Contents or just 'Contents'. Defaults to true.
    * @type {boolean}
    */
-  this.generateToc = !!o.generateToc;
-
-  /**
-   * Generates the copyright page. Copyright should be an object with the
-   * format listed below:
-   *
-   *  {
-   *     "publisher": "Foo Publisher",
-   *     "license": "All rights reserved.",
-   *     "publishYear": 2015,
-   *     "firstEditionYear": 2015,
-   *     "isbn": "1-1-123-123456-1",
-   *     "issn": "1-123-12345-1",
-   *     "addressLines": [
-   *        "PO #1111",
-   *        "1111 Mainville Road Rd, Ste 120",
-   *        "Fooville",
-   *        "CA 90001",
-   *        "www.fooblar.com"
-   *     ],
-   *     "showPermanenceOfPaper": true,
-   *     "printingRunNum": 1
-   *  }
-   * @type {!Object}
-   */
-  // TODO(kashomon): Make a proper type.
-  this.copyright = o.copyright || null;
+  this.generateToc = o.generateToc !== undefined ? !!o.generateToc : true;
 
   /////////////////////
   // Special Options //
@@ -122,7 +96,16 @@ gpub.api.Frontmatter = function(options) {
    * An option only for PDF/X-1a. For this spceification, you must specify a
    * color profile file (e.g., ISOcoated_v2_300_eci.icc).
    *
-   * @const {?string}
+   * @const {string|undefined}
    */
-  this.colorProfileFilePath = o.colorProfileFilePath || null;
+  this.colorProfileFilePath = o.colorProfileFilePath || undefined;
+};
+
+/**
+ * Merge a new options object into this object
+ * @param {!gpub.api.TemplateOptions} opt
+ * @return {!gpub.api.TemplateOptions}
+ */
+gpub.api.TemplateOptions.prototype.merge = function(opt) {
+  return new gpub.api.TemplateOptions
 };

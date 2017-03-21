@@ -57,7 +57,7 @@ gpub.spec.Processor.prototype = {
       sgfMapping: this.sgfMapping_,
       specOptions: this.originalSpec_.specOptions,
       diagramOptions: this.originalSpec_.diagramOptions,
-      bookOptions: this.originalSpec_.bookOptions,
+      templateOptions: this.originalSpec_.templateOptions,
     });
   },
 

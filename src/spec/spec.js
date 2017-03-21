@@ -24,7 +24,7 @@ gpub.spec = {
     var spec = new gpub.spec.Spec({
       specOptions: options.specOptions,
       diagramOptions: options.diagramOptions,
-      bookOptions: options.bookOptions
+      templateOptions: options.templateOptions,
     });
 
     var rootGrouping = spec.rootGrouping;

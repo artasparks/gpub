@@ -8,7 +8,7 @@ goog.provide('gpub.spec.Spec');
  *  sgfMapping: (!Object<string, string>|undefined),
  *  specOptions: (!gpub.api.SpecOptions|undefined),
  *  diagramOptions: (!gpub.api.DiagramOptions|undefined),
- *  bookOptions: (!gpub.api.BookOptions|undefined),
+ *  templateOptions: (!gpub.api.TemplateOptions|undefined),
  * }}
  */
 gpub.spec.SpecTypedef;
@@ -79,9 +79,9 @@ gpub.spec.Spec = function(opt_spec) {
 
   /**
    * Options specific to book processing (Phase 4)
-   * @const {!gpub.api.BookOptions}
+   * @const {!gpub.api.TemplateOptions}
    */
-  this.bookOptions = new gpub.api.BookOptions(o.bookOptions);
+  this.templateOptions = new gpub.api.TemplateOptions(o.templateOptions);
 };
 
 /**

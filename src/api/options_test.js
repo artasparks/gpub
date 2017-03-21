@@ -5,18 +5,19 @@
   test('Process options: default', function() {
     var o = new gpub.Options();
     ok(o, 'make sure it works');
-    ok(o.bookOptions.metadata.id, 'make sure it has an id');
+    ok(o.templateOptions.metadata.id, 'make sure it has an id');
   });
 
   test('Process options: default', function() {
     var o = new gpub.Options({
-      bookOptions: {
+      templateOptions: {
         metadata: {
           title: 'Zed',
           id: 'foo',
         }
       }
     });
-    deepEqual(o.bookOptions.metadata.title, 'Zed');
+    deepEqual(o.templateOptions.metadata.title, 'Zed');
+    deepEqual(o.templateOptions.metadata.id, 'foo');
   });
 })();

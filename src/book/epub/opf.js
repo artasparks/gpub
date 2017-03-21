@@ -104,10 +104,6 @@ gpub.book.epub.opf = {
       '        scheme="onix:codelist5">15</meta>\n';
     }
 
-    if (opt.relation) {
-      content +=
-      '    <dc:relation>' + opt.relation + '</dc:relation>\n';
-    }
     if (opt.publisher) {
       content +=
       '    <dc:publisher>' + opt.publisher + '</dc:publisher>\n';
