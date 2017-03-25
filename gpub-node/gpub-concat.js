@@ -9505,7 +9505,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.30
+ * @version 0.3.31
  * --------------------------------------
  */
 (function(w) {
@@ -9574,11 +9574,28 @@ gpub.create = function(options) {
 };
 
 goog.provide('gpub.api.DiagramOptions');
+goog.provide('gpub.api.DiagramOptionsDef');
+
+/**
+ * @typedef {{
+ *  diagramType: (gpub.diagrams.Type|undefined),
+ *  boardRegion: (glift.enums.boardRegions|undefined),
+ *  skipDiagrams: (number|undefined),
+ *  maxDiagrams: (number|undefined),
+ *  autoBoxCropOnVariation: (boolean|undefined),
+ *  regionRestrictions: (!Array<glift.enums.boardRegions>|undefined),
+ *  goIntersectionSize: (number|string|undefined),
+ *  clearMarks: (boolean|undefined),
+ *  typeOptions: (!Object<gpub.diagrams.Type, !Object>|undefined),
+ * }}
+ *
+ */
+gpub.api.DiagramOptionsDef;
 
 /**
  * Options for diagram generation
  *
- * @param {!gpub.api.DiagramOptions=} opt_options
+ * @param {(!gpub.api.DiagramOptions|!gpub.api.DiagramOptionsDef)=} opt_options
  *
  * @constructor @struct @final
  */
