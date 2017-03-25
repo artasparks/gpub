@@ -2,6 +2,7 @@ goog.provide('gpub.Api');
 
 goog.scope(function() {
 
+
 /**
  * A GPub API wrapper. This is a container that has methods for processing
  * specs, producing diagrams, and eventually, rendering books.
@@ -27,6 +28,7 @@ gpub.Api = function(options) {
   /** @private {!gpub.util.MoveTreeCache|undefined} */
   this.cache_ = undefined;
 };
+
 
 gpub.Api.prototype = {
 

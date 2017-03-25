@@ -1,4 +1,21 @@
 goog.provide('gpub.Options');
+goog.provide('gpub.OptionsDef');
+
+
+/**
+ * Typedef for options.
+ *
+ * @typedef {{
+ *  sgfs: (!Array<string>|undefined),
+ *  ids: (!Array<string>|undefined),
+ *  specOptions: (!gpub.api.SpecOptions|!gpub.api.SpecOptionsDef|undefined),
+ *  diagramOptions: (!gpub.api.DiagramOptions|!gpub.api.DiagramOptionsDef|undefined),
+ *  templateOptions: (!gpub.api.TemplateOptions|!gpub.api.TemplateOptionsDef|undefined),
+ *  debug: (boolean|undefined),
+ * }}
+ */
+gpub.OptionsDef;
+
 
 /**
  * Default options for GPub API. Recall that GPub has 4 tasks:
@@ -10,7 +27,7 @@ goog.provide('gpub.Options');
  *
  * These are the set of options for all 4 phases.
  *
- * @param {!gpub.Options=} opt_options
+ * @param {(!gpub.Options|!gpub.OptionsDef)=} opt_options
  *
  * @constructor @struct @final
  */
@@ -33,22 +50,7 @@ gpub.Options = function(opt_options) {
    */
   this.ids = o.ids || undefined;
 
-  if (this.ids) {
-    if (this.ids.length !== this.sgfs.length) {
-      throw new Error('If IDs array is provided, ' +
-          'it must be the same length as the SGFs array');
-    } else {
-      // Ensure uniqueness.
-      var tmpMap = {};
-      for (var i = 0; i < this.ids.length; i++) {
-        var id = this.ids[i];
-        if (tmpMap[this.ids[i]]) {
-          throw new Error('IDs must be unique. Found duplicate: ' + id);
-        }
-        tmpMap[id] = true;
-      }
-    }
-  }
+  this.ensureUniqueIds();
 
   /**
    * Options specific to spec creation (Phases 1 and 2)
@@ -69,7 +71,7 @@ gpub.Options = function(opt_options) {
   this.templateOptions = new gpub.api.TemplateOptions(o.templateOptions);
 
   /**
-   * Whether or not debug information should be displayed (initia
+   * Whether or not debug information should be displayed.
    * @const {boolean}
    */
   this.debug = !!o.debug || false;
@@ -86,4 +88,26 @@ gpub.Options.merge = function(oldobj, newobj) {
     oldobj[key] = newobj[key];
   }
   return new gpub.Options(/** @type {!gpub.Options} */ (oldobj));
+};
+
+/**
+ * Ensure that the IDs are unique. Throws an error if the IDs are not unique.
+ */
+gpub.Options.prototype.ensureUniqueIds = function() {
+  if (this.ids) {
+    if (this.ids.length !== this.sgfs.length) {
+      throw new Error('If IDs array is provided, ' +
+          'it must be the same length as the SGFs array');
+    } else {
+      // Ensure uniqueness.
+      var tmpMap = {};
+      for (var i = 0; i < this.ids.length; i++) {
+        var id = this.ids[i];
+        if (tmpMap[this.ids[i]]) {
+          throw new Error('IDs must be unique. Found duplicate: ' + id);
+        }
+        tmpMap[id] = true;
+      }
+    }
+  }
 };

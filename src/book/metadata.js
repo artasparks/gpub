@@ -26,6 +26,7 @@ goog.provide('gpub.book.MetadataDef');
  */
 gpub.book.MetadataDef
 
+
 /**
  * Grab bag of options for book generation.
  *

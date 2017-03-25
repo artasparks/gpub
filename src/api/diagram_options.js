@@ -1,6 +1,7 @@
 goog.provide('gpub.api.DiagramOptions');
 goog.provide('gpub.api.DiagramOptionsDef');
 
+
 /**
  * @typedef {{
  *  diagramType: (gpub.diagrams.Type|undefined),
@@ -16,6 +17,7 @@ goog.provide('gpub.api.DiagramOptionsDef');
  *
  */
 gpub.api.DiagramOptionsDef;
+
 
 /**
  * Options for diagram generation

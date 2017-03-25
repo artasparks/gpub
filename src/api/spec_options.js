@@ -1,17 +1,27 @@
 goog.provide('gpub.api.SpecOptions');
+goog.provide('gpub.api.SpecOptionsDef');
 
 goog.scope(function() {
 
-/** @type {!glift.rules.ProblemConditions} */
-var defaultProbCon = {};
-defaultProbCon[glift.rules.prop.GB] = [];
-defaultProbCon[glift.rules.prop.C] = ['Correct', 'is correct'];
+
+/**
+ * @typedef {{
+ *  positionType: (gpub.spec.PositionType|undefined),
+ *  idGenType: (gpub.spec.IdGenType|undefined),
+ *  problemConditions: (!glift.rules.ProblemConditions|undefined),
+ *  autoRotateCropPrefs: (!glift.orientation.AutoRotateCropPrefs|undefined),
+ *  autoRotateCropTypes: (!Object<!gpub.spec.PositionType, boolean>|undefined),
+ *  autoRotateGames: (boolean|undefined),
+ * }}
+ */
+gpub.api.SpecOptionsDef;
+
 
 /**
  * The user can pass in defaults to apply to the SGFs during spec
  * creation.
  *
- * @param {!gpub.api.SpecOptions=} opt_options
+ * @param {(!gpub.api.SpecOptions|!gpub.api.SpecOptionsDef)=} opt_options
  *
  * @constructor @final @struct
  */
@@ -31,6 +41,14 @@ gpub.api.SpecOptions = function(opt_options) {
    * @const {!gpub.spec.IdGenType}
    */
   this.idGenType = o.idGenType || gpub.spec.IdGenType.PATH;
+
+  /**
+   * Default problem conditions.
+   * @type {!glift.rules.ProblemConditions}
+   */
+  var defaultProbCon = {};
+  defaultProbCon[glift.rules.prop.GB] = [];
+  defaultProbCon[glift.rules.prop.C] = ['Correct', 'is correct'];
 
   /**
    * Problem conditions indicate how to determine whether a particular
@@ -96,6 +114,7 @@ gpub.api.SpecOptions = function(opt_options) {
    * always in the upper-right. Defaults to true.
    * @const {boolean}
    */
+  // TODO(kashomon): Implement this.
   this.autoRotateGames = o.autoRotateGames !== undefined ? !!o.autoRotateGames : true;
 };
 

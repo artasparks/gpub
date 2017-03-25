@@ -8,6 +8,7 @@ goog.provide('gpub.init');
  */
 gpub.api = {};
 
+
 /**
  * Intended usage:
  *    gpub.init({...options...})
@@ -19,7 +20,7 @@ gpub.api = {};
  * Equivalent to:
  *    gpub.create({...})
  *
- * @param {!gpub.Options} options to process
+ * @param {!gpub.Options|!gpub.OptionsDef} options to process
  * @return {!gpub.Api} A fluent API wrapper.
  * @export
  */
@@ -30,10 +31,11 @@ gpub.init = function(options) {
   return new gpub.Api(new gpub.Options(options));
 };
 
+
 /**
  * Create a 'book' output from SGFs.
  *
- * @param {!gpub.Options} options
+ * @param {!gpub.Options|!gpub.OptionsDef} options
  * @return {string}
  * @export
  */

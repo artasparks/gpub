@@ -9534,6 +9534,7 @@ goog.provide('gpub.init');
  */
 gpub.api = {};
 
+
 /**
  * Intended usage:
  *    gpub.init({...options...})
@@ -9545,7 +9546,7 @@ gpub.api = {};
  * Equivalent to:
  *    gpub.create({...})
  *
- * @param {!gpub.Options} options to process
+ * @param {!gpub.Options|!gpub.OptionsDef} options to process
  * @return {!gpub.Api} A fluent API wrapper.
  * @export
  */
@@ -9556,10 +9557,11 @@ gpub.init = function(options) {
   return new gpub.Api(new gpub.Options(options));
 };
 
+
 /**
  * Create a 'book' output from SGFs.
  *
- * @param {!gpub.Options} options
+ * @param {!gpub.Options|!gpub.OptionsDef} options
  * @return {string}
  * @export
  */
@@ -9576,6 +9578,7 @@ gpub.create = function(options) {
 goog.provide('gpub.api.DiagramOptions');
 goog.provide('gpub.api.DiagramOptionsDef');
 
+
 /**
  * @typedef {{
  *  diagramType: (gpub.diagrams.Type|undefined),
@@ -9591,6 +9594,7 @@ goog.provide('gpub.api.DiagramOptionsDef');
  *
  */
 gpub.api.DiagramOptionsDef;
+
 
 /**
  * Options for diagram generation
@@ -9690,6 +9694,7 @@ goog.provide('gpub.Api');
 
 goog.scope(function() {
 
+
 /**
  * A GPub API wrapper. This is a container that has methods for processing
  * specs, producing diagrams, and eventually, rendering books.
@@ -9715,6 +9720,7 @@ gpub.Api = function(options) {
   /** @private {!gpub.util.MoveTreeCache|undefined} */
   this.cache_ = undefined;
 };
+
 
 gpub.Api.prototype = {
 
@@ -9926,6 +9932,23 @@ gpub.Api.prototype = {
 });  // goog.scope;
 
 goog.provide('gpub.Options');
+goog.provide('gpub.OptionsDef');
+
+
+/**
+ * Typedef for options.
+ *
+ * @typedef {{
+ *  sgfs: (!Array<string>|undefined),
+ *  ids: (!Array<string>|undefined),
+ *  specOptions: (!gpub.api.SpecOptions|!gpub.api.SpecOptionsDef|undefined),
+ *  diagramOptions: (!gpub.api.DiagramOptions|!gpub.api.DiagramOptionsDef|undefined),
+ *  templateOptions: (!gpub.api.TemplateOptions|!gpub.api.TemplateOptionsDef|undefined),
+ *  debug: (boolean|undefined),
+ * }}
+ */
+gpub.OptionsDef;
+
 
 /**
  * Default options for GPub API. Recall that GPub has 4 tasks:
@@ -9937,7 +9960,7 @@ goog.provide('gpub.Options');
  *
  * These are the set of options for all 4 phases.
  *
- * @param {!gpub.Options=} opt_options
+ * @param {(!gpub.Options|!gpub.OptionsDef)=} opt_options
  *
  * @constructor @struct @final
  */
@@ -9960,22 +9983,7 @@ gpub.Options = function(opt_options) {
    */
   this.ids = o.ids || undefined;
 
-  if (this.ids) {
-    if (this.ids.length !== this.sgfs.length) {
-      throw new Error('If IDs array is provided, ' +
-          'it must be the same length as the SGFs array');
-    } else {
-      // Ensure uniqueness.
-      var tmpMap = {};
-      for (var i = 0; i < this.ids.length; i++) {
-        var id = this.ids[i];
-        if (tmpMap[this.ids[i]]) {
-          throw new Error('IDs must be unique. Found duplicate: ' + id);
-        }
-        tmpMap[id] = true;
-      }
-    }
-  }
+  this.ensureUniqueIds();
 
   /**
    * Options specific to spec creation (Phases 1 and 2)
@@ -9996,7 +10004,7 @@ gpub.Options = function(opt_options) {
   this.templateOptions = new gpub.api.TemplateOptions(o.templateOptions);
 
   /**
-   * Whether or not debug information should be displayed (initia
+   * Whether or not debug information should be displayed.
    * @const {boolean}
    */
   this.debug = !!o.debug || false;
@@ -10015,20 +10023,52 @@ gpub.Options.merge = function(oldobj, newobj) {
   return new gpub.Options(/** @type {!gpub.Options} */ (oldobj));
 };
 
+/**
+ * Ensure that the IDs are unique. Throws an error if the IDs are not unique.
+ */
+gpub.Options.prototype.ensureUniqueIds = function() {
+  if (this.ids) {
+    if (this.ids.length !== this.sgfs.length) {
+      throw new Error('If IDs array is provided, ' +
+          'it must be the same length as the SGFs array');
+    } else {
+      // Ensure uniqueness.
+      var tmpMap = {};
+      for (var i = 0; i < this.ids.length; i++) {
+        var id = this.ids[i];
+        if (tmpMap[this.ids[i]]) {
+          throw new Error('IDs must be unique. Found duplicate: ' + id);
+        }
+        tmpMap[id] = true;
+      }
+    }
+  }
+};
+
 goog.provide('gpub.api.SpecOptions');
+goog.provide('gpub.api.SpecOptionsDef');
 
 goog.scope(function() {
 
-/** @type {!glift.rules.ProblemConditions} */
-var defaultProbCon = {};
-defaultProbCon[glift.rules.prop.GB] = [];
-defaultProbCon[glift.rules.prop.C] = ['Correct', 'is correct'];
+
+/**
+ * @typedef {{
+ *  positionType: (gpub.spec.PositionType|undefined),
+ *  idGenType: (gpub.spec.IdGenType|undefined),
+ *  problemConditions: (!glift.rules.ProblemConditions|undefined),
+ *  autoRotateCropPrefs: (!glift.orientation.AutoRotateCropPrefs|undefined),
+ *  autoRotateCropTypes: (!Object<!gpub.spec.PositionType, boolean>|undefined),
+ *  autoRotateGames: (boolean|undefined),
+ * }}
+ */
+gpub.api.SpecOptionsDef;
+
 
 /**
  * The user can pass in defaults to apply to the SGFs during spec
  * creation.
  *
- * @param {!gpub.api.SpecOptions=} opt_options
+ * @param {(!gpub.api.SpecOptions|!gpub.api.SpecOptionsDef)=} opt_options
  *
  * @constructor @final @struct
  */
@@ -10048,6 +10088,14 @@ gpub.api.SpecOptions = function(opt_options) {
    * @const {!gpub.spec.IdGenType}
    */
   this.idGenType = o.idGenType || gpub.spec.IdGenType.PATH;
+
+  /**
+   * Default problem conditions.
+   * @type {!glift.rules.ProblemConditions}
+   */
+  var defaultProbCon = {};
+  defaultProbCon[glift.rules.prop.GB] = [];
+  defaultProbCon[glift.rules.prop.C] = ['Correct', 'is correct'];
 
   /**
    * Problem conditions indicate how to determine whether a particular
@@ -10113,16 +10161,30 @@ gpub.api.SpecOptions = function(opt_options) {
    * always in the upper-right. Defaults to true.
    * @const {boolean}
    */
+  // TODO(kashomon): Implement this.
   this.autoRotateGames = o.autoRotateGames !== undefined ? !!o.autoRotateGames : true;
 };
 
 });
 
 goog.provide('gpub.api.TemplateOptions');
+goog.provide('gpub.api.TemplateOptionsDef');
 goog.provide('gpub.api.Frontmatter');
 
+
 /**
- * @param {!gpub.api.TemplateOptions=} opt_options
+ * @typedef {{
+ *  template: (gpub.templates.Style|undefined),
+ *  metadata: (!gpub.book.Metadata|!gpub.book.MetadataDef|undefined),
+ *  frontmatter: (!gpub.api.Frontmatter|undefined),
+ *  appendices: (!gpub.api.TemplateOptionsDef|undefined),
+ * }}
+ */
+gpub.api.TemplateOptionsDef;
+
+
+/**
+ * @param {(!gpub.api.TemplateOptions|!gpub.api.TemplateOptionsDef)=} opt_options
  *
  * @constructor @struct @final
  */
@@ -10171,7 +10233,7 @@ gpub.api.TemplateOptions = function(opt_options) {
 };
 
 /**
- * @param {!gpub.api.Frontmatter} options
+ * @param {!gpub.api.Frontmatter=} options
  *
  * @constructor @struct @final
  */
@@ -14304,6 +14366,7 @@ goog.provide('gpub.book.MetadataDef');
  * }}
  */
 gpub.book.MetadataDef
+
 
 /**
  * Grab bag of options for book generation.

@@ -1,8 +1,21 @@
 goog.provide('gpub.api.TemplateOptions');
+goog.provide('gpub.api.TemplateOptionsDef');
 goog.provide('gpub.api.Frontmatter');
 
+
 /**
- * @param {!gpub.api.TemplateOptions=} opt_options
+ * @typedef {{
+ *  template: (gpub.templates.Style|undefined),
+ *  metadata: (!gpub.book.Metadata|!gpub.book.MetadataDef|undefined),
+ *  frontmatter: (!gpub.api.Frontmatter|undefined),
+ *  appendices: (!gpub.api.TemplateOptionsDef|undefined),
+ * }}
+ */
+gpub.api.TemplateOptionsDef;
+
+
+/**
+ * @param {(!gpub.api.TemplateOptions|!gpub.api.TemplateOptionsDef)=} opt_options
  *
  * @constructor @struct @final
  */
@@ -51,7 +64,7 @@ gpub.api.TemplateOptions = function(opt_options) {
 };
 
 /**
- * @param {!gpub.api.Frontmatter} options
+ * @param {!gpub.api.Frontmatter=} options
  *
  * @constructor @struct @final
  */
