@@ -9543,33 +9543,48 @@ gpub.api = {};
  *      .createDiagrams()
  *      .createBook()
  *
- * Equivalent to:
- *    gpub.create({...})
- *
- * @param {!gpub.Options|!gpub.OptionsDef} options to process
+ * @param {!gpub.Options|!gpub.OptionsDef} opt Options to process
  * @return {!gpub.Api} A fluent API wrapper.
  * @export
  */
-gpub.init = function(options) {
+gpub.init = function(opt) {
+  // TODO(kashomon): Support passing in json-serialized book objects (perhaps just json-spec).
   if (!glift) {
-    throw new Error('GPub depends on Glift, but Glift was not defined');
+    throw new Error('Gpub depends on Glift, but Glift was not defined');
   }
-  return new gpub.Api(new gpub.Options(options));
+  return new gpub.Api(new gpub.Options(opt));
 };
 
-
 /**
- * Create a 'book' output from SGFs.
+ * Create a 'book' output from SGFs given a template. In other words,
+ * auto-magic book creation.
  *
- * @param {!gpub.Options|!gpub.OptionsDef} options
+ * For this creation method, the template parameter *must* be defined. Thus, a
+ * minimal options object looks like:
+ *
+ * {
+ *  template: 'PROBLEM_LATEX',
+ *  sgfs: [...],
+ * }
+ *
+ * Note: If various option parameters are not defined in the Options-param,
+ * then various defaults are set.
+ * - First, we check to see if defaults are set by the template-style.
+ * - Then, we any defaults given by the options constructor.
+ *
+ * @param {!gpub.OptionsDef|!gpub.Options} opt Options to process.
  * @return {string}
  * @export
  */
-gpub.create = function(options) {
-  gpub.init(options)
-      .createSpec()
-      .processSpec()
-      .renderDiagrams();
+gpub.create = function(opt) {
+  if (!opt) {
+    throw new Error('Options must be defined. Was: ' + opt);
+  }
+
+  var template = opt.template;
+  if (!template) {
+    throw new Error('Template style (options.template) must be defined.')
+  }
 
   // TODO(kashomon): Finish phase 4.
   return 'foo';
@@ -9978,7 +9993,7 @@ gpub.Options = function(opt_options) {
   /**
    * Optianal array of IDs corresponding to the SGFs. If supplied, should be
    * the same length as the sgfs. If not specified, artificial IDs will be
-   * specified.
+   * created.
    * @const {!Array<string>|undefined}
    */
   this.ids = o.ids || undefined;
@@ -9986,13 +10001,21 @@ gpub.Options = function(opt_options) {
   this.ensureUniqueIds();
 
   /**
-   * Options specific to spec creation (Phases 1 and 2)
+   * The type of template to use. Only used when creating full templated books.
+   *
+   * @const {gpub.templates.Style}
+   */
+  this.template = o.template ||
+      gpub.templates.Style.RELENTLESS_COMMENTARY_LATEX;
+
+  /**
+   * Options specific to spec creation.
    * @const {!gpub.api.SpecOptions}
    */
   this.specOptions = new gpub.api.SpecOptions(o.specOptions);
 
   /**
-   * Options specific to Diagrams (Phase 3)
+   * Options specific to diagrams.
    * @const {!gpub.api.DiagramOptions}
    */
   this.diagramOptions = new gpub.api.DiagramOptions(o.diagramOptions);
@@ -10192,14 +10215,6 @@ gpub.api.TemplateOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
-   * The type of template to use.
-   *
-   * @const {gpub.templates.Style}
-   */
-  this.template = o.template ||
-      gpub.templates.Style.RELENTLESS_COMMENTARY_LATEX;
-
-  /**
    * @const {!gpub.book.Metadata}
    */
   this.metadata = o.metadata ?
@@ -10289,7 +10304,7 @@ gpub.api.Frontmatter = function(options) {
  * @return {!gpub.api.TemplateOptions}
  */
 gpub.api.TemplateOptions.prototype.merge = function(opt) {
-  return new gpub.api.TemplateOptions
+  return new gpub.api.TemplateOptions();
 };
 
 goog.provide('gpub.spec')

@@ -23,14 +23,6 @@ gpub.api.TemplateOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
-   * The type of template to use.
-   *
-   * @const {gpub.templates.Style}
-   */
-  this.template = o.template ||
-      gpub.templates.Style.RELENTLESS_COMMENTARY_LATEX;
-
-  /**
    * @const {!gpub.book.Metadata}
    */
   this.metadata = o.metadata ?
@@ -120,5 +112,5 @@ gpub.api.Frontmatter = function(options) {
  * @return {!gpub.api.TemplateOptions}
  */
 gpub.api.TemplateOptions.prototype.merge = function(opt) {
-  return new gpub.api.TemplateOptions
+  return new gpub.api.TemplateOptions();
 };

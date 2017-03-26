@@ -45,7 +45,7 @@ gpub.Options = function(opt_options) {
   /**
    * Optianal array of IDs corresponding to the SGFs. If supplied, should be
    * the same length as the sgfs. If not specified, artificial IDs will be
-   * specified.
+   * created.
    * @const {!Array<string>|undefined}
    */
   this.ids = o.ids || undefined;
@@ -53,13 +53,21 @@ gpub.Options = function(opt_options) {
   this.ensureUniqueIds();
 
   /**
-   * Options specific to spec creation (Phases 1 and 2)
+   * The type of template to use. Only used when creating full templated books.
+   *
+   * @const {gpub.templates.Style}
+   */
+  this.template = o.template ||
+      gpub.templates.Style.RELENTLESS_COMMENTARY_LATEX;
+
+  /**
+   * Options specific to spec creation.
    * @const {!gpub.api.SpecOptions}
    */
   this.specOptions = new gpub.api.SpecOptions(o.specOptions);
 
   /**
-   * Options specific to Diagrams (Phase 3)
+   * Options specific to diagrams.
    * @const {!gpub.api.DiagramOptions}
    */
   this.diagramOptions = new gpub.api.DiagramOptions(o.diagramOptions);

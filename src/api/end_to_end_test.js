@@ -2,6 +2,7 @@
   module('gpub.api.endToEndTest');
   var sgfs = testdata.sgfs;
   var sgf = testdata.gogameguru_commentary;
+  var base = testdata.base;
 
   test('Setup', function() {
     ok(sgf, 'testdata defined');
@@ -9,16 +10,18 @@
     ok(gpub, 'gpub global defined');
   });
 
-  test('Testing validation: no SGFs', function() {
+  test('Testing validation: no template', function() {
     try {
-      gpub.create();
+      var out = gpub.create({
+      });
     } catch (e) {
-      ok(/SGF array must be defined and non-empty/.test(e).toString());
+      ok(/Template parameter/.test(e).toString());
     }
   });
 
   test('Testing full happy path, no exceptions', function() {
     var output = gpub.create({
+      template: 'RELENTLESS_COMMENTARY_LATEX',
       sgfs: [sgf],
       diagramOptions: {
         maxDiagrams: 20
