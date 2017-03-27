@@ -1,16 +1,16 @@
-goog.provide('gpub.templates.ProblemEbook');
+goog.provide('gpub.templates.probepub');
 
 /**
  * Namespace for ebooky things.
  */
-gpub.templates.ProblemEbook = {};
+gpub.templates.probepub = {};
 
 /**
  * Create an ebook.
  * @param {!Array<string>} contents Raw SGF contents
  * @param {!Array<string>} ids ids for the SGFs.
  */
-gpub.templates.ProblemEbook.create = function(contents, ids) {
+gpub.templates.probepub.create = function(contents, ids) {
   // TODO(kashomon): Fix these;
   var obj = {
     id: 'my-id',
@@ -38,10 +38,10 @@ gpub.templates.ProblemEbook.create = function(contents, ids) {
     .renderDiagrams()
     .bookMaker()
 
-  return gpub.templates.ProblemEbook.bookin(bookMaker, obj);
+  return gpub.templates.probepub.bookin(bookMaker, obj);
 };
 
-gpub.templates.ProblemEbook.bookin = function(bookMaker, obj) {
+gpub.templates.probepub.bookin = function(bookMaker, obj) {
   var epub = gpub.book.epub;
 
   var options = new gpub.book.Metadata({

@@ -1,9 +1,11 @@
 goog.provide('gpub.templates');
 goog.provide('gpub.templates.Style');
+goog.provide('gpub.templates.BookOutput');
 
 
 /**
  * Namespace for templates library.
+ * @namespace
  */
 gpub.templates = {};
 
@@ -30,13 +32,29 @@ gpub.templates.Style = {
   PROBLEM_EBOOK: 'PROBLEM_EBOOK',
 };
 
+
 /**
- * Gets a templater function.
- * @param {gpub.templates.Style} style
- * @return {!gpub.templates.Templater} template function
+ * Output of the create method.
+ *
+ * @typedef {{
+ *  files: !Array<!gpub.book.File>,
+ *  spec: gpub.spec.Spec
+ * }}
  */
-gpub.templates.getTemplater = function(style) {
+gpub.templates.BookOutput;
+
+
+/**
+ * Decides which templater method to use based on the style.
+ *
+ * @param {gpub.templates.Style} style The template style
+ * @param {!gpub.OptionsDef|!gpub.Options} opt Options to process.
+ * @return {!gpub.templates.BookOutput} output.
+ */
+gpub.templates.muxer = function(style, opt) {
   switch(style) {
+    case 'RELENTLESS_COMMENTARY_LATEX':
+      return /** @type {!gpub.templates.BookOutput} */ ({});
     default:
       throw new Error('Unknown or unsupported style: ' + style);
   }

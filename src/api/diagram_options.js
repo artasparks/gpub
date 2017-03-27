@@ -20,7 +20,9 @@ gpub.api.DiagramOptionsDef;
 
 
 /**
- * Options for diagram generation
+ * Options for diagram generation.
+ *
+ * Defaults are only applied.
  *
  * @param {(!gpub.api.DiagramOptions|!gpub.api.DiagramOptionsDef)=} opt_options
  *

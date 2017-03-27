@@ -9528,20 +9528,24 @@ goog.provide('gpub.api');
 goog.provide('gpub.create');
 goog.provide('gpub.init');
 
+
 /**
- * Api Namespace. Some of the methods are attached at the top level for clarity.
- * @const
+ * Api Namespace.
+ * @namespace
  */
 gpub.api = {};
 
 
 /**
+ * Init creates a fluent-api instance, which allows fine-grained control over
+ * how a book is created.
+ *
  * Intended usage:
  *    gpub.init({...options...})
  *      .createSpec()
  *      .processSpec()
  *      .createDiagrams()
- *      .createBook()
+ *      .bookMaker()
  *
  * @param {!gpub.Options|!gpub.OptionsDef} opt Options to process
  * @return {!gpub.Api} A fluent API wrapper.
@@ -9555,9 +9559,13 @@ gpub.init = function(opt) {
   return new gpub.Api(new gpub.Options(opt));
 };
 
+
 /**
- * Create a 'book' output from SGFs given a template. In other words,
+ * Creates a 'book' output from SGFs given a template. In other words,
  * auto-magic book creation.
+ *
+ * Under the covers, all the book 'templates' use the standard fluent-api to
+ * create books.
  *
  * For this creation method, the template parameter *must* be defined. Thus, a
  * minimal options object looks like:
@@ -9573,21 +9581,18 @@ gpub.init = function(opt) {
  * - Then, we any defaults given by the options constructor.
  *
  * @param {!gpub.OptionsDef|!gpub.Options} opt Options to process.
- * @return {string}
+ * @return {gpub.templates.BookOutput}
  * @export
  */
-gpub.create = function(opt) {
+gpub.createBook = function(opt) {
   if (!opt) {
     throw new Error('Options must be defined. Was: ' + opt);
   }
-
   var template = opt.template;
   if (!template) {
     throw new Error('Template style (options.template) must be defined.')
   }
-
-  // TODO(kashomon): Finish phase 4.
-  return 'foo';
+  return gpub.templates.muxer(template, opt);
 };
 
 goog.provide('gpub.api.DiagramOptions');
@@ -9612,7 +9617,9 @@ gpub.api.DiagramOptionsDef;
 
 
 /**
- * Options for diagram generation
+ * Options for diagram generation.
+ *
+ * Defaults are only applied.
  *
  * @param {(!gpub.api.DiagramOptions|!gpub.api.DiagramOptionsDef)=} opt_options
  *
@@ -15552,10 +15559,12 @@ gpub.book.latex.PdfxOptions;
 
 goog.provide('gpub.templates');
 goog.provide('gpub.templates.Style');
+goog.provide('gpub.templates.BookOutput');
 
 
 /**
  * Namespace for templates library.
+ * @namespace
  */
 gpub.templates = {};
 
@@ -15582,30 +15591,10 @@ gpub.templates.Style = {
   PROBLEM_EBOOK: 'PROBLEM_EBOOK',
 };
 
-/**
- * Gets a templater function.
- * @param {gpub.templates.Style} style
- * @return {!gpub.templates.Templater} template function
- */
-gpub.templates.getTemplater = function(style) {
-  switch(style) {
-    default:
-      throw new Error('Unknown or unsupported style: ' + style);
-  }
-};
-
-goog.provide('gpub.templates.Templater');
-goog.provide('gpub.templates.BookInput');
-goog.provide('gpub.templates.BookOutput');
 
 /**
- * Input options to a Templater function.
- * @typedef {(!gpub.Options|!gpub.spec.Spec)}
- */
-gpub.templates.BookInput;
-
-/**
- * Output options to a templater function
+ * Output of the create method.
+ *
  * @typedef {{
  *  files: !Array<!gpub.book.File>,
  *  spec: gpub.spec.Spec
@@ -15613,24 +15602,51 @@ gpub.templates.BookInput;
  */
 gpub.templates.BookOutput;
 
+
+/**
+ * Decides which templater method to use based on the style.
+ *
+ * @param {gpub.templates.Style} style The template style
+ * @param {!gpub.OptionsDef|!gpub.Options} opt Options to process.
+ * @return {!gpub.templates.BookOutput} output.
+ */
+gpub.templates.muxer = function(style, opt) {
+  switch(style) {
+    case 'RELENTLESS_COMMENTARY_LATEX':
+      return /** @type {!gpub.templates.BookOutput} */ ({});
+    default:
+      throw new Error('Unknown or unsupported style: ' + style);
+  }
+};
+
+goog.provide('gpub.templates.Templater');
+goog.provide('gpub.templates.BookInput');
+
+/**
+ * Input options to the Templater function.
+ *
+ * @typedef {(!gpub.Options|!gpub.spec.Spec)}
+ */
+gpub.templates.BookInput;
+
 /**
  * @typedef {function(gpub.templates.BookInput):!gpub.templates.BookOutput}
  */
 gpub.templates.Templater;
 
-goog.provide('gpub.templates.ProblemEbook');
+goog.provide('gpub.templates.probepub');
 
 /**
  * Namespace for ebooky things.
  */
-gpub.templates.ProblemEbook = {};
+gpub.templates.probepub = {};
 
 /**
  * Create an ebook.
  * @param {!Array<string>} contents Raw SGF contents
  * @param {!Array<string>} ids ids for the SGFs.
  */
-gpub.templates.ProblemEbook.create = function(contents, ids) {
+gpub.templates.probepub.create = function(contents, ids) {
   // TODO(kashomon): Fix these;
   var obj = {
     id: 'my-id',
@@ -15658,10 +15674,10 @@ gpub.templates.ProblemEbook.create = function(contents, ids) {
     .renderDiagrams()
     .bookMaker()
 
-  return gpub.templates.ProblemEbook.bookin(bookMaker, obj);
+  return gpub.templates.probepub.bookin(bookMaker, obj);
 };
 
-gpub.templates.ProblemEbook.bookin = function(bookMaker, obj) {
+gpub.templates.probepub.bookin = function(bookMaker, obj) {
   var epub = gpub.book.epub;
 
   var options = new gpub.book.Metadata({
