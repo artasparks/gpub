@@ -86,19 +86,6 @@ gpub.Options = function(opt_options) {
 };
 
 /**
- * Merge the top-level entries of two options objects and return a new copy.
- * @param {!Object} oldobj
- * @param {!Object} newobj
- * @return {!gpub.Options} a new option sobject.
- */
-gpub.Options.merge = function(oldobj, newobj) {
-  for (var key in newobj) {
-    oldobj[key] = newobj[key];
-  }
-  return new gpub.Options(/** @type {!gpub.Options} */ (oldobj));
-};
-
-/**
  * Ensure that the IDs are unique. Throws an error if the IDs are not unique.
  */
 gpub.Options.prototype.ensureUniqueIds = function() {

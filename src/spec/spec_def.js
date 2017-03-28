@@ -1,5 +1,6 @@
 goog.provide('gpub.spec.SpecVersion');
 goog.provide('gpub.spec.Spec');
+goog.provide('gpub.spec.SpecDef');
 
 /**
  * @typedef {{
@@ -11,7 +12,7 @@ goog.provide('gpub.spec.Spec');
  *  templateOptions: (!gpub.api.TemplateOptions|undefined),
  * }}
  */
-gpub.spec.SpecTypedef;
+gpub.spec.SpecDef;
 
 /**
  * The version of the spec. Necessary for storage-compatibility.
@@ -29,7 +30,7 @@ gpub.spec.SpecVersion = {
  * The Book Spec is descendent from the Glift Spec, but has orthogonal concerns
  * and so is separate.
  *
- * @param {(!gpub.spec.Spec|gpub.spec.SpecTypedef)=} opt_spec
+ * @param {(!gpub.spec.Spec|gpub.spec.SpecDef)=} opt_spec
  *
  * @constructor @struct @final
  */
@@ -94,16 +95,22 @@ gpub.spec.Spec.deserializeJson = function(str) {
 };
 
 /**
- * Merge the top-level entries of two spec objects and return a new copy.
+ * Overwrite the top-level entries of the first param with properties/values of
+ * the second.
+ *
  * @param {!Object} oldobj
- * @param {!Object} newobj
+ * @param {!gpub.spec.SpecDef} newobj
  * @return {!gpub.spec.Spec} a new option sobject.
  */
-gpub.spec.Spec.merge = function(oldobj, newobj) {
+gpub.spec.Spec.overwrite = function(oldobj, newobj) {
+  var out = {};
+  for (var key in oldobj) {
+    outobj[key] = oldobj[key];
+  }
   for (var key in newobj) {
     oldobj[key] = newobj[key];
   }
-  return new gpub.spec.Spec(/** @type {!gpub.spec.Spec} */ (oldobj));
+  return new gpub.spec.Spec(/** @type {!gpub.spec.Spec} */ (out));
 };
 
 gpub.spec.Spec.prototype = {
