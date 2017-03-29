@@ -105,12 +105,12 @@ gpub.spec.Spec.deserializeJson = function(str) {
 gpub.spec.Spec.overwrite = function(oldobj, newobj) {
   var out = {};
   for (var key in oldobj) {
-    outobj[key] = oldobj[key];
+    out[key] = oldobj[key];
   }
   for (var key in newobj) {
-    oldobj[key] = newobj[key];
+    out[key] = newobj[key];
   }
-  return new gpub.spec.Spec(/** @type {!gpub.spec.Spec} */ (out));
+  return new gpub.spec.Spec(/** @type {!gpub.spec.SpecDef} */ (out));
 };
 
 gpub.spec.Spec.prototype = {

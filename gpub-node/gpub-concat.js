@@ -9815,7 +9815,7 @@ gpub.Api.prototype = {
     var spec = ref.mustGetSpec_(phase);
     var cache = ref.getCacheOrInit_(phase);
     if (opt_o) {
-      spec = gpub.spec.Spec.merge(spec, {
+      spec = gpub.spec.Spec.overwrite(spec, {
         specOptions: new gpub.api.SpecOptions(opt_o)
       });
     }
@@ -9838,7 +9838,7 @@ gpub.Api.prototype = {
     var spec = ref.mustGetSpec_(phase);
     var cache = ref.getCacheOrInit_(phase);
     if (opt_o) {
-      spec = gpub.spec.Spec.merge(spec, {
+      spec = gpub.spec.Spec.overwrite(spec, {
         diagramOptions: new gpub.api.DiagramOptions(opt_o)
       });
       ref.spec_ = spec;
@@ -9866,7 +9866,7 @@ gpub.Api.prototype = {
     var spec = ref.mustGetSpec_(phase);
     var cache = ref.getCacheOrInit_(phase);
     if (opt_o) {
-      spec = gpub.spec.Spec.merge(spec, {
+      spec = gpub.spec.Spec.overwrite(spec, {
         diagramOptions: new gpub.api.DiagramOptions(opt_o)
       });
       ref.spec_ = spec;
@@ -11301,12 +11301,12 @@ gpub.spec.Spec.deserializeJson = function(str) {
 gpub.spec.Spec.overwrite = function(oldobj, newobj) {
   var out = {};
   for (var key in oldobj) {
-    outobj[key] = oldobj[key];
+    out[key] = oldobj[key];
   }
   for (var key in newobj) {
-    oldobj[key] = newobj[key];
+    out[key] = newobj[key];
   }
-  return new gpub.spec.Spec(/** @type {!gpub.spec.Spec} */ (out));
+  return new gpub.spec.Spec(/** @type {!gpub.spec.SpecDef} */ (out));
 };
 
 gpub.spec.Spec.prototype = {

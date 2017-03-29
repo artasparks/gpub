@@ -101,7 +101,7 @@ gpub.Api.prototype = {
     var spec = ref.mustGetSpec_(phase);
     var cache = ref.getCacheOrInit_(phase);
     if (opt_o) {
-      spec = gpub.spec.Spec.merge(spec, {
+      spec = gpub.spec.Spec.overwrite(spec, {
         specOptions: new gpub.api.SpecOptions(opt_o)
       });
     }
@@ -124,7 +124,7 @@ gpub.Api.prototype = {
     var spec = ref.mustGetSpec_(phase);
     var cache = ref.getCacheOrInit_(phase);
     if (opt_o) {
-      spec = gpub.spec.Spec.merge(spec, {
+      spec = gpub.spec.Spec.overwrite(spec, {
         diagramOptions: new gpub.api.DiagramOptions(opt_o)
       });
       ref.spec_ = spec;
@@ -152,7 +152,7 @@ gpub.Api.prototype = {
     var spec = ref.mustGetSpec_(phase);
     var cache = ref.getCacheOrInit_(phase);
     if (opt_o) {
-      spec = gpub.spec.Spec.merge(spec, {
+      spec = gpub.spec.Spec.overwrite(spec, {
         diagramOptions: new gpub.api.DiagramOptions(opt_o)
       });
       ref.spec_ = spec;
