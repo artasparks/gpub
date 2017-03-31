@@ -106,11 +106,20 @@ gpub.api.Frontmatter = function(options) {
   this.colorProfileFilePath = o.colorProfileFilePath || undefined;
 };
 
+
 /**
- * Merge a new options object into this object
- * @param {!gpub.api.TemplateOptions} opt
- * @return {!gpub.api.TemplateOptions}
+ * Apply default options to raw template options. It's unlikely that
+ * template-option-overrides would be provided, but it's here for completeness.
+ *
+ * @param {!gpub.api.TemplateOptionsDef} opts
+ * @param {!gpub.api.TemplateOptionsDef} defaults
+ * @return {!gpub.api.TemplateOptionsDef}
  */
-gpub.api.TemplateOptions.prototype.merge = function(opt) {
-  return new gpub.api.TemplateOptions();
+gpub.api.TemplateOptions.applyDefaults = function(opts, defaults) {
+  for (var key in defaults) {
+    if (opts[key] === undefined && defaults[key] !== undefined) {
+      opts[key] = defaults[key];
+    }
+  }
+  return opts;
 };

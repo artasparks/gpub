@@ -87,16 +87,23 @@ gpub.Options = function(opt_options) {
 
 
 /**
- * Apply default options to
+ * Apply default options to the top-level options object.
  * @param {!gpub.OptionsDef} opts
  * @param {!gpub.OptionsDef} defaults
  * @return {!gpub.OptionsDef}
  */
 gpub.Options.applyDefaults = function(opts, defaults) {
+  var sopts = opts.specOptions|| {};
+  var sdef = defaults.specOptions || {};
+  opts.specOptions = gpub.api.SpecOptions.applyDefaults(sopts, sdef);
+
   var dopts = opts.diagramOptions || {};
-  var ddef = opts.diagramOptions || {};
+  var ddef = defaults.diagramOptions || {};
   opts.diagramOptions = gpub.api.DiagramOptions.applyDefaults(dopts, ddef);
 
+  var topts = opts.templateOptions || {};
+  var tdef = defaults.templateOptions || {};
+  opts.templateOptions = gpub.api.TemplateOptions.applyDefaults(topts, tdef);
   return opts;
 };
 

@@ -117,7 +117,7 @@ gpub.api.DiagramOptions = function(opt_options) {
 
 
 /**
- * Apply default options to options.
+ * Apply default options to raw diagram options.
  * @param {!gpub.api.DiagramOptionsDef} opts
  * @param {!gpub.api.DiagramOptionsDef} defaults
  * @return {!gpub.api.DiagramOptionsDef}

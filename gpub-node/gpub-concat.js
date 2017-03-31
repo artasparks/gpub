@@ -9714,7 +9714,7 @@ gpub.api.DiagramOptions = function(opt_options) {
 
 
 /**
- * Apply default options to options.
+ * Apply default options to raw diagram options.
  * @param {!gpub.api.DiagramOptionsDef} opts
  * @param {!gpub.api.DiagramOptionsDef} defaults
  * @return {!gpub.api.DiagramOptionsDef}
@@ -10058,16 +10058,23 @@ gpub.Options = function(opt_options) {
 
 
 /**
- * Apply default options to
+ * Apply default options to the top-level options object.
  * @param {!gpub.OptionsDef} opts
  * @param {!gpub.OptionsDef} defaults
  * @return {!gpub.OptionsDef}
  */
 gpub.Options.applyDefaults = function(opts, defaults) {
+  var sopts = opts.specOptions|| {};
+  var sdef = defaults.specOptions || {};
+  opts.specOptions = gpub.api.SpecOptions.applyDefaults(sopts, sdef);
+
   var dopts = opts.diagramOptions || {};
-  var ddef = opts.diagramOptions || {};
+  var ddef = defaults.diagramOptions || {};
   opts.diagramOptions = gpub.api.DiagramOptions.applyDefaults(dopts, ddef);
 
+  var topts = opts.templateOptions || {};
+  var tdef = defaults.templateOptions || {};
+  opts.templateOptions = gpub.api.TemplateOptions.applyDefaults(topts, tdef);
   return opts;
 };
 
@@ -10214,6 +10221,21 @@ gpub.api.SpecOptions = function(opt_options) {
   this.autoRotateGames = o.autoRotateGames !== undefined ? !!o.autoRotateGames : true;
 };
 
+/**
+ * Apply default options to raw spec options.
+ * @param {!gpub.api.SpecOptionsDef} opts
+ * @param {!gpub.api.SpecOptionsDef} defaults
+ * @return {!gpub.api.SpecOptionsDef}
+ */
+gpub.api.SpecOptions.applyDefaults = function(opts, defaults) {
+  for (var key in defaults) {
+    if (opts[key] === undefined && defaults[key] !== undefined) {
+      opts[key] = defaults[key];
+    }
+  }
+  return opts;
+};
+
 });
 
 goog.provide('gpub.api.TemplateOptions');
@@ -10324,13 +10346,22 @@ gpub.api.Frontmatter = function(options) {
   this.colorProfileFilePath = o.colorProfileFilePath || undefined;
 };
 
+
 /**
- * Merge a new options object into this object
- * @param {!gpub.api.TemplateOptions} opt
- * @return {!gpub.api.TemplateOptions}
+ * Apply default options to raw template options. It's unlikely that
+ * template-option-overrides would be provided, but it's here for completeness.
+ *
+ * @param {!gpub.api.TemplateOptionsDef} opts
+ * @param {!gpub.api.TemplateOptionsDef} defaults
+ * @return {!gpub.api.TemplateOptionsDef}
  */
-gpub.api.TemplateOptions.prototype.merge = function(opt) {
-  return new gpub.api.TemplateOptions();
+gpub.api.TemplateOptions.applyDefaults = function(opts, defaults) {
+  for (var key in defaults) {
+    if (opts[key] === undefined && defaults[key] !== undefined) {
+      opts[key] = defaults[key];
+    }
+  }
+  return opts;
 };
 
 goog.provide('gpub.spec')

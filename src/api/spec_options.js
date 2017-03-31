@@ -118,4 +118,19 @@ gpub.api.SpecOptions = function(opt_options) {
   this.autoRotateGames = o.autoRotateGames !== undefined ? !!o.autoRotateGames : true;
 };
 
+/**
+ * Apply default options to raw spec options.
+ * @param {!gpub.api.SpecOptionsDef} opts
+ * @param {!gpub.api.SpecOptionsDef} defaults
+ * @return {!gpub.api.SpecOptionsDef}
+ */
+gpub.api.SpecOptions.applyDefaults = function(opts, defaults) {
+  for (var key in defaults) {
+    if (opts[key] === undefined && defaults[key] !== undefined) {
+      opts[key] = defaults[key];
+    }
+  }
+  return opts;
+};
+
 });
