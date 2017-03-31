@@ -8,9 +8,9 @@ goog.provide('gpub.OptionsDef');
  * @typedef {{
  *  sgfs: (!Array<string>|undefined),
  *  ids: (!Array<string>|undefined),
- *  specOptions: (!gpub.api.SpecOptions|!gpub.api.SpecOptionsDef|undefined),
- *  diagramOptions: (!gpub.api.DiagramOptions|!gpub.api.DiagramOptionsDef|undefined),
- *  templateOptions: (!gpub.api.TemplateOptions|!gpub.api.TemplateOptionsDef|undefined),
+ *  specOptions: (!gpub.api.SpecOptionsDef|undefined),
+ *  diagramOptions: (!gpub.api.DiagramOptionsDef|undefined),
+ *  templateOptions: (!gpub.api.TemplateOptionsDef|undefined),
  *  debug: (boolean|undefined),
  * }}
  */
@@ -84,6 +84,22 @@ gpub.Options = function(opt_options) {
    */
   this.debug = !!o.debug || false;
 };
+
+
+/**
+ * Apply default options to
+ * @param {!gpub.OptionsDef} opts
+ * @param {!gpub.OptionsDef} defaults
+ * @return {!gpub.OptionsDef}
+ */
+gpub.Options.applyDefaults = function(opts, defaults) {
+  var dopts = opts.diagramOptions || {};
+  var ddef = opts.diagramOptions || {};
+  opts.diagramOptions = gpub.api.DiagramOptions.applyDefaults(dopts, ddef);
+
+  return opts;
+};
+
 
 /**
  * Ensure that the IDs are unique. Throws an error if the IDs are not unique.

@@ -114,3 +114,19 @@ gpub.api.DiagramOptions = function(opt_options) {
    */
   this.typeOptions = o.typeOptions || {};
 };
+
+
+/**
+ * Apply default options to options.
+ * @param {!gpub.api.DiagramOptionsDef} opts
+ * @param {!gpub.api.DiagramOptionsDef} defaults
+ * @return {!gpub.api.DiagramOptionsDef}
+ */
+gpub.api.DiagramOptions.applyDefaults = function(opts, defaults) {
+  for (var key in defaults) {
+    if (opts[key] === undefined && defaults[key] !== undefined) {
+      opts[key] = defaults[key];
+    }
+  }
+  return opts;
+};
