@@ -1,7 +1,7 @@
 (function() {
-  module('gpub.book.epub.tocTest');
+  module('gpub.book.epub.navTest');
 
-  test('Generating a table of contents', function() {
+  test('Generating a nav', function() {
     var bkfiles = [
       {
         id: '1d',

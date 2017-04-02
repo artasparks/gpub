@@ -113,10 +113,17 @@ gpub.book.PositionConfig.prototype = {
  *
  * @param {!gpub.spec.Grouping} rootGrouping The root position grouping
  * @param {!gpub.diagrams.Rendered} rendered The diagram wrapper
+ * @param {!gpub.api.TemplateOptions} opts Options for template rendering.
  *
  * @struct @final @constructor
  */
-gpub.book.BookMaker = function(rootGrouping, rendered) {
+gpub.book.BookMaker = function(rootGrouping, rendered, opts) {
+  /**
+   * Options for templatizing a book.
+   * @const @private {!gpub.api.TemplateOptions}
+   */
+  this.tmplOpts_ = opts;
+
   /** @private {number} */
   this.seenPos_ = 0;
 
@@ -177,6 +184,16 @@ gpub.book.BookMaker.prototype = {
    */
   getConfig: function(id) {
     return this.idToConfig_[id] || null;
+  },
+
+  /** @return {!gpub.api.TemplateOptions} Returns the template options. */
+  templateOptions: function() {
+    return this.tmplOpts_;
+  },
+
+  /** @return {!gpub.book.Metadata} Returns the book metadata. */
+  templateMetadata: function() {
+    return this.tmplOpts_.metadata;
   },
 
   /**

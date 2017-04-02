@@ -7,6 +7,7 @@ goog.provide('gpub.book.MetadataDef');
  * @typedef {{
  *  id: string,
  *  title: string,
+ *  subtitle: (string|undefined),
  *  idType: (string|undefined),
  *  idName: (string|undefined),
  *  isbn10: (string|undefined),
@@ -58,9 +59,13 @@ gpub.book.Metadata = function(opt_o) {
    */
   this.title = o.title;
 
-  // TODO(kashomon): Add subtitles. Maybe.
+  /**
+   * Subtitle of the book.
+   * @type {string}
+   */
+  // TODO(kashomon): Maybe include as part of the epub metadata:
   // https://www.mobileread.com/forums/showthread.php?t=210812
-  // this.subtitle
+  this.subtitle = o.subtitle || '';
 
   /**
    * What kind of ID is the ID?

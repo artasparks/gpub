@@ -9900,7 +9900,8 @@ gpub.Api.prototype = {
     var phase = 'creating the book maker helper';
     var spec = this.mustGetSpec_(phase);
     var diagrams = this.mustGetRendererd_(phase);
-    return new gpub.book.BookMaker(spec.rootGrouping, diagrams);
+    var tmplOpts = this.opt_.templateOptions;
+    return new gpub.book.BookMaker(spec.rootGrouping, diagrams, tmplOpts);
   },
 
   /////////////////////////////////
@@ -14260,10 +14261,17 @@ gpub.book.PositionConfig.prototype = {
  *
  * @param {!gpub.spec.Grouping} rootGrouping The root position grouping
  * @param {!gpub.diagrams.Rendered} rendered The diagram wrapper
+ * @param {!gpub.api.TemplateOptions} opts Options for template rendering.
  *
  * @struct @final @constructor
  */
-gpub.book.BookMaker = function(rootGrouping, rendered) {
+gpub.book.BookMaker = function(rootGrouping, rendered, opts) {
+  /**
+   * Options for templatizing a book.
+   * @const @private {!gpub.api.TemplateOptions}
+   */
+  this.tmplOpts_ = opts;
+
   /** @private {number} */
   this.seenPos_ = 0;
 
@@ -14324,6 +14332,16 @@ gpub.book.BookMaker.prototype = {
    */
   getConfig: function(id) {
     return this.idToConfig_[id] || null;
+  },
+
+  /** @return {!gpub.api.TemplateOptions} Returns the template options. */
+  templateOptions: function() {
+    return this.tmplOpts_;
+  },
+
+  /** @return {!gpub.book.Metadata} Returns the book metadata. */
+  templateMetadata: function() {
+    return this.tmplOpts_.metadata;
   },
 
   /**
@@ -14427,6 +14445,7 @@ goog.provide('gpub.book.MetadataDef');
  * @typedef {{
  *  id: string,
  *  title: string,
+ *  subtitle: (string|undefined),
  *  idType: (string|undefined),
  *  idName: (string|undefined),
  *  isbn10: (string|undefined),
@@ -14478,9 +14497,13 @@ gpub.book.Metadata = function(opt_o) {
    */
   this.title = o.title;
 
-  // TODO(kashomon): Add subtitles. Maybe.
+  /**
+   * Subtitle of the book.
+   * @type {string}
+   */
+  // TODO(kashomon): Maybe include as part of the epub metadata:
   // https://www.mobileread.com/forums/showthread.php?t=210812
-  // this.subtitle
+  this.subtitle = o.subtitle || '';
 
   /**
    * What kind of ID is the ID?
@@ -14824,6 +14847,63 @@ gpub.book.epub.contentDoc = function(filename, contents) {
     mimetype: 'application/xhtml+xml',
     // Path is relative to the OEBPS directory.
     path: 'OEBPS/' + filename,
+  };
+};
+
+goog.provide('gpub.book.epub.CssOpts');
+
+/**
+ * Options for constructing a CSS file
+ *
+ * path: defaults to OEPBS/css/epub.css
+ * id: defaults to style-css
+ *
+ * @typedef{{
+ *  classes: (!Object<string, !Object<string, string>>|undefined),
+ *  tags: (!Object<string, !Object<string, string>>|undefined),
+ *  path: (string|undefined),
+ *  id: (string|undefined),
+ * }}
+ */
+gpub.book.epub.CssOpts;
+
+/**
+ * Constructs a CSS file based on key-pars.
+ *
+ * List of supported tags for KF8/AZW3
+ *   https://www.amazon.com/gp/feature.html?docId=1000729901
+ *
+ * @param {!gpub.book.epub.CssOpts} opts
+ * @return {!gpub.book.File}
+ */
+gpub.book.epub.css = function(opts) {
+  var contents = '';
+  var process = function(tags, isClass) {
+    for (var cat in tags) {
+      var block = tags[cat];
+      if (isClass) {
+        contents += '.';
+      }
+      contents += cat + ' {\n';
+      for (var prop in block) {
+        contents += '  ' + prop + ': ' + block[prop] + ';\n';
+      }
+      contents += '}\n';
+    }
+  }
+
+  var classes = opts.classes || {};
+  process(classes, true);
+  var tagz = opts.tags || {};
+  process(tagz, false);
+
+  var id = opts.id || 'style-css';
+  var path = opts.path || 'OEBPS/css/epub.css';
+  return {
+    contents: contents,
+    path: path,
+    id: id,
+    mimetype: 'text/css',
   };
 };
 
@@ -15691,127 +15771,138 @@ gpub.templates.BookInput;
  */
 gpub.templates.Templater;
 
-goog.provide('gpub.templates.probepub');
+goog.provide('gpub.templates.ProblemEbook');
 
 /**
- * Namespace for ebooky things.
+ * @param {!gpub.OptionsDef} opts
+ * @constructor @struct @final
  */
-gpub.templates.probepub = {};
+gpub.templates.ProblemEbook = function(opts) {
+  /** @type {!gpub.OptionsDef} */
+  this.opts = opts;
+};
 
-/**
- * Create an ebook.
- * @param {!Array<string>} contents Raw SGF contents
- * @param {!Array<string>} ids ids for the SGFs.
- */
-gpub.templates.probepub.create = function(contents, ids) {
-  // TODO(kashomon): Fix these;
-  var obj = {
-    id: 'my-id',
-    title: 'My Go Book Title',
-    authors: ['Bob', 'Bib'],
-  };
-
-  var bookMaker = gpub.init(/** @type {!gpub.Options} */ ({
-      sgfs: contents,
-      ids: ids,
+gpub.templates.ProblemEbook.prototype = {
+  /**
+   * Defaulted options.
+   * @return {!gpub.OptionsDef}
+   */
+  defaults: function() {
+    return {
       specOptions: {
-        positionType: 'PROBLEM',
+        positionType: gpub.spec.positionType.PROBLEM,
         autoRotateCropPrefs: {
-          corner: 'BOTTOM_LEFT',
+          corner: glift.enums.boardRegions.BOTTOM_LEFT,
           preferFlips: true,
         }
       },
       diagramOptions: {
-        diagramType: 'SVG',
+        diagramType: gpub.diagrams.diagramType.SVG,
         clearMarks: true,
       }
-    }))
-    .createSpec()
-    .processSpec()
-    .renderDiagrams()
-    .bookMaker()
+    }
+  },
 
-  return gpub.templates.probepub.bookin(bookMaker, obj);
+  /**
+   * Creates the book!
+   * @return {!Array<!gpub.book.File>} The finished book files.
+   */
+  create: function() {
+    var options = gpub.Options.applyDefaults(this.opts, this.defaults());
+    var bookMaker = gpub.init(options)
+      .createSpec()
+      .processSpec()
+      .renderDiagrams()
+      .bookMaker();
+    return gpub.templates.ProblemEbook.templater(bookMaker);
+  },
 };
 
-gpub.templates.probepub.bookin = function(bookMaker, obj) {
+/**
+ * Creates the CSS file for the problem ebook.
+ * @return {!gpub.book.File}
+ */
+gpub.templates.ProblemEbook.cssFile = function() {
+  return gpub.book.epub.css({classes: {
+    hd: {
+      'font-family': 'sans-serif'
+    },
+    'p-break': {
+      'page-break-after': 'always',
+    },
+    'd-gp': {
+      'page-break-inside': 'avoid',
+      'page-break-before': 'always',
+      'background-color': '#EEE',
+    },
+    pidx: {
+      'font-size': '1.5em',
+      'text-align': 'center',
+      // 'padding-bottom': '1em'
+      // Hackery for AZW3/KF8
+      position: 'absolute',
+      left: '0',
+      right: '0',
+      // float: 'left',
+      // left: '50%',
+      // Attempts at centering:
+      // 'margin-left': 'auto',
+      // 'margin-right': 'auto',
+      // position: 'relative',
+      // left: '-50%',
+      // 'font-family': 'sans-serif',
+    },
+    pspan: {
+      'padding-left': '2em',
+      'padding-right': '2em',
+      'border-bottom': '1px solid black',
+    },
+    '.s-img': {
+      // 'margin-top': '2em',
+      'background-color': '#DDD',
+      // Another attempt to center
+      // 'margin-right': 'auto',
+      // 'margin-left': 'auto',
+    },
+  }});
+};
+
+/**
+ * Templatizes a book and produces a series of book files.
+ * @param {gpub.book.BookMaker} bookMaker
+ * @return {!Array<!gpub.book.File>} files
+ */
+gpub.templates.ProblemEbook.templater = function(bookMaker) {
   var epub = gpub.book.epub;
+  var meta = bookMaker.templateMetadata();
+  var cssFile = gpub.templates.ProblemEbook.cssFile();
+  var cssPath = '';
+  if (cssFile.path) {
+    // cssPath must be defined, b
+    cssPath = cssFile.path
+  } else {
+    throw new Error('CSS path was net defined!');
+  }
 
-  var options = new gpub.book.Metadata({
-    id: obj.id,
-    title: obj.title,
-    authors: obj.authors,
-  });
-
-  var builder = new epub.Builder(options);
-
-  // List of support for tags:
-  // https://www.amazon.com/gp/feature.html?docId=1000729901
-
-  var cssContent = ''
-      // Diagram Group.
-      + '.hd {\n'
-      + '  font-family: sans-serif;\n'
-      + '}\n'
-      + '.p-break {\n'
-      + '  page-break-after:always;\n'
-      + '}\n'
-      + '.d-gp {\n'
-      + '  page-break-inside: avoid;\n'
-      + '  page-break-before: always;\n'
-      + '  background-color: #EEE;\n'
-      + '}\n'
-      + '.pidx {\n'
-      + '  font-size: 1.5em;\n'
-      + '  text-align: center;\n'
-      // + '  padding-bottom: 1em;\n'
-      // Hackery
-      + '  position: absolute;\n'
-      // + '  float: left\n'
-      // + '  left: 50%;\n'
-      + '  left: 0;\n'
-      + '  right: 0;\n'
-      + '  margin-left: auto;\n'
-      + '  margin-right: auto;\n'
-      // + '  position: relative;\n'
-      // + '  left: -50%;\n'
-      // + '  font-family: sans-serif;\n'
-      + '}\n'
-      + '.pspan {\n'
-      + '  padding-left: 2em;\n'
-      + '  padding-right: 2em;\n'
-      + '  border-bottom: 1px solid black;\n'
-      + '}\n'
-      + '.s-img {\n'
-      // + '  margin-top: 2em;\n'
-      + '  background-color: #DDD;\n'
-      // An attempt to center
-      // + '  margin-right: auto;\n'
-      // + '  margin-left: auto;\n'
-      + '}\n';
-
-  var cssFile = {
-    contents: cssContent,
-    path: 'OEBPS/css/epub.css',
-    id: 'style-css',
-    mimetype: 'text/css',
-  };
-
-  builder.addManifestFile(cssFile);
+  var builder = new epub.Builder(meta)
+      .addManifestFile(cssFile);
 
   var contentFile = epub.contentDoc('chap1.xhtml', '');
-
   var contents =
       '<html xmlns="http://www.w3.org/1999/xhtml"\n' +
       '    xmlns:epub="http://www.idpf.org/2007/ops"\n' +
       '    xmlns:ev="http://www.w3.org/2001/xml-events">\n' +
       '  <head>\n' +
       '    <meta charset="utf-8" />\n' +
-      '    <link rel="stylesheet" type="text/css" href="css/epub.css"/>\n' +
+      '    <link rel="stylesheet" ' +
+          'type="' + cssFile.mimetype + '" ' +
+          'href="' + gpub.book.epub.oebpsPath(cssPath) + '"/>\n' +
       '  </head>\n' +
       '  <body>\n' +
-      '    <h1 class="hd"> ' + obj.title + '</h1>\n' +
-      '    <h2 class="hd"> Volume 1</h2>\n';
+      '    <h1 class="hd"> ' + meta.title + '</h1>\n';
+  if (meta.subtitle) {
+    contents += '    <h2 class="hd"> ' + meta.subtitle + ' </h2>\n';
+  }
 
   var indent = '    ';
   var problems = '';
@@ -15869,7 +15960,5 @@ gpub.templates.probepub.bookin = function(bookMaker, obj) {
 
   contentFile.contents = contents;
 
-  builder.addContentFile(contentFile);
-
-  return builder.build();
+  return builder.addContentFile(contentFile).build();
 };

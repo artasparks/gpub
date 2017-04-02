@@ -170,7 +170,8 @@ gpub.Api.prototype = {
     var phase = 'creating the book maker helper';
     var spec = this.mustGetSpec_(phase);
     var diagrams = this.mustGetRendererd_(phase);
-    return new gpub.book.BookMaker(spec.rootGrouping, diagrams);
+    var tmplOpts = this.opt_.templateOptions;
+    return new gpub.book.BookMaker(spec.rootGrouping, diagrams, tmplOpts);
   },
 
   /////////////////////////////////

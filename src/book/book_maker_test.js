@@ -6,7 +6,7 @@
     diagrams: []
   };
   var emptyGrouping = new gpub.spec.Grouping();
-  var emptyMaker = new gpub.book.BookMaker(emptyGrouping, emptyRendererd);
+  var emptyMaker = new gpub.book.BookMaker(emptyGrouping, emptyRendererd, {});
 
   test('That full creation works', function() {
     // First create the spec / rendered objs.
