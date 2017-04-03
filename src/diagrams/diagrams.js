@@ -29,7 +29,7 @@ gpub.diagrams = {
    * Renders go stones that exist in a block of text.
    * @param {!gpub.diagrams.Type} diagramType
    * @param {!string} text To process
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string}
    */
   renderInline: function(diagramType, text, opt) {

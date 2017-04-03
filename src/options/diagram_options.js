@@ -1,5 +1,5 @@
-goog.provide('gpub.api.DiagramOptions');
-goog.provide('gpub.api.DiagramOptionsDef');
+goog.provide('gpub.opts.DiagramOptions');
+goog.provide('gpub.opts.DiagramOptionsDef');
 
 
 /**
@@ -16,7 +16,7 @@ goog.provide('gpub.api.DiagramOptionsDef');
  * }}
  *
  */
-gpub.api.DiagramOptionsDef;
+gpub.opts.DiagramOptionsDef;
 
 
 /**
@@ -24,11 +24,11 @@ gpub.api.DiagramOptionsDef;
  *
  * Defaults are only applied.
  *
- * @param {(!gpub.api.DiagramOptions|!gpub.api.DiagramOptionsDef)=} opt_options
+ * @param {(!gpub.opts.DiagramOptions|!gpub.opts.DiagramOptionsDef)=} opt_options
  *
  * @constructor @struct @final
  */
-gpub.api.DiagramOptions = function(opt_options) {
+gpub.opts.DiagramOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
@@ -118,11 +118,11 @@ gpub.api.DiagramOptions = function(opt_options) {
 
 /**
  * Apply default options to raw diagram options.
- * @param {!gpub.api.DiagramOptionsDef} opts
- * @param {!gpub.api.DiagramOptionsDef} defaults
- * @return {!gpub.api.DiagramOptionsDef}
+ * @param {!gpub.opts.DiagramOptionsDef} opts
+ * @param {!gpub.opts.DiagramOptionsDef} defaults
+ * @return {!gpub.opts.DiagramOptionsDef}
  */
-gpub.api.DiagramOptions.applyDefaults = function(opts, defaults) {
+gpub.opts.DiagramOptions.applyDefaults = function(opts, defaults) {
   for (var key in defaults) {
     if (opts[key] === undefined && defaults[key] !== undefined) {
       opts[key] = defaults[key];

@@ -7,9 +7,9 @@ goog.provide('gpub.spec.SpecDef');
  *  version: (gpub.spec.SpecVersion|undefined),
  *  grouping: (!gpub.spec.Grouping|undefined),
  *  sgfMapping: (!Object<string, string>|undefined),
- *  specOptions: (!gpub.api.SpecOptions|undefined),
- *  diagramOptions: (!gpub.api.DiagramOptions|undefined),
- *  templateOptions: (!gpub.api.TemplateOptions|undefined),
+ *  specOptions: (!gpub.opts.SpecOptions|undefined),
+ *  diagramOptions: (!gpub.opts.DiagramOptions|undefined),
+ *  templateOptions: (!gpub.opts.TemplateOptions|undefined),
  * }}
  */
 gpub.spec.SpecDef;
@@ -68,21 +68,21 @@ gpub.spec.Spec = function(opt_spec) {
 
   /**
    * Options specific to spec creation (Phases 1 and 2)
-   * @const {!gpub.api.SpecOptions}
+   * @const {!gpub.opts.SpecOptions}
    */
-  this.specOptions = new gpub.api.SpecOptions(o.specOptions);
+  this.specOptions = new gpub.opts.SpecOptions(o.specOptions);
 
   /**
    * Options specific to Diagrams (Phase 3)
-   * @const {!gpub.api.DiagramOptions}
+   * @const {!gpub.opts.DiagramOptions}
    */
-  this.diagramOptions = new gpub.api.DiagramOptions(o.diagramOptions);
+  this.diagramOptions = new gpub.opts.DiagramOptions(o.diagramOptions);
 
   /**
    * Options specific to book processing (Phase 4)
-   * @const {!gpub.api.TemplateOptions}
+   * @const {!gpub.opts.TemplateOptions}
    */
-  this.templateOptions = new gpub.api.TemplateOptions(o.templateOptions);
+  this.templateOptions = new gpub.opts.TemplateOptions(o.templateOptions);
 };
 
 /**

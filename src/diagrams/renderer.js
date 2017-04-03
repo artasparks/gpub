@@ -16,7 +16,7 @@ gpub.diagrams.enabledRenderers = {};
 /**
  * General diagram renderer.
  * @param {!gpub.spec.Spec} spec
- * @param {!gpub.api.DiagramOptions} opts
+ * @param {!gpub.opts.DiagramOptions} opts
  * @param {!gpub.util.MoveTreeCache} cache
  * @constructor @struct @final
  */
@@ -24,7 +24,7 @@ gpub.diagrams.Renderer = function(spec, opts, cache) {
   /** @private @const {!gpub.spec.Spec} */
   this.spec_ = spec;
 
-  /** @private @const {!gpub.api.DiagramOptions} */
+  /** @private @const {!gpub.opts.DiagramOptions} */
   this.opts_ = opts;
 
   /** @private @const {!gpub.util.MoveTreeCache} */
@@ -198,7 +198,7 @@ gpub.diagrams.Renderer.prototype = {
    * Process text inline, if possible, replacing stones with inline-images if
    * possible.
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The processed text.
    */
   renderInline: function(text, opt) {

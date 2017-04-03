@@ -29,14 +29,17 @@ var srcPaths = [
   // complete
   // :GPub: //
   'src/gpub.js',
-  'src/api',
+  // 'src/',
+  'src/options',
   'src/spec',
   'src/diagrams',
   'src/util',
   'src/book',
   'src/book/latex',
+  'src/book/epub',
+  'src/api',
   'src/templates',
-]
+];
 
 // Ignore the test files
 var srcIgnore = ['!src/**/*_test.js', '!deps/**/*_test.js']

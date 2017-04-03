@@ -91,7 +91,7 @@ gpub.Api.prototype = {
 
   /**
    * Process a GPub specification, generating new positions if necessary.
-   * @param {(!gpub.api.SpecOptions)=} opt_o Optional Spec options.
+   * @param {(!gpub.opts.SpecOptions)=} opt_o Optional Spec options.
    * @return {!gpub.Api} A new reference with an updated spec.
    * @export
    */
@@ -102,7 +102,7 @@ gpub.Api.prototype = {
     var cache = ref.getCacheOrInit_(phase);
     if (opt_o) {
       spec = gpub.spec.Spec.overwrite(spec, {
-        specOptions: new gpub.api.SpecOptions(opt_o)
+        specOptions: new gpub.opts.SpecOptions(opt_o)
       });
     }
     ref.spec_ = gpub.spec.process(spec, cache);
@@ -112,9 +112,9 @@ gpub.Api.prototype = {
   /**
    * Render all the diagrams! Render all the diagrams and store them in a
    * possibly giant rendered JS Object. If you have many diagrams that you're
-   * going to write to disk anyway, consider using `renderDiagramsStream`.
+   * going to write to dpisk anyway, consider using `renderDiagramsStream`.
    *
-   * @param {(!gpub.api.DiagramOptions)=} opt_o Optional diagram options.
+   * @param {(!gpub.opts.DiagramOptions)=} opt_o Optional diagram options.
    * @return {!gpub.Api} A new reference with rendered diagrams.
    * @export
    */
@@ -125,7 +125,7 @@ gpub.Api.prototype = {
     var cache = ref.getCacheOrInit_(phase);
     if (opt_o) {
       spec = gpub.spec.Spec.overwrite(spec, {
-        diagramOptions: new gpub.api.DiagramOptions(opt_o)
+        diagramOptions: new gpub.opts.DiagramOptions(opt_o)
       });
       ref.spec_ = spec;
     }
@@ -142,7 +142,7 @@ gpub.Api.prototype = {
    *
    * @param {!gpub.diagrams.DiagramCallback} fn Void-returning processing
    * function.
-   * @param {!gpub.api.DiagramOptions=} opt_o Optional options
+   * @param {!gpub.opts.DiagramOptions=} opt_o Optional options
    * @return {!gpub.Api} A new reference with rendered diagram metadata
    * @export
    */
@@ -153,7 +153,7 @@ gpub.Api.prototype = {
     var cache = ref.getCacheOrInit_(phase);
     if (opt_o) {
       spec = gpub.spec.Spec.overwrite(spec, {
-        diagramOptions: new gpub.api.DiagramOptions(opt_o)
+        diagramOptions: new gpub.opts.DiagramOptions(opt_o)
       });
       ref.spec_ = spec;
     }

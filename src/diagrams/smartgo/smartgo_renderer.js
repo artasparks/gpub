@@ -32,7 +32,7 @@ gpub.diagrams.smartgo.Renderer.prototype = {
   /**
    * The create method for smartgo
    * @param {!glift.flattener.Flattened} flat
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
@@ -183,7 +183,7 @@ gpub.diagrams.smartgo.Renderer.prototype = {
   /**
    * Render-inline some inline text with smartgo
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The processed text
    */
   renderInline: function(text, opt) {

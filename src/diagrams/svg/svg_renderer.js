@@ -10,7 +10,7 @@ gpub.diagrams.svg.Renderer.prototype = {
   /**
    * Create an SVG diagarm from a flattened object.
    * @param {!glift.flattener.Flattened} flat
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
@@ -69,7 +69,7 @@ gpub.diagrams.svg.Renderer.prototype = {
    * because for SVG, this means raw inclusion in HTML, and here I mean
    * processing text like 'Black 6' into stone-images within the text.
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The processed text
    */
   renderInline: function(text, opt) {
@@ -78,7 +78,7 @@ gpub.diagrams.svg.Renderer.prototype = {
 
   /**
    * Gets the SVG options from a diagram options object.
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {!gpub.diagrams.svg.Options}
    */
   getSvgOptions: function(opt) {

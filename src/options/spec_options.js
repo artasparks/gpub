@@ -1,5 +1,5 @@
-goog.provide('gpub.api.SpecOptions');
-goog.provide('gpub.api.SpecOptionsDef');
+goog.provide('gpub.opts.SpecOptions');
+goog.provide('gpub.opts.SpecOptionsDef');
 
 goog.scope(function() {
 
@@ -14,18 +14,18 @@ goog.scope(function() {
  *  autoRotateGames: (boolean|undefined),
  * }}
  */
-gpub.api.SpecOptionsDef;
+gpub.opts.SpecOptionsDef;
 
 
 /**
  * The user can pass in defaults to apply to the SGFs during spec
  * creation.
  *
- * @param {(!gpub.api.SpecOptions|!gpub.api.SpecOptionsDef)=} opt_options
+ * @param {(!gpub.opts.SpecOptions|!gpub.opts.SpecOptionsDef)=} opt_options
  *
  * @constructor @final @struct
  */
-gpub.api.SpecOptions = function(opt_options) {
+gpub.opts.SpecOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
@@ -120,11 +120,11 @@ gpub.api.SpecOptions = function(opt_options) {
 
 /**
  * Apply default options to raw spec options.
- * @param {!gpub.api.SpecOptionsDef} opts
- * @param {!gpub.api.SpecOptionsDef} defaults
- * @return {!gpub.api.SpecOptionsDef}
+ * @param {!gpub.opts.SpecOptionsDef} opts
+ * @param {!gpub.opts.SpecOptionsDef} defaults
+ * @return {!gpub.opts.SpecOptionsDef}
  */
-gpub.api.SpecOptions.applyDefaults = function(opts, defaults) {
+gpub.opts.SpecOptions.applyDefaults = function(opts, defaults) {
   for (var key in defaults) {
     if (opts[key] === undefined && defaults[key] !== undefined) {
       opts[key] = defaults[key];

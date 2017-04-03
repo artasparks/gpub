@@ -11,7 +11,7 @@
       alias: id,
     });
     var generated = gpub.spec.processProblems(
-        mt, pos, idGen, new gpub.api.SpecOptions());
+        mt, pos, idGen, new gpub.opts.SpecOptions());
     ok(generated, 'Should be defined');
     deepEqual(generated.id, id);
     deepEqual(generated.positionType, gpub.spec.PositionType.EXAMPLE);

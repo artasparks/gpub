@@ -113,14 +113,14 @@ gpub.book.PositionConfig.prototype = {
  *
  * @param {!gpub.spec.Grouping} rootGrouping The root position grouping
  * @param {!gpub.diagrams.Rendered} rendered The diagram wrapper
- * @param {!gpub.api.TemplateOptions} opts Options for template rendering.
+ * @param {!gpub.opts.TemplateOptions} opts Options for template rendering.
  *
  * @struct @final @constructor
  */
 gpub.book.BookMaker = function(rootGrouping, rendered, opts) {
   /**
    * Options for templatizing a book.
-   * @const @private {!gpub.api.TemplateOptions}
+   * @const @private {!gpub.opts.TemplateOptions}
    */
   this.tmplOpts_ = opts;
 
@@ -186,7 +186,7 @@ gpub.book.BookMaker.prototype = {
     return this.idToConfig_[id] || null;
   },
 
-  /** @return {!gpub.api.TemplateOptions} Returns the template options. */
+  /** @return {!gpub.opts.TemplateOptions} Returns the template options. */
   templateOptions: function() {
     return this.tmplOpts_;
   },
@@ -201,7 +201,7 @@ gpub.book.BookMaker.prototype = {
    * all rendering types, but is a nice addition especially for commentary.
    * @param {gpub.diagrams.Type} dtype
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} opt_diagramOpts
+   * @param {!gpub.opts.DiagramOptions} opt_diagramOpts
    * @return {string} The rendered text
    */
   renderInline: function(dtype, text, opt_diagramOpts) {

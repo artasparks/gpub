@@ -1,5 +1,6 @@
 goog.provide('gpub.Options');
 goog.provide('gpub.OptionsDef');
+goog.provide('gpub.opts');
 
 
 /**
@@ -8,13 +9,20 @@ goog.provide('gpub.OptionsDef');
  * @typedef {{
  *  sgfs: (!Array<string>|undefined),
  *  ids: (!Array<string>|undefined),
- *  specOptions: (!gpub.api.SpecOptionsDef|undefined),
- *  diagramOptions: (!gpub.api.DiagramOptionsDef|undefined),
- *  templateOptions: (!gpub.api.TemplateOptionsDef|undefined),
+ *  specOptions: (!gpub.opts.SpecOptionsDef|undefined),
+ *  diagramOptions: (!gpub.opts.DiagramOptionsDef|undefined),
+ *  templateOptions: (!gpub.opts.TemplateOptionsDef|undefined),
  *  debug: (boolean|undefined),
  * }}
  */
 gpub.OptionsDef;
+
+
+/**
+ * Namespace for the options
+ * @namespace
+ */
+gpub.opts = {};
 
 
 /**
@@ -62,21 +70,21 @@ gpub.Options = function(opt_options) {
 
   /**
    * Options specific to spec creation.
-   * @const {!gpub.api.SpecOptions}
+   * @const {!gpub.opts.SpecOptions}
    */
-  this.specOptions = new gpub.api.SpecOptions(o.specOptions);
+  this.specOptions = new gpub.opts.SpecOptions(o.specOptions);
 
   /**
    * Options specific to diagrams.
-   * @const {!gpub.api.DiagramOptions}
+   * @const {!gpub.opts.DiagramOptions}
    */
-  this.diagramOptions = new gpub.api.DiagramOptions(o.diagramOptions);
+  this.diagramOptions = new gpub.opts.DiagramOptions(o.diagramOptions);
 
   /**
    * Options specific to book processing (Phase 4)
-   * @const {!gpub.api.TemplateOptions}
+   * @const {!gpub.opts.TemplateOptions}
    */
-  this.templateOptions = new gpub.api.TemplateOptions(o.templateOptions);
+  this.templateOptions = new gpub.opts.TemplateOptions(o.templateOptions);
 
   /**
    * Whether or not debug information should be displayed.
@@ -95,15 +103,15 @@ gpub.Options = function(opt_options) {
 gpub.Options.applyDefaults = function(opts, defaults) {
   var sopts = opts.specOptions|| {};
   var sdef = defaults.specOptions || {};
-  opts.specOptions = gpub.api.SpecOptions.applyDefaults(sopts, sdef);
+  opts.specOptions = gpub.opts.SpecOptions.applyDefaults(sopts, sdef);
 
   var dopts = opts.diagramOptions || {};
   var ddef = defaults.diagramOptions || {};
-  opts.diagramOptions = gpub.api.DiagramOptions.applyDefaults(dopts, ddef);
+  opts.diagramOptions = gpub.opts.DiagramOptions.applyDefaults(dopts, ddef);
 
   var topts = opts.templateOptions || {};
   var tdef = defaults.templateOptions || {};
-  opts.templateOptions = gpub.api.TemplateOptions.applyDefaults(topts, tdef);
+  opts.templateOptions = gpub.opts.TemplateOptions.applyDefaults(topts, tdef);
   return opts;
 };
 

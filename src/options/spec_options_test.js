@@ -1,8 +1,8 @@
 (function() {
-  module('gpub.api.specOptionsTest');
+  module('gpub.opts.specOptionsTest');
 
   test('That spec options construction work.', function() {
-    var opt = new gpub.api.SpecOptions({
+    var opt = new gpub.opts.SpecOptions({
       positionType: gpub.spec.PositionType.PROBLEM
     });
     deepEqual(opt.positionType, gpub.spec.PositionType.PROBLEM);

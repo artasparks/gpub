@@ -68,7 +68,7 @@ gpub.diagrams.gnos = {
    *
    * We expect flattened and options to be defined.
    * @param {!glift.flattener.Flattened} flat
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string}
    */
   create: function(flat, opt) {
@@ -96,7 +96,7 @@ gpub.diagrams.gnos = {
    * the relevant stone symbols i.e. Black 123 => \\gnosbi\\char23
    *
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} options
+   * @param {!gpub.opts.DiagramOptions} options
    * @return string
    */
   renderInline: function(text, options) {

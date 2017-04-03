@@ -9,7 +9,7 @@ gpub.diagrams.igo.Renderer.prototype = {
   /**
    * The create method for igo
    * @param {!glift.flattener.Flattened} flat
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
@@ -19,7 +19,7 @@ gpub.diagrams.igo.Renderer.prototype = {
   /**
    * Render-inline the
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The processed text
    */
   renderInline: function(text, opt) {

@@ -167,7 +167,7 @@ gpub.spec.Processor.prototype = {
    * @param {!glift.rules.MoveTree} movetree
    * @param {string} alias
    * @param {!gpub.spec.PositionType} posType
-   * @param {!gpub.api.SpecOptions} opts
+   * @param {!gpub.opts.SpecOptions} opts
    * @return {!glift.rules.MoveTree}
    * @private
    */

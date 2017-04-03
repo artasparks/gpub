@@ -1,5 +1,5 @@
 (function() {
-  module('gpub.api.optionsTest');
+  module('gpub.optionsTest');
   var defaultOptions = new gpub.Options();
 
   test('Process options: default', function() {

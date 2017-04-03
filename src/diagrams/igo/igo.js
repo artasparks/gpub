@@ -63,7 +63,7 @@ gpub.diagrams.igo = {
    * TEX style. Thus, we need only display the stones and marks.
    *
    * @param {!glift.flattener.Flattened} flattened
-   * @param {!gpub.api.DiagramOptions} options
+   * @param {!gpub.opts.DiagramOptions} options
    * @return {string} The rendered diagram.
    */
   create: function(flattened, options) {
@@ -158,7 +158,7 @@ gpub.diagrams.igo = {
   /**
    * Render go stones that exist in a block of text.
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} options
+   * @param {!gpub.opts.DiagramOptions} options
    * @return {string} The processed text
    */
   renderInline: function(text, options) {

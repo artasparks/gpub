@@ -9524,79 +9524,148 @@ if (w) {
 }
 })(window);
 
-goog.provide('gpub.api');
-goog.provide('gpub.create');
-goog.provide('gpub.init');
+goog.provide('gpub.Options');
+goog.provide('gpub.OptionsDef');
+goog.provide('gpub.opts');
 
 
 /**
- * Api Namespace.
+ * Typedef for options.
+ *
+ * @typedef {{
+ *  sgfs: (!Array<string>|undefined),
+ *  ids: (!Array<string>|undefined),
+ *  specOptions: (!gpub.opts.SpecOptionsDef|undefined),
+ *  diagramOptions: (!gpub.opts.DiagramOptionsDef|undefined),
+ *  templateOptions: (!gpub.opts.TemplateOptionsDef|undefined),
+ *  debug: (boolean|undefined),
+ * }}
+ */
+gpub.OptionsDef;
+
+
+/**
+ * Namespace for the options
  * @namespace
  */
-gpub.api = {};
+gpub.opts = {};
 
 
 /**
- * Init creates a fluent-api instance, which allows fine-grained control over
- * how a book is created.
+ * Default options for GPub API. Recall that GPub has 4 tasks:
  *
- * Intended usage:
- *    gpub.init({...options...})
- *      .createSpec()
- *      .processSpec()
- *      .createDiagrams()
- *      .bookMaker()
+ * - Create a spec (a serialized book prototype).
+ * - Flatten the spec into an example spec.
+ * - Create diagrams
+ * - Assemble the diagrams into a book.
  *
- * @param {!gpub.Options|!gpub.OptionsDef} opt Options to process
- * @return {!gpub.Api} A fluent API wrapper.
- * @export
+ * These are the set of options for all 4 phases.
+ *
+ * @param {(!gpub.Options|!gpub.OptionsDef)=} opt_options
+ *
+ * @constructor @struct @final
  */
-gpub.init = function(opt) {
-  // TODO(kashomon): Support passing in json-serialized book objects (perhaps just json-spec).
-  if (!glift) {
-    throw new Error('Gpub depends on Glift, but Glift was not defined');
-  }
-  return new gpub.Api(new gpub.Options(opt));
+gpub.Options = function(opt_options) {
+  var o = opt_options || {};
+
+  /**
+   * Array of SGF (strings). No default is specified here: Must be explicitly
+   * passed in every time.
+   *
+   * @const {!Array<string>}
+   */
+  this.sgfs = o.sgfs || [];
+
+  /**
+   * Optianal array of IDs corresponding to the SGFs. If supplied, should be
+   * the same length as the sgfs. If not specified, artificial IDs will be
+   * created.
+   * @const {!Array<string>|undefined}
+   */
+  this.ids = o.ids || undefined;
+
+  this.ensureUniqueIds();
+
+  /**
+   * The type of template to use. Only used when creating full templated books.
+   *
+   * @const {gpub.templates.Style}
+   */
+  this.template = o.template ||
+      gpub.templates.Style.RELENTLESS_COMMENTARY_LATEX;
+
+  /**
+   * Options specific to spec creation.
+   * @const {!gpub.opts.SpecOptions}
+   */
+  this.specOptions = new gpub.opts.SpecOptions(o.specOptions);
+
+  /**
+   * Options specific to diagrams.
+   * @const {!gpub.opts.DiagramOptions}
+   */
+  this.diagramOptions = new gpub.opts.DiagramOptions(o.diagramOptions);
+
+  /**
+   * Options specific to book processing (Phase 4)
+   * @const {!gpub.opts.TemplateOptions}
+   */
+  this.templateOptions = new gpub.opts.TemplateOptions(o.templateOptions);
+
+  /**
+   * Whether or not debug information should be displayed.
+   * @const {boolean}
+   */
+  this.debug = !!o.debug || false;
 };
 
 
 /**
- * Creates a 'book' output from SGFs given a template. In other words,
- * auto-magic book creation.
- *
- * Under the covers, all the book 'templates' use the standard fluent-api to
- * create books.
- *
- * For this creation method, the template parameter *must* be defined. Thus, a
- * minimal options object looks like:
- *
- * {
- *  template: 'PROBLEM_LATEX',
- *  sgfs: [...],
- * }
- *
- * Note: If various option parameters are not defined in the Options-param,
- * then various defaults are set.
- * - First, we check to see if defaults are set by the template-style.
- * - Then, we any defaults given by the options constructor.
- *
- * @param {!gpub.OptionsDef|!gpub.Options} opt Options to process.
- * @return {gpub.templates.BookOutput}
- * @export
+ * Apply default options to the top-level options object.
+ * @param {!gpub.OptionsDef} opts
+ * @param {!gpub.OptionsDef} defaults
+ * @return {!gpub.OptionsDef}
  */
-gpub.createBook = function(opt) {
-  if (!opt) {
-    throw new Error('Options must be defined. Was: ' + opt);
-  }
-  var template = opt.template;
-  if (!template) {
-    throw new Error('Template style (options.template) must be defined.')
-  }
-  return gpub.templates.muxer(template, opt);
+gpub.Options.applyDefaults = function(opts, defaults) {
+  var sopts = opts.specOptions|| {};
+  var sdef = defaults.specOptions || {};
+  opts.specOptions = gpub.opts.SpecOptions.applyDefaults(sopts, sdef);
+
+  var dopts = opts.diagramOptions || {};
+  var ddef = defaults.diagramOptions || {};
+  opts.diagramOptions = gpub.opts.DiagramOptions.applyDefaults(dopts, ddef);
+
+  var topts = opts.templateOptions || {};
+  var tdef = defaults.templateOptions || {};
+  opts.templateOptions = gpub.opts.TemplateOptions.applyDefaults(topts, tdef);
+  return opts;
 };
 
-goog.provide('gpub.api.DiagramOptions');
-goog.provide('gpub.api.DiagramOptionsDef');
+
+/**
+ * Ensure that the IDs are unique. Throws an error if the IDs are not unique.
+ */
+gpub.Options.prototype.ensureUniqueIds = function() {
+  if (this.ids) {
+    if (this.ids.length !== this.sgfs.length) {
+      throw new Error('If IDs array is provided, ' +
+          'it must be the same length as the SGFs array');
+    } else {
+      // Ensure uniqueness.
+      var tmpMap = {};
+      for (var i = 0; i < this.ids.length; i++) {
+        var id = this.ids[i];
+        if (tmpMap[this.ids[i]]) {
+          throw new Error('IDs must be unique. Found duplicate: ' + id);
+        }
+        tmpMap[id] = true;
+      }
+    }
+  }
+};
+
+goog.provide('gpub.opts.DiagramOptions');
+goog.provide('gpub.opts.DiagramOptionsDef');
 
 
 /**
@@ -9613,7 +9682,7 @@ goog.provide('gpub.api.DiagramOptionsDef');
  * }}
  *
  */
-gpub.api.DiagramOptionsDef;
+gpub.opts.DiagramOptionsDef;
 
 
 /**
@@ -9621,11 +9690,11 @@ gpub.api.DiagramOptionsDef;
  *
  * Defaults are only applied.
  *
- * @param {(!gpub.api.DiagramOptions|!gpub.api.DiagramOptionsDef)=} opt_options
+ * @param {(!gpub.opts.DiagramOptions|!gpub.opts.DiagramOptionsDef)=} opt_options
  *
  * @constructor @struct @final
  */
-gpub.api.DiagramOptions = function(opt_options) {
+gpub.opts.DiagramOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
@@ -9715,11 +9784,11 @@ gpub.api.DiagramOptions = function(opt_options) {
 
 /**
  * Apply default options to raw diagram options.
- * @param {!gpub.api.DiagramOptionsDef} opts
- * @param {!gpub.api.DiagramOptionsDef} defaults
- * @return {!gpub.api.DiagramOptionsDef}
+ * @param {!gpub.opts.DiagramOptionsDef} opts
+ * @param {!gpub.opts.DiagramOptionsDef} defaults
+ * @return {!gpub.opts.DiagramOptionsDef}
  */
-gpub.api.DiagramOptions.applyDefaults = function(opts, defaults) {
+gpub.opts.DiagramOptions.applyDefaults = function(opts, defaults) {
   for (var key in defaults) {
     if (opts[key] === undefined && defaults[key] !== undefined) {
       opts[key] = defaults[key];
@@ -9728,382 +9797,8 @@ gpub.api.DiagramOptions.applyDefaults = function(opts, defaults) {
   return opts;
 };
 
-goog.provide('gpub.Api');
-
-goog.scope(function() {
-
-
-/**
- * A GPub API wrapper. This is a container that has methods for processing
- * specs, producing diagrams, and eventually, rendering books.
- *
- * It is shallowly immutable: Each API transformation returns a new API
- * reference. However, no care is taken to ensure deep immutability of the
- * underlying objects.
- *
- * Usage:
- *
- * gpub.init({options})
- *
- * @param {!gpub.Options} options
- * @struct @constructor @final
- */
-gpub.Api = function(options) {
-  /** @private @const {!gpub.Options} */
-  this.opt_ = options;
-  /** @private {?gpub.spec.Spec} */
-  this.spec_ = null;
-  /** @private {?gpub.diagrams.Rendered} */
-  this.diagrams_ = null;
-  /** @private {!gpub.util.MoveTreeCache|undefined} */
-  this.cache_ = undefined;
-};
-
-
-gpub.Api.prototype = {
-
-  /**
-   * @return {?gpub.spec.Spec} The spec, if it exists.
-   * @export
-   */
-  spec: function() { return this.spec_; },
-
-  /**
-   * @return {?gpub.diagrams.Rendered} The rendered diagrams, if they exist.
-   * @export
-   */
-  diagrams: function() { return this.diagrams_; },
-
-  /**
-   * @return {string} Return the serialized JSON spec or empty string. 
-   * @export
-   */
-  jsonSpec: function() { return this.spec_ ? this.spec_.serializeJson() : '' },
-
-  /**
-   * Create an initial GPub specification. This can either be created from
-   * scratch or from an existing spec (in either it's object or JSON form).
-   *
-   * @param {(!gpub.spec.Spec|string)=} opt_spec Optionally pass in a spec, in
-   *    either a serialized JSON form, or in the object form.
-   * @return {!gpub.Api} A new reference updated with a new cache and spec.
-   * @export
-   */
-  createSpec: function(opt_spec) {
-    var ref = this.newRef_();
-    if (opt_spec) {
-      // The spec option has been passed in. So instead of creating a spec from
-      // scratch, parse the one that's passed in.
-      if (typeof opt_spec === 'string') {
-        // Assume it's JSON.
-        var jsonspec = /** @type {string} */ (opt_spec);
-        ref.spec_ = gpub.spec.Spec.deserializeJson(jsonspec);
-      } else if (typeof opt_spec === 'object') {
-        // Assume the types are correct and create a copy.
-        var objspec = /** @type {!gpub.spec.Spec} */ (opt_spec);
-        ref.spec_ = new gpub.spec.Spec(objspec);
-      } else {
-        throw new Error('Unknown type for spec options. ' +
-            'Must be serialized JSON or a gpub.spce.Spec object.');
-      }
-    } else {
-      // No spec option has been passed in; Process the incoming SGFS.
-      var sgfs = ref.opt_.sgfs;
-      if (!sgfs || glift.util.typeOf(sgfs) !== 'array' || sgfs.length === 0) {
-        throw new Error('SGF array must be defined and non-empty ' +
-            'before spec creation');
-      }
-      ref.cache_ = new gpub.util.MoveTreeCache();
-      ref.spec_ = gpub.spec.create(ref.opt_, ref.cache_);
-    }
-    return ref;
-  },
-
-  /**
-   * Process a GPub specification, generating new positions if necessary.
-   * @param {(!gpub.api.SpecOptions)=} opt_o Optional Spec options.
-   * @return {!gpub.Api} A new reference with an updated spec.
-   * @export
-   */
-  processSpec: function(opt_o) {
-    var ref = this.newRef_();
-    var phase = 'processing the spec';
-    var spec = ref.mustGetSpec_(phase);
-    var cache = ref.getCacheOrInit_(phase);
-    if (opt_o) {
-      spec = gpub.spec.Spec.overwrite(spec, {
-        specOptions: new gpub.api.SpecOptions(opt_o)
-      });
-    }
-    ref.spec_ = gpub.spec.process(spec, cache);
-    return ref;
-  },
-
-  /**
-   * Render all the diagrams! Render all the diagrams and store them in a
-   * possibly giant rendered JS Object. If you have many diagrams that you're
-   * going to write to disk anyway, consider using `renderDiagramsStream`.
-   *
-   * @param {(!gpub.api.DiagramOptions)=} opt_o Optional diagram options.
-   * @return {!gpub.Api} A new reference with rendered diagrams.
-   * @export
-   */
-  renderDiagrams: function(opt_o) {
-    var ref = this.newRef_();
-    var phase = 'diagram rendering';
-    var spec = ref.mustGetSpec_(phase);
-    var cache = ref.getCacheOrInit_(phase);
-    if (opt_o) {
-      spec = gpub.spec.Spec.overwrite(spec, {
-        diagramOptions: new gpub.api.DiagramOptions(opt_o)
-      });
-      ref.spec_ = spec;
-    }
-    ref.diagrams_ = gpub.diagrams.render(spec, cache);
-    return ref;
-  },
-
-  /**
-   * Stream the rendered diagrams to the user-provided function. The intention
-   * is that the user will store these diagrams to disk or do some other
-   * processing. The rendered diagrams object is still produced, because it
-   * still contains useful metadata, but it will not contain the rendered
-   * bytes.
-   *
-   * @param {!gpub.diagrams.DiagramCallback} fn Void-returning processing
-   * function.
-   * @param {!gpub.api.DiagramOptions=} opt_o Optional options
-   * @return {!gpub.Api} A new reference with rendered diagram metadata
-   * @export
-   */
-  renderDiagramsStream: function(fn, opt_o) {
-    var ref = this.newRef_();
-    var phase = 'streaming diagram rendering';
-    var spec = ref.mustGetSpec_(phase);
-    var cache = ref.getCacheOrInit_(phase);
-    if (opt_o) {
-      spec = gpub.spec.Spec.overwrite(spec, {
-        diagramOptions: new gpub.api.DiagramOptions(opt_o)
-      });
-      ref.spec_ = spec;
-    }
-    ref.diagrams_ = gpub.diagrams.renderStream(spec, cache, fn)
-    return ref;
-  },
-
-  /**
-   * Returns the book maker helper. Both the spec and the rendered diagrams
-   * must have been created before the book generator is created.
-   * @return
-   */
-  bookMaker: function() {
-    var phase = 'creating the book maker helper';
-    var spec = this.mustGetSpec_(phase);
-    var diagrams = this.mustGetRendererd_(phase);
-    var tmplOpts = this.opt_.templateOptions;
-    return new gpub.book.BookMaker(spec.rootGrouping, diagrams, tmplOpts);
-  },
-
-  /////////////////////////////////
-  //////// Private helpers ////////
-  /////////////////////////////////
-  /**
-   * Create a new instance of the API so that we don't reuse references. This
-   * allows us to return new references upon successive .transformations.
-   * @return {!gpub.Api}
-   * @private
-   */
-  newRef_: function() {
-    var ref = new gpub.Api(this.opt_);
-    ref.spec_ = this.spec_;
-    ref.diagrams_ = this.diagrams_;
-    ref.cache_ = this.cache_;
-    return ref
-  },
-
-  /**
-   *  Get an existing cache or create a new one from the spec. Throws an error
-   *  if the spec is not defined.
-   *  @param {string} phase During which this occurred (for error messaging)..
-   *  @return {!gpub.util.MoveTreeCache} The cache
-   *  @private
-   */
-  getCacheOrInit_: function(phase) {
-    var spec = this.mustGetSpec_(phase);
-    if (!this.cache_) {
-      // If the user passes in the spec instead of starting from the beginning,
-      // it's possible that the user has skipped diagram creation.
-      this.cache_ = new gpub.util.MoveTreeCache(spec.sgfMapping);
-    }
-    return this.cache_;
-  },
-
-  /**
-   * Get the spec or throw an error.
-   * @param {string} phase
-   * @return {!gpub.spec.Spec} The spec, which must be defined
-   * @private
-   */
-  mustGetSpec_: function(phase) {
-    var spec = this.spec();
-    if (!spec) {
-      throw new Error('Spec must be defined before ' + phase + '.');
-    }
-    return spec;
-  },
-
-  /**
-   * Get the rendered diagram wrapper or throw an error.
-   * @param {string} phase
-   * @return {!gpub.diagrams.Rendered} The rendered diagram wrapper, which must
-   *    be defined
-   * @private
-   */
-  mustGetRendererd_: function(phase) {
-    var dia = this.diagrams();
-    if (!dia) {
-      throw new Error('Rendered must be defined before ' + phase + '.');
-    }
-    return dia;
-  },
-};
-
-});  // goog.scope;
-
-goog.provide('gpub.Options');
-goog.provide('gpub.OptionsDef');
-
-
-/**
- * Typedef for options.
- *
- * @typedef {{
- *  sgfs: (!Array<string>|undefined),
- *  ids: (!Array<string>|undefined),
- *  specOptions: (!gpub.api.SpecOptionsDef|undefined),
- *  diagramOptions: (!gpub.api.DiagramOptionsDef|undefined),
- *  templateOptions: (!gpub.api.TemplateOptionsDef|undefined),
- *  debug: (boolean|undefined),
- * }}
- */
-gpub.OptionsDef;
-
-
-/**
- * Default options for GPub API. Recall that GPub has 4 tasks:
- *
- * - Create a spec (a serialized book prototype).
- * - Flatten the spec into an example spec.
- * - Create diagrams
- * - Assemble the diagrams into a book.
- *
- * These are the set of options for all 4 phases.
- *
- * @param {(!gpub.Options|!gpub.OptionsDef)=} opt_options
- *
- * @constructor @struct @final
- */
-gpub.Options = function(opt_options) {
-  var o = opt_options || {};
-
-  /**
-   * Array of SGF (strings). No default is specified here: Must be explicitly
-   * passed in every time.
-   *
-   * @const {!Array<string>}
-   */
-  this.sgfs = o.sgfs || [];
-
-  /**
-   * Optianal array of IDs corresponding to the SGFs. If supplied, should be
-   * the same length as the sgfs. If not specified, artificial IDs will be
-   * created.
-   * @const {!Array<string>|undefined}
-   */
-  this.ids = o.ids || undefined;
-
-  this.ensureUniqueIds();
-
-  /**
-   * The type of template to use. Only used when creating full templated books.
-   *
-   * @const {gpub.templates.Style}
-   */
-  this.template = o.template ||
-      gpub.templates.Style.RELENTLESS_COMMENTARY_LATEX;
-
-  /**
-   * Options specific to spec creation.
-   * @const {!gpub.api.SpecOptions}
-   */
-  this.specOptions = new gpub.api.SpecOptions(o.specOptions);
-
-  /**
-   * Options specific to diagrams.
-   * @const {!gpub.api.DiagramOptions}
-   */
-  this.diagramOptions = new gpub.api.DiagramOptions(o.diagramOptions);
-
-  /**
-   * Options specific to book processing (Phase 4)
-   * @const {!gpub.api.TemplateOptions}
-   */
-  this.templateOptions = new gpub.api.TemplateOptions(o.templateOptions);
-
-  /**
-   * Whether or not debug information should be displayed.
-   * @const {boolean}
-   */
-  this.debug = !!o.debug || false;
-};
-
-
-/**
- * Apply default options to the top-level options object.
- * @param {!gpub.OptionsDef} opts
- * @param {!gpub.OptionsDef} defaults
- * @return {!gpub.OptionsDef}
- */
-gpub.Options.applyDefaults = function(opts, defaults) {
-  var sopts = opts.specOptions|| {};
-  var sdef = defaults.specOptions || {};
-  opts.specOptions = gpub.api.SpecOptions.applyDefaults(sopts, sdef);
-
-  var dopts = opts.diagramOptions || {};
-  var ddef = defaults.diagramOptions || {};
-  opts.diagramOptions = gpub.api.DiagramOptions.applyDefaults(dopts, ddef);
-
-  var topts = opts.templateOptions || {};
-  var tdef = defaults.templateOptions || {};
-  opts.templateOptions = gpub.api.TemplateOptions.applyDefaults(topts, tdef);
-  return opts;
-};
-
-
-/**
- * Ensure that the IDs are unique. Throws an error if the IDs are not unique.
- */
-gpub.Options.prototype.ensureUniqueIds = function() {
-  if (this.ids) {
-    if (this.ids.length !== this.sgfs.length) {
-      throw new Error('If IDs array is provided, ' +
-          'it must be the same length as the SGFs array');
-    } else {
-      // Ensure uniqueness.
-      var tmpMap = {};
-      for (var i = 0; i < this.ids.length; i++) {
-        var id = this.ids[i];
-        if (tmpMap[this.ids[i]]) {
-          throw new Error('IDs must be unique. Found duplicate: ' + id);
-        }
-        tmpMap[id] = true;
-      }
-    }
-  }
-};
-
-goog.provide('gpub.api.SpecOptions');
-goog.provide('gpub.api.SpecOptionsDef');
+goog.provide('gpub.opts.SpecOptions');
+goog.provide('gpub.opts.SpecOptionsDef');
 
 goog.scope(function() {
 
@@ -10118,18 +9813,18 @@ goog.scope(function() {
  *  autoRotateGames: (boolean|undefined),
  * }}
  */
-gpub.api.SpecOptionsDef;
+gpub.opts.SpecOptionsDef;
 
 
 /**
  * The user can pass in defaults to apply to the SGFs during spec
  * creation.
  *
- * @param {(!gpub.api.SpecOptions|!gpub.api.SpecOptionsDef)=} opt_options
+ * @param {(!gpub.opts.SpecOptions|!gpub.opts.SpecOptionsDef)=} opt_options
  *
  * @constructor @final @struct
  */
-gpub.api.SpecOptions = function(opt_options) {
+gpub.opts.SpecOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
@@ -10224,11 +9919,11 @@ gpub.api.SpecOptions = function(opt_options) {
 
 /**
  * Apply default options to raw spec options.
- * @param {!gpub.api.SpecOptionsDef} opts
- * @param {!gpub.api.SpecOptionsDef} defaults
- * @return {!gpub.api.SpecOptionsDef}
+ * @param {!gpub.opts.SpecOptionsDef} opts
+ * @param {!gpub.opts.SpecOptionsDef} defaults
+ * @return {!gpub.opts.SpecOptionsDef}
  */
-gpub.api.SpecOptions.applyDefaults = function(opts, defaults) {
+gpub.opts.SpecOptions.applyDefaults = function(opts, defaults) {
   for (var key in defaults) {
     if (opts[key] === undefined && defaults[key] !== undefined) {
       opts[key] = defaults[key];
@@ -10239,28 +9934,28 @@ gpub.api.SpecOptions.applyDefaults = function(opts, defaults) {
 
 });
 
-goog.provide('gpub.api.TemplateOptions');
-goog.provide('gpub.api.TemplateOptionsDef');
-goog.provide('gpub.api.Frontmatter');
+goog.provide('gpub.opts.TemplateOptions');
+goog.provide('gpub.opts.TemplateOptionsDef');
+goog.provide('gpub.opts.Frontmatter');
 
 
 /**
  * @typedef {{
  *  template: (gpub.templates.Style|undefined),
  *  metadata: (!gpub.book.Metadata|!gpub.book.MetadataDef|undefined),
- *  frontmatter: (!gpub.api.Frontmatter|undefined),
- *  appendices: (!gpub.api.TemplateOptionsDef|undefined),
+ *  frontmatter: (!gpub.opts.Frontmatter|undefined),
+ *  appendices: (!gpub.opts.TemplateOptionsDef|undefined),
  * }}
  */
-gpub.api.TemplateOptionsDef;
+gpub.opts.TemplateOptionsDef;
 
 
 /**
- * @param {(!gpub.api.TemplateOptions|!gpub.api.TemplateOptionsDef)=} opt_options
+ * @param {(!gpub.opts.TemplateOptions|!gpub.opts.TemplateOptionsDef)=} opt_options
  *
  * @constructor @struct @final
  */
-gpub.api.TemplateOptions = function(opt_options) {
+gpub.opts.TemplateOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
@@ -10284,9 +9979,9 @@ gpub.api.TemplateOptions = function(opt_options) {
    * that do support the relevant sections, the frontmatter and backmatter are
    * dumped into the book options.
    *
-   * @type {!gpub.api.Frontmatter}
+   * @type {!gpub.opts.Frontmatter}
    */
-  this.frontmatter = new gpub.api.Frontmatter(o.frontmatter);
+  this.frontmatter = new gpub.opts.Frontmatter(o.frontmatter);
 
   /**
    * Appendices. E.g., Glossary, index, etc.
@@ -10297,11 +9992,11 @@ gpub.api.TemplateOptions = function(opt_options) {
 };
 
 /**
- * @param {!gpub.api.Frontmatter=} options
+ * @param {!gpub.opts.Frontmatter=} options
  *
  * @constructor @struct @final
  */
-gpub.api.Frontmatter = function(options) {
+gpub.opts.Frontmatter = function(options) {
   var o = options || {};
 
   // epigraph: null, // AKA Quote Page
@@ -10352,11 +10047,11 @@ gpub.api.Frontmatter = function(options) {
  * Apply default options to raw template options. It's unlikely that
  * template-option-overrides would be provided, but it's here for completeness.
  *
- * @param {!gpub.api.TemplateOptionsDef} opts
- * @param {!gpub.api.TemplateOptionsDef} defaults
- * @return {!gpub.api.TemplateOptionsDef}
+ * @param {!gpub.opts.TemplateOptionsDef} opts
+ * @param {!gpub.opts.TemplateOptionsDef} defaults
+ * @return {!gpub.opts.TemplateOptionsDef}
  */
-gpub.api.TemplateOptions.applyDefaults = function(opts, defaults) {
+gpub.opts.TemplateOptions.applyDefaults = function(opts, defaults) {
   for (var key in defaults) {
     if (opts[key] === undefined && defaults[key] !== undefined) {
       opts[key] = defaults[key];
@@ -10952,7 +10647,7 @@ gpub.spec.Position.prototype = {
  * @param {!glift.rules.MoveTree} mt
  * @param {!gpub.spec.Position} position
  * @param {!gpub.spec.IdGen} idGen
- * @param {!gpub.api.SpecOptions} opt
+ * @param {!gpub.opts.SpecOptions} opt
  * @return {!gpub.spec.Generated} return the generated position.
  * @package
  */
@@ -11211,7 +10906,7 @@ gpub.spec.Processor.prototype = {
    * @param {!glift.rules.MoveTree} movetree
    * @param {string} alias
    * @param {!gpub.spec.PositionType} posType
-   * @param {!gpub.api.SpecOptions} opts
+   * @param {!gpub.opts.SpecOptions} opts
    * @return {!glift.rules.MoveTree}
    * @private
    */
@@ -11267,9 +10962,9 @@ goog.provide('gpub.spec.SpecDef');
  *  version: (gpub.spec.SpecVersion|undefined),
  *  grouping: (!gpub.spec.Grouping|undefined),
  *  sgfMapping: (!Object<string, string>|undefined),
- *  specOptions: (!gpub.api.SpecOptions|undefined),
- *  diagramOptions: (!gpub.api.DiagramOptions|undefined),
- *  templateOptions: (!gpub.api.TemplateOptions|undefined),
+ *  specOptions: (!gpub.opts.SpecOptions|undefined),
+ *  diagramOptions: (!gpub.opts.DiagramOptions|undefined),
+ *  templateOptions: (!gpub.opts.TemplateOptions|undefined),
  * }}
  */
 gpub.spec.SpecDef;
@@ -11328,21 +11023,21 @@ gpub.spec.Spec = function(opt_spec) {
 
   /**
    * Options specific to spec creation (Phases 1 and 2)
-   * @const {!gpub.api.SpecOptions}
+   * @const {!gpub.opts.SpecOptions}
    */
-  this.specOptions = new gpub.api.SpecOptions(o.specOptions);
+  this.specOptions = new gpub.opts.SpecOptions(o.specOptions);
 
   /**
    * Options specific to Diagrams (Phase 3)
-   * @const {!gpub.api.DiagramOptions}
+   * @const {!gpub.opts.DiagramOptions}
    */
-  this.diagramOptions = new gpub.api.DiagramOptions(o.diagramOptions);
+  this.diagramOptions = new gpub.opts.DiagramOptions(o.diagramOptions);
 
   /**
    * Options specific to book processing (Phase 4)
-   * @const {!gpub.api.TemplateOptions}
+   * @const {!gpub.opts.TemplateOptions}
    */
-  this.templateOptions = new gpub.api.TemplateOptions(o.templateOptions);
+  this.templateOptions = new gpub.opts.TemplateOptions(o.templateOptions);
 };
 
 /**
@@ -11414,7 +11109,7 @@ gpub.diagrams = {
    * Renders go stones that exist in a block of text.
    * @param {!gpub.diagrams.Type} diagramType
    * @param {!string} text To process
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string}
    */
   renderInline: function(diagramType, text, opt) {
@@ -11554,7 +11249,7 @@ gpub.diagrams.DiagramRenderer = function() {};
 /**
  * Render one diagram.
  * @param {!glift.flattener.Flattened} f
- * @param {!gpub.api.DiagramOptions} o
+ * @param {!gpub.opts.DiagramOptions} o
  * @return {string} The rendered diagram
  */
 gpub.diagrams.DiagramRenderer.prototype.render = function(f, o) {};
@@ -11562,7 +11257,7 @@ gpub.diagrams.DiagramRenderer.prototype.render = function(f, o) {};
 /**
  * Render inline text with stone images.
  * @param {string} text
- * @param {!gpub.api.DiagramOptions} opt
+ * @param {!gpub.opts.DiagramOptions} opt
  * @return {string}
  */
 gpub.diagrams.DiagramRenderer.prototype.renderInline = function(text, opt) {};
@@ -11654,7 +11349,7 @@ gpub.diagrams.enabledRenderers = {};
 /**
  * General diagram renderer.
  * @param {!gpub.spec.Spec} spec
- * @param {!gpub.api.DiagramOptions} opts
+ * @param {!gpub.opts.DiagramOptions} opts
  * @param {!gpub.util.MoveTreeCache} cache
  * @constructor @struct @final
  */
@@ -11662,7 +11357,7 @@ gpub.diagrams.Renderer = function(spec, opts, cache) {
   /** @private @const {!gpub.spec.Spec} */
   this.spec_ = spec;
 
-  /** @private @const {!gpub.api.DiagramOptions} */
+  /** @private @const {!gpub.opts.DiagramOptions} */
   this.opts_ = opts;
 
   /** @private @const {!gpub.util.MoveTreeCache} */
@@ -11836,7 +11531,7 @@ gpub.diagrams.Renderer.prototype = {
    * Process text inline, if possible, replacing stones with inline-images if
    * possible.
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The processed text.
    */
   renderInline: function(text, opt) {
@@ -11914,7 +11609,7 @@ gpub.diagrams.gnos = {
    *
    * We expect flattened and options to be defined.
    * @param {!glift.flattener.Flattened} flat
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string}
    */
   create: function(flat, opt) {
@@ -11942,7 +11637,7 @@ gpub.diagrams.gnos = {
    * the relevant stone symbols i.e. Black 123 => \\gnosbi\\char23
    *
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} options
+   * @param {!gpub.opts.DiagramOptions} options
    * @return string
    */
   renderInline: function(text, options) {
@@ -12153,7 +11848,7 @@ gpub.diagrams.gnos.Renderer.prototype = {
    *
    * We expect flattened and options to be defined.
    * @param {!glift.flattener.Flattened} flat
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
@@ -12163,7 +11858,7 @@ gpub.diagrams.gnos.Renderer.prototype = {
   /**
    * Render-inline some inline text via gnos.
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The processed text
    */
   renderInline: function(text, opt) {
@@ -12622,7 +12317,7 @@ gpub.diagrams.igo = {
    * TEX style. Thus, we need only display the stones and marks.
    *
    * @param {!glift.flattener.Flattened} flattened
-   * @param {!gpub.api.DiagramOptions} options
+   * @param {!gpub.opts.DiagramOptions} options
    * @return {string} The rendered diagram.
    */
   create: function(flattened, options) {
@@ -12717,7 +12412,7 @@ gpub.diagrams.igo = {
   /**
    * Render go stones that exist in a block of text.
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} options
+   * @param {!gpub.opts.DiagramOptions} options
    * @return {string} The processed text
    */
   renderInline: function(text, options) {
@@ -13006,7 +12701,7 @@ gpub.diagrams.igo.Renderer.prototype = {
   /**
    * The create method for igo
    * @param {!glift.flattener.Flattened} flat
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
@@ -13016,7 +12711,7 @@ gpub.diagrams.igo.Renderer.prototype = {
   /**
    * Render-inline the
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The processed text
    */
   renderInline: function(text, opt) {
@@ -13195,7 +12890,7 @@ gpub.diagrams.smartgo.Renderer.prototype = {
   /**
    * The create method for smartgo
    * @param {!glift.flattener.Flattened} flat
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
@@ -13346,7 +13041,7 @@ gpub.diagrams.smartgo.Renderer.prototype = {
   /**
    * Render-inline some inline text with smartgo
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The processed text
    */
   renderInline: function(text, opt) {
@@ -13730,7 +13425,7 @@ gpub.diagrams.svg.Renderer.prototype = {
   /**
    * Create an SVG diagarm from a flattened object.
    * @param {!glift.flattener.Flattened} flat
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The rendered diagram.
    */
   render: function(flat, opt) {
@@ -13789,7 +13484,7 @@ gpub.diagrams.svg.Renderer.prototype = {
    * because for SVG, this means raw inclusion in HTML, and here I mean
    * processing text like 'Black 6' into stone-images within the text.
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {string} The processed text
    */
   renderInline: function(text, opt) {
@@ -13798,7 +13493,7 @@ gpub.diagrams.svg.Renderer.prototype = {
 
   /**
    * Gets the SVG options from a diagram options object.
-   * @param {!gpub.api.DiagramOptions} opt
+   * @param {!gpub.opts.DiagramOptions} opt
    * @return {!gpub.diagrams.svg.Options}
    */
   getSvgOptions: function(opt) {
@@ -14261,14 +13956,14 @@ gpub.book.PositionConfig.prototype = {
  *
  * @param {!gpub.spec.Grouping} rootGrouping The root position grouping
  * @param {!gpub.diagrams.Rendered} rendered The diagram wrapper
- * @param {!gpub.api.TemplateOptions} opts Options for template rendering.
+ * @param {!gpub.opts.TemplateOptions} opts Options for template rendering.
  *
  * @struct @final @constructor
  */
 gpub.book.BookMaker = function(rootGrouping, rendered, opts) {
   /**
    * Options for templatizing a book.
-   * @const @private {!gpub.api.TemplateOptions}
+   * @const @private {!gpub.opts.TemplateOptions}
    */
   this.tmplOpts_ = opts;
 
@@ -14334,7 +14029,7 @@ gpub.book.BookMaker.prototype = {
     return this.idToConfig_[id] || null;
   },
 
-  /** @return {!gpub.api.TemplateOptions} Returns the template options. */
+  /** @return {!gpub.opts.TemplateOptions} Returns the template options. */
   templateOptions: function() {
     return this.tmplOpts_;
   },
@@ -14349,7 +14044,7 @@ gpub.book.BookMaker.prototype = {
    * all rendering types, but is a nice addition especially for commentary.
    * @param {gpub.diagrams.Type} dtype
    * @param {string} text
-   * @param {!gpub.api.DiagramOptions} opt_diagramOpts
+   * @param {!gpub.opts.DiagramOptions} opt_diagramOpts
    * @return {string} The rendered text
    */
   renderInline: function(dtype, text, opt_diagramOpts) {
@@ -15693,6 +15388,319 @@ gpub.book.latex.pdfx = {
  * }}
  */
 gpub.book.latex.PdfxOptions;
+
+goog.provide('gpub.api');
+goog.provide('gpub.create');
+goog.provide('gpub.init');
+
+
+/**
+ * Api Namespace.
+ * @namespace
+ */
+gpub.api = {};
+
+
+/**
+ * Init creates a fluent-api instance, which allows fine-grained control over
+ * how a book is created.
+ *
+ * Intended usage:
+ *    gpub.init({...options...})
+ *      .createSpec()
+ *      .processSpec()
+ *      .createDiagrams()
+ *      .bookMaker()
+ *
+ * @param {!gpub.Options|!gpub.OptionsDef} opt Options to process
+ * @return {!gpub.Api} A fluent API wrapper.
+ * @export
+ */
+gpub.init = function(opt) {
+  // TODO(kashomon): Support passing in json-serialized book objects (perhaps just json-spec).
+  if (!glift) {
+    throw new Error('Gpub depends on Glift, but Glift was not defined');
+  }
+  return new gpub.Api(new gpub.Options(opt));
+};
+
+
+/**
+ * Creates a 'book' output from SGFs given a template. In other words,
+ * auto-magic book creation.
+ *
+ * Under the covers, all the book 'templates' use the standard fluent-api to
+ * create books.
+ *
+ * For this creation method, the template parameter *must* be defined. Thus, a
+ * minimal options object looks like:
+ *
+ * {
+ *  template: 'PROBLEM_LATEX',
+ *  sgfs: [...],
+ * }
+ *
+ * Note: If various option parameters are not defined in the Options-param,
+ * then various defaults are set.
+ * - First, we check to see if defaults are set by the template-style.
+ * - Then, we any defaults given by the options constructor.
+ *
+ * @param {!gpub.OptionsDef|!gpub.Options} opt Options to process.
+ * @return {gpub.templates.BookOutput}
+ * @export
+ */
+gpub.createBook = function(opt) {
+  if (!opt) {
+    throw new Error('Options must be defined. Was: ' + opt);
+  }
+  var template = opt.template;
+  if (!template) {
+    throw new Error('Template style (options.template) must be defined.')
+  }
+  return gpub.templates.muxer(template, opt);
+};
+
+goog.provide('gpub.Api');
+
+goog.scope(function() {
+
+
+/**
+ * A GPub API wrapper. This is a container that has methods for processing
+ * specs, producing diagrams, and eventually, rendering books.
+ *
+ * It is shallowly immutable: Each API transformation returns a new API
+ * reference. However, no care is taken to ensure deep immutability of the
+ * underlying objects.
+ *
+ * Usage:
+ *
+ * gpub.init({options})
+ *
+ * @param {!gpub.Options} options
+ * @struct @constructor @final
+ */
+gpub.Api = function(options) {
+  /** @private @const {!gpub.Options} */
+  this.opt_ = options;
+  /** @private {?gpub.spec.Spec} */
+  this.spec_ = null;
+  /** @private {?gpub.diagrams.Rendered} */
+  this.diagrams_ = null;
+  /** @private {!gpub.util.MoveTreeCache|undefined} */
+  this.cache_ = undefined;
+};
+
+
+gpub.Api.prototype = {
+
+  /**
+   * @return {?gpub.spec.Spec} The spec, if it exists.
+   * @export
+   */
+  spec: function() { return this.spec_; },
+
+  /**
+   * @return {?gpub.diagrams.Rendered} The rendered diagrams, if they exist.
+   * @export
+   */
+  diagrams: function() { return this.diagrams_; },
+
+  /**
+   * @return {string} Return the serialized JSON spec or empty string. 
+   * @export
+   */
+  jsonSpec: function() { return this.spec_ ? this.spec_.serializeJson() : '' },
+
+  /**
+   * Create an initial GPub specification. This can either be created from
+   * scratch or from an existing spec (in either it's object or JSON form).
+   *
+   * @param {(!gpub.spec.Spec|string)=} opt_spec Optionally pass in a spec, in
+   *    either a serialized JSON form, or in the object form.
+   * @return {!gpub.Api} A new reference updated with a new cache and spec.
+   * @export
+   */
+  createSpec: function(opt_spec) {
+    var ref = this.newRef_();
+    if (opt_spec) {
+      // The spec option has been passed in. So instead of creating a spec from
+      // scratch, parse the one that's passed in.
+      if (typeof opt_spec === 'string') {
+        // Assume it's JSON.
+        var jsonspec = /** @type {string} */ (opt_spec);
+        ref.spec_ = gpub.spec.Spec.deserializeJson(jsonspec);
+      } else if (typeof opt_spec === 'object') {
+        // Assume the types are correct and create a copy.
+        var objspec = /** @type {!gpub.spec.Spec} */ (opt_spec);
+        ref.spec_ = new gpub.spec.Spec(objspec);
+      } else {
+        throw new Error('Unknown type for spec options. ' +
+            'Must be serialized JSON or a gpub.spce.Spec object.');
+      }
+    } else {
+      // No spec option has been passed in; Process the incoming SGFS.
+      var sgfs = ref.opt_.sgfs;
+      if (!sgfs || glift.util.typeOf(sgfs) !== 'array' || sgfs.length === 0) {
+        throw new Error('SGF array must be defined and non-empty ' +
+            'before spec creation');
+      }
+      ref.cache_ = new gpub.util.MoveTreeCache();
+      ref.spec_ = gpub.spec.create(ref.opt_, ref.cache_);
+    }
+    return ref;
+  },
+
+  /**
+   * Process a GPub specification, generating new positions if necessary.
+   * @param {(!gpub.opts.SpecOptions)=} opt_o Optional Spec options.
+   * @return {!gpub.Api} A new reference with an updated spec.
+   * @export
+   */
+  processSpec: function(opt_o) {
+    var ref = this.newRef_();
+    var phase = 'processing the spec';
+    var spec = ref.mustGetSpec_(phase);
+    var cache = ref.getCacheOrInit_(phase);
+    if (opt_o) {
+      spec = gpub.spec.Spec.overwrite(spec, {
+        specOptions: new gpub.opts.SpecOptions(opt_o)
+      });
+    }
+    ref.spec_ = gpub.spec.process(spec, cache);
+    return ref;
+  },
+
+  /**
+   * Render all the diagrams! Render all the diagrams and store them in a
+   * possibly giant rendered JS Object. If you have many diagrams that you're
+   * going to write to dpisk anyway, consider using `renderDiagramsStream`.
+   *
+   * @param {(!gpub.opts.DiagramOptions)=} opt_o Optional diagram options.
+   * @return {!gpub.Api} A new reference with rendered diagrams.
+   * @export
+   */
+  renderDiagrams: function(opt_o) {
+    var ref = this.newRef_();
+    var phase = 'diagram rendering';
+    var spec = ref.mustGetSpec_(phase);
+    var cache = ref.getCacheOrInit_(phase);
+    if (opt_o) {
+      spec = gpub.spec.Spec.overwrite(spec, {
+        diagramOptions: new gpub.opts.DiagramOptions(opt_o)
+      });
+      ref.spec_ = spec;
+    }
+    ref.diagrams_ = gpub.diagrams.render(spec, cache);
+    return ref;
+  },
+
+  /**
+   * Stream the rendered diagrams to the user-provided function. The intention
+   * is that the user will store these diagrams to disk or do some other
+   * processing. The rendered diagrams object is still produced, because it
+   * still contains useful metadata, but it will not contain the rendered
+   * bytes.
+   *
+   * @param {!gpub.diagrams.DiagramCallback} fn Void-returning processing
+   * function.
+   * @param {!gpub.opts.DiagramOptions=} opt_o Optional options
+   * @return {!gpub.Api} A new reference with rendered diagram metadata
+   * @export
+   */
+  renderDiagramsStream: function(fn, opt_o) {
+    var ref = this.newRef_();
+    var phase = 'streaming diagram rendering';
+    var spec = ref.mustGetSpec_(phase);
+    var cache = ref.getCacheOrInit_(phase);
+    if (opt_o) {
+      spec = gpub.spec.Spec.overwrite(spec, {
+        diagramOptions: new gpub.opts.DiagramOptions(opt_o)
+      });
+      ref.spec_ = spec;
+    }
+    ref.diagrams_ = gpub.diagrams.renderStream(spec, cache, fn)
+    return ref;
+  },
+
+  /**
+   * Returns the book maker helper. Both the spec and the rendered diagrams
+   * must have been created before the book generator is created.
+   * @return
+   */
+  bookMaker: function() {
+    var phase = 'creating the book maker helper';
+    var spec = this.mustGetSpec_(phase);
+    var diagrams = this.mustGetRendererd_(phase);
+    var tmplOpts = this.opt_.templateOptions;
+    return new gpub.book.BookMaker(spec.rootGrouping, diagrams, tmplOpts);
+  },
+
+  /////////////////////////////////
+  //////// Private helpers ////////
+  /////////////////////////////////
+  /**
+   * Create a new instance of the API so that we don't reuse references. This
+   * allows us to return new references upon successive .transformations.
+   * @return {!gpub.Api}
+   * @private
+   */
+  newRef_: function() {
+    var ref = new gpub.Api(this.opt_);
+    ref.spec_ = this.spec_;
+    ref.diagrams_ = this.diagrams_;
+    ref.cache_ = this.cache_;
+    return ref
+  },
+
+  /**
+   *  Get an existing cache or create a new one from the spec. Throws an error
+   *  if the spec is not defined.
+   *  @param {string} phase During which this occurred (for error messaging)..
+   *  @return {!gpub.util.MoveTreeCache} The cache
+   *  @private
+   */
+  getCacheOrInit_: function(phase) {
+    var spec = this.mustGetSpec_(phase);
+    if (!this.cache_) {
+      // If the user passes in the spec instead of starting from the beginning,
+      // it's possible that the user has skipped diagram creation.
+      this.cache_ = new gpub.util.MoveTreeCache(spec.sgfMapping);
+    }
+    return this.cache_;
+  },
+
+  /**
+   * Get the spec or throw an error.
+   * @param {string} phase
+   * @return {!gpub.spec.Spec} The spec, which must be defined
+   * @private
+   */
+  mustGetSpec_: function(phase) {
+    var spec = this.spec();
+    if (!spec) {
+      throw new Error('Spec must be defined before ' + phase + '.');
+    }
+    return spec;
+  },
+
+  /**
+   * Get the rendered diagram wrapper or throw an error.
+   * @param {string} phase
+   * @return {!gpub.diagrams.Rendered} The rendered diagram wrapper, which must
+   *    be defined
+   * @private
+   */
+  mustGetRendererd_: function(phase) {
+    var dia = this.diagrams();
+    if (!dia) {
+      throw new Error('Rendered must be defined before ' + phase + '.');
+    }
+    return dia;
+  },
+};
+
+});  // goog.scope;
 
 goog.provide('gpub.templates');
 goog.provide('gpub.templates.Style');

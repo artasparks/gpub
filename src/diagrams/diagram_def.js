@@ -60,7 +60,7 @@ gpub.diagrams.DiagramRenderer = function() {};
 /**
  * Render one diagram.
  * @param {!glift.flattener.Flattened} f
- * @param {!gpub.api.DiagramOptions} o
+ * @param {!gpub.opts.DiagramOptions} o
  * @return {string} The rendered diagram
  */
 gpub.diagrams.DiagramRenderer.prototype.render = function(f, o) {};
@@ -68,7 +68,7 @@ gpub.diagrams.DiagramRenderer.prototype.render = function(f, o) {};
 /**
  * Render inline text with stone images.
  * @param {string} text
- * @param {!gpub.api.DiagramOptions} opt
+ * @param {!gpub.opts.DiagramOptions} opt
  * @return {string}
  */
 gpub.diagrams.DiagramRenderer.prototype.renderInline = function(text, opt) {};

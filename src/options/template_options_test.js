@@ -1,8 +1,8 @@
 (function() {
-  module('gpub.api.templateOptionsTest');
+  module('gpub.opts.templateOptionsTest');
 
   test('That spec options construction work.', function() {
-    var opt = new gpub.api.TemplateOptions({
+    var opt = new gpub.opts.TemplateOptions({
     });
     deepEqual(opt.metadata.title, 'My Go Book!');
   });

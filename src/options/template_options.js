@@ -1,25 +1,25 @@
-goog.provide('gpub.api.TemplateOptions');
-goog.provide('gpub.api.TemplateOptionsDef');
-goog.provide('gpub.api.Frontmatter');
+goog.provide('gpub.opts.TemplateOptions');
+goog.provide('gpub.opts.TemplateOptionsDef');
+goog.provide('gpub.opts.Frontmatter');
 
 
 /**
  * @typedef {{
  *  template: (gpub.templates.Style|undefined),
  *  metadata: (!gpub.book.Metadata|!gpub.book.MetadataDef|undefined),
- *  frontmatter: (!gpub.api.Frontmatter|undefined),
- *  appendices: (!gpub.api.TemplateOptionsDef|undefined),
+ *  frontmatter: (!gpub.opts.Frontmatter|undefined),
+ *  appendices: (!gpub.opts.TemplateOptionsDef|undefined),
  * }}
  */
-gpub.api.TemplateOptionsDef;
+gpub.opts.TemplateOptionsDef;
 
 
 /**
- * @param {(!gpub.api.TemplateOptions|!gpub.api.TemplateOptionsDef)=} opt_options
+ * @param {(!gpub.opts.TemplateOptions|!gpub.opts.TemplateOptionsDef)=} opt_options
  *
  * @constructor @struct @final
  */
-gpub.api.TemplateOptions = function(opt_options) {
+gpub.opts.TemplateOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
@@ -43,9 +43,9 @@ gpub.api.TemplateOptions = function(opt_options) {
    * that do support the relevant sections, the frontmatter and backmatter are
    * dumped into the book options.
    *
-   * @type {!gpub.api.Frontmatter}
+   * @type {!gpub.opts.Frontmatter}
    */
-  this.frontmatter = new gpub.api.Frontmatter(o.frontmatter);
+  this.frontmatter = new gpub.opts.Frontmatter(o.frontmatter);
 
   /**
    * Appendices. E.g., Glossary, index, etc.
@@ -56,11 +56,11 @@ gpub.api.TemplateOptions = function(opt_options) {
 };
 
 /**
- * @param {!gpub.api.Frontmatter=} options
+ * @param {!gpub.opts.Frontmatter=} options
  *
  * @constructor @struct @final
  */
-gpub.api.Frontmatter = function(options) {
+gpub.opts.Frontmatter = function(options) {
   var o = options || {};
 
   // epigraph: null, // AKA Quote Page
@@ -111,11 +111,11 @@ gpub.api.Frontmatter = function(options) {
  * Apply default options to raw template options. It's unlikely that
  * template-option-overrides would be provided, but it's here for completeness.
  *
- * @param {!gpub.api.TemplateOptionsDef} opts
- * @param {!gpub.api.TemplateOptionsDef} defaults
- * @return {!gpub.api.TemplateOptionsDef}
+ * @param {!gpub.opts.TemplateOptionsDef} opts
+ * @param {!gpub.opts.TemplateOptionsDef} defaults
+ * @return {!gpub.opts.TemplateOptionsDef}
  */
-gpub.api.TemplateOptions.applyDefaults = function(opts, defaults) {
+gpub.opts.TemplateOptions.applyDefaults = function(opts, defaults) {
   for (var key in defaults) {
     if (opts[key] === undefined && defaults[key] !== undefined) {
       opts[key] = defaults[key];

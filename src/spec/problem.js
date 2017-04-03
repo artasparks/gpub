@@ -4,7 +4,7 @@
  * @param {!glift.rules.MoveTree} mt
  * @param {!gpub.spec.Position} position
  * @param {!gpub.spec.IdGen} idGen
- * @param {!gpub.api.SpecOptions} opt
+ * @param {!gpub.opts.SpecOptions} opt
  * @return {!gpub.spec.Generated} return the generated position.
  * @package
  */
