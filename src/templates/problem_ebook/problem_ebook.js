@@ -1,12 +1,9 @@
 goog.provide('gpub.templates.ProblemEbook');
 
 /**
- * @param {!gpub.OptionsDef} opts
  * @constructor @struct @final
  */
-gpub.templates.ProblemEbook = function(opts) {
-  /** @type {!gpub.OptionsDef} */
-  this.opts = opts;
+gpub.templates.ProblemEbook = function() {
 };
 
 gpub.templates.ProblemEbook.prototype = {
@@ -17,14 +14,14 @@ gpub.templates.ProblemEbook.prototype = {
   defaults: function() {
     return {
       specOptions: {
-        positionType: gpub.spec.positionType.PROBLEM,
+        positionType: gpub.spec.PositionType.PROBLEM,
         autoRotateCropPrefs: {
           corner: glift.enums.boardRegions.BOTTOM_LEFT,
           preferFlips: true,
         }
       },
       diagramOptions: {
-        diagramType: gpub.diagrams.diagramType.SVG,
+        diagramType: gpub.diagrams.Type.SVG,
         clearMarks: true,
       }
     }
@@ -32,15 +29,22 @@ gpub.templates.ProblemEbook.prototype = {
 
   /**
    * Creates the book!
-   * @return {!Array<!gpub.book.File>} The finished book files.
+   * @param {!gpub.OptionsDef} opts
+   * @return {!gpub.templates.BookOutput} The finished book files.
    */
-  create: function() {
-    var options = gpub.Options.applyDefaults(this.opts, this.defaults());
-    var bookMaker = gpub.init(options)
+  create: function(opts) {
+    var options = gpub.Options.applyDefaults(opts, this.defaults());
+    var api = gpub.init(options)
       .createSpec()
       .processSpec()
-      .renderDiagrams()
-      .bookMaker();
-    return gpub.templates.ProblemEbook.templater(bookMaker);
+      .renderDiagrams();
+    return {
+      spec: api.spec(),
+      files: gpub.templates.ProblemEbook.templater(api.bookMaker()),
+    }
   },
 };
+
+gpub.templates.register(
+    gpub.templates.Style.PROBLEM_EBOOK,
+    gpub.templates.ProblemEbook);

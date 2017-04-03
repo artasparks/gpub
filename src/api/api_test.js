@@ -12,7 +12,7 @@
 
   test('Testing validation: no template', function() {
     try {
-      var out = gpub.createBook({
+      var out = gpub.create({
       });
     } catch (e) {
       ok(/Template parameter/.test(e).toString());
@@ -20,8 +20,8 @@
   });
 
   test('Testing full happy path, no exceptions', function() {
-    var output = gpub.createBook({
-      template: 'RELENTLESS_COMMENTARY_LATEX',
+    var output = gpub.create({
+      template: 'PROBLEM_EBOOK',
       sgfs: [sgf],
       diagramOptions: {
         maxDiagrams: 20

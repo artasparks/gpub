@@ -58,7 +58,7 @@ gpub.init = function(opt) {
  * @return {gpub.templates.BookOutput}
  * @export
  */
-gpub.createBook = function(opt) {
+gpub.create = function(opt) {
   if (!opt) {
     throw new Error('Options must be defined. Was: ' + opt);
   }

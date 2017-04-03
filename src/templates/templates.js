@@ -1,6 +1,7 @@
 goog.provide('gpub.templates');
 goog.provide('gpub.templates.Style');
 goog.provide('gpub.templates.BookOutput');
+goog.provide('gpub.templates.Templater');
 
 
 /**
@@ -45,17 +46,56 @@ gpub.templates.BookOutput;
 
 
 /**
+ * Registry of templater classes.
+ * @private {!Object<gpub.templates.Style, !gpub.templates.Templater>}
+ */
+gpub.templates.registry_ = {}
+
+
+/**
+ * Registers a templater.
+ * @param {!gpub.templates.Style} style
+ * @param {!gpub.templates.Templater} tpl
+ */
+gpub.templates.register = function(style, tpl) {
+  if (gpub.templates.registry_[style]) {
+    throw new Error('Templater already defined for style: ' + style);
+  }
+  gpub.templates.registry_[style] = tpl;
+};
+
+
+/**
+ * A templater takes options and returns files and a completed spec.
+ * @param {opts}
+ * @record
+ */
+gpub.templates.Templater = function() {}
+
+
+/**
+ * Creates a book!
+ * @param {!gpub.OptionsDef} opts
+ * @return {!gpub.templates.BookOutput}
+ */
+gpub.templates.Templater.prototype.create = function(opts) {}
+
+
+/**
  * Decides which templater method to use based on the style.
  *
  * @param {gpub.templates.Style} style The template style
- * @param {!gpub.OptionsDef|!gpub.Options} opt Options to process.
+ * @param {!gpub.OptionsDef} opts Options to process.
  * @return {!gpub.templates.BookOutput} output.
  */
-gpub.templates.muxer = function(style, opt) {
-  switch(style) {
-    case 'RELENTLESS_COMMENTARY_LATEX':
-      return /** @type {!gpub.templates.BookOutput} */ ({});
-    default:
-      throw new Error('Unknown or unsupported style: ' + style);
+gpub.templates.muxer = function(style, opts) {
+  if (!style) {
+    throw new Error('Style was not defined. Was: ' + style);
   }
+  var templater = gpub.templates.registry_[style];
+  if (!templater) {
+    throw new Error('No templater defined for type: ' + style);
+  }
+  var inst = new templater();
+  return inst.create(opts);
 };

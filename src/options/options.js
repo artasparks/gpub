@@ -101,7 +101,7 @@ gpub.Options = function(opt_options) {
  * @return {!gpub.OptionsDef}
  */
 gpub.Options.applyDefaults = function(opts, defaults) {
-  var sopts = opts.specOptions|| {};
+  var sopts = opts.specOptions || {};
   var sdef = defaults.specOptions || {};
   opts.specOptions = gpub.opts.SpecOptions.applyDefaults(sopts, sdef);
 

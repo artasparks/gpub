@@ -13,6 +13,7 @@ goog.provide('gpub.diagrams.Rendered');
  */
 gpub.diagrams.Diagram;
 
+
 /**
  * Metadata for a diagram. Includes information useful for placement in a page
  * or other medium. Some notes about parameters:
@@ -34,6 +35,7 @@ gpub.diagrams.Diagram;
  */
 gpub.diagrams.Metadata;
 
+
 /**
  * Rendered diagrams plus some metadata. For streamed rendering, the diagrams
  * array will be empty. Otherwise, the metadata and diagrams arrays should be
@@ -51,11 +53,13 @@ gpub.diagrams.Rendered;
 /** @typedef {function(!gpub.diagrams.Diagram, !gpub.diagrams.Metadata)} */
 gpub.diagrams.DiagramCallback;
 
+
 /**
  * The interface for the diagram-type-specific renderers.
  * @record
  */
 gpub.diagrams.DiagramRenderer = function() {};
+
 
 /**
  * Render one diagram.
@@ -64,6 +68,7 @@ gpub.diagrams.DiagramRenderer = function() {};
  * @return {string} The rendered diagram
  */
 gpub.diagrams.DiagramRenderer.prototype.render = function(f, o) {};
+
 
 /**
  * Render inline text with stone images.

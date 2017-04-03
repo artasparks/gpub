@@ -15449,7 +15449,7 @@ gpub.init = function(opt) {
  * @return {gpub.templates.BookOutput}
  * @export
  */
-gpub.createBook = function(opt) {
+gpub.create = function(opt) {
   if (!opt) {
     throw new Error('Options must be defined. Was: ' + opt);
   }
@@ -15705,6 +15705,7 @@ gpub.Api.prototype = {
 goog.provide('gpub.templates');
 goog.provide('gpub.templates.Style');
 goog.provide('gpub.templates.BookOutput');
+goog.provide('gpub.templates.Templater');
 
 
 /**
@@ -15749,35 +15750,42 @@ gpub.templates.BookOutput;
 
 
 /**
+ * Registry of templater classes.
+ * @private {!Object<string>}
+ */
+gpub.templates.registry_ = {}
+
+
+/**
+ * A templater takes options and returns files and a completed spec.
+ * @record
+ */
+gpub.templates.Templater;
+
+/**
+ * @param {!gpub.OptionsDef} opts
+ * @return {!gpub.templates.BookOutput}
+ */
+gpub.templates.Templater.prototype.create = function(opts) {}
+
+
+/**
  * Decides which templater method to use based on the style.
  *
  * @param {gpub.templates.Style} style The template style
- * @param {!gpub.OptionsDef|!gpub.Options} opt Options to process.
+ * @param {!gpub.OptionsDef} opts Options to process.
  * @return {!gpub.templates.BookOutput} output.
  */
 gpub.templates.muxer = function(style, opt) {
-  switch(style) {
-    case 'RELENTLESS_COMMENTARY_LATEX':
-      return /** @type {!gpub.templates.BookOutput} */ ({});
-    default:
-      throw new Error('Unknown or unsupported style: ' + style);
+  if (!style) {
+    throw new Error('Style was not defined. Was: ' + style);
   }
+  var templater = gpub.templates.registry_[style];
+  if (!templater) {
+    throw new Error('No templater defined for type: ' + style);
+  }
+  return templater.create();
 };
-
-goog.provide('gpub.templates.Templater');
-goog.provide('gpub.templates.BookInput');
-
-/**
- * Input options to the Templater function.
- *
- * @typedef {(!gpub.Options|!gpub.spec.Spec)}
- */
-gpub.templates.BookInput;
-
-/**
- * @typedef {function(gpub.templates.BookInput):!gpub.templates.BookOutput}
- */
-gpub.templates.Templater;
 
 goog.provide('gpub.templates.ProblemEbook');
 
@@ -15813,16 +15821,19 @@ gpub.templates.ProblemEbook.prototype = {
 
   /**
    * Creates the book!
-   * @return {!Array<!gpub.book.File>} The finished book files.
+   * @return {!gpub.templates.BookOutput} The finished book files.
    */
   create: function() {
     var options = gpub.Options.applyDefaults(this.opts, this.defaults());
-    var bookMaker = gpub.init(options)
+    var api = gpub.init(options)
       .createSpec()
       .processSpec()
       .renderDiagrams()
       .bookMaker();
-    return gpub.templates.ProblemEbook.templater(bookMaker);
+    return {
+      spec: api.spec(),
+      files: gpub.templates.ProblemEbook.templater(api.bookMaker()),
+    }
   },
 };
 

@@ -1,5 +1,4 @@
 var gpub = require('../../index.js')
-var ebook = require('./ebook.js')
 
 var fs = require('fs');
 var path = require('path');
@@ -11,20 +10,17 @@ var fnames = gpub.nodeutils.numberSuffixSort(gpub.nodeutils.listSgfs(sgfDir));
 var contents = gpub.nodeutils.fileContents(fnames, sgfDir);
 var ids = gpub.nodeutils.createFileIds(fnames);
 
-var bookMaker = gpub.init({
-    sgfs: contents,
-    ids: ids,
-    specOptions: {
-      positionType: 'PROBLEM',
-    },
-    diagramOptions: {
-      diagramType: 'SVG',
-    }
-  })
-  .createSpec()
-  .processSpec()
-  .renderDiagrams()
-  .bookMaker()
+var files = gpub.create({
+  template: 'PROBLEM_EBOOK',
+  sgfs: contents,
+  ids: ids,
+  specOptions: {
+    positionType: 'PROBLEM',
+  },
+  diagramOptions: {
+    diagramType: 'SVG',
+  }
+});
 
 var seenDir = {};
 var files = ebook.create(bookMaker);
