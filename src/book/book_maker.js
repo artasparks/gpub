@@ -257,7 +257,9 @@ gpub.book.BookMaker.prototype = {
       var processPos = function(p) {
         var meta = this.diagramMeta_[p.id];
         if (!meta) {
-          throw new Error('Couldn\'t find diagram metadata for ID ' + p.id);
+          // This could be because the user only rendered some subset of diagrams.
+          // throw new Error('Couldn\'t find diagram metadata for ID ' + p.id);
+          return;
         }
         var labelSet = {};
         for (var k = 0; k < p.labels.length; k++) {

@@ -9627,7 +9627,7 @@ gpub.Options = function(opt_options) {
  * @return {!gpub.OptionsDef}
  */
 gpub.Options.applyDefaults = function(opts, defaults) {
-  var sopts = opts.specOptions|| {};
+  var sopts = opts.specOptions || {};
   var sdef = defaults.specOptions || {};
   opts.specOptions = gpub.opts.SpecOptions.applyDefaults(sopts, sdef);
 
@@ -11202,6 +11202,7 @@ goog.provide('gpub.diagrams.Rendered');
  */
 gpub.diagrams.Diagram;
 
+
 /**
  * Metadata for a diagram. Includes information useful for placement in a page
  * or other medium. Some notes about parameters:
@@ -11223,6 +11224,7 @@ gpub.diagrams.Diagram;
  */
 gpub.diagrams.Metadata;
 
+
 /**
  * Rendered diagrams plus some metadata. For streamed rendering, the diagrams
  * array will be empty. Otherwise, the metadata and diagrams arrays should be
@@ -11240,11 +11242,13 @@ gpub.diagrams.Rendered;
 /** @typedef {function(!gpub.diagrams.Diagram, !gpub.diagrams.Metadata)} */
 gpub.diagrams.DiagramCallback;
 
+
 /**
  * The interface for the diagram-type-specific renderers.
  * @record
  */
 gpub.diagrams.DiagramRenderer = function() {};
+
 
 /**
  * Render one diagram.
@@ -11253,6 +11257,7 @@ gpub.diagrams.DiagramRenderer = function() {};
  * @return {string} The rendered diagram
  */
 gpub.diagrams.DiagramRenderer.prototype.render = function(f, o) {};
+
 
 /**
  * Render inline text with stone images.
@@ -14100,7 +14105,9 @@ gpub.book.BookMaker.prototype = {
       var processPos = function(p) {
         var meta = this.diagramMeta_[p.id];
         if (!meta) {
-          throw new Error('Couldn\'t find diagram metadata for ID ' + p.id);
+          // This could be because the user only rendered some subset of diagrams.
+          // throw new Error('Couldn\'t find diagram metadata for ID ' + p.id);
+          return;
         }
         var labelSet = {};
         for (var k = 0; k < p.labels.length; k++) {
@@ -15751,18 +15758,33 @@ gpub.templates.BookOutput;
 
 /**
  * Registry of templater classes.
- * @private {!Object<string>}
+ * @private {!Object<gpub.templates.Style, !gpub.templates.Templater>}
  */
 gpub.templates.registry_ = {}
+
+
+/**
+ * Registers a templater.
+ * @param {!gpub.templates.Style} style
+ * @param {!gpub.templates.Templater} tpl
+ */
+gpub.templates.register = function(style, tpl) {
+  if (gpub.templates.registry_[style]) {
+    throw new Error('Templater already defined for style: ' + style);
+  }
+  gpub.templates.registry_[style] = tpl;
+};
 
 
 /**
  * A templater takes options and returns files and a completed spec.
  * @record
  */
-gpub.templates.Templater;
+gpub.templates.Templater = function() {}
+
 
 /**
+ * Creates a book!
  * @param {!gpub.OptionsDef} opts
  * @return {!gpub.templates.BookOutput}
  */
@@ -15776,7 +15798,7 @@ gpub.templates.Templater.prototype.create = function(opts) {}
  * @param {!gpub.OptionsDef} opts Options to process.
  * @return {!gpub.templates.BookOutput} output.
  */
-gpub.templates.muxer = function(style, opt) {
+gpub.templates.muxer = function(style, opts) {
   if (!style) {
     throw new Error('Style was not defined. Was: ' + style);
   }
@@ -15784,18 +15806,15 @@ gpub.templates.muxer = function(style, opt) {
   if (!templater) {
     throw new Error('No templater defined for type: ' + style);
   }
-  return templater.create();
+  return templater.create(opts);
 };
 
 goog.provide('gpub.templates.ProblemEbook');
 
 /**
- * @param {!gpub.OptionsDef} opts
  * @constructor @struct @final
  */
-gpub.templates.ProblemEbook = function(opts) {
-  /** @type {!gpub.OptionsDef} */
-  this.opts = opts;
+gpub.templates.ProblemEbook = function() {
 };
 
 gpub.templates.ProblemEbook.prototype = {
@@ -15806,14 +15825,14 @@ gpub.templates.ProblemEbook.prototype = {
   defaults: function() {
     return {
       specOptions: {
-        positionType: gpub.spec.positionType.PROBLEM,
+        positionType: gpub.spec.PositionType.PROBLEM,
         autoRotateCropPrefs: {
           corner: glift.enums.boardRegions.BOTTOM_LEFT,
           preferFlips: true,
         }
       },
       diagramOptions: {
-        diagramType: gpub.diagrams.diagramType.SVG,
+        diagramType: gpub.diagrams.Type.SVG,
         clearMarks: true,
       }
     }
@@ -15821,21 +15840,25 @@ gpub.templates.ProblemEbook.prototype = {
 
   /**
    * Creates the book!
+   * @param {!gpub.OptionsDef} opts
    * @return {!gpub.templates.BookOutput} The finished book files.
    */
-  create: function() {
-    var options = gpub.Options.applyDefaults(this.opts, this.defaults());
+  create: function(opts) {
+    var options = gpub.Options.applyDefaults(opts, this.defaults());
     var api = gpub.init(options)
       .createSpec()
       .processSpec()
-      .renderDiagrams()
-      .bookMaker();
+      .renderDiagrams();
     return {
       spec: api.spec(),
       files: gpub.templates.ProblemEbook.templater(api.bookMaker()),
     }
   },
 };
+
+gpub.templates.register(
+    gpub.templates.Style.PROBLEM_EBOOK,
+    new gpub.templates.ProblemEbook());
 
 /**
  * Creates the CSS file for the problem ebook.

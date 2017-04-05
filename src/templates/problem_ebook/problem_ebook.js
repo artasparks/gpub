@@ -47,4 +47,4 @@ gpub.templates.ProblemEbook.prototype = {
 
 gpub.templates.register(
     gpub.templates.Style.PROBLEM_EBOOK,
-    gpub.templates.ProblemEbook);
+    new gpub.templates.ProblemEbook());

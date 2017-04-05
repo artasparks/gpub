@@ -67,7 +67,6 @@ gpub.templates.register = function(style, tpl) {
 
 /**
  * A templater takes options and returns files and a completed spec.
- * @param {opts}
  * @record
  */
 gpub.templates.Templater = function() {}
@@ -96,6 +95,5 @@ gpub.templates.muxer = function(style, opts) {
   if (!templater) {
     throw new Error('No templater defined for type: ' + style);
   }
-  var inst = new templater();
-  return inst.create(opts);
+  return templater.create(opts);
 };
