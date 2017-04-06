@@ -22,15 +22,4 @@ var out = gpub.create({
   }
 });
 
-var seenDir = {};
-out.files.forEach(f => {
-  var fpath = path.join(baseDir, 'epub-book', f.path);
-  var dir = path.dirname(fpath);
-  if (!seenDir[dir]) {
-    seenDir[dir] = true;
-    gpub.nodeutils.createDirsSync(dir);
-  }
-  if (f.path) {
-    fs.writeFileSync(fpath, f.contents);
-  }
-});
+gpub.nodeutils.writeBookFiles(path.join(baseDir, 'epub-book'), out.files);

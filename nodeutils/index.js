@@ -70,4 +70,20 @@ module.exports = {
 
   /** Create intermediate dirs */
   createDirsSync: createDirsSync,
+
+  /** Writes BookFiles {files} to {dir}, creating dirs where necessary */
+  writeBookFiles: function(dir, files) {
+    var seenDir = {};
+    files.forEach(f => {
+      var fpath = path.join(dir, f.path);
+      var subdir = path.dirname(fpath);
+      if (!seenDir[subdir]) {
+        seenDir[subdir] = true;
+        createDirsSync(subdir);
+      }
+      if (f.path) {
+        fs.writeFileSync(fpath, f.contents);
+      }
+    });
+  }
 };
