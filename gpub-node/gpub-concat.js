@@ -15899,7 +15899,7 @@ gpub.templates.ProblemEbook.cssFile = function() {
       'padding-right': '2em',
       'border-bottom': '1px solid black',
     },
-    '.s-img': {
+    's-img': {
       // 'margin-top': '2em',
       'background-color': '#DDD',
       // Another attempt to center
