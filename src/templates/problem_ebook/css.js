@@ -13,7 +13,8 @@ gpub.templates.ProblemEbook.cssFile = function() {
     'd-gp': {
       'page-break-inside': 'avoid',
       'page-break-before': 'always',
-      'background-color': '#EEE',
+      'background-color': '#DDD',
+      'border-radius': '20px',
     },
     pidx: {
       'font-size': '1.5em',
@@ -39,7 +40,7 @@ gpub.templates.ProblemEbook.cssFile = function() {
     },
     's-img': {
       // 'margin-top': '2em',
-      'background-color': '#DDD',
+      // 'background-color': '#DDD',
       // Another attempt to center
       // 'margin-right': 'auto',
       // 'margin-left': 'auto',
