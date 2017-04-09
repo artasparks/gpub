@@ -16,12 +16,6 @@ software.
 Currently, I am working to support generating books in 3 formats: PDF (for
 print), GoBooks (SmartGo), and EPub (Ebooks).
 
-GPub that relies on the same logic that [Glift](http://www.gliftgo.com) uses. This
-library (called [glift-core](https://github.com/Kashomon/glift-core)) is is responsible
-for providing an understanding of go files and generated a flattened
-representation of a go position, while GPub is responsible for generating an
-intermediate representation and for the ultimate rendering diagrams for print
-
 ### Installation
 
 1. Install [LaTeX](http://www.latex-project.org/)
@@ -32,6 +26,17 @@ intermediate representation and for the ultimate rendering diagrams for print
 4. Use NPM to install `gpub-go`. See
    [GPub-Examples](https://www.github.com/Kashomon/gpub-examples) for some worked
    examples how to use GPub.
+
+### About Gpub
+
+GPub grew out of another library I created called Glift.
+
+GPub that relies on the same go-processing logic as
+[Glift](http://www.gliftgo.com). This core logic lives in a library (called
+[glift-core](https://github.com/Kashomon/glift-core)) is is responsible for
+providing an understanding of go files and generated a flattened representation
+of a go position, while GPub is responsible for generating an intermediate
+representation and for the ultimate rendering diagrams for print
 
 #### Diagram Type
 
@@ -105,11 +110,13 @@ convert_tygem.js *.gib
 
 ## Development
 
-To work on / contribute to Gpub, you will need to install 
+To work on / contribute to Gpub, you will need to install:
 
 * NodeJS
 * Gulp
-* Java.
+* Java (for the closure compiler, ebook-validator)
+* LaTeX/XeLaTeX (for making LaTeX/XeLaTeX books)
+* Calibre and/or Kindle App (for making/viewing ebooks)
 
 Then, to install all the deps, you'll need:
 
