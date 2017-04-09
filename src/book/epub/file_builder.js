@@ -3,11 +3,11 @@ goog.provide('gpub.book.epub.Builder');
 
 /**
  * Helper for building an ebook.
- * @param {!gpub.book.Metadata} opts
+ * @param {!gpub.opts.Metadata} opts
  * @constructor @struct @final
  */
 gpub.book.epub.Builder = function(opts) {
-  /** @type {!gpub.book.Metadata} */
+  /** @type {!gpub.opts.Metadata} */
   this.opts = opts;
 
   /**

@@ -25,7 +25,7 @@ gpub.templates.Style = {
   /**
    * A template designed to make problem PDFs.
    */
-  PROBLEM_LATEX: 'PROBLEM_LATEX',
+  PROBLEM_XELATEX: 'PROBLEM_XELATEX',
 
   /**
    * A template designed to make problem Ebooks.

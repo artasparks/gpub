@@ -1,8 +1,8 @@
 (function() {
-  module('gpub.book.metadataTest');
+  module('gpub.opts.metadataTest');
 
   test('That options can be constructed', function() {
-    var o = new gpub.book.Metadata({
+    var o = new gpub.opts.Metadata({
       id: 'zip',
       title: 'Zap',
     })

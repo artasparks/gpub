@@ -1,5 +1,5 @@
-goog.provide('gpub.book.Metadata');
-goog.provide('gpub.book.MetadataDef');
+goog.provide('gpub.opts.Metadata');
+goog.provide('gpub.opts.MetadataDef');
 
 /**
  * Many of these fields are specific to Ebooks.
@@ -25,16 +25,16 @@ goog.provide('gpub.book.MetadataDef');
  *  permanenceOfPaper: (boolean|undefined),
  * }}
  */
-gpub.book.MetadataDef
+gpub.opts.MetadataDef
 
 
 /**
- * Grab bag of options for book generation.
+ * Grab bag of metadata options for book generation.
  *
- * @param {(!gpub.book.Metadata|!gpub.book.MetadataDef)=} opt_o
+ * @param {(!gpub.opts.Metadata|!gpub.opts.MetadataDef)=} opt_o
  * @constructor @struct @final
  */
-gpub.book.Metadata = function(opt_o) {
+gpub.opts.Metadata = function(opt_o) {
   var o = opt_o || {};
 
   if (!o.id) {
@@ -197,7 +197,7 @@ gpub.book.Metadata = function(opt_o) {
  * A simple guide function
  * @return {string} guid with the format
  */
-gpub.book.Metadata.guid = function() {
+gpub.opts.Metadata.guid = function() {
   // From stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);

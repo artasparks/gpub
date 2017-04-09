@@ -191,7 +191,7 @@ gpub.book.BookMaker.prototype = {
     return this.tmplOpts_;
   },
 
-  /** @return {!gpub.book.Metadata} Returns the book metadata. */
+  /** @return {!gpub.opts.Metadata} Returns the book metadata. */
   templateMetadata: function() {
     return this.tmplOpts_.metadata;
   },

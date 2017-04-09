@@ -45,7 +45,7 @@ gpub.init = function(opt) {
  * minimal options object looks like:
  *
  * {
- *  template: 'PROBLEM_LATEX',
+ *  template: 'PROBLEM_EBOOK',
  *  sgfs: [...],
  * }
  *

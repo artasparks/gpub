@@ -28,7 +28,7 @@
   });
 
   test('create basic opf file', function() {
-    var opt = new gpub.book.Metadata({
+    var opt = new gpub.opts.Metadata({
       id: 'zed',
       title: 'Zog Buuk!',
     });

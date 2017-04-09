@@ -11,7 +11,7 @@ gpub.book.epub.opf = {
    * See the following for more info:
    * - Spec: http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
    *
-   * @param {!gpub.book.Metadata} opt
+   * @param {!gpub.opts.Metadata} opt
    * @param {!Array<!gpub.book.File>} files
    * @param {!Array<string>} spineIds
    * @return {!gpub.book.File}
@@ -59,7 +59,7 @@ gpub.book.epub.opf = {
    * For more details about the fields, see:
    * http://dublincore.org/documents/2004/12/20/dces/
    *
-   * @param {!gpub.book.Metadata} opt
+   * @param {!gpub.opts.Metadata} opt
    * @return {string} The metadata block.
    */
   metadata: function(opt) {

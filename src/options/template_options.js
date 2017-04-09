@@ -6,7 +6,7 @@ goog.provide('gpub.opts.Frontmatter');
 /**
  * @typedef {{
  *  template: (gpub.templates.Style|undefined),
- *  metadata: (!gpub.book.Metadata|!gpub.book.MetadataDef|undefined),
+ *  metadata: (!gpub.opts.Metadata|!gpub.opts.MetadataDef|undefined),
  *  frontmatter: (!gpub.opts.Frontmatter|undefined),
  *  appendices: (!gpub.opts.TemplateOptionsDef|undefined),
  * }}
@@ -23,12 +23,12 @@ gpub.opts.TemplateOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
-   * @const {!gpub.book.Metadata}
+   * @const {!gpub.opts.Metadata}
    */
   this.metadata = o.metadata ?
-      new gpub.book.Metadata(o.metadata) :
-      new gpub.book.Metadata({
-        id: gpub.book.Metadata.guid(),
+      new gpub.opts.Metadata(o.metadata) :
+      new gpub.opts.Metadata({
+        id: gpub.opts.Metadata.guid(),
         title: 'My Go Book!',
       });
 

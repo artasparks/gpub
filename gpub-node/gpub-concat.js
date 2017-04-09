@@ -9505,7 +9505,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.32
+ * @version 0.3.33
  * --------------------------------------
  */
 (function(w) {
@@ -9797,6 +9797,213 @@ gpub.opts.DiagramOptions.applyDefaults = function(opts, defaults) {
   return opts;
 };
 
+goog.provide('gpub.opts.Metadata');
+goog.provide('gpub.opts.MetadataDef');
+
+/**
+ * Many of these fields are specific to Ebooks.
+ *
+ * @typedef {{
+ *  id: string,
+ *  title: string,
+ *  subtitle: (string|undefined),
+ *  idType: (string|undefined),
+ *  idName: (string|undefined),
+ *  isbn10: (string|undefined),
+ *  isbn13: (string|undefined),
+ *  uriId: (string|undefined),
+ *  lang: (string|undefined),
+ *  subject: (string|undefined),
+ *  description: (string|undefined),
+ *  rights: (string|undefined),
+ *  publisher: (string|undefined),
+ *  authors: (!Array<string>|undefined),
+ *  generationDate: (string|undefined),
+ *  addressLines: (!Array<string>|undefined),
+ *  printingRunNum: (number|undefined),
+ *  permanenceOfPaper: (boolean|undefined),
+ * }}
+ */
+gpub.opts.MetadataDef
+
+
+/**
+ * Grab bag of metadata options for book generation.
+ *
+ * @param {(!gpub.opts.Metadata|!gpub.opts.MetadataDef)=} opt_o
+ * @constructor @struct @final
+ */
+gpub.opts.Metadata = function(opt_o) {
+  var o = opt_o || {};
+
+  if (!o.id) {
+    throw new Error('Id was not defined. Options provided were: ' +
+        JSON.stringify(o))
+  }
+
+  if (!o.title) {
+    throw new Error('Title was not defined. Options provided were: ' +
+        JSON.stringify(o))
+  }
+
+  /**
+   * Unique identifier for this book.
+   * @type {string}
+   */
+  this.id = o.id;
+
+  /**
+   * Title of the book. Must be defined.
+   * @type {string}
+   */
+  this.title = o.title;
+
+  /**
+   * Subtitle of the book.
+   * @type {string}
+   */
+  // TODO(kashomon): Maybe include as part of the epub metadata:
+  // https://www.mobileread.com/forums/showthread.php?t=210812
+  this.subtitle = o.subtitle || '';
+
+  /**
+   * What kind of ID is the ID?
+   * @type {string}
+   */
+  this.idType = o.idType || 'uuid';
+
+  /**
+   * ID by which to identify the ID. This probably doesn't need to be changed.
+   * @type {string}
+   */
+  this.idName = o.idName || 'baduk-epub-id';
+
+  /**
+   * The 10-digit ISBN. Sometimes called the ISSN. ISSN contains not publisher
+   * information.
+   * http://www.bl.uk/bibliographic/issn.html
+   * @type {string}
+   */
+  this.isbn10 = o.isbn10 || '';
+
+  /**
+   * The 13-digit ISBN (the standard ISBN). The prefix identifies the
+   * publisher.
+   * @type {string}
+   */
+  this.isbn13 = o.isbn13 || '';
+
+  /**
+   * URI Identifier.
+   * @type {string}
+   */
+  this.uriId = o.uriId || 'http://github.com/Kashomon/gpub';
+
+  /**
+   * Language of the text.
+   * https://idpf.github.io/a11y-guidelines/content/xhtml/lang.html
+   * @type {string}
+   */
+  this.lang = o.lang || 'en';
+
+  /**
+   * Subject matter.
+   * @type {string}
+   */
+  this.subject = o.subject || 'Go, Baduk, Wei-qi, Board Games, Strategy Games';
+
+  /**
+   * Description of the book. Generally a good idea to fill in.
+   * @type {string}
+   */
+  this.description = o.description || '';
+
+  /**
+   * What should the copyright should be used? By default: all rights reserved.
+   * @type {string}
+   */
+  this.rights = o.rights || 'All Rights Reserved.';
+
+  /** @type {string} */
+  this.publisher = o.publisher || '';
+
+  var auth = o.authors
+  if (auth && typeof auth == 'string') {
+    auth = [auth];
+  }
+  /** @type {!Array<string>} */
+  this.authors = auth || [];
+
+  // simple padding function.
+  var dpad = function(dnum) {
+    return dnum < 10 ? '0' + dnum : '' + dnum;
+  }
+
+  var d = new Date();
+  /**
+   * ISO 8601 Date String
+   * @type {string}
+   */
+  this.generationDate = o.generationDate ||
+      d.toISOString().substring(0,19) + 'Z';
+  // this.generationDate = o.generationDate || (d.getUTCFullYear() +
+      // '-' + dpad(d.getUTCMonth() + 1) +
+      // '-' + dpad(d.getUTCDate()));
+
+  /** @type {string} */
+  this.publicationDate = o.publicationDate || '';
+  if (this.publicationDate && (
+      !/\d\d\d\d/.test(this.publicationDate) ||
+      !/\d\d\d\d-\d\d-\d\d/.test(this.publicationDate))) {
+    throw new Error('Publication date must have the form YYYY-MM-DD. ' +
+        'Was: ' + this.publicationDate);
+  }
+
+  /**
+   * Address lines. Generally for a copyright page.
+   * @type {!Array<string>}
+   */
+  this.addressLines = o.addressLines || [];
+
+  /**
+   * Year this book was first published.
+   * @type {number|undefined}
+   */
+  this.publishYear = o.publishYear || undefined;
+
+  ///////////////////////////
+  // Types used for print. //
+  ///////////////////////////
+
+  /**
+   * The printing run of the book. Generally only applies to print-books and is
+   * only for the copyright page.
+   * @type {number|undefined}
+   */
+  this.printingRunNum = o.printingRunNum || undefined;
+
+  /**
+   * Permanence of paper marker. If true (the default), the symbol is displayed
+   * (if the book-type supports the symbol).
+   *
+   * @type {boolean}
+   */
+  this.permanenceOfPaper = o.permanenceOfPaper !== undefined ?
+      !!o.permanenceOfPaper : true;
+};
+
+/**
+ * A simple guide function
+ * @return {string} guid with the format
+ */
+gpub.opts.Metadata.guid = function() {
+  // From stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+      return v.toString(16);
+  });
+};
+
 goog.provide('gpub.opts.SpecOptions');
 goog.provide('gpub.opts.SpecOptionsDef');
 
@@ -9942,7 +10149,7 @@ goog.provide('gpub.opts.Frontmatter');
 /**
  * @typedef {{
  *  template: (gpub.templates.Style|undefined),
- *  metadata: (!gpub.book.Metadata|!gpub.book.MetadataDef|undefined),
+ *  metadata: (!gpub.opts.Metadata|!gpub.opts.MetadataDef|undefined),
  *  frontmatter: (!gpub.opts.Frontmatter|undefined),
  *  appendices: (!gpub.opts.TemplateOptionsDef|undefined),
  * }}
@@ -9959,12 +10166,12 @@ gpub.opts.TemplateOptions = function(opt_options) {
   var o = opt_options || {};
 
   /**
-   * @const {!gpub.book.Metadata}
+   * @const {!gpub.opts.Metadata}
    */
   this.metadata = o.metadata ?
-      new gpub.book.Metadata(o.metadata) :
-      new gpub.book.Metadata({
-        id: gpub.book.Metadata.guid(),
+      new gpub.opts.Metadata(o.metadata) :
+      new gpub.opts.Metadata({
+        id: gpub.opts.Metadata.guid(),
         title: 'My Go Book!',
       });
 
@@ -14039,7 +14246,7 @@ gpub.book.BookMaker.prototype = {
     return this.tmplOpts_;
   },
 
-  /** @return {!gpub.book.Metadata} Returns the book metadata. */
+  /** @return {!gpub.opts.Metadata} Returns the book metadata. */
   templateMetadata: function() {
     return this.tmplOpts_.metadata;
   },
@@ -14136,213 +14343,6 @@ gpub.book.BookMaker.prototype = {
       }
     }
   },
-};
-
-goog.provide('gpub.book.Metadata');
-goog.provide('gpub.book.MetadataDef');
-
-/**
- * Many of these fields are specific to Ebooks.
- *
- * @typedef {{
- *  id: string,
- *  title: string,
- *  subtitle: (string|undefined),
- *  idType: (string|undefined),
- *  idName: (string|undefined),
- *  isbn10: (string|undefined),
- *  isbn13: (string|undefined),
- *  uriId: (string|undefined),
- *  lang: (string|undefined),
- *  subject: (string|undefined),
- *  description: (string|undefined),
- *  rights: (string|undefined),
- *  publisher: (string|undefined),
- *  authors: (!Array<string>|undefined),
- *  generationDate: (string|undefined),
- *  addressLines: (!Array<string>|undefined),
- *  printingRunNum: (number|undefined),
- *  permanenceOfPaper: (boolean|undefined),
- * }}
- */
-gpub.book.MetadataDef
-
-
-/**
- * Grab bag of options for book generation.
- *
- * @param {(!gpub.book.Metadata|!gpub.book.MetadataDef)=} opt_o
- * @constructor @struct @final
- */
-gpub.book.Metadata = function(opt_o) {
-  var o = opt_o || {};
-
-  if (!o.id) {
-    throw new Error('Id was not defined. Options provided were: ' +
-        JSON.stringify(o))
-  }
-
-  if (!o.title) {
-    throw new Error('Title was not defined. Options provided were: ' +
-        JSON.stringify(o))
-  }
-
-  /**
-   * Unique identifier for this book.
-   * @type {string}
-   */
-  this.id = o.id;
-
-  /**
-   * Title of the book. Must be defined.
-   * @type {string}
-   */
-  this.title = o.title;
-
-  /**
-   * Subtitle of the book.
-   * @type {string}
-   */
-  // TODO(kashomon): Maybe include as part of the epub metadata:
-  // https://www.mobileread.com/forums/showthread.php?t=210812
-  this.subtitle = o.subtitle || '';
-
-  /**
-   * What kind of ID is the ID?
-   * @type {string}
-   */
-  this.idType = o.idType || 'uuid';
-
-  /**
-   * ID by which to identify the ID. This probably doesn't need to be changed.
-   * @type {string}
-   */
-  this.idName = o.idName || 'baduk-epub-id';
-
-  /**
-   * The 10-digit ISBN. Sometimes called the ISSN. ISSN contains not publisher
-   * information.
-   * http://www.bl.uk/bibliographic/issn.html
-   * @type {string}
-   */
-  this.isbn10 = o.isbn10 || '';
-
-  /**
-   * The 13-digit ISBN (the standard ISBN). The prefix identifies the
-   * publisher.
-   * @type {string}
-   */
-  this.isbn13 = o.isbn13 || '';
-
-  /**
-   * URI Identifier.
-   * @type {string}
-   */
-  this.uriId = o.uriId || 'http://github.com/Kashomon/gpub';
-
-  /**
-   * Language of the text.
-   * https://idpf.github.io/a11y-guidelines/content/xhtml/lang.html
-   * @type {string}
-   */
-  this.lang = o.lang || 'en';
-
-  /**
-   * Subject matter.
-   * @type {string}
-   */
-  this.subject = o.subject || 'Go, Baduk, Wei-qi, Board Games, Strategy Games';
-
-  /**
-   * Description of the book. Generally a good idea to fill in.
-   * @type {string}
-   */
-  this.description = o.description || '';
-
-  /**
-   * What should the copyright should be used? By default: all rights reserved.
-   * @type {string}
-   */
-  this.rights = o.rights || 'All Rights Reserved.';
-
-  /** @type {string} */
-  this.publisher = o.publisher || '';
-
-  var auth = o.authors
-  if (auth && typeof auth == 'string') {
-    auth = [auth];
-  }
-  /** @type {!Array<string>} */
-  this.authors = auth || [];
-
-  // simple padding function.
-  var dpad = function(dnum) {
-    return dnum < 10 ? '0' + dnum : '' + dnum;
-  }
-
-  var d = new Date();
-  /**
-   * ISO 8601 Date String
-   * @type {string}
-   */
-  this.generationDate = o.generationDate ||
-      d.toISOString().substring(0,19) + 'Z';
-  // this.generationDate = o.generationDate || (d.getUTCFullYear() +
-      // '-' + dpad(d.getUTCMonth() + 1) +
-      // '-' + dpad(d.getUTCDate()));
-
-  /** @type {string} */
-  this.publicationDate = o.publicationDate || '';
-  if (this.publicationDate && (
-      !/\d\d\d\d/.test(this.publicationDate) ||
-      !/\d\d\d\d-\d\d-\d\d/.test(this.publicationDate))) {
-    throw new Error('Publication date must have the form YYYY-MM-DD. ' +
-        'Was: ' + this.publicationDate);
-  }
-
-  /**
-   * Address lines. Generally for a copyright page.
-   * @type {!Array<string>}
-   */
-  this.addressLines = o.addressLines || [];
-
-  /**
-   * Year this book was first published.
-   * @type {number|undefined}
-   */
-  this.publishYear = o.publishYear || undefined;
-
-  ///////////////////////////
-  // Types used for print. //
-  ///////////////////////////
-
-  /**
-   * The printing run of the book. Generally only applies to print-books and is
-   * only for the copyright page.
-   * @type {number|undefined}
-   */
-  this.printingRunNum = o.printingRunNum || undefined;
-
-  /**
-   * Permanence of paper marker. If true (the default), the symbol is displayed
-   * (if the book-type supports the symbol).
-   *
-   * @type {boolean}
-   */
-  this.permanenceOfPaper = o.permanenceOfPaper !== undefined ?
-      !!o.permanenceOfPaper : true;
-};
-
-/**
- * A simple guide function
- * @return {string} guid with the format
- */
-gpub.book.Metadata.guid = function() {
-  // From stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-      return v.toString(16);
-  });
 };
 
 goog.provide('gpub.book.PageSize');
@@ -14614,11 +14614,11 @@ goog.provide('gpub.book.epub.Builder');
 
 /**
  * Helper for building an ebook.
- * @param {!gpub.book.Metadata} opts
+ * @param {!gpub.opts.Metadata} opts
  * @constructor @struct @final
  */
 gpub.book.epub.Builder = function(opts) {
-  /** @type {!gpub.book.Metadata} */
+  /** @type {!gpub.opts.Metadata} */
   this.opts = opts;
 
   /**
@@ -14739,7 +14739,7 @@ gpub.book.epub.opf = {
    * See the following for more info:
    * - Spec: http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
    *
-   * @param {!gpub.book.Metadata} opt
+   * @param {!gpub.opts.Metadata} opt
    * @param {!Array<!gpub.book.File>} files
    * @param {!Array<string>} spineIds
    * @return {!gpub.book.File}
@@ -14787,7 +14787,7 @@ gpub.book.epub.opf = {
    * For more details about the fields, see:
    * http://dublincore.org/documents/2004/12/20/dces/
    *
-   * @param {!gpub.book.Metadata} opt
+   * @param {!gpub.opts.Metadata} opt
    * @return {string} The metadata block.
    */
   metadata: function(opt) {
@@ -15443,7 +15443,7 @@ gpub.init = function(opt) {
  * minimal options object looks like:
  *
  * {
- *  template: 'PROBLEM_LATEX',
+ *  template: 'PROBLEM_EBOOK',
  *  sgfs: [...],
  * }
  *
@@ -15736,7 +15736,7 @@ gpub.templates.Style = {
   /**
    * A template designed to make problem PDFs.
    */
-  PROBLEM_LATEX: 'PROBLEM_LATEX',
+  PROBLEM_XELATEX: 'PROBLEM_XELATEX',
 
   /**
    * A template designed to make problem Ebooks.
