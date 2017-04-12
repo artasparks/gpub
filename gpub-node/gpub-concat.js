@@ -10152,6 +10152,8 @@ goog.provide('gpub.opts.Frontmatter');
  *  metadata: (!gpub.opts.Metadata|!gpub.opts.MetadataDef|undefined),
  *  frontmatter: (!gpub.opts.Frontmatter|undefined),
  *  appendices: (!gpub.opts.TemplateOptionsDef|undefined),
+ *  pdfx1a: (boolean|undefined),
+ *  colorProfileFilePath: (string|undefined),
  * }}
  */
 gpub.opts.TemplateOptionsDef;
@@ -10196,6 +10198,28 @@ gpub.opts.TemplateOptions = function(opt_options) {
    */
   // TODO(kashomon): Give a real options constructor to the appendices.
   this.appendices = o.appendices || {};
+
+  /////////////////////
+  // Special Options //
+  /////////////////////
+
+  /**
+   * Whether or not to generate PDF/X-1a compatibile PDFs. Note: this only
+   * applies to output formats that generate PDFs (LaTeX/XeLaTeX).
+   *
+   * Most printers will require this option to be set.
+   *
+   * @const {boolean}
+   */
+  this.pdfx1a = o.pdfx1a || false;
+
+  /**
+   * An option only for PDF/X-1a. For this spceification, you must specify a
+   * color profile file (e.g., ISOcoated_v2_300_eci.icc).
+   *
+   * @const {string|undefined}
+   */
+  this.colorProfileFilePath = o.colorProfileFilePath || undefined;
 };
 
 /**
@@ -10205,8 +10229,6 @@ gpub.opts.TemplateOptions = function(opt_options) {
  */
 gpub.opts.Frontmatter = function(options) {
   var o = options || {};
-
-  // epigraph: null, // AKA Quote Page
 
   /** @type {string|undefined} */
   this.foreword = o.foreword || undefined;  // Author or unrelated person
@@ -10225,28 +10247,6 @@ gpub.opts.Frontmatter = function(options) {
    * @type {boolean}
    */
   this.generateToc = o.generateToc !== undefined ? !!o.generateToc : true;
-
-  /////////////////////
-  // Special Options //
-  /////////////////////
-
-  /**
-   * Whether or not to generate PDF/X-1a compatibile PDFs. Note: this only
-   * applies to output formats that generate PDFs (latex).
-   *
-   * Most printers will require this option to be set.
-   *
-   * @const {boolean}
-   */
-  this.pdfx1a = o.pdfx1a || false;
-
-  /**
-   * An option only for PDF/X-1a. For this spceification, you must specify a
-   * color profile file (e.g., ISOcoated_v2_300_eci.icc).
-   *
-   * @const {string|undefined}
-   */
-  this.colorProfileFilePath = o.colorProfileFilePath || undefined;
 };
 
 
@@ -14245,6 +14245,12 @@ gpub.book.BookMaker.prototype = {
   templateOptions: function() {
     return this.tmplOpts_;
   },
+
+  /** @return {!gpub.opts.Frontmatter} Returns the frontmatter options. */
+  frontmatter: function() {
+    return this.tmplOpts_.frontmatter;
+  },
+
 
   /** @return {!gpub.opts.Metadata} Returns the book metadata. */
   templateMetadata: function() {

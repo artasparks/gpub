@@ -191,6 +191,12 @@ gpub.book.BookMaker.prototype = {
     return this.tmplOpts_;
   },
 
+  /** @return {!gpub.opts.Frontmatter} Returns the frontmatter options. */
+  frontmatter: function() {
+    return this.tmplOpts_.frontmatter;
+  },
+
+
   /** @return {!gpub.opts.Metadata} Returns the book metadata. */
   templateMetadata: function() {
     return this.tmplOpts_.metadata;
