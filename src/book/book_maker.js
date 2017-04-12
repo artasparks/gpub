@@ -1,5 +1,32 @@
 goog.provide('gpub.book.BookMaker');
 goog.provide('gpub.book.PositionConfig');
+goog.provide('gpub.book.Format');
+
+/**
+ * An enum representing the available formats. This is largely useful for
+ * rendering frontmatter.
+ * @enum {string}
+ */
+gpub.book.Format = {
+  /**
+   * LaTeX formats. Used to generate PDFs.
+   */
+  'LATEX': 'LATEX',
+  'XELATEX': 'XELATEX', // Maybe should be the same as LATEX
+
+  // Ebook formats. //
+
+  /*
+   * Used to generate Epub, which can be used to generate other
+   * ebook formats. (AZW3)
+   */
+  'EPUB': 'EPUB',
+  /**
+   * AZW is the newer Kindle version (AKA KF8).
+   * Sometimes, it's worth targetting AZW3 directly for style ereasons.
+   */
+  'AZW3': 'AZW3', // AKA KF8
+};
 
 
 /**
@@ -191,11 +218,15 @@ gpub.book.BookMaker.prototype = {
     return this.tmplOpts_;
   },
 
-  /** @return {!gpub.opts.Frontmatter} Returns the frontmatter options. */
-  frontmatter: function() {
+  /**
+   * Returns the frontmatter formatted for a particular style.
+   * @param {string} format An element of gpub.book.Format.
+   * @return {!gpub.opts.Frontmatter} Returns the frontmatter options.
+   */
+  formattedFrontmatter: function(format) {
+    // TODO(kashomon): Finish this.
     return this.tmplOpts_.frontmatter;
   },
-
 
   /** @return {!gpub.opts.Metadata} Returns the book metadata. */
   templateMetadata: function() {
