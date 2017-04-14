@@ -58,7 +58,7 @@ gpub.book.latex.LatexHelper.prototype = {
    * @param {string} text Markdown text to process
    * @param {!Object=} opt_overrides Optional object containing renderer-method
    *    overrides.
-   * @return {gpub.book.latex.ProcMarkdown} rendered latex, split into the
+   * @return {!gpub.book.ProcessedMarkdown} rendered latex, split into the
    *    pramble (headers) and the body text.
    */
   renderMarkdown: function(text, opt_overrides) {

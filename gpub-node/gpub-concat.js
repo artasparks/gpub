@@ -14383,11 +14383,45 @@ gpub.book.BookMaker.prototype = {
 };
 
 goog.provide('gpub.book.frontmatter');
+goog.provide('gpub.book.ProcessedMarkdown');
+
+
+/**
+ * Processed markdown.
+ * @typedef {{
+ *   preamble: string,
+ *   text: string
+ * }}
+ */
+gpub.book.ProcessedMarkdown;
+
 
 /**
  * @namespace
  */
 gpub.book.frontmatter = {
+  /**
+   * @param {gpub.book.Format} format
+   * @param {!gpub.opts.Frontmatter} opts frontmatter options
+   * @return {!gpub.opts.Frontmatter} formatted frontmatter.
+   */
+  format: function(format, opts) {
+    var formatter = function(str) {
+      return /** @type {!gpub.book.ProcessedMarkdown} */ ({
+        preamble: '',
+        text: str,
+      });
+    }
+    switch(format) {
+      case 'LATEX':
+      case 'XELATEX':
+        formatter = gpub.book.latex.renderMarkdown;
+        break;
+      default:
+        // formatter stays the same
+    }
+    return opts;
+  }
 };
 
 goog.provide('gpub.book.PageSize');
@@ -15033,7 +15067,7 @@ gpub.book.latex.LatexHelper.prototype = {
    * @param {string} text Markdown text to process
    * @param {!Object=} opt_overrides Optional object containing renderer-method
    *    overrides.
-   * @return {gpub.book.latex.ProcMarkdown} rendered latex, split into the
+   * @return {!gpub.book.ProcessedMarkdown} rendered latex, split into the
    *    pramble (headers) and the body text.
    */
   renderMarkdown: function(text, opt_overrides) {
@@ -15041,17 +15075,7 @@ gpub.book.latex.LatexHelper.prototype = {
   },
 };
 
-goog.provide('gpub.book.latex.ProcMarkdown');
 goog.provide('gpub.book.latex.MarkdownBase');
-
-/**
- * Processed markdown.
- * @typedef {{
- *   preamble: string,
- *   text: string
- * }}
- */
-gpub.book.latex.ProcMarkdown;
 
 /**
  * Creates a marked-Markdown renderer for LaTe, which relies on the Marked
@@ -15081,8 +15105,7 @@ gpub.book.latex.renderer_ = function(opt_overrides) {
  * @param {string} str The text to process.
  * @param {!Object=} opt_overrides Optional object containing renderer-method
  *    overrides.
- * @return {!gpub.book.latex.ProcMarkdown}
- * @package
+ * @return {!gpub.book.ProcessedMarkdown}
  */
 gpub.book.latex.renderMarkdown = function(str, opt_overrides) {
   var renderer = gpub.book.latex.renderer_(opt_overrides)
@@ -15099,10 +15122,10 @@ gpub.book.latex.renderMarkdown = function(str, opt_overrides) {
   var text = glift.marked(str, opts);
   // Now we need to post-process and escape #
   text = text.replace(/#/g, '\\#');
-  return {
+  return /** @type {!gpub.book.ProcessedMarkdown} */ ({
     preamble: extractPreamble(renderer),
     text: text
-  };
+  });
 };
 
 

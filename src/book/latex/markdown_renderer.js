@@ -1,14 +1,4 @@
-goog.provide('gpub.book.latex.ProcMarkdown');
 goog.provide('gpub.book.latex.MarkdownBase');
-
-/**
- * Processed markdown.
- * @typedef {{
- *   preamble: string,
- *   text: string
- * }}
- */
-gpub.book.latex.ProcMarkdown;
 
 /**
  * Creates a marked-Markdown renderer for LaTe, which relies on the Marked
@@ -38,8 +28,7 @@ gpub.book.latex.renderer_ = function(opt_overrides) {
  * @param {string} str The text to process.
  * @param {!Object=} opt_overrides Optional object containing renderer-method
  *    overrides.
- * @return {!gpub.book.latex.ProcMarkdown}
- * @package
+ * @return {!gpub.book.ProcessedMarkdown}
  */
 gpub.book.latex.renderMarkdown = function(str, opt_overrides) {
   var renderer = gpub.book.latex.renderer_(opt_overrides)
@@ -56,10 +45,10 @@ gpub.book.latex.renderMarkdown = function(str, opt_overrides) {
   var text = glift.marked(str, opts);
   // Now we need to post-process and escape #
   text = text.replace(/#/g, '\\#');
-  return {
+  return /** @type {!gpub.book.ProcessedMarkdown} */ ({
     preamble: extractPreamble(renderer),
     text: text
-  };
+  });
 };
 
 
