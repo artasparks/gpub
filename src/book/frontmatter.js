@@ -36,20 +36,27 @@ gpub.book.frontmatter = {
       default:
         // formatter stays the same
     }
-    var construct = function(content) {
-      var proc = fmt(content);
+    var construct = function(section) {
+      if (!section) {
+        // Return empty string as default case.
+        return '';
+      }
+      var proc = fmt(section);
       if (proc.preamble) {
         return proc.preamble + '\n' + proc.text;
       } else {
         return proc.text;
       }
     }
-    var foreword = opts.foreword;
-    if (opts.foreword) {
-      foreword = construct(opts.foreword)
-    }
+    var foreword = construct(opts.foreword);
+    var preface = construct(opts.preface);
+    var acknowledgements = construct(opts.acknowledgements);
+    var introduction = construct(opts.introduction);
     return new gpub.opts.Frontmatter({
       foreword: foreword,
+      preface: preface,
+      acknowledgements: acknowledgements,
+      introduction: introduction,
       generateToc: opts.generateToc,
     });
   }

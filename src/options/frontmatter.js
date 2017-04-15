@@ -20,6 +20,8 @@ gpub.opts.FrontmatterDef;
 gpub.opts.Frontmatter = function(options) {
   var o = options || {};
 
+  // Note! If this is changed, then src/book/frontmatter.js must also be changed.
+
   /** @type {string|undefined} */
   this.foreword = o.foreword || undefined;  // Author or unrelated person
 
