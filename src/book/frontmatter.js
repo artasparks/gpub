@@ -22,7 +22,7 @@ gpub.book.frontmatter = {
    * @return {!gpub.opts.Frontmatter} formatted frontmatter.
    */
   format: function(format, opts) {
-    var formatter = function(str) {
+    var fmt = function(str) {
       return /** @type {!gpub.book.ProcessedMarkdown} */ ({
         preamble: '',
         text: str,
@@ -31,11 +31,26 @@ gpub.book.frontmatter = {
     switch(format) {
       case 'LATEX':
       case 'XELATEX':
-        formatter = gpub.book.latex.renderMarkdown;
+        fmt = gpub.book.latex.renderMarkdown;
         break;
       default:
         // formatter stays the same
     }
-    return opts;
+    var construct = function(content) {
+      var proc = fmt(content);
+      if (proc.preamble) {
+        return proc.preamble + '\n' + proc.text;
+      } else {
+        return proc.text;
+      }
+    }
+    var foreword = opts.foreword;
+    if (opts.foreword) {
+      foreword = construct(opts.foreword)
+    }
+    return new gpub.opts.Frontmatter({
+      foreword: foreword,
+      generateToc: opts.generateToc,
+    });
   }
 };

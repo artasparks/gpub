@@ -1,6 +1,5 @@
 goog.provide('gpub.opts.TemplateOptions');
 goog.provide('gpub.opts.TemplateOptionsDef');
-goog.provide('gpub.opts.Frontmatter');
 
 
 /**
@@ -77,33 +76,6 @@ gpub.opts.TemplateOptions = function(opt_options) {
    * @const {string|undefined}
    */
   this.colorProfileFilePath = o.colorProfileFilePath || undefined;
-};
-
-/**
- * @param {!gpub.opts.Frontmatter=} options
- *
- * @constructor @struct @final
- */
-gpub.opts.Frontmatter = function(options) {
-  var o = options || {};
-
-  /** @type {string|undefined} */
-  this.foreword = o.foreword || undefined;  // Author or unrelated person
-
-  /** @type {string|undefined} */
-  this.preface = o.foreword || undefined; // Author
-
-  /** @type {string|undefined} */
-  this.acknowledgements = o.acknowledgements || undefined;
-
-  /** @type {string|undefined} */
-  this.introduction = o.introduction || undefined;
-
-  /**
-   * Generate the Table of Contents or just 'Contents'. Defaults to true.
-   * @type {boolean}
-   */
-  this.generateToc = o.generateToc !== undefined ? !!o.generateToc : true;
 };
 
 

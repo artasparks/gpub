@@ -9797,6 +9797,48 @@ gpub.opts.DiagramOptions.applyDefaults = function(opts, defaults) {
   return opts;
 };
 
+goog.provide('gpub.opts.Frontmatter');
+goog.provide('gpub.opts.FrontmatterDef');
+
+/**
+ * @typedef {{
+ *  foreword: (string|undefined),
+ *  preface: (string|undefined),
+ *  acknowledgements: (string|undefined),
+ *  introduction: (string|undefined),
+ *  generateToc: (boolean|undefined),
+ * }}
+ */
+gpub.opts.FrontmatterDef;
+
+/**
+ * @param {!(gpub.opts.Frontmatter|gpub.opts.FrontmatterDef)=} options
+ *
+ * @constructor @struct @final
+ */
+gpub.opts.Frontmatter = function(options) {
+  var o = options || {};
+
+  /** @type {string|undefined} */
+  this.foreword = o.foreword || undefined;  // Author or unrelated person
+
+  /** @type {string|undefined} */
+  this.preface = o.foreword || undefined; // Author
+
+  /** @type {string|undefined} */
+  this.acknowledgements = o.acknowledgements || undefined;
+
+  /** @type {string|undefined} */
+  this.introduction = o.introduction || undefined;
+
+  /**
+   * Generate the Table of Contents or just 'Contents'. Defaults to true.
+   * @type {boolean}
+   */
+  this.generateToc = o.generateToc !== undefined ? !!o.generateToc : true;
+};
+
+
 goog.provide('gpub.opts.Metadata');
 goog.provide('gpub.opts.MetadataDef');
 
@@ -10143,7 +10185,6 @@ gpub.opts.SpecOptions.applyDefaults = function(opts, defaults) {
 
 goog.provide('gpub.opts.TemplateOptions');
 goog.provide('gpub.opts.TemplateOptionsDef');
-goog.provide('gpub.opts.Frontmatter');
 
 
 /**
@@ -10220,33 +10261,6 @@ gpub.opts.TemplateOptions = function(opt_options) {
    * @const {string|undefined}
    */
   this.colorProfileFilePath = o.colorProfileFilePath || undefined;
-};
-
-/**
- * @param {!gpub.opts.Frontmatter=} options
- *
- * @constructor @struct @final
- */
-gpub.opts.Frontmatter = function(options) {
-  var o = options || {};
-
-  /** @type {string|undefined} */
-  this.foreword = o.foreword || undefined;  // Author or unrelated person
-
-  /** @type {string|undefined} */
-  this.preface = o.foreword || undefined; // Author
-
-  /** @type {string|undefined} */
-  this.acknowledgements = o.acknowledgements || undefined;
-
-  /** @type {string|undefined} */
-  this.introduction = o.introduction || undefined;
-
-  /**
-   * Generate the Table of Contents or just 'Contents'. Defaults to true.
-   * @type {boolean}
-   */
-  this.generateToc = o.generateToc !== undefined ? !!o.generateToc : true;
 };
 
 
@@ -14406,7 +14420,7 @@ gpub.book.frontmatter = {
    * @return {!gpub.opts.Frontmatter} formatted frontmatter.
    */
   format: function(format, opts) {
-    var formatter = function(str) {
+    var fmt = function(str) {
       return /** @type {!gpub.book.ProcessedMarkdown} */ ({
         preamble: '',
         text: str,
@@ -14415,12 +14429,27 @@ gpub.book.frontmatter = {
     switch(format) {
       case 'LATEX':
       case 'XELATEX':
-        formatter = gpub.book.latex.renderMarkdown;
+        fmt = gpub.book.latex.renderMarkdown;
         break;
       default:
         // formatter stays the same
     }
-    return opts;
+    var construct = function(content) {
+      var proc = fmt(content);
+      if (proc.preamble) {
+        return proc.preamble + '\n' + proc.text;
+      } else {
+        return proc.text;
+      }
+    }
+    var foreword = opts.foreword;
+    if (opts.foreword) {
+      foreword = construct(opts.foreword)
+    }
+    return new gpub.opts.Frontmatter({
+      foreword: foreword,
+      generateToc: opts.generateToc,
+    });
   }
 };
 
