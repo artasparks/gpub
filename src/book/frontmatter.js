@@ -27,11 +27,20 @@ gpub.book.frontmatter = {
         preamble: '',
         text: str,
       });
-    }
+    };
+    var htmlfmt = function(str) {
+      return glift.marked(str, {
+        silent: true,
+      });
+    };
     switch(format) {
       case 'LATEX':
       case 'XELATEX':
         fmt = gpub.book.latex.renderMarkdown;
+        break;
+      case 'EPUB':
+      case 'AZW3':
+        fmt = htmlfmt;
         break;
       default:
         // formatter stays the same

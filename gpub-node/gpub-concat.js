@@ -14071,33 +14071,6 @@ gpub.book.File;
 
 goog.provide('gpub.book.BookMaker');
 goog.provide('gpub.book.PositionConfig');
-goog.provide('gpub.book.Format');
-
-/**
- * An enum representing the available formats. This is largely useful for
- * rendering frontmatter.
- * @enum {string}
- */
-gpub.book.Format = {
-  /**
-   * LaTeX formats. Used to generate PDFs.
-   */
-  'LATEX': 'LATEX',
-  'XELATEX': 'XELATEX', // Maybe should be the same as LATEX
-
-  // Ebook formats. //
-
-  /*
-   * Used to generate Epub, which can be used to generate other
-   * ebook formats. (AZW3)
-   */
-  'EPUB': 'EPUB',
-  /**
-   * AZW is the newer Kindle version (AKA KF8).
-   * Sometimes, it's worth targetting AZW3 directly for style ereasons.
-   */
-  'AZW3': 'AZW3', // AKA KF8
-};
 
 
 /**
@@ -14398,6 +14371,34 @@ gpub.book.BookMaker.prototype = {
   },
 };
 
+goog.provide('gpub.book.Format');
+
+/**
+ * An enum representing the available formats. This is largely useful for
+ * rendering frontmatter.
+ * @enum {string}
+ */
+gpub.book.Format = {
+  /**
+   * LaTeX formats. Used to generate PDFs.
+   */
+  'LATEX': 'LATEX',
+  'XELATEX': 'XELATEX', // Maybe should be the same as LATEX
+
+  // Ebook formats. //
+
+  /*
+   * Used to generate Epub, which can be used to generate other
+   * ebook formats.
+   */
+  'EPUB': 'EPUB',
+  /**
+   * AZW is the newer Kindle version (AKA KF8).
+   * Sometimes, it's worth targetting AZW3 directly for style ereasons.
+   */
+  'AZW3': 'AZW3',
+};
+
 goog.provide('gpub.book.frontmatter');
 goog.provide('gpub.book.ProcessedMarkdown');
 
@@ -14427,11 +14428,20 @@ gpub.book.frontmatter = {
         preamble: '',
         text: str,
       });
-    }
+    };
+    var htmlfmt = function(str) {
+      return glift.marked(str, {
+        silent: true,
+      });
+    };
     switch(format) {
       case 'LATEX':
       case 'XELATEX':
         fmt = gpub.book.latex.renderMarkdown;
+        break;
+      case 'EPUB':
+      case 'AZW3':
+        fmt = htmlfmt;
         break;
       default:
         // formatter stays the same
