@@ -29,9 +29,12 @@ gpub.book.frontmatter = {
       });
     };
     var htmlfmt = function(str) {
-      return glift.marked(str, {
-        silent: true,
-      });
+      return {
+        preamble: '',
+        text: glift.marked(str, {
+          silent: true,
+        })
+      };
     };
     switch(format) {
       case 'LATEX':
@@ -51,11 +54,13 @@ gpub.book.frontmatter = {
         return '';
       }
       var proc = fmt(section);
+      var out = '';
       if (proc.preamble) {
-        return proc.preamble + '\n' + proc.text;
+        out = proc.preamble + '\n' + proc.text;
       } else {
-        return proc.text;
+        out = proc.text;
       }
+      return out;
     }
     var foreword = construct(opts.foreword);
     var preface = construct(opts.preface);
