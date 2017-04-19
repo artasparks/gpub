@@ -193,12 +193,16 @@ gpub.book.BookMaker.prototype = {
 
   /**
    * Returns the frontmatter formatted for a particular style.
-   * @param {string} format An element of gpub.book.Format.
+   * @param {string} format An element of gpub.book.MarkdownFormat.
    * @return {!gpub.opts.Frontmatter} Returns the frontmatter options.
    */
   formattedFrontmatter: function(format) {
-    // TODO(kashomon): Finish this.
-    return this.tmplOpts_.frontmatter;
+    var fm = this.tmplOpts_.frontmatter;
+    if (!gpub.book.MarkdownFormat[format]) {
+      return fm;
+    }
+    var mdfmt = /** @type {!gpub.book.MarkdownFormat} */ (format);
+    return gpub.book.frontmatter.format(mdfmt, fm);
   },
 
   /** @return {!gpub.opts.Metadata} Returns the book metadata. */

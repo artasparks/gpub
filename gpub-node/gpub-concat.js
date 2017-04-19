@@ -14264,12 +14264,16 @@ gpub.book.BookMaker.prototype = {
 
   /**
    * Returns the frontmatter formatted for a particular style.
-   * @param {string} format An element of gpub.book.Format.
+   * @param {string} format An element of gpub.book.MarkdownFormat.
    * @return {!gpub.opts.Frontmatter} Returns the frontmatter options.
    */
   formattedFrontmatter: function(format) {
-    // TODO(kashomon): Finish this.
-    return this.tmplOpts_.frontmatter;
+    var fm = this.tmplOpts_.frontmatter;
+    if (!gpub.book.MarkdownFormat[format]) {
+      return fm;
+    }
+    var mdfmt = /** @type {!gpub.book.MarkdownFormat} */ (format);
+    return gpub.book.frontmatter.format(mdfmt, fm);
   },
 
   /** @return {!gpub.opts.Metadata} Returns the book metadata. */
@@ -14371,14 +14375,14 @@ gpub.book.BookMaker.prototype = {
   },
 };
 
-goog.provide('gpub.book.Format');
+goog.provide('gpub.book.MarkdownFormat');
 
 /**
  * An enum representing the available formats. This is largely useful for
  * rendering frontmatter.
  * @enum {string}
  */
-gpub.book.Format = {
+gpub.book.MarkdownFormat = {
   /**
    * LaTeX formats. Used to generate PDFs.
    */
@@ -14418,7 +14422,7 @@ gpub.book.ProcessedMarkdown;
  */
 gpub.book.frontmatter = {
   /**
-   * @param {gpub.book.Format} format
+   * @param {gpub.book.MarkdownFormat} format
    * @param {!gpub.opts.Frontmatter} opts frontmatter options
    * @return {!gpub.opts.Frontmatter} formatted frontmatter.
    */
@@ -14430,13 +14434,17 @@ gpub.book.frontmatter = {
       });
     };
     var htmlfmt = function(str) {
-      return glift.marked(str, {
-        silent: true,
-      });
+      return {
+        preamble: '',
+        text: glift.marked(str, {
+          silent: true,
+        })
+      };
     };
     switch(format) {
       case 'LATEX':
       case 'XELATEX':
+        // This is really a memoir-class renderer.
         fmt = gpub.book.latex.renderMarkdown;
         break;
       case 'EPUB':
@@ -14452,11 +14460,13 @@ gpub.book.frontmatter = {
         return '';
       }
       var proc = fmt(section);
+      var out = '';
       if (proc.preamble) {
-        return proc.preamble + '\n' + proc.text;
+        out = proc.preamble + '\n' + proc.text;
       } else {
-        return proc.text;
+        out = proc.text;
       }
+      return out;
     }
     var foreword = construct(opts.foreword);
     var preface = construct(opts.preface);

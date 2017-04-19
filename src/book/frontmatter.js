@@ -17,7 +17,7 @@ gpub.book.ProcessedMarkdown;
  */
 gpub.book.frontmatter = {
   /**
-   * @param {gpub.book.Format} format
+   * @param {gpub.book.MarkdownFormat} format
    * @param {!gpub.opts.Frontmatter} opts frontmatter options
    * @return {!gpub.opts.Frontmatter} formatted frontmatter.
    */
@@ -39,6 +39,7 @@ gpub.book.frontmatter = {
     switch(format) {
       case 'LATEX':
       case 'XELATEX':
+        // This is really a memoir-class renderer.
         fmt = gpub.book.latex.renderMarkdown;
         break;
       case 'EPUB':
