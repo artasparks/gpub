@@ -125,7 +125,11 @@ gpub.spec.Processor.prototype = {
     var idGen = this.getIdGen_();
     switch(posType) {
       case 'GAME_COMMENTARY':
-        return gpub.spec.processGameCommentary(mt, pos, idGen);
+        // TODO(kashomon): If this updates the movetree (via rotation) then the
+        // movetree needs to be updated in the cache and a new SGF needs to
+        // be retrieved.
+        return gpub.spec.processGameCommentary(
+            mt, pos, idGen, this.originalSpec_.specOptions);
         break;
       case 'PROBLEM':
         return gpub.spec.processProblems(

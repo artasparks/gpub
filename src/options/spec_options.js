@@ -111,11 +111,10 @@ gpub.opts.SpecOptions = function(opt_options) {
 
   /**
    * Whether to autorotate Game commentary types so that the first move is
-   * always in the upper-right. Defaults to true.
+   * always in the upper-right. Defaults to false.
    * @const {boolean}
    */
-  // TODO(kashomon): Implement this.
-  this.autoRotateGames = o.autoRotateGames !== undefined ? !!o.autoRotateGames : true;
+  this.autoRotateGames = o.autoRotateGames || false;
 };
 
 /**

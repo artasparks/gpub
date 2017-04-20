@@ -10368,10 +10368,11 @@ goog.provide('gpub.spec.GameCommentary');
  * @param {!glift.rules.MoveTree} mt The movetree for the position.
  * @param {!gpub.spec.Position} position The position used for spec generation.
  * @param {!gpub.spec.IdGen} idGen
+ * @param {!gpub.opts.SpecOptions} opt
  * @return {!gpub.spec.Generated} processed positions.
  * @package
  */
-gpub.spec.processGameCommentary = function(mt, position, idGen) {
+gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
   // TODO(kashomon): This should be refactored to be much simpler (more like the
   // problem-code).
   var varPathBuffer = [];
@@ -11087,7 +11088,8 @@ gpub.spec.Processor.prototype = {
     var idGen = this.getIdGen_();
     switch(posType) {
       case 'GAME_COMMENTARY':
-        return gpub.spec.processGameCommentary(mt, pos, idGen);
+        return gpub.spec.processGameCommentary(
+            mt, pos, idGen, this.originalSpec_.specOptions);
         break;
       case 'PROBLEM':
         return gpub.spec.processProblems(

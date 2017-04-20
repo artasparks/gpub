@@ -2,6 +2,7 @@
   module('gpub.spec.gameCommentary');
 
   var alias = 'zed';
+  var specOpts = new gpub.opts.SpecOptions();
 
   test('Process basic game commentary', function() {
     var sgf = '(;GM[1]C[A Game!];B[aa]C[Here\'s a move])';
@@ -13,7 +14,7 @@
       alias: id,
     });
 
-    var gen = gpub.spec.processGameCommentary(mt, pos, idGen);
+    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts);
     deepEqual(gen.positions.length, 2);
     deepEqual(gen.positions[0].id, id + '-0', 'gen-1 id');
     deepEqual(gen.positions[0].initialPosition, '0', 'gen-1 init pos');
@@ -40,7 +41,7 @@
       id: id,
       alias: id,
     });
-    var gen = gpub.spec.processGameCommentary(mt, pos, idGen);
+    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts);
     deepEqual(gen.positions.length, 4);
     deepEqual(gen.labels['MAINLINE'].length, 3);
     deepEqual(gen.labels['VARIATION'].length, 1);
@@ -83,11 +84,32 @@
       id: id,
       alias: id,
     });
-    var gen = gpub.spec.processGameCommentary(mt, pos, idGen);
+    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts);
     deepEqual(gen.positions.length, 1, 'num variations');
     ok(gen.positions[0].nextMovesPath, '0:228', 'Testing nextmoves path');
 
     deepEqual(gen.labels['MAINLINE'].length, 1);
     deepEqual(gen.labels['VARIATION'].length, 0);
   });
+
+  test('Process basic game commentary: rotation', function() {
+    var sgf = '(;GM[1]C[A Game!];B[dd]C[Here\'s a move])';
+    var mt = glift.parse.fromString(sgf);
+    var id = 'simple-id';
+    var idGen = new gpub.spec.IdGen(id);
+    var pos = new gpub.spec.Position({
+      id: id,
+      alias: id,
+    });
+
+    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, new gpub.opts.SpecOptions({
+      autoRotateGame: true,
+    }));
+
+    deepEqual(gen.positions[1].id, id + '-1', 'gen-2 id');
+    deepEqual(gen.positions[1].initialPosition, '0', 'gen-2 init pos');
+    deepEqual(gen.labels['MAINLINE'].length, 2);
+    deepEqual(gen.labels['GAME_COMMENTARY'].length, 2);
+  });
+
 })();

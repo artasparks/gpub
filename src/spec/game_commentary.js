@@ -4,13 +4,20 @@ goog.provide('gpub.spec.GameCommentary');
  * @param {!glift.rules.MoveTree} mt The movetree for the position.
  * @param {!gpub.spec.Position} position The position used for spec generation.
  * @param {!gpub.spec.IdGen} idGen
+ * @param {!gpub.opts.SpecOptions} opt
  * @return {!gpub.spec.Generated} processed positions.
  * @package
  */
-gpub.spec.processGameCommentary = function(mt, position, idGen) {
+gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
   // TODO(kashomon): This should be refactored to be much simpler (more like the
   // problem-code).
   var varPathBuffer = [];
+  if (opt.autoRotateGames) {
+    // Note: this work because it's a side-affecting operation.
+    console.log('Log mah thing');
+    mt = glift.orientation.autoRotateGame(mt);
+  }
+
   var node = mt.node();
   var ipString = glift.rules.treepath.toInitPathString;
   var fragString = glift.rules.treepath.toFragmentString;
