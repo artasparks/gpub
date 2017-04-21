@@ -1,5 +1,31 @@
 goog.provide('gpub.spec.Processor');
 goog.provide('gpub.spec.TypeProcessor');
+goog.provide('gpub.spec.Processed');
+
+/**
+ * Params:
+ *  movetree: The processed movetree from the type-processor. If non-null,
+ *      implies that the movetree result needs to be stored.
+ *  generated: The generated positions.
+ *
+ * @typedef {{
+ *  movetree: ?glift.rules.MoveTree,
+ *  generated: !gpub.spec.Generated
+ * }}
+ */
+gpub.spec.Processed;
+
+/**
+ * Generic type-processor
+ * @param {!glift.rules.MoveTree} mt The movetree for the position.
+ * @param {!gpub.spec.Position} position The position used for spec generation.
+ * @param {!gpub.spec.IdGen} idGen
+ * @param {!gpub.opts.SpecOptions} opt
+ * @return {!gpub.spec.Processed} processed positions.
+ *
+ * @interface
+ */
+gpub.spec.TypeProcessor = function(mt, position, idGen, opt) {};
 
 /**
  * The process takes a basic spec and transforms it into example-diagram

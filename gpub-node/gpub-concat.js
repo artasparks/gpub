@@ -10161,11 +10161,10 @@ gpub.opts.SpecOptions = function(opt_options) {
 
   /**
    * Whether to autorotate Game commentary types so that the first move is
-   * always in the upper-right. Defaults to true.
+   * always in the upper-right. Defaults to false.
    * @const {boolean}
    */
-  // TODO(kashomon): Implement this.
-  this.autoRotateGames = o.autoRotateGames !== undefined ? !!o.autoRotateGames : true;
+  this.autoRotateGames = o.autoRotateGames || false;
 };
 
 /**
@@ -10376,6 +10375,12 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
   // TODO(kashomon): This should be refactored to be much simpler (more like the
   // problem-code).
   var varPathBuffer = [];
+  if (opt.autoRotateGames) {
+    // Note: this work because it's a side-affecting operation.
+    console.log('Log mah thing');
+    mt = glift.orientation.autoRotateGame(mt);
+  }
+
   var node = mt.node();
   var ipString = glift.rules.treepath.toInitPathString;
   var fragString = glift.rules.treepath.toFragmentString;
@@ -10963,6 +10968,32 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
 
 goog.provide('gpub.spec.Processor');
 goog.provide('gpub.spec.TypeProcessor');
+goog.provide('gpub.spec.Processed');
+
+/**
+ * Params:
+ *  movetree: The processed movetree from the type-processor. If non-null,
+ *      implies that the movetree result needs to be stored.
+ *  generated: The generated positions.
+ *
+ * @typedef {{
+ *  movetree: ?glift.rules.MoveTree,
+ *  generated: !gpub.spec.Generated
+ * }}
+ */
+gpub.spec.Processed;
+
+/**
+ * Generic type-processor
+ * @param {!glift.rules.MoveTree} mt The movetree for the position.
+ * @param {!gpub.spec.Position} position The position used for spec generation.
+ * @param {!gpub.spec.IdGen} idGen
+ * @param {!gpub.opts.SpecOptions} opt
+ * @return {!gpub.spec.Processed} processed positions.
+ *
+ * @interface
+ */
+gpub.spec.TypeProcessor = function(mt, position, idGen, opt) {};
 
 /**
  * The process takes a basic spec and transforms it into example-diagram
@@ -11088,6 +11119,9 @@ gpub.spec.Processor.prototype = {
     var idGen = this.getIdGen_();
     switch(posType) {
       case 'GAME_COMMENTARY':
+        // TODO(kashomon): If this updates the movetree (via rotation) then the
+        // movetree needs to be updated in the cache and a new SGF needs to
+        // be retrieved.
         return gpub.spec.processGameCommentary(
             mt, pos, idGen, this.originalSpec_.specOptions);
         break;
