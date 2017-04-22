@@ -10368,18 +10368,13 @@ goog.provide('gpub.spec.GameCommentary');
  * @param {!gpub.spec.Position} position The position used for spec generation.
  * @param {!gpub.spec.IdGen} idGen
  * @param {!gpub.opts.SpecOptions} opt
- * @return {!gpub.spec.Generated} processed positions.
+ * @return {!gpub.spec.Processed} processed positions.
  * @package
  */
 gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
   // TODO(kashomon): This should be refactored to be much simpler (more like the
   // problem-code).
   var varPathBuffer = [];
-  if (opt.autoRotateGames) {
-    // Note: this work because it's a side-affecting operation.
-    console.log('Log mah thing');
-    mt = glift.orientation.autoRotateGame(mt);
-  }
 
   var node = mt.node();
   var ipString = glift.rules.treepath.toInitPathString;
@@ -10389,6 +10384,19 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
   var gen = new gpub.spec.Generated({
     id: position.id
   });
+
+  var processed = /** @type {!gpub.spec.Processed} */ ({
+    movetree: null,
+    generated: gen,
+  });
+
+  if (opt.autoRotateGames) {
+    // Note: this work because it's a side-affecting operation.
+    console.log('Log mah thing');
+    mt = glift.orientation.autoRotateGame(mt);
+    processed.movetree = mt;
+  }
+
   var mainlineLbl = 'MAINLINE';
   var variationLbl = 'VARIATION';
 
@@ -10448,7 +10456,11 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
     mt.moveDown();
   }
 
-  return gen;
+  if (processed.movetree) {
+    processed.movetree = processed.movetree.getTreeFromRoot();
+  }
+
+  return processed;
 };
 
 /**
@@ -11122,12 +11134,14 @@ gpub.spec.Processor.prototype = {
         // TODO(kashomon): If this updates the movetree (via rotation) then the
         // movetree needs to be updated in the cache and a new SGF needs to
         // be retrieved.
-        return gpub.spec.processGameCommentary(
+        var proc = gpub.spec.processGameCommentary(
             mt, pos, idGen, this.originalSpec_.specOptions);
+        return proc.generated;
         break;
       case 'PROBLEM':
-        return gpub.spec.processProblems(
+        var procZock = gpub.spec.processProblems(
             mt, pos, idGen, this.originalSpec_.specOptions);
+        return procZock;
         break;
 
       case 'POSITION_VARIATIONS':

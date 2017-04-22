@@ -14,7 +14,7 @@
       alias: id,
     });
 
-    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts);
+    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts).generated;
     deepEqual(gen.positions.length, 2);
     deepEqual(gen.positions[0].id, id + '-0', 'gen-1 id');
     deepEqual(gen.positions[0].initialPosition, '0', 'gen-1 init pos');
@@ -41,7 +41,7 @@
       id: id,
       alias: id,
     });
-    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts);
+    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts).generated;
     deepEqual(gen.positions.length, 4);
     deepEqual(gen.labels['MAINLINE'].length, 3);
     deepEqual(gen.labels['VARIATION'].length, 1);
@@ -84,7 +84,7 @@
       id: id,
       alias: id,
     });
-    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts);
+    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts).generated;
     deepEqual(gen.positions.length, 1, 'num variations');
     ok(gen.positions[0].nextMovesPath, '0:228', 'Testing nextmoves path');
 
@@ -104,7 +104,7 @@
 
     var gen = gpub.spec.processGameCommentary(mt, pos, idGen, new gpub.opts.SpecOptions({
       autoRotateGame: true,
-    }));
+    })).generated;
 
     deepEqual(gen.positions[1].id, id + '-1', 'gen-2 id');
     deepEqual(gen.positions[1].initialPosition, '0', 'gen-2 init pos');

@@ -154,12 +154,14 @@ gpub.spec.Processor.prototype = {
         // TODO(kashomon): If this updates the movetree (via rotation) then the
         // movetree needs to be updated in the cache and a new SGF needs to
         // be retrieved.
-        return gpub.spec.processGameCommentary(
+        var proc = gpub.spec.processGameCommentary(
             mt, pos, idGen, this.originalSpec_.specOptions);
+        return proc.generated;
         break;
       case 'PROBLEM':
-        return gpub.spec.processProblems(
+        var procZock = gpub.spec.processProblems(
             mt, pos, idGen, this.originalSpec_.specOptions);
+        return procZock;
         break;
 
       case 'POSITION_VARIATIONS':
