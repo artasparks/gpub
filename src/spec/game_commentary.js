@@ -29,7 +29,6 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
 
   if (opt.autoRotateGames) {
     // Note: this work because it's a side-affecting operation.
-    console.log('Log mah thing');
     mt = glift.orientation.autoRotateGame(mt);
     processed.movetree = mt;
   }

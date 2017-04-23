@@ -5,7 +5,7 @@
  * @param {!gpub.spec.Position} position
  * @param {!gpub.spec.IdGen} idGen
  * @param {!gpub.opts.SpecOptions} opt
- * @return {!gpub.spec.Generated} return the generated position.
+ * @return {!gpub.spec.Processed} processed positions.
  * @package
  */
 gpub.spec.processProblems = function(mt, position, idGen, opt) {
@@ -14,17 +14,23 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
   var alias = position.alias;
   mt = mt.newTreeRef();
 
-  if (opt.autoRotateCropPrefs &&
-      opt.autoRotateCropTypes[gpub.spec.PositionType.PROBLEM]) {
-    mt = glift.orientation.autoRotateCrop(mt, opt.autoRotateCropPrefs);
-  }
-
   var ipString = glift.rules.treepath.toInitPathString;
   var fragString = glift.rules.treepath.toFragmentString;
 
   var gen = new gpub.spec.Generated({
     id: position.id
   });
+
+  var processed = /** @type {!gpub.spec.Processed} */ ({
+    movetree: null,
+    generated: gen,
+  });
+
+  if (opt.autoRotateCropPrefs &&
+      opt.autoRotateCropTypes[gpub.spec.PositionType.PROBLEM]) {
+    mt = glift.orientation.autoRotateCrop(mt, opt.autoRotateCropPrefs);
+    processed.movetree = mt;
+  }
 
   // Should be empty now.
   var initPos = mt.treepathToHere();
@@ -91,5 +97,5 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
 
   pathRecurse(mt, initPos, [], glift.enums.problemResults.INDETERMINATE);
   gen.positions = outPositions;
-  return gen;
+  return processed;
 };

@@ -102,9 +102,12 @@
       alias: id,
     });
 
-    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, new gpub.opts.SpecOptions({
-      autoRotateGame: true,
-    })).generated;
+    var proc = gpub.spec.processGameCommentary(mt, pos, idGen, new gpub.opts.SpecOptions({
+      autoRotateGames: true,
+    }));
+    ok(proc.movetree, 'Processed movetree must be defined');
+
+    var gen = proc.generated;
 
     deepEqual(gen.positions[1].id, id + '-1', 'gen-2 id');
     deepEqual(gen.positions[1].initialPosition, '0', 'gen-2 init pos');

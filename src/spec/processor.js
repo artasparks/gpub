@@ -159,9 +159,9 @@ gpub.spec.Processor.prototype = {
         return proc.generated;
         break;
       case 'PROBLEM':
-        var procZock = gpub.spec.processProblems(
+        var proc = gpub.spec.processProblems(
             mt, pos, idGen, this.originalSpec_.specOptions);
-        return procZock;
+        return proc.generated;
         break;
 
       case 'POSITION_VARIATIONS':

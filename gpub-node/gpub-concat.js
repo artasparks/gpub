@@ -10392,7 +10392,6 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
 
   if (opt.autoRotateGames) {
     // Note: this work because it's a side-affecting operation.
-    console.log('Log mah thing');
     mt = glift.orientation.autoRotateGame(mt);
     processed.movetree = mt;
   }
@@ -10889,7 +10888,7 @@ gpub.spec.Position.prototype = {
  * @param {!gpub.spec.Position} position
  * @param {!gpub.spec.IdGen} idGen
  * @param {!gpub.opts.SpecOptions} opt
- * @return {!gpub.spec.Generated} return the generated position.
+ * @return {!gpub.spec.Processed} processed positions.
  * @package
  */
 gpub.spec.processProblems = function(mt, position, idGen, opt) {
@@ -10898,17 +10897,23 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
   var alias = position.alias;
   mt = mt.newTreeRef();
 
-  if (opt.autoRotateCropPrefs &&
-      opt.autoRotateCropTypes[gpub.spec.PositionType.PROBLEM]) {
-    mt = glift.orientation.autoRotateCrop(mt, opt.autoRotateCropPrefs);
-  }
-
   var ipString = glift.rules.treepath.toInitPathString;
   var fragString = glift.rules.treepath.toFragmentString;
 
   var gen = new gpub.spec.Generated({
     id: position.id
   });
+
+  var processed = /** @type {!gpub.spec.Processed} */ ({
+    movetree: null,
+    generated: gen,
+  });
+
+  if (opt.autoRotateCropPrefs &&
+      opt.autoRotateCropTypes[gpub.spec.PositionType.PROBLEM]) {
+    mt = glift.orientation.autoRotateCrop(mt, opt.autoRotateCropPrefs);
+    processed.movetree = mt;
+  }
 
   // Should be empty now.
   var initPos = mt.treepathToHere();
@@ -10975,7 +10980,7 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
 
   pathRecurse(mt, initPos, [], glift.enums.problemResults.INDETERMINATE);
   gen.positions = outPositions;
-  return gen;
+  return processed;
 };
 
 goog.provide('gpub.spec.Processor');
@@ -11139,9 +11144,9 @@ gpub.spec.Processor.prototype = {
         return proc.generated;
         break;
       case 'PROBLEM':
-        var procZock = gpub.spec.processProblems(
+        var proc = gpub.spec.processProblems(
             mt, pos, idGen, this.originalSpec_.specOptions);
-        return procZock;
+        return proc.generated;
         break;
 
       case 'POSITION_VARIATIONS':
