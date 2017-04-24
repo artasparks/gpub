@@ -11141,11 +11141,14 @@ gpub.spec.Processor.prototype = {
         // be retrieved.
         var proc = gpub.spec.processGameCommentary(
             mt, pos, idGen, this.originalSpec_.specOptions);
+        this.storeNewMovetree_(pos, proc.movetree);
         return proc.generated;
         break;
+
       case 'PROBLEM':
         var proc = gpub.spec.processProblems(
             mt, pos, idGen, this.originalSpec_.specOptions);
+        this.storeNewMovetree_(pos, proc.movetree);
         return proc.generated;
         break;
 
@@ -11160,6 +11163,24 @@ gpub.spec.Processor.prototype = {
         // Fall through, for now.
       default: throw new Error('Unknown position type:' + JSON.stringify(posType));
     }
+  },
+
+  /**
+   * Stores a new movetree from processing.
+   * @param {!gpub.spec.Position} position
+   * @param {?glift.rules.MoveTree} mt
+   */
+  storeNewMovetree_: function(position, mt) {
+    var alias = position.alias;
+    if (!mt) {
+      // Could be null if no change is required
+      return;
+    }
+    if (!alias) {
+      // This shouldn't happen since we've already done a getMovetree_();
+      throw new Error('alias must be defined in order to store a new movetree.');
+    }
+    this.mtCache_.set(alias, mt);
   },
 
   /**
