@@ -8,6 +8,7 @@ goog.provide('gpub.opts.TemplateOptionsDef');
  *  metadata: (!gpub.opts.Metadata|!gpub.opts.MetadataDef|undefined),
  *  frontmatter: (!gpub.opts.Frontmatter|undefined),
  *  appendices: (!gpub.opts.TemplateOptionsDef|undefined),
+ *  chapterSize: (number|undefined),
  *  pdfx1a: (boolean|undefined),
  *  colorProfileFilePath: (string|undefined),
  * }}

@@ -10194,6 +10194,7 @@ goog.provide('gpub.opts.TemplateOptionsDef');
  *  metadata: (!gpub.opts.Metadata|!gpub.opts.MetadataDef|undefined),
  *  frontmatter: (!gpub.opts.Frontmatter|undefined),
  *  appendices: (!gpub.opts.TemplateOptionsDef|undefined),
+ *  chapterSize: (number|undefined),
  *  pdfx1a: (boolean|undefined),
  *  colorProfileFilePath: (string|undefined),
  * }}
@@ -10240,6 +10241,19 @@ gpub.opts.TemplateOptions = function(opt_options) {
    */
   // TODO(kashomon): Give a real options constructor to the appendices.
   this.appendices = o.appendices || {};
+
+  /**
+   * Number of diagrams or positions to a chapter (if chapters aren't already
+   * defined).
+   *
+   * Templates are free to implement this as appropriate. For a problem book,
+   * it might make sense for this to be the number of problems per chapter. For
+   * a commentary book, it might make more sense for this to be the number of
+   * main-variation diagrams.
+   *
+   * @const {number}
+   */
+  this.chapterSize = o.chapterSize || -1;
 
   /////////////////////
   // Special Options //
