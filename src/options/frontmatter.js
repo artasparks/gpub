@@ -22,16 +22,16 @@ gpub.opts.Frontmatter = function(options) {
 
   // Note! If this is changed, then src/book/frontmatter.js must also be changed.
 
-  /** @type {string|undefined} */
+  /** @const {string|undefined} */
   this.foreword = o.foreword || undefined;  // Author or unrelated person
 
-  /** @type {string|undefined} */
+  /** @const {string|undefined} */
   this.preface = o.foreword || undefined; // Author
 
-  /** @type {string|undefined} */
+  /** @const {string|undefined} */
   this.acknowledgements = o.acknowledgements || undefined;
 
-  /** @type {string|undefined} */
+  /** @const {string|undefined} */
   this.introduction = o.introduction || undefined;
 
   /**
