@@ -14762,21 +14762,26 @@ gpub.book.epub = {
  * - http://www.hxa.name/articles/content/epub-guide_hxa7241_2007.html
  * @param {string} filename
  * @param {string} contents
+ * @param {string=} opt_title
  * @return {!gpub.book.File}
  */
-gpub.book.epub.contentDoc = function(filename, contents) {
+gpub.book.epub.contentDoc = function(filename, contents, opt_title) {
   var id = filename.replace(/\..*$/, '');
   if (!/.(xhtml|html|xml)$/.test(filename)) {
     throw new Error('Extension must be xhtml, html, or xml. ' +
         'Filename was: ' + filename);
   }
-  return {
+  var opts = {
     contents: contents,
     id: id,
     mimetype: 'application/xhtml+xml',
     // Path is relative to the OEBPS directory.
     path: 'OEBPS/' + filename,
   };
+  if (opt_title) {
+    opts.title = opt_title;
+  }
+  return opts;
 };
 
 goog.provide('gpub.book.epub.CssOpts');
@@ -16146,8 +16151,7 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
   var builder = new epub.Builder(meta)
       .addManifestFile(cssFile);
 
-  var contentFile = epub.contentDoc('chap1.xhtml', '');
-  var contents =
+  var titleContents =
       '<html xmlns="http://www.w3.org/1999/xhtml"\n' +
       '    xmlns:epub="http://www.idpf.org/2007/ops"\n' +
       '    xmlns:ev="http://www.w3.org/2001/xml-events">\n' +
@@ -16160,13 +16164,51 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
       '  <body>\n' +
       '    <h1 class="hd"> ' + meta.title + '</h1>\n';
   if (meta.subtitle) {
-    contents += '    <h2 class="hd"> ' + meta.subtitle + ' </h2>\n';
+    titleContents += '    <h2 class="hd"> ' + meta.subtitle + ' </h2>\n';
   }
+  titleContents +=
+      '  </body>\n' +
+      '</html>';
+
+  var titleFile = epub.contentDoc('chap_title.xhtml', titleContents, 'Title');
+  builder.addContentFile(titleFile)
+
+  var chapSize = bookMaker.templateOptions().chapterSize;
+
 
   var indent = '    ';
   var problems = '';
   var answers = '';
+
+  var numProblems = 0;
+  var sectionNumber = 1;
+
+  var problemContent = function(sectionNum, start, end, type, content) {
+    return '<html xmlns="http://www.w3.org/1999/xhtml"\n' +
+    '    xmlns:epub="http://www.idpf.org/2007/ops"\n' +
+    '    xmlns:ev="http://www.w3.org/2001/xml-events">\n' +
+    '  <head>\n' +
+    '    <meta charset="utf-8" />\n' +
+    '    <link rel="stylesheet" ' +
+        'type="' + cssFile.mimetype + '" ' +
+        'href="' + gpub.book.epub.oebpsPath(cssPath) + '"/>\n' +
+    '  <body>\n' +
+    '    <h2 class="hd"> Chapter ' + sectionNum + ': ' +
+        type + ' ' + start + '-' + end + '</h2>\n' +
+    '    <div class="p-break"></div>\n' +
+    content +
+    '  </body>\n' +
+    '</html>\n'
+  };
+
   bookMaker.forEachDiagram(function(idx, config) {
+    if (config.hasLabel('PROBLEM_ROOT')) {
+      numProblems++;
+    }
+    if (idx > 0 && idx == numProblems) {
+      // flush the problems and answers
+    }
+
     var m = config.metadata;
 
     // TODO(kashomon): Note: this assumes IDs can reasonably be used for
@@ -16205,19 +16247,5 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
     }
   });
 
-  contents +=
-      '    <p></p>\n' +
-      '    <h2 class="hd"> Problems </h2>\n' +
-      '    <div class="p-break"></div>\n' +
-      problems;
-      // '    <h2> Answers </h2>\n' +
-      // answers;
-
-  contents +=
-      '  </body>\n' +
-      '</html>';
-
-  contentFile.contents = contents;
-
-  return builder.addContentFile(contentFile).build();
+  return builder.build();
 };

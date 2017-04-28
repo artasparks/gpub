@@ -18,7 +18,7 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
   var builder = new epub.Builder(meta)
       .addManifestFile(cssFile);
 
-  var titlContents =
+  var titleContents =
       '<html xmlns="http://www.w3.org/1999/xhtml"\n' +
       '    xmlns:epub="http://www.idpf.org/2007/ops"\n' +
       '    xmlns:ev="http://www.w3.org/2001/xml-events">\n' +
@@ -38,7 +38,7 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
       '</html>';
 
   var titleFile = epub.contentDoc('chap_title.xhtml', titleContents, 'Title');
-  builder.addContentFile(tile)
+  builder.addContentFile(titleFile)
 
   var chapSize = bookMaker.templateOptions().chapterSize;
 
@@ -51,7 +51,7 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
   var sectionNumber = 1;
 
   var problemContent = function(sectionNum, start, end, type, content) {
-    '<html xmlns="http://www.w3.org/1999/xhtml"\n' +
+    return '<html xmlns="http://www.w3.org/1999/xhtml"\n' +
     '    xmlns:epub="http://www.idpf.org/2007/ops"\n' +
     '    xmlns:ev="http://www.w3.org/2001/xml-events">\n' +
     '  <head>\n' +
