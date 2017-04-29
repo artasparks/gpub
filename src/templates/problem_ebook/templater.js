@@ -42,16 +42,8 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
 
   var chapSize = bookMaker.templateOptions().chapterSize;
 
-
-  var indent = '    ';
-  var problems = '';
-  var answers = '';
-
-  var numProblems = 0;
-  var sectionNumber = 1;
-
   var problemContent = function(sectionNum, start, end, type, content) {
-    return '<html xmlns="http://www.w3.org/1999/xhtml"\n' +
+    var pcon = '<html xmlns="http://www.w3.org/1999/xhtml"\n' +
     '    xmlns:epub="http://www.idpf.org/2007/ops"\n' +
     '    xmlns:ev="http://www.w3.org/2001/xml-events">\n' +
     '  <head>\n' +
@@ -65,15 +57,31 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
     '    <div class="p-break"></div>\n' +
     content +
     '  </body>\n' +
-    '</html>\n'
+    '</html>\n';
+    return epub.contentDoc(
+        'chap_ ' + sectionNum + '.xhtml', pcon, 'Chapter ' + sectionNum);
   };
 
+
+  var indent = '    ';
+  var problems = '';
+  var answers = '';
+
+  var numProblems = 0;
+  var sNum = 1;
+
+  // TODO(kashomon): Add realistic start/end numbs
+  var pStart = 0;
+  var pEnd = 0;
   bookMaker.forEachDiagram(function(idx, config) {
     if (config.hasLabel('PROBLEM_ROOT')) {
       numProblems++;
     }
     if (idx > 0 && idx == numProblems) {
-      // flush the problems and answers
+      builder.addManifestFile(problemContent(sNum, pStart, pEnd, 'Problem', problems));
+      builder.addManifestFile(problemContent(sNum, pStart, pEnd, 'Answers', problems));
+      problems = '';
+      answers = '';
     }
 
     var m = config.metadata;

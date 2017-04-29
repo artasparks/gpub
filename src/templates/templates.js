@@ -13,7 +13,6 @@ gpub.templates = {};
 
 /**
  * Built-in Styles.
- *
  * @enum {string}
  */
 gpub.templates.Style = {
@@ -49,7 +48,7 @@ gpub.templates.BookOutput;
  * Registry of templater classes.
  * @private {!Object<gpub.templates.Style, !gpub.templates.Templater>}
  */
-gpub.templates.registry_ = {}
+gpub.templates.registry_ = {};
 
 
 /**
@@ -69,7 +68,7 @@ gpub.templates.register = function(style, tpl) {
  * A templater takes options and returns files and a completed spec.
  * @record
  */
-gpub.templates.Templater = function() {}
+gpub.templates.Templater = function() {};
 
 
 /**
@@ -77,7 +76,7 @@ gpub.templates.Templater = function() {}
  * @param {!gpub.OptionsDef} opts
  * @return {!gpub.templates.BookOutput}
  */
-gpub.templates.Templater.prototype.create = function(opts) {}
+gpub.templates.Templater.prototype.create = function(opts) {};
 
 
 /**
