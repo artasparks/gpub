@@ -19,6 +19,9 @@ var out = gpub.create({
   },
   diagramOptions: {
     diagramType: 'SVG',
+  },
+  templateOptions: {
+    chapterSize: 25,
   }
 });
 
