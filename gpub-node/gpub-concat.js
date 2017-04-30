@@ -16203,15 +16203,17 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
   var sNum = 1;
 
   // TODO(kashomon): Add realistic start/end numbs
-  var pStart = 0;
-  var pEnd = 0;
+  var pStart = 1;
+  var pEnd = 1;
   bookMaker.forEachDiagram(function(idx, config) {
     if (config.hasLabel('PROBLEM_ROOT')) {
       numProblems++;
+      pEnd++;
     }
     if (idx > 0 && idx == numProblems) {
       builder.addManifestFile(problemContent(sNum, pStart, pEnd, 'Problem', problems));
       builder.addManifestFile(problemContent(sNum, pStart, pEnd, 'Answers', problems));
+      pStart = pEnd;
       problems = '';
       answers = '';
     }
