@@ -16172,8 +16172,6 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
   var titleFile = epub.contentDoc('chap_title.xhtml', titleContents, 'Title');
   builder.addContentFile(titleFile)
 
-  var chapSize = bookMaker.templateOptions().chapterSize;
-
   var problemContent = function(sectionNum, start, end, type, content) {
     var fname = 'chapter_' + sectionNum + '_' + type.toLowerCase() + '.xhtml';
     var pcon = '<html xmlns="http://www.w3.org/1999/xhtml"\n' +
@@ -16200,6 +16198,7 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
   var problems = '';
   var answers = '';
 
+  var chapSize = bookMaker.templateOptions().chapterSize;
   var numProblems = 0;
   var sNum = 1;
 
@@ -16211,9 +16210,9 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
       numProblems++;
       pEnd++;
     }
-    if (idx > 0 && idx == numProblems) {
-      builder.addManifestFile(problemContent(sNum, pStart, pEnd, 'Problem', problems));
-      builder.addManifestFile(problemContent(sNum, pStart, pEnd, 'Answers', problems));
+    if (chapSize > 0 && numProblems == chapSize) {
+      builder.addContentFile(problemContent(sNum, pStart, pEnd, 'Problem', problems));
+      // builder.addManifestFile(problemContent(sNum, pStart, pEnd, 'Answers', problems));
       sNum++;
       pStart = pEnd+1;
       problems = '';

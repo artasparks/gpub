@@ -79,8 +79,8 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
       pEnd++;
     }
     if (chapSize > 0 && numProblems == chapSize) {
-      builder.addManifestFile(problemContent(sNum, pStart, pEnd, 'Problem', problems));
-      builder.addManifestFile(problemContent(sNum, pStart, pEnd, 'Answers', problems));
+      builder.addContentFile(problemContent(sNum, pStart, pEnd, 'Problem', problems));
+      // builder.addManifestFile(problemContent(sNum, pStart, pEnd, 'Answers', problems));
       sNum++;
       pStart = pEnd+1;
       problems = '';
