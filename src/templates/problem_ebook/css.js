@@ -3,7 +3,7 @@
  * @return {!gpub.book.File}
  */
 gpub.templates.ProblemEbook.cssFile = function() {
-  return gpub.book.epub.css({classes: {
+  var obj = { classes: {
     hd: {
       'font-family': 'sans-serif'
     },
@@ -45,5 +45,6 @@ gpub.templates.ProblemEbook.cssFile = function() {
       // 'margin-right': 'auto',
       // 'margin-left': 'auto',
     },
-  }});
+  }};
+  return gpub.book.epub.css(obj);
 };

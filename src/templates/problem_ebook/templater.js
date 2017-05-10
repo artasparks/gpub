@@ -58,7 +58,8 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
     content +
     '  </body>\n' +
     '</html>\n';
-    return epub.contentDoc(fname, pcon, 'Chapter ' + sectionNum);
+    return epub.contentDoc(fname, pcon,
+      'Chapter ' + sectionNum + ': Problems ' + start + '-' + end);
   };
 
 

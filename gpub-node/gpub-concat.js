@@ -16085,7 +16085,7 @@ gpub.templates.register(
  * @return {!gpub.book.File}
  */
 gpub.templates.ProblemEbook.cssFile = function() {
-  return gpub.book.epub.css({classes: {
+  var obj = { classes: {
     hd: {
       'font-family': 'sans-serif'
     },
@@ -16127,7 +16127,8 @@ gpub.templates.ProblemEbook.cssFile = function() {
       // 'margin-right': 'auto',
       // 'margin-left': 'auto',
     },
-  }});
+  }};
+  return gpub.book.epub.css(obj);
 };
 
 /**
@@ -16190,7 +16191,8 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
     content +
     '  </body>\n' +
     '</html>\n';
-    return epub.contentDoc(fname, pcon, 'Chapter ' + sectionNum);
+    return epub.contentDoc(fname, pcon,
+      'Chapter ' + sectionNum + ': Problems ' + start + '-' + end);
   };
 
 
