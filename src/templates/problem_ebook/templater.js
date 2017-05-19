@@ -6,7 +6,8 @@
 gpub.templates.ProblemEbook.templater = function(bookMaker) {
   var epub = gpub.book.epub;
   var meta = bookMaker.templateMetadata();
-  var cssFile = gpub.templates.ProblemEbook.cssFile();
+  var cssFile = gpub.templates.ProblemEbook.cssFile(
+      bookMaker.templateOptions());
   var cssPath = '';
   if (cssFile.path) {
     // cssPath must be defined, b

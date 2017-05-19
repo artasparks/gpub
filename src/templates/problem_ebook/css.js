@@ -1,8 +1,9 @@
 /**
  * Creates the CSS file for the problem ebook.
+ * @param {!gpub.opts.TemplateOptions} opts
  * @return {!gpub.book.File}
  */
-gpub.templates.ProblemEbook.cssFile = function() {
+gpub.templates.ProblemEbook.cssFile = function(opts) {
   var obj = { classes: {
     hd: {
       'font-family': 'sans-serif'

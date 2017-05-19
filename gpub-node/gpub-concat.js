@@ -10276,6 +10276,13 @@ gpub.opts.TemplateOptions = function(opt_options) {
    * @const {string|undefined}
    */
   this.colorProfileFilePath = o.colorProfileFilePath || undefined;
+
+  /**
+   * Whether or not to format EBooks for Kindle (AZW3/KF8). Kindle is much more
+   * restrictive than EPub3, so it's often the case that the Kindle format
+   * needs to be different than the standard EPub3 formatting.
+   */
+  this.azw3Format = o.azw3Format || false;
 };
 
 
@@ -16082,9 +16089,10 @@ gpub.templates.register(
 
 /**
  * Creates the CSS file for the problem ebook.
+ * @param {!gpub.opts.TemplateOptions} opts
  * @return {!gpub.book.File}
  */
-gpub.templates.ProblemEbook.cssFile = function() {
+gpub.templates.ProblemEbook.cssFile = function(opts) {
   var obj = { classes: {
     hd: {
       'font-family': 'sans-serif'
@@ -16139,7 +16147,8 @@ gpub.templates.ProblemEbook.cssFile = function() {
 gpub.templates.ProblemEbook.templater = function(bookMaker) {
   var epub = gpub.book.epub;
   var meta = bookMaker.templateMetadata();
-  var cssFile = gpub.templates.ProblemEbook.cssFile();
+  var cssFile = gpub.templates.ProblemEbook.cssFile(
+      bookMaker.templateOptions());
   var cssPath = '';
   if (cssFile.path) {
     // cssPath must be defined, b
