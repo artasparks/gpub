@@ -16093,20 +16093,21 @@ gpub.templates.register(
  * @return {!gpub.book.File}
  */
 gpub.templates.ProblemEbook.cssFile = function(opts) {
-  var obj = { classes: {
-    hd: {
-      'font-family': 'sans-serif'
-    },
-    'p-break': {
-      'page-break-after': 'always',
-    },
-    'd-gp': {
-      'page-break-inside': 'avoid',
-      'page-break-before': 'always',
-      'background-color': '#DDD',
-      'border-radius': '20px',
-    },
-    pidx: {
+  var obj = { classes: {} };
+  obj.classes.hd = {
+    'font-family': 'sans-serif'
+  };
+  obj.classes['p-break'] = {
+    'page-break-after': 'always',
+  };
+  obj.classes['d-gp'] = {
+    'page-break-inside': 'avoid',
+    'page-break-before': 'always',
+    'background-color': '#DDD',
+    'border-radius': '20px',
+  };
+  if (opts.azw3Format) {
+    obj.classes.pidx = {
       'font-size': '1.5em',
       'text-align': 'center',
       // 'padding-bottom': '1em'
@@ -16122,20 +16123,25 @@ gpub.templates.ProblemEbook.cssFile = function(opts) {
       // position: 'relative',
       // left: '-50%',
       // 'font-family': 'sans-serif',
-    },
-    pspan: {
-      'padding-left': '2em',
-      'padding-right': '2em',
-      'border-bottom': '1px solid black',
-    },
-    's-img': {
-      // 'margin-top': '2em',
-      // 'background-color': '#DDD',
-      // Another attempt to center
-      // 'margin-right': 'auto',
-      // 'margin-left': 'auto',
-    },
-  }};
+    };
+  } else {
+    obj.classes.pidx = {
+      'font-size': '1.5em',
+      'text-align': 'center',
+    };
+  }
+  obj.classes.pspan = {
+    'padding-left': '2em',
+    'padding-right': '2em',
+    'border-bottom': '1px solid black',
+  };
+  obj.classes['s-img'] = {
+    // 'margin-top': '2em',
+    // 'background-color': '#DDD',
+    // Another attempt to center
+    // 'margin-right': 'auto',
+    // 'margin-left': 'auto',
+  }
   return gpub.book.epub.css(obj);
 };
 
