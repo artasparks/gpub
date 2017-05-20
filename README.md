@@ -19,13 +19,21 @@ print), GoBooks (SmartGo), and EPub (Ebooks).
 ### Installation
 
 1. Install [LaTeX](http://www.latex-project.org/)
-2. Install the GNos Font. For font-installation instructions, see
+1. Install the GNos Font. For font-installation instructions, see
    [Kashomon/go-type1](https://www.github.com/Kashomon/go-type1). The recommended font
    is gnos.
-3. Install [NodeJS](https://nodejs.org/)
-4. Use NPM to install `gpub-go`. See
-   [GPub-Examples](https://www.github.com/Kashomon/gpub-examples) for some worked
-   examples how to use GPub.
+1. Install [NodeJS](https://nodejs.org/)
+1. See [GPub-Examples](https://www.github.com/Kashomon/gpub-examples) for some
+   worked examples how to use GPub.
+
+## Development
+
+If you want to do development on GPub, you will additionally need:
+
+1. The Java runtime environment
+1. Install [Gulp](https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md) -- JavaScript task runner
+1. Install dependencies via `npm install`
+1. Run the full test+build `gulp build-test`
 
 ### About Gpub
 
