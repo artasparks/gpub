@@ -1,4 +1,19 @@
 goog.provide('gpub.spec.Grouping');
+goog.provide('gpub.spec.GroupingDef');
+
+
+/**
+ * @typedef {{
+ *  description: (string|undefined),
+ *  title: (string|undefined),
+ *  positionType: (gpub.spec.PositionType|undefined),
+ *  positions: (!Array<!gpub.spec.Position>|undefined),
+ *  generated: (!Object<!string, !gpub.spec.Generated>|undefined),
+ *  groupings: (!Array<!gpub.spec.Grouping>|undefined),
+ * }}
+ */
+gpub.spec.GroupingDef;
+
 
 /**
  * A grouping of Positions. Each grouping can have sub-groupings, and so on. The
@@ -6,7 +21,7 @@ goog.provide('gpub.spec.Grouping');
  *
  * Also note: Position objects are only allowed to occur on terminal nodes.
  *
- * @param {!gpub.spec.Grouping=} opt_group
+ * @param {(!gpub.spec.Grouping|!gpub.spec.GroupingDef)=} opt_group
  *
  * @constructor @final @struct
  */
@@ -18,6 +33,12 @@ gpub.spec.Grouping = function(opt_group) {
    * @type {string|undefined}
    */
   this.description = o.description || undefined;
+
+  /**
+   * Optional title for this section.
+   * @type {string|undefined}
+   */
+  this.title = o.title || undefined;
 
   /**
    * It can make sense to specify the Position Type for a specific grouping. Unless

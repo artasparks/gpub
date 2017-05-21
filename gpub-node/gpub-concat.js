@@ -9530,11 +9530,19 @@ goog.provide('gpub.opts');
 
 
 /**
+ * Namespace for the options
+ * @namespace
+ */
+gpub.opts = {};
+
+
+/**
  * Typedef for options.
  *
  * @typedef {{
  *  sgfs: (!Array<string>|undefined),
  *  ids: (!Array<string>|undefined),
+ *  grouping: (gpub.opts.RawGrouping|undefined),
  *  specOptions: (!gpub.opts.SpecOptionsDef|undefined),
  *  diagramOptions: (!gpub.opts.DiagramOptionsDef|undefined),
  *  templateOptions: (!gpub.opts.TemplateOptionsDef|undefined),
@@ -9545,24 +9553,14 @@ gpub.OptionsDef;
 
 
 /**
- * Namespace for the options
- * @namespace
- */
-gpub.opts = {};
-
-
-/**
  * Default options for GPub API. Recall that GPub has 4 tasks:
- *
  * - Create a spec (a serialized book prototype).
  * - Flatten the spec into an example spec.
  * - Create diagrams
  * - Assemble the diagrams into a book.
  *
  * These are the set of options for all 4 phases.
- *
  * @param {(!gpub.Options|!gpub.OptionsDef)=} opt_options
- *
  * @constructor @struct @final
  */
 gpub.Options = function(opt_options) {
@@ -9583,6 +9581,14 @@ gpub.Options = function(opt_options) {
    * @const {!Array<string>|undefined}
    */
   this.ids = o.ids || undefined;
+
+  /**
+   * An optional grouping can be provided which specifies precisely how to
+   * render the SGFs. If not provided, GPub will generate a naive grouping.
+   *
+   * @const {!gpub.opts.RawGrouping|undefined}
+   */
+  this.grouping = o.grouping || undefined;
 
   this.ensureUniqueIds();
 
@@ -10048,6 +10054,48 @@ gpub.opts.Metadata.guid = function() {
   });
 };
 
+goog.provide('gpub.opts.RawGrouping');
+goog.provide('gpub.opts.RawPosition');
+
+/**
+ * A RawGrouping object allows very precise control about which positions /
+ * problems are displayed and how. This corresponds roughly to
+ * gpub.spec.Grouping,
+ *
+ * A note about some of the parameters.
+ * - positionType must be a gpub.spec.PositionType enum.
+ * - positions may be either an SGF-id (string) or more complex RawPosition
+ *   type.
+ * - A grouping can contain subgroupings! Useful for sub-sections in a book.
+ *
+ * @typedef {{
+ *  description: (string|undefined),
+ *  title: (string|undefined),
+ *  positionType: (string|undefined),
+ *  positions: (!Array<(string|!gpub.opts.RawPosition)>|undefined),
+ *  groupings: (!Array<(string|!gpub.opts.RawGrouping)>|undefined),
+ * }}
+ */
+gpub.opts.RawGrouping;
+
+/**
+ * A RawPosition object specifies the details of how a specific position is
+ * rendered
+ *
+ * - sgfId is the ID of the originating SGF. Must always be specified.
+ * - ID is ID of this particular position. It will be generated if it's not
+ *   specified.
+ *
+ * @typedef {{
+ *  id: (string|undefined),
+ *  alias: (string),
+ *  initialPosition: (string|undefined),
+ *  nextMovesPath: (string|undefined),
+ *  positionType: (string|undefined),
+ * }}
+ */
+gpub.opts.RawPosition;
+
 goog.provide('gpub.opts.SpecOptions');
 goog.provide('gpub.opts.SpecOptionsDef');
 
@@ -10326,16 +10374,21 @@ gpub.spec = {
     var specOptions = options.specOptions;
     var defaultPositionType = specOptions.positionType;
 
-    var spec = new gpub.spec.Spec({
+    var rootGrouping = new gpub.spec.Grouping(
+      /** @type {!gpub.spec.GroupingDef} */ ({
+        positionType: defaultPositionType
+      }));
+
+    var specDef = /** @type {!gpub.spec.SpecDef} */ ({
+      sgfMapping: {},
       specOptions: options.specOptions,
       diagramOptions: options.diagramOptions,
       templateOptions: options.templateOptions,
+      rootGrouping: rootGrouping,
     });
 
-    var rootGrouping = spec.rootGrouping;
-    rootGrouping.positionType = defaultPositionType;
-    var optIds = options.ids;
 
+    var optIds = options.ids;
     for (var i = 0; i < sgfs.length; i++) {
       var sgfStr = sgfs[i];
       if (!sgfStr) {
@@ -10352,8 +10405,15 @@ gpub.spec = {
       cache.mtCache[alias] = mt;
 
       // Ensure the sgf mapping contains the alias-to-sgf mapping.
-      if (!spec.sgfMapping[alias]) {
-        spec.sgfMapping[alias] = sgfStr;
+      if (!specDef.sgfMapping[alias]) {
+        specDef.sgfMapping[alias] = sgfStr;
+      }
+
+      if (options.grouping) {
+        // When there is a grouping defined, the user has said: 'I want to
+        // manage my own SGF positions' so we don't create positions. The
+        // positions still need to be processed, however.
+        continue;
       }
 
       // At this point, there is a 1x1 mapping between passed-in SGF string and
@@ -10365,7 +10425,17 @@ gpub.spec = {
 
       rootGrouping.positions.push(position);
     }
-    return spec;
+
+    if (options.grouping) {
+      var idGen = new gpub.spec.IdGen(gpub.spec.IdGenType.SEQUENTIAL);
+      var gp = gpub.spec.preprocessGrouping(options.grouping, idGen);
+      if (!options.grouping.positionType) {
+        gp.positionType = rootGrouping.positionType;
+      }
+      specDef.rootGrouping = gp;
+    }
+
+    return new gpub.spec.Spec(specDef);
   },
 
   /**
@@ -10587,6 +10657,21 @@ gpub.spec.Generated = function(opt_gen) {
 };
 
 goog.provide('gpub.spec.Grouping');
+goog.provide('gpub.spec.GroupingDef');
+
+
+/**
+ * @typedef {{
+ *  description: (string|undefined),
+ *  title: (string|undefined),
+ *  positionType: (gpub.spec.PositionType|undefined),
+ *  positions: (!Array<!gpub.spec.Position>|undefined),
+ *  generated: (!Object<!string, !gpub.spec.Generated>|undefined),
+ *  groupings: (!Array<!gpub.spec.Grouping>|undefined),
+ * }}
+ */
+gpub.spec.GroupingDef;
+
 
 /**
  * A grouping of Positions. Each grouping can have sub-groupings, and so on. The
@@ -10594,7 +10679,7 @@ goog.provide('gpub.spec.Grouping');
  *
  * Also note: Position objects are only allowed to occur on terminal nodes.
  *
- * @param {!gpub.spec.Grouping=} opt_group
+ * @param {(!gpub.spec.Grouping|!gpub.spec.GroupingDef)=} opt_group
  *
  * @constructor @final @struct
  */
@@ -10606,6 +10691,12 @@ gpub.spec.Grouping = function(opt_group) {
    * @type {string|undefined}
    */
   this.description = o.description || undefined;
+
+  /**
+   * Optional title for this section.
+   * @type {string|undefined}
+   */
+  this.title = o.title || undefined;
 
   /**
    * It can make sense to specify the Position Type for a specific grouping. Unless
@@ -10710,17 +10801,16 @@ gpub.spec.IdGen = function(idType) {
 
 gpub.spec.IdGen.prototype = {
   /**
-   * Gets a new Position ID for a generateda position.
-   *
+   * Gets a new Position ID for a generated position.
    * @param {string} alias
-   * @param {string} initPath
-   * @param {string} nextMovesPath
-   * @return {string} A new ID, with a
+   * @param {string=} opt_initPath
+   * @param {string=} opt_nextMovesPath
+   * @return {string} A new ID, unique within the context of IdGen.
    */
-  next: function(alias, initPath, nextMovesPath) {
+  next: function(alias, opt_initPath, opt_nextMovesPath) {
     var id = '';
     if (this.idType_ == gpub.spec.IdGenType.PATH) {
-      id = this.getPathId_(alias, initPath, nextMovesPath);
+      id = this.getPathId_(alias, opt_initPath, opt_nextMovesPath);
     } else {
       // Default to sequental
       id = this.getSequentialId_(alias);
@@ -10743,18 +10833,21 @@ gpub.spec.IdGen.prototype = {
    * 5+->5p
    *
    * @param {string} alias
-   * @param {string} initPath
-   * @param {string} nextMovesPath
+   * @param {string=} opt_initPath
+   * @param {string=} opt_nextMovesPath
+   * @return {string} id
+   * @private
    */
-  getPathId_: function(alias, initPath, nextMovesPath) {
+  getPathId_: function(alias, opt_initPath, opt_nextMovesPath) {
     var repl = function(p) {
       return p.replace(/:/g, '-')
         .replace(/\./g, '_')
         .replace(/\+/g, 'p');
     };
-    var id = alias + '__' + repl(initPath);
-    if (nextMovesPath) {
-      id += '__' + repl(nextMovesPath);
+    var ip = opt_initPath || 'z';
+    var id = alias + '__' + repl(ip);
+    if (opt_nextMovesPath) {
+      id += '__' + repl(opt_nextMovesPath);
     }
     return id;
   },
@@ -10900,6 +10993,106 @@ gpub.spec.Position.prototype = {
     }
     return this;
   }
+};
+
+/**
+ * Transform a raw grouping into a spec-grouping.
+ * @param {!gpub.opts.RawGrouping} ingp
+ * @param {!gpub.spec.IdGen} idGen
+ * @return {!gpub.spec.Grouping} processed group
+ */
+gpub.spec.preprocessGrouping = function(ingp, idGen) {
+  if (!ingp) {
+    throw new Error('Grouping was undefined');
+  }
+  var newgp = new gpub.spec.Grouping();
+  if (ingp.description) {
+    newgp.description = ingp.description
+  }
+  if (ingp.title) {
+    newgp.title = ingp.title
+  }
+  if (ingp.positionType) {
+    var ptype = gpub.spec.PositionType[ingp.positionType];
+    if (!ptype) {
+      throw new Error('Provided position type ' + ingp.positionType +
+          ' was unknown position type: ' + ptype);
+    }
+    newgp.positionType = ptype;
+  }
+
+  if (ingp.positions) {
+    for (var i = 0; i < ingp.positions.length; i++) {
+      newgp.positions.push(
+          gpub.spec.preprocessPosition(ingp.positions[i], idGen));
+    }
+  }
+  if (ingp.groupings) {
+    for (var i = 0; i < ingp.groupings.length; i++) {
+      newgp.groupings.push(
+          gpub.spec.preprocessGrouping(ingp.groupings[i], idGen));
+    }
+  }
+  return newgp;
+};
+
+/**
+ * Preprocess a single raw-position and does parameter validation.
+ * @param {!string|gpub.opts.RawPosition} rawPos
+ * @param {!gpub.spec.IdGen} idGen
+ * @return {!gpub.spec.Position}
+ */
+gpub.spec.preprocessPosition = function(rawPos, idGen) {
+  var rawPosObj = /** @type {!gpub.opts.RawPosition} */ ({});
+  var posOpt = /** @type {gpub.spec.PositionTypedef} */ ({});
+
+  var alias = '';
+  if (typeof rawPos === 'string') {
+    alias = /** @type {string} */ (rawPos);
+  } else if (typeof rawPos === 'object') {
+    rawPosObj = /** @type {!gpub.opts.RawPosition} */ (rawPos);
+    alias = rawPosObj.alias;
+  } else {
+    throw new Error('Bad type for grouping. ' +
+        'Expected object or string but was: ' + typeof rawPos);
+  }
+  if (!alias) {
+    throw new Error('SGF identifier (alias) ' +
+        'must be defined. Was: ' + alias);
+  }
+  posOpt.alias = alias;
+
+  var initPosStr = undefined;
+  if (rawPos.initialPosition) {
+    initPosStr = rawPos.initialPosition;
+    var path = glift.rules.treepath.parseInitialPath(initPosStr);
+    initPosStr = glift.rules.treepath.toInitPathString(path);
+  }
+  posOpt.initialPosition = initPosStr;
+
+  var nextMovesStr = undefined;
+  if (rawPos.nextMovesPath) {
+    nextMovesStr = rawPos.nextMovesPath;
+    var path = glift.rules.treepath.parseFragment(nextMovesStr);
+    nextMovesStr = glift.rules.treepath.toFragmentString(path);
+  }
+  posOpt.nextMovesPath = nextMovesStr;
+
+  var id = rawPosObj.id;
+  if (!id) {
+    id = idGen.next(alias, initPosStr, nextMovesStr);
+  }
+  posOpt.id = id;
+
+  if (rawPosObj.positionType) {
+    var ptype = gpub.spec.PositionType[rawPosObj.positionType];
+    if (!ptype) {
+      throw new Error('Provided position type ' + rawPos.positionType +
+          ' was unknown position type: ' + ptype);
+    }
+    posOpt.positionType = ptype;
+  }
+  return new gpub.spec.Position(posOpt);
 };
 
 
@@ -11110,10 +11303,11 @@ gpub.spec.Processor.prototype = {
    * Process the Positions by, if necessary, generating new positions. This
    * creates generated objects for each of the original positions.
    *
+   * Currently this requires ids to be defined and unique.
+   *
    * @param {!gpub.spec.Grouping} grouping
    * @private
    */
-  // TODO(kashomon): Currently this requires ids to be defined and unique.
   processPositions_: function(grouping) {
     var pos = grouping.positions;
     var uniqueMap = {};
@@ -11177,6 +11371,7 @@ gpub.spec.Processor.prototype = {
         throw new Error('Not supported');
 
       case 'EXAMPLE':
+        // No positions need to be generated for example types.
         return null;
         break;
 

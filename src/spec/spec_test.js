@@ -152,5 +152,5 @@
     var spec = gpub.spec.create(opts, cache);
     var proc = gpub.spec.process(spec, cache);
     ok(proc, 'must have succeeded.');
-  })
+  });
 })();

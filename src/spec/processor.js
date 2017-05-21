@@ -104,10 +104,11 @@ gpub.spec.Processor.prototype = {
    * Process the Positions by, if necessary, generating new positions. This
    * creates generated objects for each of the original positions.
    *
+   * Currently this requires ids to be defined and unique.
+   *
    * @param {!gpub.spec.Grouping} grouping
    * @private
    */
-  // TODO(kashomon): Currently this requires ids to be defined and unique.
   processPositions_: function(grouping) {
     var pos = grouping.positions;
     var uniqueMap = {};
@@ -171,6 +172,7 @@ gpub.spec.Processor.prototype = {
         throw new Error('Not supported');
 
       case 'EXAMPLE':
+        // No positions need to be generated for example types.
         return null;
         break;
 

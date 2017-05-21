@@ -21,16 +21,21 @@ gpub.spec = {
     var specOptions = options.specOptions;
     var defaultPositionType = specOptions.positionType;
 
-    var spec = new gpub.spec.Spec({
+    var rootGrouping = new gpub.spec.Grouping(
+      /** @type {!gpub.spec.GroupingDef} */ ({
+        positionType: defaultPositionType
+      }));
+
+    var specDef = /** @type {!gpub.spec.SpecDef} */ ({
+      sgfMapping: {},
       specOptions: options.specOptions,
       diagramOptions: options.diagramOptions,
       templateOptions: options.templateOptions,
+      rootGrouping: rootGrouping,
     });
 
-    var rootGrouping = spec.rootGrouping;
-    rootGrouping.positionType = defaultPositionType;
-    var optIds = options.ids;
 
+    var optIds = options.ids;
     for (var i = 0; i < sgfs.length; i++) {
       var sgfStr = sgfs[i];
       if (!sgfStr) {
@@ -47,8 +52,15 @@ gpub.spec = {
       cache.mtCache[alias] = mt;
 
       // Ensure the sgf mapping contains the alias-to-sgf mapping.
-      if (!spec.sgfMapping[alias]) {
-        spec.sgfMapping[alias] = sgfStr;
+      if (!specDef.sgfMapping[alias]) {
+        specDef.sgfMapping[alias] = sgfStr;
+      }
+
+      if (options.grouping) {
+        // When there is a grouping defined, the user has said: 'I want to
+        // manage my own SGF positions' so we don't create positions. The
+        // positions still need to be processed, however.
+        continue;
       }
 
       // At this point, there is a 1x1 mapping between passed-in SGF string and
@@ -60,7 +72,17 @@ gpub.spec = {
 
       rootGrouping.positions.push(position);
     }
-    return spec;
+
+    if (options.grouping) {
+      var idGen = new gpub.spec.IdGen(gpub.spec.IdGenType.SEQUENTIAL);
+      var gp = gpub.spec.preprocessGrouping(options.grouping, idGen);
+      if (!options.grouping.positionType) {
+        gp.positionType = rootGrouping.positionType;
+      }
+      specDef.rootGrouping = gp;
+    }
+
+    return new gpub.spec.Spec(specDef);
   },
 
   /**

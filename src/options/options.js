@@ -4,11 +4,19 @@ goog.provide('gpub.opts');
 
 
 /**
+ * Namespace for the options
+ * @namespace
+ */
+gpub.opts = {};
+
+
+/**
  * Typedef for options.
  *
  * @typedef {{
  *  sgfs: (!Array<string>|undefined),
  *  ids: (!Array<string>|undefined),
+ *  grouping: (gpub.opts.RawGrouping|undefined),
  *  specOptions: (!gpub.opts.SpecOptionsDef|undefined),
  *  diagramOptions: (!gpub.opts.DiagramOptionsDef|undefined),
  *  templateOptions: (!gpub.opts.TemplateOptionsDef|undefined),
@@ -19,24 +27,14 @@ gpub.OptionsDef;
 
 
 /**
- * Namespace for the options
- * @namespace
- */
-gpub.opts = {};
-
-
-/**
  * Default options for GPub API. Recall that GPub has 4 tasks:
- *
  * - Create a spec (a serialized book prototype).
  * - Flatten the spec into an example spec.
  * - Create diagrams
  * - Assemble the diagrams into a book.
  *
  * These are the set of options for all 4 phases.
- *
  * @param {(!gpub.Options|!gpub.OptionsDef)=} opt_options
- *
  * @constructor @struct @final
  */
 gpub.Options = function(opt_options) {
@@ -57,6 +55,14 @@ gpub.Options = function(opt_options) {
    * @const {!Array<string>|undefined}
    */
   this.ids = o.ids || undefined;
+
+  /**
+   * An optional grouping can be provided which specifies precisely how to
+   * render the SGFs. If not provided, GPub will generate a naive grouping.
+   *
+   * @const {!gpub.opts.RawGrouping|undefined}
+   */
+  this.grouping = o.grouping || undefined;
 
   this.ensureUniqueIds();
 

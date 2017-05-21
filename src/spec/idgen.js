@@ -53,17 +53,16 @@ gpub.spec.IdGen = function(idType) {
 
 gpub.spec.IdGen.prototype = {
   /**
-   * Gets a new Position ID for a generateda position.
-   *
+   * Gets a new Position ID for a generated position.
    * @param {string} alias
-   * @param {string} initPath
-   * @param {string} nextMovesPath
-   * @return {string} A new ID, with a
+   * @param {string=} opt_initPath
+   * @param {string=} opt_nextMovesPath
+   * @return {string} A new ID, unique within the context of IdGen.
    */
-  next: function(alias, initPath, nextMovesPath) {
+  next: function(alias, opt_initPath, opt_nextMovesPath) {
     var id = '';
     if (this.idType_ == gpub.spec.IdGenType.PATH) {
-      id = this.getPathId_(alias, initPath, nextMovesPath);
+      id = this.getPathId_(alias, opt_initPath, opt_nextMovesPath);
     } else {
       // Default to sequental
       id = this.getSequentialId_(alias);
@@ -86,18 +85,21 @@ gpub.spec.IdGen.prototype = {
    * 5+->5p
    *
    * @param {string} alias
-   * @param {string} initPath
-   * @param {string} nextMovesPath
+   * @param {string=} opt_initPath
+   * @param {string=} opt_nextMovesPath
+   * @return {string} id
+   * @private
    */
-  getPathId_: function(alias, initPath, nextMovesPath) {
+  getPathId_: function(alias, opt_initPath, opt_nextMovesPath) {
     var repl = function(p) {
       return p.replace(/:/g, '-')
         .replace(/\./g, '_')
         .replace(/\+/g, 'p');
     };
-    var id = alias + '__' + repl(initPath);
-    if (nextMovesPath) {
-      id += '__' + repl(nextMovesPath);
+    var ip = opt_initPath || 'z';
+    var id = alias + '__' + repl(ip);
+    if (opt_nextMovesPath) {
+      id += '__' + repl(opt_nextMovesPath);
     }
     return id;
   },
