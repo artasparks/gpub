@@ -30,6 +30,24 @@
     ok(output, 'Output should be defined');
   });
 
+  test('Testing full happy path, groupings', function() {
+    var output = gpub.create({
+      template: 'PROBLEM_EBOOK',
+      sgfs: [sgf],
+      ids: ['z1'],
+      grouping: {
+        title: 'zed',
+        positions: [
+          'z1',
+        ],
+      },
+      diagramOptions: {
+        maxDiagrams: 20
+      },
+    })
+    ok(output, 'Output should be defined');
+  });
+
   // TODO(kashomon): Add back in once book conversion is complete.
 
   // test('Testing PDF/X-1a:2001 compatibility (no exceptions)', function() {
