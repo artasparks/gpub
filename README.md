@@ -61,6 +61,7 @@ Various diagram types:
   * `PDF`: Generate raw PDFs (\*not currently supported).
 
 #### Styling via Markdown
+
 By default, GPub uses
 [Markdown](http://daringfireball.net/projects/markdown/syntax) to add styling to
 diagram comments via [Marked.js](https://github.com/chjj/marked). In the near
@@ -87,9 +88,6 @@ in your `.bashrc` or `.bash_profile`
 
 This will enable you to use:
 
-* `book_gen.js` A script to generate go books.
-* `convert_tygem.js` A script to convert Tygem `.gib` files to SGF. Not terribly
-  robust; relies on Glift functionality.
 
 ### Flags
 
