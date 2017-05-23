@@ -10,7 +10,6 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
       bookMaker.templateOptions());
   var cssPath = '';
   if (cssFile.path) {
-    // cssPath must be defined, b
     cssPath = cssFile.path
   } else {
     throw new Error('CSS path was net defined!');
