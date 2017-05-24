@@ -71,7 +71,6 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
   var numProblems = 0;
   var sNum = 1;
 
-  // TODO(kashomon): Add realistic start/end numbs
   var pStart = 1;
   var pEnd = 0;
   bookMaker.forEachDiagram(function(idx, config) {
