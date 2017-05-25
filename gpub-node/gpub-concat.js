@@ -16352,7 +16352,6 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
       bookMaker.templateOptions());
   var cssPath = '';
   if (cssFile.path) {
-    // cssPath must be defined, b
     cssPath = cssFile.path
   } else {
     throw new Error('CSS path was net defined!');
@@ -16396,13 +16395,13 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
     '  </head>\n' +
     '  <body>\n' +
     '    <h2 class="hd"> Chapter ' + sectionNum + ': ' +
-        type + ' ' + start + '-' + end + '</h2>\n' +
-    '    <div class="p-break"></div>\n' +
+        type + 's ' + start + '-' + end + '</h2>\n' +
+    '    <div class="p-break"></div>\n' + 
     content +
     '  </body>\n' +
     '</html>\n';
     return epub.contentDoc(fname, pcon,
-      'Chapter ' + sectionNum + ': Problems ' + start + '-' + end);
+        'Chapter ' + sectionNum + ': ' + start + '-' + end);
   };
 
 
@@ -16414,22 +16413,9 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
   var numProblems = 0;
   var sNum = 1;
 
-  // TODO(kashomon): Add realistic start/end numbs
   var pStart = 1;
   var pEnd = 0;
   bookMaker.forEachDiagram(function(idx, config) {
-    if (config.hasLabel('PROBLEM_ROOT')) {
-      numProblems++;
-      pEnd++;
-    }
-    if (chapSize > 0 && numProblems == chapSize) {
-      builder.addContentFile(problemContent(sNum, pStart, pEnd, 'Problem', problems));
-      // builder.addManifestFile(problemContent(sNum, pStart, pEnd, 'Answers', problems));
-      sNum++;
-      pStart = pEnd+1;
-      problems = '';
-      answers = '';
-    }
 
     var m = config.metadata;
 
@@ -16467,7 +16453,25 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
       // builder.addManifestFile(svgFile);
       answers += d;
     }
+
+    if (config.hasLabel('PROBLEM_ROOT')) {
+      numProblems++;
+      pEnd++;
+    }
+    if (chapSize > 0 && numProblems == chapSize) {
+      builder.addContentFile(problemContent(sNum, pStart, pEnd, 'Problem', problems));
+      // builder.addManifestFile(problemContent(sNum, pStart, pEnd, 'Answers', problems));
+      sNum++;
+      pStart = pEnd+1;
+      problems = '';
+      answers = '';
+      numProblems = 0;
+    }
   });
+  if (numProblems != 0) {
+    // Flush any remaining problems.
+    builder.addContentFile(problemContent(sNum, pStart, pEnd, 'Problem', problems));
+  }
 
   return builder.build();
 };
