@@ -16,5 +16,7 @@ gpub.templates.GameCommentaryEbook.templater = function(bookMaker) {
   var builder = new epub.Builder(meta)
       .addManifestFile(cssFile);
 
+  // TODO(kashomon): Finish! But, might end up being irrelevant with a
+  // MULTI_TYPE_EBOOK implementation.
   return builder.build();
 };

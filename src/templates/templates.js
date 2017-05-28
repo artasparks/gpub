@@ -27,6 +27,9 @@ gpub.templates.Style = {
 
   /** Template design for making game commentary ebooks. */
   GAME_COMMENTARY_EBOOK: 'GAME_COMMENTARY_EBOOK',
+
+  /** Template design for ebooks with multiple position types. */
+  MULTI_TYPE_EBOOK: 'MULTI_TYPE_EBOOK',
 };
 
 
