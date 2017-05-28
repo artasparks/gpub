@@ -8,13 +8,7 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
   var meta = bookMaker.templateMetadata();
   var cssFile = gpub.templates.ProblemEbook.cssFile(
       bookMaker.templateOptions());
-  var cssPath = '';
-  if (cssFile.path) {
-    cssPath = cssFile.path
-  } else {
-    throw new Error('CSS path was net defined!');
-  }
-
+  var cssPath = /** @type{string} */ (cssFile.path);
   var builder = new epub.Builder(meta)
       .addManifestFile(cssFile);
 

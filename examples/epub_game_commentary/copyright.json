@@ -1,0 +1,16 @@
+{
+   "publisher": "Foo Publisher",
+   "license": "All rights reserved.",
+   "publishYear": 2015,
+   "firstEditionYear": 2015,
+   "isbn": "2370000260451",
+   "addressLines": [
+      "PO #1111",
+      "1111 Mainville Road Rd, Ste 120",
+      "Fooville",
+      "CA 90001",
+      "http://www.fooblar.com"
+   ],
+   "showPermanenceOfPaper": true,
+   "printingRunNum": 1
+}

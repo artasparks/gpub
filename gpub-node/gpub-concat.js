@@ -16150,20 +16150,17 @@ gpub.templates = {};
  * @enum {string}
  */
 gpub.templates.Style = {
-  /**
-   * A Commentary-style template used to create the Relentless.
-   */
+  /** A Commentary-style template used to create the Relentless. */
   RELENTLESS_COMMENTARY_LATEX: 'RELENTLESS_COMMENTARY_LATEX',
 
-  /**
-   * A template designed to make problem PDFs.
-   */
+  /** A template designed to make problem PDFs. */
   PROBLEM_XELATEX: 'PROBLEM_XELATEX',
 
-  /**
-   * A template designed to make problem Ebooks.
-   */
+  /** A template designed to make problem Ebooks. */
   PROBLEM_EBOOK: 'PROBLEM_EBOOK',
+
+  /** Template design for making game commentary ebooks. */
+  GAME_COMMENTARY_EBOOK: 'GAME_COMMENTARY_EBOOK',
 };
 
 
@@ -16229,6 +16226,133 @@ gpub.templates.muxer = function(style, opts) {
     throw new Error('No templater defined for type: ' + style);
   }
   return templater.create(opts);
+};
+
+goog.provide('gpub.templates.GameCommentaryEbook');
+
+/**
+ * @constructor @struct @final
+ */
+gpub.templates.GameCommentaryEbook = function() {
+};
+
+gpub.templates.GameCommentaryEbook.prototype = {
+  /**
+   * Defaulted options.
+   * @return {!gpub.OptionsDef}
+   */
+  defaults: function() {
+    return {
+      specOptions: {
+        positionType: gpub.spec.PositionType.GAME_COMMENTARY,
+      },
+      diagramOptions: {
+        diagramType: gpub.diagrams.Type.SVG,
+      }
+    }
+  },
+
+  /**
+   * Creates the book!
+   * @param {!gpub.OptionsDef} opts
+   * @return {!gpub.templates.BookOutput} The finished book files.
+   */
+  create: function(opts) {
+    var options = gpub.Options.applyDefaults(opts, this.defaults());
+    var api = gpub.init(options)
+      .createSpec()
+      .processSpec()
+      .renderDiagrams();
+    return {
+      spec: api.spec(),
+      files: gpub.templates.ProblemEbook.templater(api.bookMaker()),
+    }
+  },
+}
+
+gpub.templates.register(
+    gpub.templates.Style.GAME_COMMENTARY_EBOOK,
+    new gpub.templates.GameCommentaryEbook());
+
+/**
+ * Styling for the game commentary ebook.
+ * @param {!gpub.opts.TemplateOptions} opts
+ * @return {!gpub.book.File}
+ */
+gpub.templates.GameCommentaryEbook.cssFile = function(opts) {
+
+  var obj = { classes: {} };
+  obj.classes.hd = {
+    'font-family': 'sans-serif'
+  };
+  obj.classes['p-break'] = {
+    'page-break-after': 'always',
+  };
+  obj.classes['d-gp'] = {
+    'page-break-inside': 'avoid',
+    'page-break-before': 'always',
+    'background-color': '#DDD',
+    'border-radius': '20px',
+  };
+  if (opts.azw3Format) {
+    obj.classes.pidx = {
+      'font-size': '1.5em',
+      'text-align': 'center',
+      // 'padding-bottom': '1em'
+      // Hackery for AZW3/KF8
+      position: 'absolute',
+      left: '0',
+      right: '0',
+      // float: 'left',
+      // left: '50%',
+      // Attempts at centering:
+      // 'margin-left': 'auto',
+      // 'margin-right': 'auto',
+      // position: 'relative',
+      // left: '-50%',
+      // 'font-family': 'sans-serif',
+    };
+  } else {
+    obj.classes.pidx = {
+      'font-size': '1.5em',
+      'text-align': 'center',
+    };
+  }
+  obj.classes.pspan = {
+    'padding-left': '2em',
+    'padding-right': '2em',
+    'border-bottom': '1px solid black',
+  };
+  obj.classes['s-img'] = {
+    // 'margin-top': '2em',
+    // 'background-color': '#DDD',
+    // Another attempt to center
+    // 'margin-right': 'auto',
+    // 'margin-left': 'auto',
+  }
+  return gpub.book.epub.css(obj);
+
+};
+
+/**
+ * Generate new ebook nonsense.
+ * @param {gpub.book.BookMaker} bookMaker
+ * @return {!Array<!gpub.book.File>} files
+ */
+gpub.templates.GameCommentaryEbook.templater = function(bookMaker) {
+  var epub = gpub.book.epub;
+  var meta = bookMaker.templateMetadata();
+
+  // Create css file
+  var cssFile = gpub.templates.GameCommentaryEbook.cssFile(
+      bookMaker.templateOptions());
+  var cssPath = /** @type {string} */ (cssFile.path);
+
+  // Initialize the epub builder.
+  var builder = new epub.Builder(meta)
+      .addManifestFile(cssFile);
+
+  return builder.build();
 };
 
 goog.provide('gpub.templates.ProblemEbook');
@@ -16350,13 +16474,7 @@ gpub.templates.ProblemEbook.templater = function(bookMaker) {
   var meta = bookMaker.templateMetadata();
   var cssFile = gpub.templates.ProblemEbook.cssFile(
       bookMaker.templateOptions());
-  var cssPath = '';
-  if (cssFile.path) {
-    cssPath = cssFile.path
-  } else {
-    throw new Error('CSS path was net defined!');
-  }
-
+  var cssPath = /** @type{string} */ (cssFile.path);
   var builder = new epub.Builder(meta)
       .addManifestFile(cssFile);
 

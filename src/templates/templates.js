@@ -16,20 +16,17 @@ gpub.templates = {};
  * @enum {string}
  */
 gpub.templates.Style = {
-  /**
-   * A Commentary-style template used to create the Relentless.
-   */
+  /** A Commentary-style template used to create the Relentless. */
   RELENTLESS_COMMENTARY_LATEX: 'RELENTLESS_COMMENTARY_LATEX',
 
-  /**
-   * A template designed to make problem PDFs.
-   */
+  /** A template designed to make problem PDFs. */
   PROBLEM_XELATEX: 'PROBLEM_XELATEX',
 
-  /**
-   * A template designed to make problem Ebooks.
-   */
+  /** A template designed to make problem Ebooks. */
   PROBLEM_EBOOK: 'PROBLEM_EBOOK',
+
+  /** Template design for making game commentary ebooks. */
+  GAME_COMMENTARY_EBOOK: 'GAME_COMMENTARY_EBOOK',
 };
 
 

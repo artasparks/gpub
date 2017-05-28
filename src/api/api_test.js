@@ -48,6 +48,16 @@
     ok(output, 'Output should be defined');
   });
 
+  test('Testing full happy path: game commentary', function() { var output = gpub.create({
+      template: 'GAME_COMMENTARY_EBOOK',
+      sgfs: [sgf],
+      ids: ['z1'],
+    })
+    ok(output, 'Output should be defined');
+    ok(output.spec, 'Should have spec');
+    ok(output.files, 'Should have files');
+  });
+
   // TODO(kashomon): Add back in once book conversion is complete.
 
   // test('Testing PDF/X-1a:2001 compatibility (no exceptions)', function() {
