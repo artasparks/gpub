@@ -6,8 +6,11 @@
     var veasy = testdata.sgfs.veryeasy;
     var triv = testdata.sgfs.trivialproblem;
     var opt = {
-      sgfs: [veasy, triv],
-      ids: ['veasy', 'triv'],
+      sgfs: {
+        veasy: veasy,
+        triv: triv
+      },
+      grouping: ['veasy', 'triv'],
       specOptions: {
         positionType: 'PROBLEM',
       },
@@ -44,8 +47,11 @@
     var veasy = testdata.sgfs.veryeasy;
     var triv = testdata.sgfs.trivialproblem;
     var opt = {
-      sgfs: [veasy, triv],
-      ids: ['veasy', 'triv'],
+      sgfs: {
+        veasy: veasy,
+        triv: triv,
+      },
+      grouping: ['veasy', 'triv'],
       specOptions: {
         positionType: 'PROBLEM',
       },
@@ -77,7 +83,8 @@
   test('Full Diagram Creation', function() {
     var sgf = testdata.gogameguru_commentary;
     var api = gpub.init({
-        sgfs: [sgf],
+        sgfs: {sgf: sgf}
+        grouping: ['sgf'],
         diagramOptions: {
           maxDiagrams: 20,
         }})

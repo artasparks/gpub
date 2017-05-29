@@ -46,7 +46,10 @@ gpub.init = function(opt) {
  *
  * {
  *  template: 'PROBLEM_EBOOK',
- *  sgfs: [...],
+ *  sgfs: {
+ *    <id>: <contents>
+ *    ...
+ *  }
  * }
  *
  * Note: If various option parameters are not defined in the Options-param,
