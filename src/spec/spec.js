@@ -16,7 +16,6 @@ gpub.spec = {
    * @return {!gpub.spec.Spec} Finished spec.
    */
   create: function(options, opt_cache) {
-    var sgfs = options.sgfs;
     var cache = opt_cache || new gpub.util.MoveTreeCache(); // for testing convenience.
     var specOptions = options.specOptions;
     var defaultPositionType = specOptions.positionType;
@@ -34,54 +33,49 @@ gpub.spec = {
       rootGrouping: rootGrouping,
     });
 
-
-    var optIds = options.ids;
-    for (var i = 0; i < sgfs.length; i++) {
-      var sgfStr = sgfs[i];
+    var sgfs = options.sgfs;
+    for (var alias in sgfs) {
+      var sgfStr = sgfs[alias];
       if (!sgfStr) {
-        throw new Error('No SGF String defined for index: ' + i);
+        throw new Error('No SGF String defined for key: ' + alias);
       }
       var mt = glift.parse.fromString(sgfStr);
-
-      var alias = 'sgf-' + (i+1);
-      if (optIds) {
-        alias = optIds[i];
-      }
-
       cache.sgfMap[alias] = sgfStr;
       cache.mtCache[alias] = mt;
-
-      // Ensure the sgf mapping contains the alias-to-sgf mapping.
       if (!specDef.sgfMapping[alias]) {
         specDef.sgfMapping[alias] = sgfStr;
       }
-
-      if (options.grouping) {
-        // When there is a grouping defined, the user has said: 'I want to
-        // manage my own SGF positions' so we don't create positions. The
-        // positions still need to be processed, however.
-        continue;
-      }
-
-      // At this point, there is a 1x1 mapping between passed-in SGF string and
-      // position. That need not be true generally, but it is true here.
-      var position = new gpub.spec.Position({
-        alias: alias,
-        id: alias
-      })
-
-      rootGrouping.positions.push(position);
     }
 
-    if (options.grouping) {
+    var grouping = options.grouping;
+    if (glift.util.typeOf(grouping) === 'array') {
+      var grp = /** @type {!Array<string>} */ (grouping);
+      for (var i = 0; i < grp.length; i++) {
+        var alias = grp[i];
+        if (!options.sgfs[alias]) {
+          throw new Error('No corresponding SGF defined in options.sgfs ' +
+              'for id ' + alias);
+        }
+
+        // At this point, there is a 1x1 mapping between passed-in SGF string and
+        // position. That need not be true generally, but it is true here.
+        var position = new gpub.spec.Position({
+          alias: alias,
+          id: alias
+        })
+        rootGrouping.positions.push(position);
+      }
+    } else if (glift.util.typeOf(grouping) == 'object') {
       var idGen = new gpub.spec.IdGen(gpub.spec.IdGenType.SEQUENTIAL);
       var gp = gpub.spec.preprocessGrouping(options.grouping, idGen);
       if (!options.grouping.positionType) {
         gp.positionType = rootGrouping.positionType;
       }
       specDef.rootGrouping = gp;
+    } else {
+      throw new Error('options.grouping must be defined as either an array of' +
+          'strings or a groupings object. Was: '+ JSON.stringify(grouping));
     }
-
     return new gpub.spec.Spec(specDef);
   },
 

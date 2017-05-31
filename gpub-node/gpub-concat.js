@@ -9567,30 +9567,24 @@ gpub.Options = function(opt_options) {
   var o = opt_options || {};
 
   /**
-   * Array of SGF (strings). No default is specified here: Must be explicitly
-   * passed in every time.
-   *
-   * @const {!Array<string>}
+   * A object, containing a bijection between ID and SGF-data. No default is
+   * specified here: Must be explicitly passed in every time.
+   * @const {!Object<string, string>}
    */
-  this.sgfs = o.sgfs || [];
+  this.sgfs = o.sgfs || {};
 
   /**
-   * Optianal array of IDs corresponding to the SGFs. If supplied, should be
-   * the same length as the sgfs. If not specified, artificial IDs will be
-   * created.
-   * @const {!Array<string>|undefined}
-   */
-  this.ids = o.ids || undefined;
-
-  /**
-   * An optional grouping can be provided which specifies precisely how to
-   * render the SGFs. If not provided, GPub will generate a naive grouping.
+   * An grouping must always be provided. This says how to group the SGFs in
+   * the book.
    *
-   * @const {!gpub.opts.RawGrouping|undefined}
+   * - In the simplest case, users can specify an array on IDs. This is
+   *   suitable for simple books such as simple commentary and simple problem
+   *   books.
+   * - More complex books can be specified via a nested grouping structure.
+   *
+   * @const {!gpub.opts.RawGrouping|!Array<string>|undefined}
    */
   this.grouping = o.grouping || undefined;
-
-  this.ensureUniqueIds();
 
   /**
    * The type of template to use. Only used when creating full templated books.
@@ -9647,28 +9641,6 @@ gpub.Options.applyDefaults = function(opts, defaults) {
   return opts;
 };
 
-
-/**
- * Ensure that the IDs are unique. Throws an error if the IDs are not unique.
- */
-gpub.Options.prototype.ensureUniqueIds = function() {
-  if (this.ids) {
-    if (this.ids.length !== this.sgfs.length) {
-      throw new Error('If IDs array is provided, ' +
-          'it must be the same length as the SGFs array');
-    } else {
-      // Ensure uniqueness.
-      var tmpMap = {};
-      for (var i = 0; i < this.ids.length; i++) {
-        var id = this.ids[i];
-        if (tmpMap[this.ids[i]]) {
-          throw new Error('IDs must be unique. Found duplicate: ' + id);
-        }
-        tmpMap[id] = true;
-      }
-    }
-  }
-};
 
 goog.provide('gpub.opts.DiagramOptions');
 goog.provide('gpub.opts.DiagramOptionsDef');
@@ -10369,7 +10341,6 @@ gpub.spec = {
    * @return {!gpub.spec.Spec} Finished spec.
    */
   create: function(options, opt_cache) {
-    var sgfs = options.sgfs;
     var cache = opt_cache || new gpub.util.MoveTreeCache(); // for testing convenience.
     var specOptions = options.specOptions;
     var defaultPositionType = specOptions.positionType;
@@ -10387,54 +10358,49 @@ gpub.spec = {
       rootGrouping: rootGrouping,
     });
 
-
-    var optIds = options.ids;
-    for (var i = 0; i < sgfs.length; i++) {
-      var sgfStr = sgfs[i];
+    var sgfs = options.sgfs;
+    for (var alias in sgfs) {
+      var sgfStr = sgfs[alias];
       if (!sgfStr) {
-        throw new Error('No SGF String defined for index: ' + i);
+        throw new Error('No SGF String defined for key: ' + alias);
       }
       var mt = glift.parse.fromString(sgfStr);
-
-      var alias = 'sgf-' + (i+1);
-      if (optIds) {
-        alias = optIds[i];
-      }
-
       cache.sgfMap[alias] = sgfStr;
       cache.mtCache[alias] = mt;
-
-      // Ensure the sgf mapping contains the alias-to-sgf mapping.
       if (!specDef.sgfMapping[alias]) {
         specDef.sgfMapping[alias] = sgfStr;
       }
-
-      if (options.grouping) {
-        // When there is a grouping defined, the user has said: 'I want to
-        // manage my own SGF positions' so we don't create positions. The
-        // positions still need to be processed, however.
-        continue;
-      }
-
-      // At this point, there is a 1x1 mapping between passed-in SGF string and
-      // position. That need not be true generally, but it is true here.
-      var position = new gpub.spec.Position({
-        alias: alias,
-        id: alias
-      })
-
-      rootGrouping.positions.push(position);
     }
 
-    if (options.grouping) {
+    var grouping = options.grouping;
+    if (glift.util.typeOf(grouping) === 'array') {
+      var grp = /** @type {!Array<string>} */ (grouping);
+      for (var i = 0; i < grp.length; i++) {
+        var alias = grp[i];
+        if (!options.sgfs[alias]) {
+          throw new Error('No corresponding SGF defined in options.sgfs ' +
+              'for id ' + alias);
+        }
+
+        // At this point, there is a 1x1 mapping between passed-in SGF string and
+        // position. That need not be true generally, but it is true here.
+        var position = new gpub.spec.Position({
+          alias: alias,
+          id: alias
+        })
+        rootGrouping.positions.push(position);
+      }
+    } else if (glift.util.typeOf(grouping) == 'object') {
       var idGen = new gpub.spec.IdGen(gpub.spec.IdGenType.SEQUENTIAL);
       var gp = gpub.spec.preprocessGrouping(options.grouping, idGen);
       if (!options.grouping.positionType) {
         gp.positionType = rootGrouping.positionType;
       }
       specDef.rootGrouping = gp;
+    } else {
+      throw new Error('options.grouping must be defined as either an array of' +
+          'strings or a groupings object. Was: '+ JSON.stringify(grouping));
     }
-
     return new gpub.spec.Spec(specDef);
   },
 
@@ -15867,7 +15833,10 @@ gpub.init = function(opt) {
  *
  * {
  *  template: 'PROBLEM_EBOOK',
- *  sgfs: [...],
+ *  sgfs: {
+ *    <id>: <contents>
+ *    ...
+ *  }
  * }
  *
  * Note: If various option parameters are not defined in the Options-param,

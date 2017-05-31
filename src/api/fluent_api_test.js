@@ -120,7 +120,8 @@
     var sgf = testdata.gogameguru_commentary;
     var numSeen = 0;
     var api = gpub.init({
-        sgfs: [sgf],
+        sgfs: {sgf: sgf},
+        grouping: ['sgf'],
         diagramOptions: {
           maxDiagrams: 20,
         }})
@@ -145,7 +146,8 @@
   test('Full Diagram Creation +(options)', function() {
     var sgf = testdata.gogameguru_commentary;
     var api = gpub.init({
-        sgfs: [sgf],
+        sgfs: {sgf: sgf},
+        grouping: ['sgf'],
       })
       .createSpec()
       .processSpec()
@@ -160,7 +162,8 @@
     var sgf = testdata.gogameguru_commentary;
     var callCount = 0;
     var api = gpub.init({
-        sgfs: [sgf],
+        sgfs: {sgf: sgf},
+        grouping: ['sgf'],
       })
       .createSpec()
       .processSpec()
@@ -177,7 +180,8 @@
   test('Igo Diagram Creation ', function() {
     var sgf = testdata.gogameguru_commentary;
     var api = gpub.init({
-        sgfs: [sgf],
+        sgfs: {sgf: sgf},
+        grouping: ['sgf'],
       })
       .createSpec()
       .processSpec({
@@ -194,7 +198,8 @@
   test('SmartGo Diagram Creation ', function() {
     var sgf = testdata.gogameguru_commentary;
     var api = gpub.init({
-        sgfs: [sgf],
+        sgfs: {sgf: sgf},
+        grouping: ['sgf'],
       })
       .createSpec()
       .processSpec()
@@ -209,7 +214,8 @@
   test('SVG Diagram Creation ', function() {
     var sgf = testdata.gogameguru_commentary;
     var api = gpub.init({
-        sgfs: [sgf],
+        sgfs: {sgf: sgf},
+        grouping: ['sgf'],
       })
       .createSpec()
       .processSpec()
