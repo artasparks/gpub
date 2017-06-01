@@ -22,7 +22,10 @@
   test('Testing full happy path, no exceptions', function() {
     var output = gpub.create({
       template: 'PROBLEM_EBOOK',
-      sgfs: [sgf],
+      sgfs: {sgf: sgf},
+      grouping: [
+        'sgf',
+      ],
       diagramOptions: {
         maxDiagrams: 20
       },
@@ -33,8 +36,7 @@
   test('Testing full happy path, groupings', function() {
     var output = gpub.create({
       template: 'PROBLEM_EBOOK',
-      sgfs: [sgf],
-      ids: ['z1'],
+      sgfs: {z1: sgf},
       grouping: {
         title: 'zed',
         positions: [
@@ -50,8 +52,8 @@
 
   test('Testing full happy path: game commentary', function() { var output = gpub.create({
       template: 'GAME_COMMENTARY_EBOOK',
-      sgfs: [sgf],
-      ids: ['z1'],
+      sgfs: {z1: sgf},
+      grouping: ['z1'],
     })
     ok(output, 'Output should be defined');
     ok(output.spec, 'Should have spec');

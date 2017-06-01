@@ -83,7 +83,7 @@
   test('Full Diagram Creation', function() {
     var sgf = testdata.gogameguru_commentary;
     var api = gpub.init({
-        sgfs: {sgf: sgf}
+        sgfs: {sgf: sgf},
         grouping: ['sgf'],
         diagramOptions: {
           maxDiagrams: 20,
