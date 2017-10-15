@@ -86,7 +86,7 @@ gpub.templates.Templater.prototype.create = function(opts) {};
  * @param {!gpub.OptionsDef} opts Options to process.
  * @return {!gpub.templates.BookOutput} output.
  */
-gpub.templates.muxer = function(style, opts) {
+gpub.templates.chooser = function(style, opts) {
   if (!style) {
     throw new Error('Style was not defined. Was: ' + style);
   }

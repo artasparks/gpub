@@ -5,7 +5,10 @@
     var cache = new gpub.util.MoveTreeCache();
     var sgf = '(;GM[1]AW[aa]AB[ba];B[bb]C[The End!])';
     var o = new gpub.Options({
-      sgfs: [sgf],
+      sgfs: {'sgf-1': sgf},
+      grouping: [
+        'sgf-1',
+      ],
     }, cache);
     var spec = gpub.spec.create(o);
 
@@ -35,7 +38,8 @@
     var sgf2 = '(;GM[1]GN[foo]AW[aa]AB[ba];B[bb];W[cc](;B[ab]'
         + 'C[Correct!])(;W[ac]C[Surprise!]))';
     var o = new gpub.Options({
-      sgfs: [sgf1, sgf2]
+      sgfs: {'sgf-1': sgf1, 'sgf-2': sgf2},
+      grouping: ['sgf-1', 'sgf-2'],
     });
 
     var spec = gpub.spec.create(o, cache);
@@ -53,13 +57,16 @@
     var cache = new gpub.util.MoveTreeCache();
     var sgfs = testdata.sgfs;
     var opts = new gpub.Options({
-      sgfs: [
-        sgfs.trivialproblem,
-        sgfs.veryeasy,
-        sgfs.easy,
-        sgfs.realproblem,
-        sgfs.complexproblem,
-        sgfs.gogameguruHard,
+      sgfs: {
+        'sgf-1': sgfs.trivialproblem,
+        'sgf-2': sgfs.veryeasy,
+        'sgf-3': sgfs.easy,
+        'sgf-4': sgfs.realproblem,
+        'sgf-5': sgfs.complexproblem,
+        'sgf-6': sgfs.gogameguruHard,
+      },
+      grouping: [
+        'sgf-1', 'sgf-2', 'sgf-3', 'sgf-4', 'sgf-5', 'sgf-6',
       ],
       specOptions: {
         positionType: gpub.spec.PositionType.PROBLEM,
@@ -68,8 +75,8 @@
     var spec = gpub.spec.create(opts, cache);
     ok(spec, 'spec should be defined')
     deepEqual(Object.keys(spec.sgfMapping).length, 6, 'should have 6 sgfs');
-    deepEqual(spec.sgfMapping['sgf-1'], opts.sgfs[0])
-    deepEqual(spec.sgfMapping['sgf-2'], opts.sgfs[1])
+    deepEqual(spec.sgfMapping['sgf-1'], opts.sgfs['sgf-1'])
+    deepEqual(spec.sgfMapping['sgf-2'], opts.sgfs['sgf-2'])
     deepEqual(spec.rootGrouping.positions.length, 6, 'should have 6 positions');
 
     var proc = gpub.spec.process(spec, cache);
@@ -92,7 +99,8 @@
   test('Create: one simple game, with variation', function() {
     var cache = new gpub.util.MoveTreeCache();
     var opts = new gpub.Options({
-      sgfs: [oneVar],
+      sgfs: {'sgf-1': oneVar},
+      grouping: ['sgf-1'],
     });
     var spec = gpub.spec.create(opts, cache);
     deepEqual(Object.keys(spec.sgfMapping).length, 1, 'Should have 1 sgf');
@@ -117,7 +125,8 @@
   test('Create with IdGenType=Path', function() {
     var cache = new gpub.util.MoveTreeCache();
     var opts = new gpub.Options({
-      sgfs: [oneVar],
+      sgfs: {'sgf-1': oneVar},
+      grouping: ['sgf-1'],
     });
     var spec = gpub.spec.create(opts, cache);
     var proc = gpub.spec.process(spec, cache);
@@ -129,7 +138,8 @@
   test('Create with IdGenType=Sequential', function() {
     var cache = new gpub.util.MoveTreeCache();
     var opts = new gpub.Options({
-      sgfs: [oneVar],
+      sgfs: {'sgf-1': oneVar},
+      grouping: ['sgf-1'],
       specOptions: {
         idGenType: 'SEQUENTIAL',
       }
@@ -144,7 +154,8 @@
   test('Create with IdGenType=Path, gggEasy44', function() {
     var cache = new gpub.util.MoveTreeCache();
     var opts = new gpub.Options({
-      sgfs: [testdata.sgfs.gggEasy44],
+      sgfs: {'sgf-1': testdata.sgfs.gggEasy44},
+      grouping: ['sgf-1'],
       specOptions: {
         positionType: gpub.spec.PositionType.PROBLEM,
       }

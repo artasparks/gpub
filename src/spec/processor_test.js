@@ -8,8 +8,10 @@
   test('Process one SGF', function() {
     var cache = new gpub.util.MoveTreeCache();
     var spec = gpub.spec.create(new gpub.Options({
-      sgfs: [sgfOne],
-      ids: ['Zed'],
+      sgfs: {
+        'Zed': sgfOne
+      },
+      grouping: ['Zed'],
     }), cache);
 
     var proc = gpub.spec.process(spec, cache);
@@ -24,10 +26,13 @@
   test('Process three SGFs', function() {
     var cache = new gpub.util.MoveTreeCache();
     var spec =  gpub.spec.create(new gpub.Options({
-      sgfs: [
-        sgfOne,
-        sgfTwo,
-        sgfThree,
+      sgfs: {
+        one: sgfOne,
+        two: sgfTwo,
+        three: sgfThree,
+      },
+      grouping: [
+        'one', 'two', 'three',
       ]
     }), cache);
 
@@ -55,8 +60,10 @@
     var cache = new gpub.util.MoveTreeCache();
     var id = 'Zed';
     var spec = gpub.spec.create(new gpub.Options({
-      sgfs: [sgfZed],
-      ids: [id],
+      sgfs: {
+        'Zed': sgfZed,
+      },
+      grouping: [id],
       specOptions: {
         positionType: 'PROBLEM',
         autoRotateCropPrefs: {
@@ -77,8 +84,10 @@
     var cache = new gpub.util.MoveTreeCache();
     var id = 'Zed';
     var spec = gpub.spec.create(new gpub.Options({
-      sgfs: [sgfZed],
-      ids: [id],
+      sgfs: {
+        'Zed': sgfZed,
+      },
+      grouping: ['Zed'],
       specOptions: {
         autoRotateCropPrefs: {
           corner: 'TOP_RIGHT',

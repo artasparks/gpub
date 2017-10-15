@@ -15,8 +15,8 @@
         positionType: 'PROBLEM',
       },
     };
-    var id0 = opt.ids[0];
-    var id1 = opt.ids[1];
+    var id0 = opt.grouping[0];
+    var id1 = opt.grouping[1];
 
     var api = gpub.init(opt);
     ok(api, 'must be defined');
@@ -28,16 +28,16 @@
     var spec = api.spec();
     deepEqual(spec.version, gpub.spec.SpecVersion.V1);
     var expMap = {};
-    expMap[id0] = opt.sgfs[0];
-    expMap[id1] = opt.sgfs[1];
+    expMap[id0] = opt.sgfs[id0];
+    expMap[id1] = opt.sgfs[id1];
     deepEqual(spec.sgfMapping, expMap);
     deepEqual(spec.rootGrouping.positions.length, 2);
     deepEqual(spec.rootGrouping.positionType, 'PROBLEM');
     deepEqual(api.diagrams_, null);
 
     var expCache = {};
-    expCache[id0] = glift.parse.fromString(opt.sgfs[0]);
-    expCache[id1] = glift.parse.fromString(opt.sgfs[1]);
+    expCache[id0] = glift.parse.fromString(opt.sgfs[id0]);
+    expCache[id1] = glift.parse.fromString(opt.sgfs[id1]);
     deepEqual(api.cache_.sgfMap, expMap, 'cache sgf map');
     deepEqual(api.cache_.get(id0).toSgf(), expCache[id0].toSgf(), 'sgf1 text');
     deepEqual(api.cache_.get(id1).toSgf(), expCache[id1].toSgf(), 'sgf2 text');
@@ -71,7 +71,10 @@
 
   test('Process Spec +(options)', function() {
     var veasy = testdata.sgfs.veryeasy;
-    var api = gpub.init({sgfs: [veasy] })
+    var api = gpub.init({
+          sgfs: {'v1': veasy},
+          grouping: ['v1'],
+        })
         .createSpec()
         .processSpec({
           positionType: 'PROBLEM'

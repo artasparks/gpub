@@ -26,6 +26,30 @@ print), GoBooks (SmartGo), and EPub (Ebooks).
 1. See [GPub-Examples](https://www.github.com/Kashomon/gpub-examples) for some
    worked examples how to use GPub.
 
+## The API
+
+GPub provides a JavaScript API for using GPub. Assuming you have installed GPub
+(above), gpub can be used in a NodeJS script with the following:
+
+```javascript
+var gpub = require('gpub-go')
+
+gpub.Create({
+  template: 'PROBLEM_EBOOK',
+  sgfs: {
+    sgf1: '(;GM[1]FF[4]...)',
+    sgf2: '(;GM[1]FF[4]...)',
+  },
+  grouping: [
+    'sgf1',
+    'sgf2',
+  ],
+  // optional arguments
+});
+```
+
+Alternatively, you can embed the gpub binary in a web page.
+
 ## Development
 
 If you want to do development on GPub, you will additionally need:

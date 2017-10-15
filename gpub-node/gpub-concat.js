@@ -9540,9 +9540,8 @@ gpub.opts = {};
  * Typedef for options.
  *
  * @typedef {{
- *  sgfs: (!Array<string>|undefined),
- *  ids: (!Array<string>|undefined),
- *  grouping: (gpub.opts.RawGrouping|undefined),
+ *  sgfs: (!Object<string>|undefined),
+ *  grouping: (!gpub.opts.RawGrouping|!Array<string>|undefined),
  *  specOptions: (!gpub.opts.SpecOptionsDef|undefined),
  *  diagramOptions: (!gpub.opts.DiagramOptionsDef|undefined),
  *  templateOptions: (!gpub.opts.TemplateOptionsDef|undefined),
@@ -10391,8 +10390,9 @@ gpub.spec = {
         rootGrouping.positions.push(position);
       }
     } else if (glift.util.typeOf(grouping) == 'object') {
+      var grp = /** @type {!gpub.opts.RawGrouping} */ (grouping);
       var idGen = new gpub.spec.IdGen(gpub.spec.IdGenType.SEQUENTIAL);
-      var gp = gpub.spec.preprocessGrouping(options.grouping, idGen);
+      var gp = gpub.spec.preprocessGrouping(grp, idGen);
       if (!options.grouping.positionType) {
         gp.positionType = rootGrouping.positionType;
       }
@@ -15856,7 +15856,7 @@ gpub.create = function(opt) {
   if (!template) {
     throw new Error('Template style (options.template) must be defined.')
   }
-  return gpub.templates.muxer(template, opt);
+  return gpub.templates.chooser(template, opt);
 };
 
 goog.provide('gpub.Api');
@@ -15940,8 +15940,8 @@ gpub.Api.prototype = {
     } else {
       // No spec option has been passed in; Process the incoming SGFS.
       var sgfs = ref.opt_.sgfs;
-      if (!sgfs || glift.util.typeOf(sgfs) !== 'array' || sgfs.length === 0) {
-        throw new Error('SGF array must be defined and non-empty ' +
+      if (!sgfs || glift.util.typeOf(sgfs) !== 'object' || sgfs.length === 0) {
+        throw new Error('SGF object-map must be defined and non-empty ' +
             'before spec creation');
       }
       ref.cache_ = new gpub.util.MoveTreeCache();
@@ -16189,7 +16189,7 @@ gpub.templates.Templater.prototype.create = function(opts) {};
  * @param {!gpub.OptionsDef} opts Options to process.
  * @return {!gpub.templates.BookOutput} output.
  */
-gpub.templates.muxer = function(style, opts) {
+gpub.templates.chooser = function(style, opts) {
   if (!style) {
     throw new Error('Style was not defined. Was: ' + style);
   }

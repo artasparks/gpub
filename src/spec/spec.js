@@ -66,8 +66,9 @@ gpub.spec = {
         rootGrouping.positions.push(position);
       }
     } else if (glift.util.typeOf(grouping) == 'object') {
+      var grp = /** @type {!gpub.opts.RawGrouping} */ (grouping);
       var idGen = new gpub.spec.IdGen(gpub.spec.IdGenType.SEQUENTIAL);
-      var gp = gpub.spec.preprocessGrouping(options.grouping, idGen);
+      var gp = gpub.spec.preprocessGrouping(grp, idGen);
       if (!options.grouping.positionType) {
         gp.positionType = rootGrouping.positionType;
       }

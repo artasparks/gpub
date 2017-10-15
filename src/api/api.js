@@ -69,5 +69,5 @@ gpub.create = function(opt) {
   if (!template) {
     throw new Error('Template style (options.template) must be defined.')
   }
-  return gpub.templates.muxer(template, opt);
+  return gpub.templates.chooser(template, opt);
 };

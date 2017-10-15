@@ -79,8 +79,8 @@ gpub.Api.prototype = {
     } else {
       // No spec option has been passed in; Process the incoming SGFS.
       var sgfs = ref.opt_.sgfs;
-      if (!sgfs || glift.util.typeOf(sgfs) !== 'array' || sgfs.length === 0) {
-        throw new Error('SGF array must be defined and non-empty ' +
+      if (!sgfs || glift.util.typeOf(sgfs) !== 'object' || sgfs.length === 0) {
+        throw new Error('SGF object-map must be defined and non-empty ' +
             'before spec creation');
       }
       ref.cache_ = new gpub.util.MoveTreeCache();

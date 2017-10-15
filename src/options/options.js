@@ -14,9 +14,8 @@ gpub.opts = {};
  * Typedef for options.
  *
  * @typedef {{
- *  sgfs: (!Array<string>|undefined),
- *  ids: (!Array<string>|undefined),
- *  grouping: (gpub.opts.RawGrouping|undefined),
+ *  sgfs: (!Object<string>|undefined),
+ *  grouping: (!gpub.opts.RawGrouping|!Array<string>|undefined),
  *  specOptions: (!gpub.opts.SpecOptionsDef|undefined),
  *  diagramOptions: (!gpub.opts.DiagramOptionsDef|undefined),
  *  templateOptions: (!gpub.opts.TemplateOptionsDef|undefined),
