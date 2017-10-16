@@ -45,6 +45,20 @@ module.exports = {
         .map(f => fs.readFileSync(f, 'utf8'));
   },
 
+  /**
+   * Takes a list of file names and makes a map of ID to contents of that file.
+   */
+  idToContentsMap: function(names, dir) {
+    var out = {};
+    names
+        .map(f => path.join(dir, f))
+        .forEach(f => {
+          var fkey = createId_(f);
+          out[fkey] = fs.readFileSync(f, 'utf8');
+        });
+    return out;
+  },
+
   /** Sort problems based on a number-suffix. */
   numberSuffixSort: function(files) {
     files.sort((a, b) => {

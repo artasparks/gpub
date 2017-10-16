@@ -7,12 +7,13 @@ var baseDir = __dirname
 var sgfDir = path.join(baseDir, 'problems');
 
 var fnames = gpub.nodeutils.numberSuffixSort(gpub.nodeutils.listSgfs(sgfDir));
-var contents = gpub.nodeutils.fileContents(fnames, sgfDir);
+var idmap = gpub.nodeutils.idToContentsMap(fnames, sgfDir);
 var ids = gpub.nodeutils.createFileIds(fnames);
 
 var out = gpub.create({
   template: 'PROBLEM_EBOOK',
-  sgfs: contents,
+  sgfs: idmap,
+  grouping: ids,
   ids: ids,
   specOptions: {
     positionType: 'PROBLEM',
