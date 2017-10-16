@@ -6,7 +6,9 @@ var gulp = require('gulp'),
     size = require('gulp-size'),
     concat = require('gulp-concat'),
     chmod = require('gulp-chmod'),
-    closureCompiler = require('gulp-closure-compiler'),
+    closureCompiler = require('google-closure-compiler').gulp({
+      // extraArguments: ['-Xms2048m']
+    }),
     through = require('through2'),
     nglob = require('glob'),
 
@@ -82,51 +84,52 @@ gulp.task('update-html-watch', () => {
 })
 
 // Compile the sources with the JS Compiler
+// See https://www.npmjs.com/package/google-closure-compiler
+// for more details
 gulp.task('compile', () => {
   return gulp.src(jsSrcGlobGen(srcPaths, srcIgnore))
     .pipe(closureCompiler({
-      compilerPath: './tools/compiler-latest/compiler.jar',
-      fileName: 'gpub.js',
-      compilerFlags: {
-        // TODO(kashomon): Turn on ADVANCED_OPTIMIZATIONS when all the right
-        // functions have been marked @export, where appropriate
-        // compilation_level: 'ADVANCED_OPTIMIZATIONS',
-        //
-        language_in: 'ECMASCRIPT5',
-        // Note that warning_level=VERBOSE corresponds to:
-        //
-        // --jscomp_warning=checkTypes
-        // --jscomp_error=checkVars
-        // --jscomp_warning=deprecated
-        // --jscomp_error=duplicate
-        // --jscomp_warning=globalThis
-        // --jscomp_warning=missingProperties
-        // --jscomp_warning=undefinedNames
-        // --jscomp_error=undefinedVars
-        //
-        // Do some advanced Javascript checks.
-        // https://github.com/google/closure-compiler/wiki/Warnings
-        jscomp_error: [
-          'accessControls',
-          'checkRegExp',
-          'checkTypes',
-          'checkVars',
-          'const',
-          'constantProperty',
-          'deprecated',
-          'duplicate',
-          'globalThis',
-          'missingProperties',
-          'missingProvide',
-          'missingReturn',
-          'undefinedNames',
-          'undefinedVars',
-          'visibility',
-          // We don't turn requires into Errors, because the closure compiler
-          // reorders the sources based on the requires.
-          // 'missingRequire',
-        ]
-      }
+      // compilerPath: './tools/compiler-latest/compiler.jar',
+      js_output_file: 'gpub.js',
+      language_in: 'ECMASCRIPT5',
+      //language_in: 'ECMASCRIPT5_STRICT',
+      // TODO(kashomon): Turn on ADVANCED_OPTIMIZATIONS when all the right
+      // functions have been marked @export, where appropriate
+      // compilation_level: 'ADVANCED_OPTIMIZATIONS',
+      //
+      // Note that warning_level=VERBOSE corresponds to:
+      //
+      // --jscomp_warning=checkTypes
+      // --jscomp_error=checkVars
+      // --jscomp_warning=deprecated
+      // --jscomp_error=duplicate
+      // --jscomp_warning=globalThis
+      // --jscomp_warning=missingProperties
+      // --jscomp_warning=undefinedNames
+      // --jscomp_error=undefinedVars
+      //
+      // Do some advanced Javascript checks.
+      // https://github.com/google/closure-compiler/wiki/Warnings
+      jscomp_error: [
+        'accessControls',
+        'checkRegExp',
+        'checkTypes',
+        'checkVars',
+        'const',
+        'constantProperty',
+        'deprecated',
+        'duplicate',
+        'globalThis',
+        'missingProperties',
+        'missingProvide',
+        'missingReturn',
+        'undefinedNames',
+        'undefinedVars',
+        'visibility',
+        // We don't turn requires into Errors, because the closure compiler
+        // reorders the sources based on the requires.
+        // 'missingRequire',
+      ],
     }))
     .pipe(size())
     .pipe(gulp.dest('./compiled/'))
@@ -304,7 +307,9 @@ function jsSrcGlobGen(ordering, addGlobs) {
     }
   })
 
-  return out.concat(addGlobs);
+  var o = out.concat(addGlobs);
+  console.log(o);
+  return o
 }
 
 /**
