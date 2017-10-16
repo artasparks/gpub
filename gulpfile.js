@@ -87,11 +87,11 @@ gulp.task('update-html-watch', () => {
 // See https://www.npmjs.com/package/google-closure-compiler
 // for more details
 gulp.task('compile', () => {
-  return gulp.src(jsSrcGlobGen(srcPaths, srcIgnore))
+  return gulp.src(jsSrcGlobGen(srcPaths, srcIgnore), {base: '.'})
     .pipe(closureCompiler({
       // compilerPath: './tools/compiler-latest/compiler.jar',
       js_output_file: 'gpub.js',
-      language_in: 'ECMASCRIPT5',
+      language_in: 'ECMASCRIPT5_STRICT',
       //language_in: 'ECMASCRIPT5_STRICT',
       // TODO(kashomon): Turn on ADVANCED_OPTIMIZATIONS when all the right
       // functions have been marked @export, where appropriate
@@ -308,7 +308,7 @@ function jsSrcGlobGen(ordering, addGlobs) {
   })
 
   var o = out.concat(addGlobs);
-  console.log(o);
+  // console.log(o);
   return o
 }
 
