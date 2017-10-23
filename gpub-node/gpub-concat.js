@@ -15813,7 +15813,6 @@ gpub.api = {};
  * @export
  */
 gpub.init = function(opt) {
-  // TODO(kashomon): Support passing in json-serialized book objects (perhaps just json-spec).
   if (!glift) {
     throw new Error('Gpub depends on Glift, but Glift was not defined');
   }
