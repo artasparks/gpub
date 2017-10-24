@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var nodeutils = require('./nodeutils')
+var preprocess = require('./preprocess')
 
 /**
  * Some base globals, so it doesn't bomb out.
@@ -20,4 +20,4 @@ for (var key in gpub) {
   module.exports[key] = gpub[key];
 }
 
-module.exports.nodeutils = nodeutils;
+module.exports.preprocess = preprocess;

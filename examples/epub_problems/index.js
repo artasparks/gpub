@@ -6,9 +6,9 @@ var path = require('path');
 var baseDir = __dirname
 var sgfDir = path.join(baseDir, 'problems');
 
-var fnames = gpub.nodeutils.numberSuffixSort(gpub.nodeutils.listSgfs(sgfDir));
-var idmap = gpub.nodeutils.idToContentsMap(fnames, sgfDir);
-var ids = gpub.nodeutils.createFileIds(fnames);
+var fnames = gpub.preprocess.numberSuffixSort(gpub.preprocess.listSgfs(sgfDir));
+var idmap = gpub.preprocess.idToContentsMap(fnames, sgfDir);
+var ids = gpub.preprocess.createFileIds(fnames);
 
 var out = gpub.create({
   template: 'PROBLEM_EBOOK',
@@ -26,4 +26,4 @@ var out = gpub.create({
   }
 });
 
-gpub.nodeutils.writeBookFiles(path.join(baseDir, 'epub-book'), out.files);
+gpub.preprocess.writeBookFiles(path.join(baseDir, 'epub-book'), out.files);
