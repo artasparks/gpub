@@ -36,6 +36,7 @@
     "google-closure-compiler": "^20170910.0.0"
   },
   "dependencies": {
+    "commander": "^2.11.0",
     "js-yaml": "^3.10.0"
   }
 }
