@@ -9,7 +9,7 @@ program
 
 program
   .command('init')
-  .description('initializes a book directory')
+  .description('Initializes a book directory')
   .action(function(env, options){
     console.log('zog');
   });
