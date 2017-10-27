@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 var program = require('commander');
-// var gpub = require('gpub');
+var gpub = require('../index');
+var initializer = require('./initializer')
 
 program
   .version('0.1.0');
@@ -11,7 +12,7 @@ program
   .command('init')
   .description('Initializes a book directory')
   .action(function(env, options){
-    console.log('zog');
+    initializer.init();
   });
 
 program.parse(process.argv);
