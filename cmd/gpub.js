@@ -10,6 +10,7 @@ program
 
 program
   .command('init')
+  .option('-t, --book_type', 'Book type to initialize the book as', 'Problem')
   .description('Initializes a book directory')
   .action(function(env, options){
     initializer.init();
