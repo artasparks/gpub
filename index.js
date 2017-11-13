@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var preprocess = require('./preprocess')
+var preprocess = require('./cmd/files.js')
 
 /**
  * Some base globals, so it doesn't bomb out.
@@ -20,4 +20,12 @@ for (var key in gpub) {
   module.exports[key] = gpub[key];
 }
 
+// Note: Glift is still exposed as a horrible global. Yuck.
+
+module.exports.glift = {}
+for (var key in glift) {
+  module.exports.glift[key] = glift[key];
+}
+
+// TODO(kashomon): Get rid of this eventually
 module.exports.preprocess = preprocess;

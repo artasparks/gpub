@@ -1,5 +1,10 @@
+/*
+ * Filescontains utilities for processing go files.
+ */
+
 var fs = require('fs');
 var path = require('path');
+var gpub = require('../index');
 
 var createId_ = function(file) {
   return path.basename(file).replace(/\.sgf$/, '').replace('\.', '_');
@@ -35,7 +40,7 @@ module.exports = {
   /** List all the SGFs in a directory. */
   listSgfs: function(dir) {
     return fs.readdirSync(dir)
-        .filter(f => f.endsWith('sgf'));
+        .filter(f => gpub.glift.parse.knownGoFile(f));
   },
 
   /** Read all the SGF contents. */
