@@ -1,5 +1,5 @@
 /*
- * Filescontains utilities for processing go files.
+ * Utilities for processing go files.
  */
 
 var fs = require('fs');

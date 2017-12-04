@@ -3,7 +3,7 @@
 var preprocess = require('./cmd/files.js')
 
 /**
- * Some base globals, so it doesn't bomb out.
+ * Some base globals, that are relied upon by gpub
  */
 window = {};
 goog = {
@@ -14,6 +14,7 @@ goog = {
 gpub = {};
 glift = {};
 
+// This dumps alll the gpub stuff into the globals above.
 require('./gpub-node/gpub-concat.js');
 
 for (var key in gpub) {

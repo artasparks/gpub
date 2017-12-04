@@ -33,25 +33,28 @@ var parse = function(opts) {
 
   var outfiles = []
   for (var i = 0; i < files.length; i++) {
-    var f = files[i];
-    var justName = path.basename(f);
-
-    var contents = fs.readFile(f, 'utf8', function(err, data) {
-      if (err) {
-        console.log('Error reading file ' + f + ': ' + err)
-        return
-      }
-      var ftype = opts.file_type;
-      var mt;
-      if (ftype) {
-        var mt = gpub.glift.parse.fromString(data, ftype);
-      } else {
-        var mt = gpub.glift.parse.fromFileName(data, f);
-      }
-      var outName = justName.replace(/\.[^.]*$/, '.sgf')
-      var outPath = path.join(outDir, outName);
-      fs.writeFile(outPath, mt.toSgf());
-    });
+    var fin = files[i];
+    (function(f) {
+      var justName = path.basename(f);
+      console.log('Reading:' + f);
+      var contents = fs.readFile(f, 'utf8', function(err, data) {
+        if (err) {
+          console.log('Error reading file ' + f + ': ' + err)
+          return
+        }
+        var ftype = opts.file_type;
+        var mt;
+        if (ftype) {
+          var mt = gpub.glift.parse.fromString(data, ftype);
+        } else {
+          var mt = gpub.glift.parse.fromFileName(data, f);
+        }
+        var outName = justName.replace(/\.[^.]*$/, '.sgf')
+        var outPath = path.join(outDir, outName);
+        console.log('writing to ' + outPath);
+        fs.writeFile(outPath, mt.toSgf());
+      });
+    })(fin);
   }
 }
 
