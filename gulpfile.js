@@ -1,19 +1,20 @@
 'use strict';
 
 
-var gulp = require('gulp'),
-    qunit = require('gulp-qunit'),
-    size = require('gulp-size'),
-    concat = require('gulp-concat'),
-    chmod = require('gulp-chmod'),
-    closureCompiler = require('google-closure-compiler').gulp({
-      // extraArguments: ['-Xms2048m']
-    }),
-    through = require('through2'),
-    nglob = require('glob'),
 
-    fs = require('fs'),
-    path = require('path');
+const gulp = require('gulp'),
+      qunit = require('gulp-qunit'),
+      size = require('gulp-size'),
+      concat = require('gulp-concat'),
+      chmod = require('gulp-chmod'),
+      closureCompiler = require('google-closure-compiler').gulp({
+        // extraArguments: ['-Xms2048m']
+      }),
+      through = require('through2'),
+      nglob = require('glob'),
+
+      fs = require('fs'),
+      path = require('path');
 
 // The source paths, used for generating the glob, for determining sources.
 var srcPaths = [
@@ -138,12 +139,14 @@ gulp.task('compile', () => {
 gulp.task('concat', () => {
   return gulp.src(jsSrcGlobGen(srcPaths, srcIgnore))
     .pipe(concat('gpub-concat.js'))
+    .pipe(chmod(0o666))
     .pipe(gulp.dest('./compiled/'))
 })
 
 gulp.task('concat-node', () => {
   return gulp.src(jsSrcGlobGen(srcPaths, srcIgnore))
     .pipe(concat('gpub-concat.js'))
+    .pipe(chmod(0o666))
     .pipe(gulp.dest('./gpub-node/'))
 })
 
