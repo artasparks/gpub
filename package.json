@@ -13,7 +13,7 @@
     "email": "jrhoak@gmail.com"
   },
   "engines": {
-    "node": ">=6.11.4"
+    "node": ">=8.9.3"
   },
   "scripts": {
     "test": "gulp"
