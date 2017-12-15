@@ -11,24 +11,19 @@ var gofiles = require('./files');
 var parse = function(opts) {
   var files = opts.files || [];
 
-  if (files.length === 0 && !opts.input_dir) {
+  if (files.length === 0 && !opts.inputDir) {
     console.warning('No files: nothing to do');
     return;
   }
 
-  var inDir = opts.input_dir;
+  var inDir = opts.inputDir;
   if (inDir) {
     console.log('parsing files from dir: ' + inDir);
     files = gofiles.listSgfs(inDir)
     files = files.map(f => path.join(inDir, f));
   }
 
-  if (opts.file_type && !gpub.glift.parse.parseType[opts.file_type]) {
-    console.error('File type ' + opts.file_type + ' not known!')
-    return
-  }
-
-  var outDir = opts.output_dir;
+  var outDir = opts.outputDir;
   console.log('Outputting to dir: ' + outDir)
 
   var outfiles = []
@@ -42,7 +37,7 @@ var parse = function(opts) {
           console.log('Error reading file ' + f + ': ' + err)
           return
         }
-        var ftype = opts.file_type;
+        var ftype = opts.fileType;
         var mt;
         if (ftype) {
           var mt = gpub.glift.parse.fromString(data, ftype);

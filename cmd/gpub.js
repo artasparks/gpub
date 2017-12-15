@@ -18,18 +18,22 @@ function listify(val) {
 
 program
   .command('init')
-  .option('-t, --book_type [type]', 'Book type to initialize the book as', 'Problem')
+  .option('-t, --book-type <type>', 'Book type to initialize the book', 'Problem')
+  .option('-c, --no-crawl', 'Whether to not crawl the current directory looking for sgfs.', true)
+  .option('-w, --crawl-dir <dir>', 'directory to crawl looking for SGFs. Defaults to cwd', '')
   .description('Initializes a book directory')
-  .action(function(cmd, options){
-    initializer.init();
+  .action(function(options) {
+    if (!options.crawlDir) {
+      options.crawlDir = process.cwd()
+    }
+    initializer.init(options);
   });
 
 program
   .command('parse')
-  .option('-t, --file_type [type]', 'Book type to initialize the book as')
   .option('-f, --files [files]', 'Files to process', listify, [])
-  .option('-o, --output_dir [dir]', 'Output directory. Defaults to cwd', '')
-  .option('-i, --input_dir [dir]', 'Input directory. ' +
+  .option('-o, --output-dir [dir]', 'Output directory. Defaults to cwd', '')
+  .option('-i, --input-dir [dir]', 'Input directory. ' +
       'If specified, preferred to individual files')
   .description('Parse go files into SGF.')
   .action(function(options) {
@@ -37,12 +41,12 @@ program
       console.log('Must define options (at least files).')
       return
     }
-    if (!options.files && !options.input_dir) {
+    if (!options.files && !options.inputDir) {
       console.log('One of --files or --input_dir must be defined')
       return
     }
-    if (!options.output_dir) {
-      options.output_dir = process.cwd()
+    if (!options.outputDir) {
+      options.outputDir = process.cwd()
     }
     parser.parse(options)
   });

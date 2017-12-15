@@ -1,7 +1,5 @@
 'use strict';
 
-
-
 const gulp = require('gulp'),
       qunit = require('gulp-qunit'),
       size = require('gulp-size'),
@@ -146,7 +144,7 @@ gulp.task('concat', () => {
 gulp.task('concat-node', () => {
   return gulp.src(jsSrcGlobGen(srcPaths, srcIgnore))
     .pipe(concat('gpub-concat.js'))
-    .pipe(chmod(0o666))
+    .pipe(chmod(0o755))
     .pipe(gulp.dest('./gpub-node/'))
 })
 

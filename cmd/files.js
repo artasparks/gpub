@@ -35,6 +35,32 @@ var createDirsSync = function(dirname) {
   }
 };
 
+
+/** Walk a directory looking for things. */
+var walk = function(dir, done) {
+  var results = [];
+  fs.readdir(dir, function(err, list) {
+    if (err) { return done([], err); }
+    if (!list.length) { return results; }
+    for (var i = 0; i < list.length; i++) {
+      var file = list[i];
+      if (!file) return done(results, null);
+      file = path.join(dir, file);
+      fs.stat(file, function(err, stat) {
+        if (stat && stat.isDirectory()) {
+          walk(file, function(err, res) {
+            results = results.concat(res);
+            next();
+          });
+        } else {
+          results.push(file);
+          next();
+        }
+      });
+    }
+  });
+};
+
 // Extra convenince methods for running gpub.
 module.exports = {
   /** List all the SGFs in a directory. */
