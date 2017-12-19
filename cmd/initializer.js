@@ -1,3 +1,4 @@
+const files = require('./files.js')
 
 var z = {
   init: function(opts) {
@@ -9,6 +10,9 @@ var z = {
     console.log('crawl: ' + crawl);
     console.log('crawl-dir: ' + crawlDir);
     console.log('book-type: ' + bookType);
+    files.walk(opts.crawlDir, (f) => f.endsWith('.sgf'), (results) => {
+      console.log(results);
+    });
   },
 };
 

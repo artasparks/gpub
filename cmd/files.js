@@ -37,28 +37,45 @@ var createDirsSync = function(dirname) {
 
 
 /** Walk a directory looking for things. */
-var walk = function(dir, done) {
-  var results = [];
-  fs.readdir(dir, function(err, list) {
-    if (err) { return done([], err); }
-    if (!list.length) { return results; }
-    for (var i = 0; i < list.length; i++) {
-      var file = list[i];
-      if (!file) return done(results, null);
-      file = path.join(dir, file);
-      fs.stat(file, function(err, stat) {
-        if (stat && stat.isDirectory()) {
-          walk(file, function(err, res) {
-            results = results.concat(res);
-            next();
-          });
-        } else {
-          results.push(file);
-          next();
+var walk = function(dir, filter, done) {
+  if (!dir) {
+    throw new Error('Directory must be defined. was ' + dir)
+  }
+  if (!filter) {
+    throw new Error('Filter must be defined. was ' + filter)
+  }
+  var walker = function(dir, filter, results, done) {
+    fs.readdir(dir, function(err, list) {
+      console.log(list);
+      if (err) {
+        throw new Error('Error reading files: '  + err);
+      }
+      if (!list.length) {
+        return;
+      }
+      for (var i = 0; i < list.length; i++) {
+        var file = list[i];
+        if (!file) {
+          // Is this realistic?
+          continue;
         }
-      });
-    }
-  });
+        var absfile = path.join(dir, file);
+        if (filter(absfile)) {
+          results.push(absfile);
+        } else {
+        }
+        fs.stat(file, function(err, stat) {
+          if (stat && stat.isDirectory()) {
+            walk(file, filter, [], function(newres) {
+              results = results.concat(newres);
+            })
+          }
+        });
+      }
+      done(results);
+    });
+  }
+  walker(dir, filter, [], done)
 };
 
 // Extra convenince methods for running gpub.
@@ -68,6 +85,9 @@ module.exports = {
     return fs.readdirSync(dir)
         .filter(f => gpub.glift.parse.knownGoFile(f));
   },
+
+  /** Walk the file system for files. */
+  walk: walk,
 
   /** Read all the SGF contents. */
   fileContents: function(fnames, dir) {
