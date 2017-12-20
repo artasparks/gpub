@@ -35,47 +35,56 @@ var createDirsSync = function(dirname) {
   }
 };
 
-
 /** Walk a directory looking for things. */
-var walk = function(dir, filter, done) {
+var walk = function(dir, filter, ignore, done) {
   if (!dir) {
     throw new Error('Directory must be defined. was ' + dir)
   }
   if (!filter) {
     throw new Error('Filter must be defined. was ' + filter)
   }
-  var walker = function(dir, filter, results, done) {
+  var walker = function(dir, cb) {
     fs.readdir(dir, function(err, list) {
-      console.log(list);
+      var results = [];
       if (err) {
         throw new Error('Error reading files: '  + err);
       }
       if (!list.length) {
         return;
       }
-      for (var i = 0; i < list.length; i++) {
-        var file = list[i];
-        if (!file) {
-          // Is this realistic?
-          continue;
+      var next = function(index) {
+        if (index >= list.length) {
+          cb(results);
+          return
         }
-        var absfile = path.join(dir, file);
+        var f = list[index];
+        if (f === undefined) {
+          cb(results);
+          return
+        }
+        if (ignore(f)) {
+          next(index+1);
+          return
+        }
+        var absfile = path.join(dir, f);
         if (filter(absfile)) {
           results.push(absfile);
-        } else {
         }
-        fs.stat(file, function(err, stat) {
+        fs.stat(absfile, (err, stat) => {
           if (stat && stat.isDirectory()) {
-            walk(file, filter, [], function(newres) {
+            walker(absfile, (newres) => {
               results = results.concat(newres);
-            })
+              next(index+1);
+            });
+          } else {
+            next(index+1);
           }
         });
-      }
-      done(results);
+      };
+      next(0);
     });
   }
-  walker(dir, filter, [], done)
+  walker(dir, done);
 };
 
 // Extra convenince methods for running gpub.
@@ -113,8 +122,16 @@ module.exports = {
   /** Sort problems based on a number-suffix. */
   numberSuffixSort: function(files) {
     files.sort((a, b) => {
-      var anum = parseInt(/\d+/g.exec(a), 10)
-      var bnum = parseInt(/\d+/g.exec(b), 10)
+      var aMatch = /(\d+)\.[a-z]+$/.exec(a)
+      var bMatch = /(\d+)\.[a-z]+$/.exec(b)
+      if (!aMatch || !bMatch) {
+        return 0;
+      }
+      if (aMatch.length < 2 || bMatch.length < 2) {
+        return 0;
+      }
+      var anum = parseInt(aMatch[0], 10)
+      var bnum = parseInt(bMatch[0], 10)
       if (anum < bnum) {
         return -1;
       } else if (anum > bnum) {

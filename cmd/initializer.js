@@ -10,8 +10,18 @@ var z = {
     console.log('crawl: ' + crawl);
     console.log('crawl-dir: ' + crawlDir);
     console.log('book-type: ' + bookType);
-    files.walk(opts.crawlDir, (f) => f.endsWith('.sgf'), (results) => {
-      console.log(results);
+    // filter SGFs
+    var filter = (f) => {
+      return /.*\.sgf$/.test(f);
+    };
+    // Ignore dot files
+    var ignore = (f) => {
+      return /^\..*/.test(f);
+    };
+
+    files.walk(opts.crawlDir, filter, ignore, (results) => {
+      var sorted = files.numberSuffixSort(results);
+      console.log(sorted);
     });
   },
 };
