@@ -35,7 +35,10 @@ var createDirsSync = function(dirname) {
   }
 };
 
-/** Walk a directory looking for things. */
+/**
+ * Walk a directory looking for things.
+ * This thing is pretty overy designed, but it was fun to play around with it.
+ */
 var walk = function(dir, filter, ignore, done) {
   if (!dir) {
     throw new Error('Directory must be defined. was ' + dir)
@@ -111,7 +114,12 @@ module.exports = {
   idToContentsMap: function(names, dir) {
     var out = {};
     names
-        .map(f => path.join(dir, f))
+        .map(f => {
+          if (dir) {
+            return path.join(dir, f)
+          }
+          return f
+        })
         .forEach(f => {
           var fkey = createId_(f);
           out[fkey] = fs.readFileSync(f, 'utf8');

@@ -10,7 +10,8 @@ var z = {
     console.log('crawl: ' + crawl);
     console.log('crawl-dir: ' + crawlDir);
     console.log('book-type: ' + bookType);
-    // filter SGFs
+
+    // filter only SGFs
     var filter = (f) => {
       return /.*\.sgf$/.test(f);
     };
@@ -21,7 +22,23 @@ var z = {
 
     files.walk(opts.crawlDir, filter, ignore, (results) => {
       var sorted = files.numberSuffixSort(results);
-      console.log(sorted);
+      var idmap = files.idToContentsMap(fnames, sgfDir);
+      var ids = iles.createFileIds(fnames);
+
+      var api = gpub.init({
+        template: 'PROBLEM_EBOOK',
+        sgfs: idmap,
+        grouping: ids,
+        specOptions: {
+          positionType: 'PROBLEM',
+        },
+        diagramOptions: {
+          diagramType: 'SVG',
+        },
+        templateOptions: {
+          chapterSize: 25,
+        }
+      });
     });
   },
 };

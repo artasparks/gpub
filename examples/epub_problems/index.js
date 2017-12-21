@@ -14,7 +14,6 @@ var out = gpub.create({
   template: 'PROBLEM_EBOOK',
   sgfs: idmap,
   grouping: ids,
-  ids: ids,
   specOptions: {
     positionType: 'PROBLEM',
   },
