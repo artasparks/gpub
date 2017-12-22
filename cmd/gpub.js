@@ -5,9 +5,11 @@ var process = require('process');
 
 var gpub = require('../index');
 var initializer = require('./initializer')
+var processor = require('./processor')
 var parser = require('./parser')
 
 program
+  // TODO(kashomon): Version with GPub
   .version('0.1.0');
   // Global options
 
@@ -34,12 +36,22 @@ program
   .option('-d, --diagram-type <diagram-type>', 
       'Diagram type for diagram image generation', 'SVG')
 
-  .description('Initializes a book directory')
+  .description('Initializes a book spec')
   .action(function(options) {
     if (!options.crawlDir) {
       options.crawlDir = process.cwd()
     }
     initializer.init(options);
+  });
+
+program
+  .command('process')
+  .option('-i, --input <spec-file>', 'Spec file to process into book-compatible form', '')
+  .option('-o, --file <spec-file>', 'Output name for processed spec file. Defaults to input name + processed.yaml', '')
+
+  .description('Processes a book spec, returning processed spec')
+  .action(function(options) {
+    processor.process(options);
   });
 
 program

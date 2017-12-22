@@ -16,7 +16,7 @@ const initTypeOverrides= {
   }
 }
 
-var z = {
+var methods = {
   init: function(opts) {
     console.log('Initializing GPub book spec!');
 
@@ -112,5 +112,4 @@ var z = {
 };
 
 
-module.exports = z;
-
+module.exports = methods;
