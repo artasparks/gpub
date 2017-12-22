@@ -33,10 +33,17 @@ gpub.Api = function(options) {
 gpub.Api.prototype = {
 
   /**
-   * @return {?gpub.spec.Spec} The spec, if it exists.
+   * @return {?gpub.spec.Spec} The spec, if it exists. (But make a copy)
    * @export
    */
-  spec: function() { return this.spec_; },
+  spec: function() {
+    if (this.spec_) {
+      return new gpub.spec.Spec(this.spec_);
+    } else {
+      return null;
+    }
+  },
+
 
   /**
    * @return {?gpub.diagrams.Rendered} The rendered diagrams, if they exist.

@@ -10,7 +10,6 @@ var parser = require('./parser')
 program
   .version('0.1.0');
   // Global options
-  //
 
 function listify(val) {
   return val.split(',');
@@ -18,9 +17,23 @@ function listify(val) {
 
 program
   .command('init')
-  .option('-t, --book-type <type>', 'Book type to initialize the book', 'Problem')
   .option('-c, --no-crawl', 'Whether to not crawl the current directory looking for sgfs.', true)
-  .option('-w, --crawl-dir <dir>', 'directory to crawl looking for SGFs. Defaults to cwd', '')
+  .option('-w, --crawl-dir <dir>', 'Directory to crawl looking for SGFs. Defaults to cwd', '')
+  .option('-i, --init-type [init-type]',
+      'Optional simplified initialization types. One of {PROBLEM_EBOOK, COMMENTARY_LATEX}.',
+      'PROBLEM_EBOOK')
+  .option('-o, --output-file <file>',
+      'File to write the yaml to defaults to go-book.yaml in current directory',
+      'go-book.yaml')
+
+  // Option overrides
+  .option('-t, --template-type <template-type>', 
+      'Book template for book creation', 'PROBLEM_EBOOK')
+  .option('-p, --position-type <position-type>', 
+      'Default position type for processing SGFs', 'PROBLEM')
+  .option('-d, --diagram-type <diagram-type>', 
+      'Diagram type for diagram image generation', 'SVG')
+
   .description('Initializes a book directory')
   .action(function(options) {
     if (!options.crawlDir) {

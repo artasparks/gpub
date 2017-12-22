@@ -110,6 +110,8 @@ module.exports = {
 
   /**
    * Takes a list of file names and makes a map of ID to contents of that file.
+   * Directory [dir] is optional. If specified, the file names are prepended
+   * with the directory path.
    */
   idToContentsMap: function(names, dir) {
     var out = {};
@@ -123,6 +125,27 @@ module.exports = {
         .forEach(f => {
           var fkey = createId_(f);
           out[fkey] = fs.readFileSync(f, 'utf8');
+        });
+    return out;
+  },
+
+
+  /**
+   * Takes a list of file names and makes a map of ID to contents of that file.
+   * Directory [dir] is optional. If specified, the file names are prepended
+   * with the directory path.
+   */
+  idToFileMap: function(names, dir) {
+    var out = {};
+    names
+        .map(f => {
+          if (dir) {
+            return path.join(dir, f)
+          }
+          return f
+        })
+        .forEach(f => {
+          out[createId_(f)] = f;
         });
     return out;
   },
