@@ -1,6 +1,7 @@
 const files = require('./files.js')
 const yaml = require('js-yaml')
 const fs = require('fs')
+const path = require('path')
 
 const initTypeOverrides= {
   PROBLEM_EBOOK: {
@@ -90,6 +91,12 @@ var z = {
       // We're going to do some hackery here. Instead of storing the SGF files
       // directly in the spec, we're going to re-store them linked to their
       // filenames.
+      var outputDir = path.dirname(opts.outputFile);
+      for (var id in idFileMap) {
+        var file = idFileMap[id];
+        var dir = path.dirname(file);
+        idFileMap[id] = path.join(path.relative(outputDir, dir), path.basename(file))
+      }
       spec.sgfMapping = idFileMap;
 
       var yamlDoc = yaml.safeDump(spec, {
