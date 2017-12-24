@@ -2,13 +2,17 @@
  * Utilities for processing go files.
  */
 
-var fs = require('fs');
-var path = require('path');
-var gpub = require('../index');
+const fs = require('fs');
+const path = require('path');
+const gpub = require('../index');
+const yaml = require('js-yaml')
 
-var createId_ = function(file) {
+const createId_ = function(file) {
   return path.basename(file).replace(/\.sgf$/, '').replace('\.', '_');
 };
+
+const jsonRegex = /\.sgf$/;
+const yamlRegex = /\.yaml$/;
 
 /**
  * Create all the intermediate dirs for a path. Expects a top-level dirname.
@@ -198,5 +202,36 @@ module.exports = {
         fs.writeFileSync(fpath, f.contents);
       }
     });
+  },
+
+  /**
+   * Parses a GPub spec: could be either JSON or Yaml. Optionally can override
+   * the filetype with ftype parameter.
+   */
+  readAndParseSpec: function(file, ftype) {
+    var contents = fs.readFileSync(file, 'utf8');
+    var spec = {};
+    if (jsonRegex.test(file) || ftype === 'JSON') {
+      spec = JSON.parse(contents);
+    } else if (yamlRegex.test(file) || ftype === 'YAML') {
+      spec = yaml.safeLoad(contents);
+    } else {
+      throw new Error('File-type of ' + file + ' could not be ascertained ' +
+          'to be either JSON or YAML. Aborting');
+    }
+
+    // Now, we must convert all the files into actual strings
+    for (var id in spec.sgfMapping) {
+      var file = spec.sgfMapping[id];
+      spec.sgfMapping[id] = fs.readFileSync(file, 'utf8');
+    }
+    return spec;
+  },
+
+  /**
+   * Write the spec-file, taking into account the file type.
+   */
+  writeSpec: function(file, contents, idMap, ftype) {
+    // TODO(kashomon): Add this by stealing the logic from the processor
   }
 };

@@ -15856,6 +15856,30 @@ gpub.init = function(opt) {
   return new gpub.Api(new gpub.Options(opt));
 };
 
+/**
+ * Init creates a fluent-api instance, which allows fine-grained control over
+ * how a book is created.
+ *
+ * Intended usage:
+ *    gpub.initFromSpec(<spec>)
+ *      [.processSpec() optional]
+ *      .createDiagrams()
+ *      .bookMaker()
+ *
+ * @param {!gpub.spec.Spec|!gpub.spec.SpecDef|string} spec Spec definition.
+ *    Note: if the parameter is a string, it's assummed to be JSON and
+ *    deserialized as such.
+ * @return {!gpub.Api} A fluent API wrapper.
+ * @export
+ */
+gpub.initFromSpec = function(spec) {
+  if (!glift) {
+    throw new Error('Gpub depends on Glift, but Glift was not defined');
+  }
+  return new gpub.Api(new gpub.Options()) // Use a dummy options
+    .createSpec(spec);
+}
+
 
 /**
  * Creates a 'book' output from SGFs given a template. In other words,
@@ -15958,7 +15982,7 @@ gpub.Api.prototype = {
    * Create an initial GPub specification. This can either be created from
    * scratch or from an existing spec (in either it's object or JSON form).
    *
-   * @param {(!gpub.spec.Spec|string)=} opt_spec Optionally pass in a spec, in
+   * @param {(!gpub.spec.Spec|!gpub.spec.SpecDef|string)=} opt_spec Optionally pass in a spec, in
    *    either a serialized JSON form, or in the object form.
    * @return {!gpub.Api} A new reference updated with a new cache and spec.
    * @export

@@ -61,7 +61,7 @@ gpub.Api.prototype = {
    * Create an initial GPub specification. This can either be created from
    * scratch or from an existing spec (in either it's object or JSON form).
    *
-   * @param {(!gpub.spec.Spec|string)=} opt_spec Optionally pass in a spec, in
+   * @param {(!gpub.spec.Spec|!gpub.spec.SpecDef|string)=} opt_spec Optionally pass in a spec, in
    *    either a serialized JSON form, or in the object form.
    * @return {!gpub.Api} A new reference updated with a new cache and spec.
    * @export

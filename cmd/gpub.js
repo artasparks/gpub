@@ -25,8 +25,11 @@ program
       'Optional simplified initialization types. One of {PROBLEM_EBOOK, COMMENTARY_LATEX}.',
       'PROBLEM_EBOOK')
   .option('-o, --output-file <file>',
-      'File to write the yaml to defaults to go-book.yaml in current directory',
-      'go-book.yaml')
+      'File to write the yaml to defaults to go-book[.yaml|.json] in current directory',
+      'go-book')
+  .option('-f, --format <format>',
+      'Format for the spec. YAML or JSON supported',
+      'YAML')
 
   // Option overrides
   .option('-t, --template-type <template-type>', 
@@ -47,7 +50,11 @@ program
 program
   .command('process')
   .option('-i, --input <spec-file>', 'Spec file to process into book-compatible form', '')
-  .option('-o, --file <spec-file>', 'Output name for processed spec file. Defaults to input name + processed.yaml', '')
+  .option('-o, --output <spec-file>', 'Output name for processed spec file. ' +
+      'Defaults to input name + processed[.yaml|.json]', '')
+  .option('-f, --format <format>', 
+      'Output format for the spec. YAML or JSON supported',
+      'YAML')
 
   .description('Processes a book spec, returning processed spec')
   .action(function(options) {

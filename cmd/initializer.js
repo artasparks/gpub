@@ -33,24 +33,20 @@ var methods = {
     }
 
     if (!opts.templateType) {
-      console.error('template-type must be specified. was: '
+      throw new Error('template-type must be specified. was: '
           + opts.templateType);
-      return
     }
     if (!opts.diagramType) {
-      console.error('diagram-type must be specified. was: '
+      throw new Error('diagram-type must be specified. was: '
           + opts.diagramType);
-      return
     }
     if (!opts.positionType) {
-      console.error('position-type must be specified. was: '
+      throw new Error('position-type must be specified. was: '
           + opts.positionType);
-      return
     }
     if (!opts.outputFile) {
-      console.error('output-file must be specified. was: '
+      throw new Error('output-file must be specified. was: '
           + opts.outputFile);
-      return
     }
 
     var crawl = opts.crawl;
@@ -99,13 +95,21 @@ var methods = {
       }
       spec.sgfMapping = idFileMap;
 
-      var yamlDoc = yaml.safeDump(spec, {
-        // skip undefined.
-        skipInvalid: true
-      })
+      var outDoc = '';
+      var docExt = '.yaml';
+      if (opts.format == 'JSON') {
+        outDoc = JSON.stringify(spec);
+        docExt = '.json';
+      } else {
+        outDoc = yaml.safeDump(spec, {
+          // skip undefined.
+          skipInvalid: true
+        });
+      }
 
-      console.log('Writing spec to: ' + opts.outputFile);
-      fs.writeFileSync(opts.outputFile, yamlDoc);
+      console.log('Writing spec to: ' + opts.outputFile + docExt);
+
+      fs.writeFileSync(opts.outputFile + docExt, outDoc);
       console.log('Done!');
     });
   },
