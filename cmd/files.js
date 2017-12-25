@@ -207,25 +207,35 @@ module.exports = {
   /**
    * Parses a GPub spec: could be either JSON or Yaml. Optionally can override
    * the filetype with ftype parameter.
+   *
+   * output format: {
+   *   spec: <spec>,
+   *   idFileMap: Object<string, string>,
+   * }
    */
   readAndParseSpec: function(file, ftype) {
     var contents = fs.readFileSync(file, 'utf8');
-    var spec = {};
+    var out = {
+      spec: {},
+      idFileMap: {},
+    };
     if (jsonRegex.test(file) || ftype === 'JSON') {
-      spec = JSON.parse(contents);
+      out.spec = JSON.parse(contents);
     } else if (yamlRegex.test(file) || ftype === 'YAML') {
-      spec = yaml.safeLoad(contents);
+      out.spec = yaml.safeLoad(contents);
     } else {
       throw new Error('File-type of ' + file + ' could not be ascertained ' +
           'to be either JSON or YAML. Aborting');
     }
 
     // Now, we must convert all the files into actual strings
-    for (var id in spec.sgfMapping) {
-      var file = spec.sgfMapping[id];
-      spec.sgfMapping[id] = fs.readFileSync(file, 'utf8');
+    var idFileMap = {};
+    for (var id in out.spec.sgfMapping) {
+      var file = out.spec.sgfMapping[id];
+      out.idFileMap[id] = file;
+      out.spec.sgfMapping[id] = fs.readFileSync(file, 'utf8');
     }
-    return spec;
+    return out;
   },
 
   /**
@@ -234,9 +244,9 @@ module.exports = {
   writeSpec: function(outFile, spec, idFileMap, ftype) {
     var outFileExt = path.extname(outFile);
     var outFileBase = path.basename(outFile, outFileExt);
-
     var outDir = path.dirname(outFile);
-    var newFileMap = {}
+    var newFileMap = {};
+
     for (var id in idFileMap) {
       var file = idFileMap[id];
       var dir = path.dirname(file);
