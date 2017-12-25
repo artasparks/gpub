@@ -231,7 +231,53 @@ module.exports = {
   /**
    * Write the spec-file, taking into account the file type.
    */
-  writeSpec: function(file, contents, idMap, ftype) {
+  writeSpec: function(outFile, spec, idFileMap, ftype) {
+    var outFileExt = path.extname(outFile);
+    var outFileBase = path.basename(outFile, outFileExt);
+
+    var outDir = path.dirname(outFile);
+    var newFileMap = {}
+    for (var id in idFileMap) {
+      var file = idFileMap[id];
+      var dir = path.dirname(file);
+      // Make sure the files
+      newFileMap[id] = path.join(path.relative(outDir, dir), path.basename(file))
+    }
+
+    spec.sgfMapping = newFileMap;
+
+    var outDoc = '';
+    var docExt = '.yaml';
+    var processJson = function() {
+      outDoc = JSON.stringify(spec);
+      docExt = '.json';
+    };
+    var processYaml = function() {
+      outDoc = yaml.safeDump(spec, {
+        // skip undefined.
+        skipInvalid: true
+      });
+      docExt = '.yaml';
+    }
+
+    if (ftype === 'JSON') {
+      processJson();
+    } else if (ftype === 'YAML') {
+      processYaml();
+    } else if (outFileExt === '.json') {
+      processJson();
+    } else if (outFileExt === '.yaml') {
+      processYaml();
+    } else {
+      // Default condition
+      processYaml();
+    }
+
+    var finalOutFile = path.join(outDir, outFileBase) + docExt;
+
+    console.log('Writing spec to: ' + finalOutFile);
+    fs.writeFileSync(finalOutFile, outDoc);
+
     // TODO(kashomon): Add this by stealing the logic from the processor
   }
 };

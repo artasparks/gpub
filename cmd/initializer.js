@@ -84,32 +84,8 @@ var methods = {
       }).createSpec();
 
       var spec = api.spec();
-      // We're going to do some hackery here. Instead of storing the SGF files
-      // directly in the spec, we're going to re-store them linked to their
-      // filenames.
-      var outputDir = path.dirname(opts.outputFile);
-      for (var id in idFileMap) {
-        var file = idFileMap[id];
-        var dir = path.dirname(file);
-        idFileMap[id] = path.join(path.relative(outputDir, dir), path.basename(file))
-      }
-      spec.sgfMapping = idFileMap;
+      files.writeSpec(opts.outputFile, spec, idFileMap, opts.format);
 
-      var outDoc = '';
-      var docExt = '.yaml';
-      if (opts.format == 'JSON') {
-        outDoc = JSON.stringify(spec);
-        docExt = '.json';
-      } else {
-        outDoc = yaml.safeDump(spec, {
-          // skip undefined.
-          skipInvalid: true
-        });
-      }
-
-      console.log('Writing spec to: ' + opts.outputFile + docExt);
-
-      fs.writeFileSync(opts.outputFile + docExt, outDoc);
       console.log('Done!');
     });
   },
