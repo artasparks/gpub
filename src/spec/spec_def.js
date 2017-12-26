@@ -120,5 +120,13 @@ gpub.spec.Spec.prototype = {
    */
   serializeJson: function() {
     return JSON.stringify(this);
-  }
+  },
+
+  /**
+   * Serialize, but remove the any value that's equal to a default value
+   * @return {string}
+   */
+  serializeRemovingDefaults: function() {
+    return '';
+  },
 };
