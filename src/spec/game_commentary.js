@@ -36,10 +36,6 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
   var mainlineLbl = 'MAINLINE';
   var variationLbl = 'VARIATION';
 
-  gen.labels[mainlineLbl] = [];
-  gen.labels[variationLbl] = [];
-  gen.labels[gpub.spec.PositionType.GAME_COMMENTARY] = [];
-
   while (node) {
     if (!mt.properties().getComment() && node.numChildren() > 0) {
       // Ignore positions don't have comments and aren't terminal.
@@ -61,8 +57,6 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
           labels: [mainlineLbl, gpub.spec.PositionType.GAME_COMMENTARY]
       })
       gen.positions.push(pos);
-      gen.labels[mainlineLbl].push(pos.id);
-      gen.labels[gpub.spec.PositionType.GAME_COMMENTARY].push(pos.id);
 
       varPathBuffer = varPathBuffer.concat(
           gpub.spec.variationPaths(mt));
@@ -80,8 +74,6 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
             labels: [variationLbl, gpub.spec.PositionType.GAME_COMMENTARY],
         });
         gen.positions.push(varPos);
-        gen.labels[variationLbl].push(varPos.id);
-        gen.labels[gpub.spec.PositionType.GAME_COMMENTARY].push(varPos.id);
       }
       varPathBuffer = [];
     }

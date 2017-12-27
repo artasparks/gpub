@@ -275,6 +275,8 @@ gpub.book.BookMaker.prototype = {
           // throw new Error('Couldn\'t find diagram metadata for ID ' + p.id);
           return;
         }
+
+        // the set of labels that exist for a given position
         var labelSet = {};
         for (var k = 0; k < p.labels.length; k++) {
           labelSet[p.labels[k]] = true;

@@ -35,8 +35,6 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
   // Should be empty now.
   var initPos = mt.treepathToHere();
 
-  gen.labels[gpub.spec.PositionType.PROBLEM] = [];
-
   /**
    * @param {!glift.rules.MoveTree} movetree
    * @param {!glift.rules.Treepath} prevPos Path to the previous position
@@ -62,9 +60,6 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
       if (prevPos.length === 0 && sincePrevPos.length === 0) {
         label = 'PROBLEM_ROOT';
       }
-      if (!gen.labels[label]) {
-        gen.labels[label] = [];
-      }
       var ip = ipString(prevPos);
       var frag = fragString(sincePrevPos);
       var pos = new gpub.spec.Position({
@@ -74,8 +69,6 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
         nextMovesPath: frag,
         labels: [label, gpub.spec.PositionType.PROBLEM],
       });
-      gen.labels[label].push(pos.id);
-      gen.labels[gpub.spec.PositionType.PROBLEM].push(pos.id);
 
       outPositions.push(pos);
       prevPos = prevPos.concat(sincePrevPos);

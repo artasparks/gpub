@@ -26,8 +26,9 @@
     deepEqual(gen.positions[1].nextMovesPath, '0', 'gen-2 next moves');
     deepEqual(gen.positions[1].labels, ['MAINLINE', 'GAME_COMMENTARY'], 'gen-2 lbl');
 
-    deepEqual(gen.labels['MAINLINE'].length, 2);
-    deepEqual(gen.labels['GAME_COMMENTARY'].length, 2);
+    var genLabels = gen.positionLabels();
+    deepEqual(genLabels['MAINLINE'].length, 2);
+    deepEqual(genLabels['GAME_COMMENTARY'].length, 2);
   });
 
   test('Process game commentary with variations', function() {
@@ -43,9 +44,11 @@
     });
     var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts).generated;
     deepEqual(gen.positions.length, 4);
-    deepEqual(gen.labels['MAINLINE'].length, 3);
-    deepEqual(gen.labels['VARIATION'].length, 1);
-    deepEqual(gen.labels['GAME_COMMENTARY'].length, 4);
+
+    var genLabels = gen.positionLabels();
+    deepEqual(genLabels['MAINLINE'].length, 3);
+    deepEqual(genLabels['VARIATION'].length, 1);
+    deepEqual(genLabels['GAME_COMMENTARY'].length, 4);
     deepEqual(gen.positions[3].labels, ['VARIATION', 'GAME_COMMENTARY'], 'gen-3 lbl');
   });
 
@@ -88,8 +91,9 @@
     deepEqual(gen.positions.length, 1, 'num variations');
     ok(gen.positions[0].nextMovesPath, '0:228', 'Testing nextmoves path');
 
-    deepEqual(gen.labels['MAINLINE'].length, 1);
-    deepEqual(gen.labels['VARIATION'].length, 0);
+    var genLabels = gen.positionLabels();
+    deepEqual(genLabels['MAINLINE'].length, 1);
+    deepEqual(genLabels['VARIATION'], undefined);
   });
 
   test('Process basic game commentary: rotation', function() {
@@ -111,8 +115,10 @@
 
     deepEqual(gen.positions[1].id, id + '-1', 'gen-2 id');
     deepEqual(gen.positions[1].initialPosition, '0', 'gen-2 init pos');
-    deepEqual(gen.labels['MAINLINE'].length, 2);
-    deepEqual(gen.labels['GAME_COMMENTARY'].length, 2);
+
+    var genLabels = gen.positionLabels();
+    deepEqual(genLabels['MAINLINE'].length, 2);
+    deepEqual(genLabels['GAME_COMMENTARY'].length, 2);
   });
 
 })();

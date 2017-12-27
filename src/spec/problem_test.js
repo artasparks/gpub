@@ -17,15 +17,17 @@
     deepEqual(generated.positionType, gpub.spec.PositionType.EXAMPLE);
     deepEqual(generated.positions.length, 8);
 
+    var genLabels = generated.positionLabels();
+
     var root = new gpub.spec.Position({
       id: id + '-' + 0,
       alias: id,
       initialPosition: '0',
       labels: ['PROBLEM_ROOT', 'PROBLEM'],
     });
-    deepEqual(generated.labels['PROBLEM_ROOT'].length, 1, 'num problem root lbl');
-    deepEqual(generated.labels['PROBLEM'].length, 8, 'num problem lbl');
-    deepEqual(generated.labels['PROBLEM_ROOT'][0], root.id, 'problem root id');
+    deepEqual(genLabels['PROBLEM_ROOT'].length, 1, 'num problem root lbl');
+    deepEqual(genLabels['PROBLEM'].length, 8, 'num problem lbl');
+    deepEqual(genLabels['PROBLEM_ROOT'][0], root.id, 'problem root id');
     deepEqual(generated.positions[0], root, 'problem root pos');
 
     var indet = new gpub.spec.Position({
@@ -35,8 +37,8 @@
       nextMovesPath: '0',
       labels: ['INDETERMINATE', 'PROBLEM'],
     });
-    deepEqual(generated.labels['INDETERMINATE'].length, 1, 'num indeterminate');
-    deepEqual(generated.labels['INDETERMINATE'][0], indet.id, 'indeterminate id');
+    deepEqual(genLabels['INDETERMINATE'].length, 1, 'num indeterminate');
+    deepEqual(genLabels['INDETERMINATE'][0], indet.id, 'indeterminate id');
     deepEqual(generated.positions[3], indet, 'indet obj');
 
     var incor = new gpub.spec.Position({
@@ -46,8 +48,8 @@
       nextMovesPath: '0:2',
       labels: ['INCORRECT', 'PROBLEM'],
     });
-    deepEqual(generated.labels['INCORRECT'].length, 3, 'num incorrect');
-    deepEqual(generated.labels['INCORRECT'][0], incor.id, 'incorrect id');
+    deepEqual(genLabels['INCORRECT'].length, 3, 'num incorrect');
+    deepEqual(genLabels['INCORRECT'][0], incor.id, 'incorrect id');
     deepEqual(generated.positions[1], incor, 'incor obj');
 
     var cor = new gpub.spec.Position({
@@ -57,8 +59,8 @@
       nextMovesPath: '1',
       labels: ['CORRECT', 'PROBLEM'],
     });
-    deepEqual(generated.labels['CORRECT'].length, 3);
-    deepEqual(generated.labels['CORRECT'][0], cor.id, 'correct id');
+    deepEqual(genLabels['CORRECT'].length, 3);
+    deepEqual(genLabels['CORRECT'][0], cor.id, 'correct id');
     deepEqual(generated.positions[2], cor, 'cor obj');
   });
 })();

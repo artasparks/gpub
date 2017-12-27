@@ -10493,10 +10493,6 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
   var mainlineLbl = 'MAINLINE';
   var variationLbl = 'VARIATION';
 
-  gen.labels[mainlineLbl] = [];
-  gen.labels[variationLbl] = [];
-  gen.labels[gpub.spec.PositionType.GAME_COMMENTARY] = [];
-
   while (node) {
     if (!mt.properties().getComment() && node.numChildren() > 0) {
       // Ignore positions don't have comments and aren't terminal.
@@ -10518,8 +10514,6 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
           labels: [mainlineLbl, gpub.spec.PositionType.GAME_COMMENTARY]
       })
       gen.positions.push(pos);
-      gen.labels[mainlineLbl].push(pos.id);
-      gen.labels[gpub.spec.PositionType.GAME_COMMENTARY].push(pos.id);
 
       varPathBuffer = varPathBuffer.concat(
           gpub.spec.variationPaths(mt));
@@ -10537,8 +10531,6 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
             labels: [variationLbl, gpub.spec.PositionType.GAME_COMMENTARY],
         });
         gen.positions.push(varPos);
-        gen.labels[variationLbl].push(varPos.id);
-        gen.labels[gpub.spec.PositionType.GAME_COMMENTARY].push(varPos.id);
       }
       varPathBuffer = [];
     }
@@ -10639,23 +10631,33 @@ gpub.spec.Generated = function(opt_gen) {
       this.positions.push(new gpub.spec.Position(o.positions[i]));
     }
   }
+};
 
+gpub.spec.Generated.prototype = {
   /**
-   * Map from arbitrary labels to position ID. This is motivated by Problem
+   * Create the labels map from all the generated positions.
+   *
+   * This is a map from arbitrary labels to position ID. This is motivated by Problem
    * positions which generate:
    * - A starting position.
    * - Correct variations.
    * - Incorrect variations.
-   * This is not guaranteed to be populated by anything in particular, but may
-   * be populated for convenience.
-   * @type {!Object<string, !Array<string>>}
+   *
+   * @return {!Object<string, !Array<string>>}
    */
-  this.labels = {};
-  if (o.labels) { // Deep copy
-    for (var k in o.labels) {
-      // if o.labels[k] is not an array, thats a programming error and should explode.
-      this.labels[k] = o.labels[k].slice();
+  positionLabels: function() {
+    var labels = {};
+    for (var i = 0; i < this.positions.length; i++) {
+      var p = this.positions[i];
+      for (var j = 0; j < p.labels.length; j++) {
+        var lab = p.labels[j];
+        if (!labels[lab]) {
+          labels[lab] = [];
+        }
+        labels[lab].push(p.id);
+      }
     }
+    return labels;
   }
 };
 
@@ -11135,8 +11137,6 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
   // Should be empty now.
   var initPos = mt.treepathToHere();
 
-  gen.labels[gpub.spec.PositionType.PROBLEM] = [];
-
   /**
    * @param {!glift.rules.MoveTree} movetree
    * @param {!glift.rules.Treepath} prevPos Path to the previous position
@@ -11162,9 +11162,6 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
       if (prevPos.length === 0 && sincePrevPos.length === 0) {
         label = 'PROBLEM_ROOT';
       }
-      if (!gen.labels[label]) {
-        gen.labels[label] = [];
-      }
       var ip = ipString(prevPos);
       var frag = fragString(sincePrevPos);
       var pos = new gpub.spec.Position({
@@ -11174,8 +11171,6 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
         nextMovesPath: frag,
         labels: [label, gpub.spec.PositionType.PROBLEM],
       });
-      gen.labels[label].push(pos.id);
-      gen.labels[gpub.spec.PositionType.PROBLEM].push(pos.id);
 
       outPositions.push(pos);
       prevPos = prevPos.concat(sincePrevPos);
@@ -14649,6 +14644,8 @@ gpub.book.BookMaker.prototype = {
           // throw new Error('Couldn\'t find diagram metadata for ID ' + p.id);
           return;
         }
+
+        // the set of labels that exist for a given position
         var labelSet = {};
         for (var k = 0; k < p.labels.length; k++) {
           labelSet[p.labels[k]] = true;

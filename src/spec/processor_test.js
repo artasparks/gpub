@@ -50,8 +50,9 @@
         genp.alias = gen.alias;
         genp.id = gen.alias + '-' + i;
       };
-      deepEqual(gen.labels['MAINLINE'].length, 2);
-      deepEqual(gen.labels['VARIATION'].length, 0);
+      var genLabels = gen.positionLabels();
+      deepEqual(genLabels['MAINLINE'].length, 2);
+      deepEqual(genLabels['VARIATION'], undefined);
     });
   });
 

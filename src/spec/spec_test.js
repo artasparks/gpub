@@ -82,11 +82,12 @@
     var proc = gpub.spec.process(spec, cache);
     ok(proc, 'processed spec should be defined');
     var secondId = 'sgf-2';
-    deepEqual(proc.rootGrouping.generated['sgf-2'].labels['CORRECT'].length, 1,
+    var sgf2Labels = proc.rootGrouping.generated['sgf-2'].positionLabels();
+    deepEqual(sgf2Labels['CORRECT'].length, 1,
         'should have one correct answer')
-    var rootId = proc.rootGrouping.generated['sgf-2'].labels['PROBLEM_ROOT'][0];
+    var rootId = sgf2Labels['PROBLEM_ROOT'][0];
     deepEqual(proc.rootGrouping.generated['sgf-2'].positions[0].id, rootId);
-    var corId = proc.rootGrouping.generated['sgf-2'].labels['CORRECT'][0];
+    var corId = sgf2Labels['CORRECT'][0];
     deepEqual(proc.rootGrouping.generated['sgf-2'].positions[1].id, corId);
 
     var json = proc.serializeJson();
@@ -108,15 +109,16 @@
     var proc = gpub.spec.process(spec, cache);
     ok(proc, 'should be defined');
     var gen = proc.rootGrouping.generated['sgf-1'];
+    var genLabels = gen.positionLabels();
 
-    deepEqual(gen.labels['MAINLINE'].length, 1);
-    var mainId = gen.labels['MAINLINE'][0];
+    deepEqual(genLabels['MAINLINE'].length, 1);
+    var mainId = genLabels['MAINLINE'][0];
     deepEqual(gen.positions[0].id, mainId, 'main id');
     deepEqual(gen.positions[0].initialPosition, '0', 'main init');
     deepEqual(gen.positions[0].nextMovesPath, '0:2', 'main next moves');
 
-    deepEqual(gen.labels['VARIATION'].length, 1);
-    var varId = gen.labels['VARIATION'][0];
+    deepEqual(genLabels['VARIATION'].length, 1);
+    var varId = genLabels['VARIATION'][0];
     deepEqual(gen.positions[1].id, varId, 'var id');
     deepEqual(gen.positions[1].initialPosition, '1', 'var init');
     deepEqual(gen.positions[1].nextMovesPath, '1', 'var next moves');

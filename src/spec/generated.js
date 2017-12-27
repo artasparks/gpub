@@ -48,22 +48,32 @@ gpub.spec.Generated = function(opt_gen) {
       this.positions.push(new gpub.spec.Position(o.positions[i]));
     }
   }
+};
 
+gpub.spec.Generated.prototype = {
   /**
-   * Map from arbitrary labels to position ID. This is motivated by Problem
+   * Create the labels map from all the generated positions.
+   *
+   * This is a map from arbitrary labels to position ID. This is motivated by Problem
    * positions which generate:
    * - A starting position.
    * - Correct variations.
    * - Incorrect variations.
-   * This is not guaranteed to be populated by anything in particular, but may
-   * be populated for convenience.
-   * @type {!Object<string, !Array<string>>}
+   *
+   * @return {!Object<string, !Array<string>>}
    */
-  this.labels = {};
-  if (o.labels) { // Deep copy
-    for (var k in o.labels) {
-      // if o.labels[k] is not an array, thats a programming error and should explode.
-      this.labels[k] = o.labels[k].slice();
+  positionLabels: function() {
+    var labels = {};
+    for (var i = 0; i < this.positions.length; i++) {
+      var p = this.positions[i];
+      for (var j = 0; j < p.labels.length; j++) {
+        var lab = p.labels[j];
+        if (!labels[lab]) {
+          labels[lab] = [];
+        }
+        labels[lab].push(p.id);
+      }
     }
+    return labels;
   }
 };
