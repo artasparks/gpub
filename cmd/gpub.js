@@ -10,7 +10,7 @@ var parser = require('./parser')
 
 program
   // TODO(kashomon): Version with GPub
-  .version('0.1.0');
+  .version(gpub.global.version);
   // Global options
 
 function listify(val) {

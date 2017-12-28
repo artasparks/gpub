@@ -11595,6 +11595,8 @@ gpub.spec.Spec.prototype = {
    * @return {string}
    */
   serializeRemovingDefaults: function() {
+    var baseSpec = new gpub.spec.Spec();
+    // compare vs baseSpec.
     return '';
   },
 };
