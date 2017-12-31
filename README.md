@@ -105,6 +105,9 @@ Also, if it's helpful, you can write the comments that go with the diagrams to .
 gpub render-diagrams --input go-book.yaml --write-comments
 ```
 
+**Important Note:** By default, the comments are interpreted as Markdown and
+processed as such into LaTeX. So, `**FooBar**` becomes `\textbf{FooBar}`.
+
 ### Book Generation
 
 TODO(Kashomon): Add this functionality.
