@@ -7,6 +7,7 @@ var gpub = require('../index');
 var initializer = require('./initializer')
 var processor = require('./processor')
 var parser = require('./parser')
+var diagrams = require('./diagrams')
 
 program
   // TODO(kashomon): Version with GPub
@@ -18,7 +19,7 @@ function listify(val) {
 }
 
 program
-  .command('init')
+  .command('init-book')
   .option('-c, --no-crawl', 'Whether to not crawl the current directory looking for sgfs.', true)
   .option('-w, --crawl-dir <dir>', 'Directory to crawl looking for SGFs. Defaults to cwd', '')
   .option('-i, --init-type [init-type]',
@@ -49,8 +50,8 @@ program
 
 program
   .command('process')
-  .option('-i, --input <spec-file>', 'Spec file to process into book-compatible form', '')
-  .option('-o, --output <spec-file>', 'Output name for processed spec file. ' +
+  .option('-i, --input <spec-file>', 'Spec file to process into book-compatible form')
+  .option('-o, --output [spec-file]', 'Output name for processed spec file. ' +
       'Defaults to input name + processed[.yaml|.json]', '')
   .option('-f, --format <format>', 
       'Output format for the spec. YAML or JSON supported',
@@ -59,6 +60,20 @@ program
   .description('Processes a book spec, returning processed spec')
   .action(function(options) {
     processor.process(options);
+  });
+
+
+program
+  .command('render-diagrams')
+  .option('-i, --input <spec-file>', 'Spec file from which to generate diagrams')
+  .option('-o, --output-dir <dir>', 'Output directroy for generated diagrams. ' +
+      'Defaults to cwd + /diagrams', '')
+  .option('-f, --diagram-type [diagram-type]',
+      'Override the output format of the diagrams. Usually this comes from the spec')
+
+  .description('Render images from a gpub book spec.')
+  .action(function(options) {
+    diagrams.render(options);
   });
 
 program

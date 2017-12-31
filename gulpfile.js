@@ -30,6 +30,7 @@ var srcPaths = [
   // complete
   // :GPub: //
   'src/gpub.js',
+  'src/gpub_global.js',
   // 'src/',
   'src/options',
   'src/spec',

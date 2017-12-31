@@ -7,7 +7,8 @@ module.exports = {
   process: function(opts) {
     if (!opts.input) {
       throw new Error('Expected input-spec to be defined, but was: '
-          + opts.input);
+          + opts.input +
+          '. Pass in with --input <spec-name>');
     }
     var inputFile = opts.input;
     var parsed = files.readAndParseSpec(inputFile);
