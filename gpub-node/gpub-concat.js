@@ -9542,7 +9542,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.34
+ * @version 0.3.35
  * --------------------------------------
  */
 (function(w) {
@@ -9567,7 +9567,7 @@ gpub.global = {
    * See: http://semver.org/
    * Currently in alpha.
    */
-  version: '0.4.0',
+  version: '0.4.1',
 };
 
 goog.provide('gpub.Options');
