@@ -34,7 +34,7 @@ useful SGF-related tasks.
 Install with NPM:
 
 ```
-npm install -g gpub
+npm install -g gpub-go
 ```
 
 Or manually:
