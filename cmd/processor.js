@@ -1,7 +1,9 @@
 const fs = require('fs')
 const path = require('path')
 const yaml = require('js-yaml')
-const files = require('./files.js')
+
+const files = require('./files')
+const gpub = require('../index');
 
 module.exports = {
   process: function(opts) {

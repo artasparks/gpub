@@ -28,7 +28,7 @@ gpub.book.latex.renderer_ = function(opt_overrides) {
  * @param {string} str The text to process.
  * @param {!Object=} opt_overrides Optional object containing renderer-method
  *    overrides.
- * @return {!gpub.book.ProcessedMarkdown}
+ * @return {!gpub.book.ProcessedText}
  */
 gpub.book.latex.renderMarkdown = function(str, opt_overrides) {
   var renderer = gpub.book.latex.renderer_(opt_overrides)
@@ -45,7 +45,7 @@ gpub.book.latex.renderMarkdown = function(str, opt_overrides) {
   var text = glift.marked(str, opts);
   // Now we need to post-process and escape #
   text = text.replace(/#/g, '\\#');
-  return /** @type {!gpub.book.ProcessedMarkdown} */ ({
+  return /** @type {!gpub.book.ProcessedText} */ ({
     preamble: extractPreamble(renderer),
     text: text
   });
@@ -74,7 +74,7 @@ gpub.book.latex.MarkdownBase.prototype = {
    * ## Level 2: Part
    * ### Level 3: Chapter
    * ####+ Level 4+: Chapter*
-   * text: string, level: number  
+   * text: string, level: number
    * @param {string} text
    * @param {number} level
    * @return string
@@ -216,3 +216,10 @@ gpub.book.latex.MarkdownBase.prototype = {
    */
   del: function(text) { return text; }
 };
+
+// Register this formatter as an optional type;
+gpub.book.formatter.registry[gpub.book.MarkdownFormat.LATEX] =
+    gpub.book.latex.renderMarkdown;
+gpub.book.formatter.registry[gpub.book.MarkdownFormat.XELATEX] =
+    gpub.book.latex.renderMarkdown;
+

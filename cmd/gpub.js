@@ -72,7 +72,8 @@ program
   .option('-p, --noauto-process', 'Whether to also process the Spec file generated output dir.')
   .option('-f, --diagram-type [diagram-type]',
       'Override the output format of the diagrams. Usually this comes from the spec', '')
-  .option('-c, --write-comments', 'Whether to also write the comments to *-comment.txt files', false)
+  .option('-c, --write-comments', 'Whether to also write the comments to *-comment.txt files')
+  .option('-m, --nomarkdown-comments', 'Whether to turn off markdown-processing of comments')
 
   .description('Render images from a gpub book spec.')
   .action(function(options) {

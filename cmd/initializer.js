@@ -1,7 +1,9 @@
-const files = require('./files.js')
 const yaml = require('js-yaml')
 const fs = require('fs')
 const path = require('path')
+
+const gpub = require('../index');
+const files = require('./files')
 
 const initTypeOverrides= {
   PROBLEM_EBOOK: {

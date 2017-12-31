@@ -1,7 +1,8 @@
 const fs = require('fs')
 const path = require('path')
 
-const files = require('./files.js')
+const gpub = require('../index');
+const files = require('./files')
 
 module.exports = {
   render: function(opts) {
@@ -54,12 +55,22 @@ module.exports = {
     console.log('Rendering diagrams from: ' + inputFile);
     console.log('Writing diagrams to: ' + outputDir);
 
+    var diagramType = parsed.spec.diagramOptions.diagramType;
+    console.log('Using Diagram Type: ' + diagramType);
+
+    var fmt = gpub.book.formatter.fromDiagramType(diagramType);
     api.renderDiagramsStream(function(diagram, meta) {
       var fpath = path.join(outputDir, diagram.id) + '.' + meta.extension;
       fs.writeFileSync(fpath, diagram.rendered);
+
+      // Optionally write comment files
       if (opts.writeComments) {
-        var cpath = path.join(outputDir, diagram.id) + '-comments.txt';
-        fs.writeFileSync(cpath, meta.comment);
+        var cpath = path.join(outputDir, diagram.id) + '-comment.txt';
+        var content = meta.comment;
+        if (!opts.nomarkdownComments) {
+          content = gpub.book.formatter.joinProcessed(fmt(content));
+        }
+        fs.writeFileSync(cpath, content);
       }
     });
     console.log('Done rendering!');

@@ -4,8 +4,9 @@
 
 const fs = require('fs');
 const path = require('path');
-const gpub = require('../index');
 const yaml = require('js-yaml')
+
+const gpub = require('../index');
 
 const createId_ = function(file) {
   return path.basename(file).replace(/\.sgf$/, '').replace('\.', '_');

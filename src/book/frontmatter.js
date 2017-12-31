@@ -1,15 +1,4 @@
 goog.provide('gpub.book.frontmatter');
-goog.provide('gpub.book.ProcessedMarkdown');
-
-
-/**
- * Processed markdown.
- * @typedef {{
- *   preamble: string,
- *   text: string
- * }}
- */
-gpub.book.ProcessedMarkdown;
 
 
 /**
@@ -22,46 +11,13 @@ gpub.book.frontmatter = {
    * @return {!gpub.opts.Frontmatter} formatted frontmatter.
    */
   format: function(format, opts) {
-    var fmt = function(str) {
-      return /** @type {!gpub.book.ProcessedMarkdown} */ ({
-        preamble: '',
-        text: str,
-      });
-    };
-    var htmlfmt = function(str) {
-      return {
-        preamble: '',
-        text: glift.marked(str, {
-          silent: true,
-        })
-      };
-    };
-    switch(format) {
-      case 'LATEX':
-      case 'XELATEX':
-        // This is really a memoir-class renderer.
-        fmt = gpub.book.latex.renderMarkdown;
-        break;
-      case 'EPUB':
-      case 'AZW3':
-        fmt = htmlfmt;
-        break;
-      default:
-        // formatter stays the same
-    }
+    var fmt = gpub.book.formatter.get(format);
     var construct = function(section) {
       if (!section) {
         // Return empty string as default case.
         return '';
       }
-      var proc = fmt(section);
-      var out = '';
-      if (proc.preamble) {
-        out = proc.preamble + '\n' + proc.text;
-      } else {
-        out = proc.text;
-      }
-      return out;
+      return gpub.book.formatter.joinProcessed(fmt(section));
     }
     var foreword = construct(opts.foreword);
     var preface = construct(opts.preface);
