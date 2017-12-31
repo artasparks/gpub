@@ -186,7 +186,9 @@ gulp.task('update-html-compiled', ['compile'], () => {
 });
 
 gulp.task('compile-test', ['update-html-compiled'], () => {
-  return gulp.src('./test/htmltests_gen/GPubQunitTest.html').pipe(qunit())
+  return gulp.src('./test/htmltests_gen/GPubQunitTest.html').pipe(qunit({
+    timeout: 10, // 10 seconds. Sometimes travis is slow
+  }))
 });
 
 gulp.task('compile-watch', () => {
