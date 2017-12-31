@@ -2,4 +2,4 @@ language: node_js
 node_js: "8.9.3"
 before_script:
   - npm install -g gulp
-script: gulp build-test
+script: travis_wait 10 gulp build-test
