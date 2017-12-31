@@ -20,7 +20,7 @@ module.exports = {
       outputDir = baseDirName
     }
 
-    if (opts.createOutputDir) {
+    if (!opts.nocreateOutputDir) {
       try {
         // Try to make the directory, to ensure it exists
         fs.mkdirSync(outputDir);
@@ -31,8 +31,8 @@ module.exports = {
       }
     }
 
-    var parsed = files.readAndParseSpec(inputFile);
 
+    var parsed = files.readAndParseSpec(inputFile);
     if (opts.diagramType) {
       if (!parsed.spec.diagramOptions) {
         parsed.diagramOptions = {};
@@ -40,12 +40,21 @@ module.exports = {
       parsed.spec.diagramOptions.diagramType = opts.diagramType;
     }
 
-    console.log('Rendering digarams from: ' + inputFile);
-    console.warn('Note: The gpub spec must already be processed ' +
-        'in order to generate diagrams.')
-
     // Async write the files.
-    gpub.initFromSpec(parsed.spec).renderDiagramsStream(function(diagram, meta) {
+    var api = gpub.initFromSpec(parsed.spec)
+    if (!opts.noautoProcess) {
+      console.log('Processing spec: ' + inputFile);
+      api = api.processSpec();
+    } else {
+      console.warn('Auto-processing disabled (--noauto-process)')
+      console.warn('Note: The gpub spec must already be processed ' +
+          'in order to generate diagrams.')
+    }
+
+    console.log('Rendering diagrams from: ' + inputFile);
+    console.log('Writing diagrams to: ' + outputDir);
+
+    api.renderDiagramsStream(function(diagram, meta) {
       var fpath = path.join(outputDir, diagram.id) + '.' + meta.extension;
       fs.writeFileSync(fpath, diagram.rendered);
       if (opts.writeComments) {

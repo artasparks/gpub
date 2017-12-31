@@ -9,8 +9,13 @@ const initTypeOverrides= {
     positionType: 'PROBLEM',
     diagramType: 'SVG',
   },
+  PROBLEM_LATEX: {
+    templateType: 'PROBLEM_LATEX',
+    positionType: 'PROBLEM',
+    diagramType: 'GNOS',
+  },
   COMMENTARY_LATEX: {
-    templateType: 'RELENTLESS_COMMENTARY_LATEX',
+    templateType: 'COMMENTARY_LATEX',
     positionType: 'GAME_COMMENTARY',
     diagramType: 'GNOS',
   }
@@ -62,32 +67,30 @@ var methods = {
       return /^\..*/.test(f);
     };
 
-    files.walk(opts.crawlDir, filter, ignore, (results) => {
-      var sorted = files.numberSuffixSort(results);
-      var idContentsMap = files.idToContentsMap(sorted);
-      var idFileMap = files.idToFileMap(sorted);
-      var ids = files.createFileIds(sorted);
+    var results = files.walkSync(opts.crawlDir, filter, ignore);
 
-      var api = gpub.init({
-        template: opts.templateType,
-        sgfs: idContentsMap,
-        grouping: ids,
-        specOptions: {
-          positionType: opts.positionType,
-        },
-        diagramOptions: {
-          diagramType: opts.diagramType,
-        },
-        templateOptions: {
-          chapterSize: 25,
-        }
-      }).createSpec();
+    var sorted = files.numberSuffixSort(results);
+    var idContentsMap = files.idToContentsMap(sorted);
+    var idFileMap = files.idToFileMap(sorted);
+    var ids = files.createFileIds(sorted);
 
-      var spec = api.spec();
-      files.writeSpec(opts.outputFile, spec, idFileMap, opts.format);
+    var api = gpub.init({
+      template: opts.templateType,
+      sgfs: idContentsMap,
+      grouping: ids,
+      specOptions: {
+        positionType: opts.positionType,
+      },
+      diagramOptions: {
+        diagramType: opts.diagramType,
+      },
+      templateOptions: {
+        chapterSize: 25,
+      }
+    }).createSpec();
 
-      console.log('Done!');
-    });
+    var spec = api.spec();
+    files.writeSpec(opts.outputFile, spec, idFileMap, opts.format);
   },
 };
 

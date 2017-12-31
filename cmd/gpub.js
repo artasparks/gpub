@@ -19,12 +19,12 @@ function listify(val) {
 }
 
 program
-  .command('init-book')
+  .command('init-spec')
   .option('-c, --no-crawl', 'Whether to not crawl the current directory looking for sgfs.', true)
   .option('-w, --crawl-dir <dir>', 'Directory to crawl looking for SGFs. Defaults to cwd', '')
   .option('-i, --init-type [init-type]',
       'Optional simplified initialization types. One of {PROBLEM_EBOOK, COMMENTARY_LATEX}.',
-      'PROBLEM_EBOOK')
+      'COMMENTARY_LATEX')
   .option('-o, --output-file <file>',
       'File to write the yaml to defaults to go-book[.yaml|.json] in current directory',
       'go-book')
@@ -66,9 +66,10 @@ program
 program
   .command('render-diagrams')
   .option('-i, --input <spec-file>', 'Spec file from which to generate diagrams')
-  .option('-o, --output-dir <dir>', 'Output directroy for generated diagrams. ' +
-      'Defaults to spec-dir + /diagrams', '')
-  .option('-e, --create-output-dir', 'Whether to auto-create generated output dir.', true)
+  .option('-o, --output-dir [dir]', 'Output directroy for generated diagrams. ' +
+      'Defaults to spec-dir + /diagrams')
+  .option('-e, --nocreate-output-dir', 'Whether to auto-create generated output dir.')
+  .option('-p, --noauto-process', 'Whether to also process the Spec file generated output dir.')
   .option('-f, --diagram-type [diagram-type]',
       'Override the output format of the diagrams. Usually this comes from the spec', '')
   .option('-c, --write-comments', 'Whether to also write the comments to *-comment.txt files', false)
@@ -80,7 +81,7 @@ program
 
 program
   .command('parse')
-  .option('-f, --files [files]', 'Files to process', listify, [])
+  .option('-f, --files <files>', 'Files to process (comma separated)', listify, [])
   .option('-o, --output-dir [dir]', 'Output directory. Defaults to cwd', '')
   .option('-i, --input-dir [dir]', 'Input directory. ' +
       'If specified, preferred to individual files')

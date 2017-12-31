@@ -94,6 +94,48 @@ var walk = function(dir, filter, ignore, done) {
   walker(dir, done);
 };
 
+
+/**
+ * Walk a directory looking for things.
+ * This thing is pretty overy designed, but it was fun to play around with it.
+ */
+var walkSync = function(dir, filter, ignore) {
+  if (!dir) {
+    throw new Error('Directory must be defined. was ' + dir)
+  }
+  if (!filter) {
+    throw new Error('Filter must be defined. was ' + filter)
+  }
+  var outFiles = [];
+
+  var walker = function(dir) {
+    var results = fs.readdirSync(dir);
+    if (!results.length) {
+      return;
+    }
+    for (var i = 0; i < results.length; i++) {
+      var f = results[i];
+      if (f === undefined) {
+        continue
+      }
+      if (ignore(f)) {
+        continue
+      }
+      var absfile = path.join(dir, f);
+      if (filter(absfile)) {
+        outFiles.push(absfile);
+      }
+
+      var stat = fs.statSync(absfile);
+      if (stat && stat.isDirectory()) {
+        walker(absfile);
+      }
+    };
+  };
+  walker(dir);
+  return outFiles;
+};
+
 // Extra convenince methods for running gpub.
 module.exports = {
   /** List all the SGFs in a directory. */
@@ -104,6 +146,9 @@ module.exports = {
 
   /** Walk the file system for files. */
   walk: walk,
+
+  /** Walk the file system for files synchronously. */
+  walkSync: walkSync,
 
   /** Read all the SGF contents. */
   fileContents: function(fnames, dir) {

@@ -19,8 +19,14 @@ gpub.templates.Style = {
   /** A Commentary-style template used to create the Relentless. */
   RELENTLESS_COMMENTARY_LATEX: 'RELENTLESS_COMMENTARY_LATEX',
 
-  /** A template designed to make problem PDFs. */
+  /** A Commentary-style template used to create the Relentless. */
+  OMMENTARY_LATEX: 'COMMENTARY_LATEX',
+
+  /** A template designed to make problem PDFs, using XeLaTeX. */
   PROBLEM_XELATEX: 'PROBLEM_XELATEX',
+
+  /** A template designed to make problem PDFs, using standard LaTeX. */
+  PROBLEM_LATEX: 'PROBLEM_LATEX',
 
   /** A template designed to make problem Ebooks. */
   PROBLEM_EBOOK: 'PROBLEM_EBOOK',
