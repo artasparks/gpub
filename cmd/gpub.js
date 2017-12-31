@@ -53,7 +53,7 @@ program
   .option('-i, --input <spec-file>', 'Spec file to process into book-compatible form')
   .option('-o, --output [spec-file]', 'Output name for processed spec file. ' +
       'Defaults to input name + processed[.yaml|.json]', '')
-  .option('-f, --format <format>', 
+  .option('-f, --format <format>',
       'Output format for the spec. YAML or JSON supported',
       'YAML')
 
@@ -67,9 +67,11 @@ program
   .command('render-diagrams')
   .option('-i, --input <spec-file>', 'Spec file from which to generate diagrams')
   .option('-o, --output-dir <dir>', 'Output directroy for generated diagrams. ' +
-      'Defaults to cwd + /diagrams', '')
+      'Defaults to spec-dir + /diagrams', '')
+  .option('-e, --create-output-dir', 'Whether to auto-create generated output dir.', true)
   .option('-f, --diagram-type [diagram-type]',
-      'Override the output format of the diagrams. Usually this comes from the spec')
+      'Override the output format of the diagrams. Usually this comes from the spec', '')
+  .option('-c, --write-comments', 'Whether to also write the comments to *-comment.txt files', false)
 
   .description('Render images from a gpub book spec.')
   .action(function(options) {
