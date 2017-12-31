@@ -66,9 +66,9 @@ var testGlob = [
 gulp.task('build-test', ['concat', 'compile', 'test', 'concat-node'])
 
 gulp.task('test', ['update-html-tests', 'update-html-srcs'], () => {
-  return gulp.src('./test/htmltests_gen/GPubQunitTest.html').pipe(qunit(
+  return gulp.src('./test/htmltests_gen/GPubQunitTest.html').pipe(qunit({
     timeout: 10, // 10 seconds. Sometimes travis is slow
-  ))
+  }));
 });
 
 // A watcher for the the full build-test cycle.
