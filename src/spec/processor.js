@@ -72,7 +72,8 @@ gpub.spec.Processor = function(spec, cache) {
 
 gpub.spec.Processor.prototype = {
   /**
-   * Process the spec!
+   * Process the spec! This assumes that the SGF mapping exists and contains
+   * the relevant SGFs.
    *
    * @return {!gpub.spec.Spec}
    */
