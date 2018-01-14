@@ -49,21 +49,21 @@ gpub.spec.preprocessPosition = function(rawPos, idGen) {
   var rawPosObj = /** @type {!gpub.opts.RawPosition} */ ({});
   var posOpt = /** @type {gpub.spec.PositionTypedef} */ ({});
 
-  var alias = '';
+  var gameId = '';
   if (typeof rawPos === 'string') {
-    alias = /** @type {string} */ (rawPos);
+    gameId = /** @type {string} */ (rawPos);
   } else if (typeof rawPos === 'object') {
     rawPosObj = /** @type {!gpub.opts.RawPosition} */ (rawPos);
-    alias = rawPosObj.alias;
+    gameId = rawPosObj.gameId;
   } else {
     throw new Error('Bad type for grouping. ' +
         'Expected object or string but was: ' + typeof rawPos);
   }
-  if (!alias) {
-    throw new Error('SGF identifier (alias) ' +
-        'must be defined. Was: ' + alias);
+  if (!gameId) {
+    throw new Error('Game (SGF) identifier (gameId) ' +
+        'must be defined. Was: ' + gameId);
   }
-  posOpt.alias = alias;
+  posOpt.gameId = gameId;
 
   var initPosStr = undefined;
   if (rawPos.initialPosition) {
@@ -83,7 +83,7 @@ gpub.spec.preprocessPosition = function(rawPos, idGen) {
 
   var id = rawPosObj.id;
   if (!id) {
-    id = idGen.next(alias, initPosStr, nextMovesStr);
+    id = idGen.next(gameId, initPosStr, nextMovesStr);
   }
   posOpt.id = id;
 

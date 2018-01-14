@@ -84,9 +84,9 @@ gpub.Api.prototype = {
             'Must be serialized JSON or a gpub.spce.Spec object.');
       }
     } else {
-      // No spec option has been passed in; Process the incoming SGFS.
-      var sgfs = ref.opt_.sgfs;
-      if (!sgfs || glift.util.typeOf(sgfs) !== 'object' || sgfs.length === 0) {
+      // No spec option has been passed in; Process the incoming SGFS..
+      var games = ref.opt_.games;
+      if (!games || glift.util.typeOf(games) !== 'object') {
         throw new Error('SGF object-map must be defined and non-empty ' +
             'before spec creation');
       }

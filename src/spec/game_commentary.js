@@ -9,117 +9,83 @@ goog.provide('gpub.spec.GameCommentary');
  * @package
  */
 gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
-  // TODO(kashomon): This should be refactored to be much simpler (more like the
-  // problem-code).
-  var varPathBuffer = [];
-
-  var node = mt.node();
+  var outPositions = [];
   var ipString = glift.rules.treepath.toInitPathString;
   var fragString = glift.rules.treepath.toFragmentString;
-  var alias = position.alias;
+  var gameId = position.gameId;
+  mt = mt.newTreeRef();
 
   var gen = new gpub.spec.Generated({
     id: position.id
   });
 
   var processed = /** @type {!gpub.spec.Processed} */ ({
+    // Pass back a movetree only if it's modified (i.e., rotation)
     movetree: null,
     generated: gen,
   });
 
   if (opt.autoRotateGames) {
-    // Note: this work because it's a side-affecting operation.
+    // Note: is a side-affecting operation.
     mt = glift.orientation.autoRotateGame(mt);
     processed.movetree = mt;
   }
 
+  // Should be empty now.
+  var initPos = mt.treepathToHere();
   var mainlineLbl = 'MAINLINE';
   var variationLbl = 'VARIATION';
-
-  while (node) {
-    if (!mt.properties().getComment() && node.numChildren() > 0) {
-      // Ignore positions don't have comments and aren't terminal.
-      // We ignore the current position, but if there are variations, we note
-      // them so we can process them after we record the next comment.
-      node = mt.node();
-      varPathBuffer = varPathBuffer.concat(gpub.spec.variationPaths(mt));
-    } else {
-      // This node has a comment or is terminal.  Process this node and all
-      // the variations.
-      var pathSpec = glift.rules.treepath.findNextMovesPath(mt);
-      var ip = ipString(pathSpec.treepath);
-      var frag = fragString(pathSpec.nextMoves);
+  var pathRecurse = function(movetree, prevPos, sincePrevPos) {
+    var onMainline = movetree.onMainline();
+    // Process positions that are terminal or have a comment.
+    if (movetree.properties().getComment() ||
+        movetree.node().numChildren() === 0) {
+      var lbl = mainlineLbl;
+      if (!onMainline) {
+        lbl = variationLbl;
+      }
+      var ip = ipString(prevPos);
+      var frag = fragString(sincePrevPos);
       var pos = new gpub.spec.Position({
-          id: idGen.next(alias, ip, frag),
-          alias: alias,
-          initialPosition: ip,
-          nextMovesPath: frag,
-          labels: [mainlineLbl, gpub.spec.PositionType.GAME_COMMENTARY]
-      })
-      gen.positions.push(pos);
-
-      varPathBuffer = varPathBuffer.concat(
-          gpub.spec.variationPaths(mt));
-      for (var i = 0; i < varPathBuffer.length; i++) {
-        var path = varPathBuffer[i];
-        var mtz = mt.getTreeFromRoot(path);
-        var varPathSpec = glift.rules.treepath.findNextMovesPath(mtz);
-        var ipz = ipString(varPathSpec.treepath);
-        var fragz = fragString(varPathSpec.nextMoves);
-        var varPos = new gpub.spec.Position({
-            id: idGen.next(alias, ipz, fragz),
-            alias: alias,
-            initialPosition: ipz,
-            nextMovesPath: fragz,
-            labels: [variationLbl, gpub.spec.PositionType.GAME_COMMENTARY],
-        });
-        gen.positions.push(varPos);
-      }
-      varPathBuffer = [];
+        id: idGen.next(gameId, ip, frag),
+        gameId: gameId,
+        initialPosition: ip,
+        nextMovesPath: frag,
+        labels: [lbl, gpub.spec.PositionType.GAME_COMMENTARY],
+      });
+      outPositions.push(pos);
+      prevPos = prevPos.concat(sincePrevPos);
+      sincePrevPos = [];
     }
-    // Travel down along the mainline. Advance both the node and the movetree
-    // itself. It's worth noting that getChild() returns null if there are no
-    // children, thus terminating flow.
-    node = node.getChild(0);
-    mt.moveDown();
-  }
+    for (var i = 0; i < movetree.node().numChildren(); i++) {
+      var nmt = movetree.newTreeRef();
+      var pp = prevPos.slice();
+      var spp = sincePrevPos.slice();
+      nmt.moveDown(i);
 
-  if (processed.movetree) {
-    processed.movetree = processed.movetree.getTreeFromRoot();
-  }
-
-  return processed;
-};
-
-/**
- * Get the next-move treepaths for a particular root node.
- * path.
- *
- * @param {!glift.rules.MoveTree} mt
- * @return {!Array<!glift.rules.Treepath>}
- */
-gpub.spec.variationPaths = function(mt) {
-  mt = mt.newTreeRef();
-  var out = [];
-  var node = mt.node();
-  if (!node.getParent()) {
-    // There shouldn't variations an the root, so just return.
-    return out;
-  }
-
-  mt.moveUp();
-
-  // Look at all non-mainline variations
-  for (var i = 1; i < mt.node().numChildren(); i++) {
-    var mtz = mt.newTreeRef();
-    mtz.moveDown(i);
-    mtz.recurse(function(nmtz) {
-      if (!nmtz.properties().getComment()) {
-        return; // Must have a comment to return the variation.
+      // Here's an arbitrary decision that generally seems like an ok idea that
+      // might need to be rethought later: if we transition from the mainline
+      // to a variation, the variation should only track the prev-pos from the
+      // mainline departure. Preniously, the logic was we would only explor
+      // variations when there was a comment on the corresponding mainline
+      // branch, which seems weird
+      var newOnMainline = nmt.onMainline();
+      if (onMainline && newOnMainline !== onMainline) {
+        // We've transition from on-mainline to off-mainline. Start over.
+        pp = pp.concat(spp);
+        spp = [];
       }
-      out.push(nmtz.treepathToHere());
-    });
+      spp.push(i);
+
+      // Note: there's no indicator when to break here. In other words, we
+      // assume that the whole subtree is part of the problem, which might not
+      // be true, but either we make this assumption or we introduce arbitrary
+      // constraints.
+      pathRecurse(nmt, pp, spp);
+    }
   }
 
-  return out;
-};
+  pathRecurse(mt, initPos, []);
+  gen.positions = outPositions;
+  return processed;
+}

@@ -8,7 +8,7 @@
   test('Process one SGF', function() {
     var cache = new gpub.util.MoveTreeCache();
     var spec = gpub.spec.create(new gpub.Options({
-      sgfs: {
+      games: {
         'Zed': sgfOne
       },
       grouping: ['Zed'],
@@ -18,15 +18,15 @@
 
     var id = 'Zed'
     deepEqual(proc.rootGrouping.positions[0].id, id);
-    deepEqual(proc.rootGrouping.positions[0].alias, id);
+    deepEqual(proc.rootGrouping.positions[0].gameId, id);
     deepEqual(proc.rootGrouping.generated[id].positions.length, 2);
-    deepEqual(proc.rootGrouping.generated[id].positions[0].alias, id);
+    deepEqual(proc.rootGrouping.generated[id].positions[0].gameId, id);
   });
 
   test('Process three SGFs', function() {
     var cache = new gpub.util.MoveTreeCache();
     var spec =  gpub.spec.create(new gpub.Options({
-      sgfs: {
+      games: {
         one: sgfOne,
         two: sgfTwo,
         three: sgfThree,
@@ -47,8 +47,8 @@
       deepEqual(gen.positions.length, 2);
       for (var i = 0; i < gen.positions.length; i++) {
         var genp = gen.positions[i];
-        genp.alias = gen.alias;
-        genp.id = gen.alias + '-' + i;
+        genp.gameId = gen.gameId;
+        genp.id = gen.gameId + '-' + i;
       };
       var genLabels = gen.positionLabels();
       deepEqual(genLabels['MAINLINE'].length, 2);
@@ -61,7 +61,7 @@
     var cache = new gpub.util.MoveTreeCache();
     var id = 'Zed';
     var spec = gpub.spec.create(new gpub.Options({
-      sgfs: {
+      games: {
         'Zed': sgfZed,
       },
       grouping: [id],
@@ -85,7 +85,7 @@
     var cache = new gpub.util.MoveTreeCache();
     var id = 'Zed';
     var spec = gpub.spec.create(new gpub.Options({
-      sgfs: {
+      games: {
         'Zed': sgfZed,
       },
       grouping: ['Zed'],

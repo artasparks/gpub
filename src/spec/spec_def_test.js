@@ -7,11 +7,11 @@
     var sgf2 = '(;GM[1]AW[aa]AB[ba];B[bb]C[Another End!])';
 
     var positions = [{
-        alias: 'foo',
+        gameId: 'foo',
         id: 'foo',
         positionType: gpub.spec.PositionType.EXAMPLE,
       },{
-        alias: 'bar',
+        gameId: 'bar',
         id: 'bar',
         positionType: gpub.spec.PositionType.PROBLEM,
       }]

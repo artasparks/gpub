@@ -18,6 +18,27 @@ gpub.opts.SpecOptionsDef;
 
 
 /**
+ * Override how a position is processed.
+ *
+ * First, a game + location must be specified
+ *  game-id: <string>
+ *
+ *  location:
+ *  move: Specify a main-line move number
+ *
+ *  initial-p
+ *
+ *
+ * @typedef {{
+ *  gameId: string,
+ *  move: (number|undefined),
+ *  initialPosition: (string|undefined),
+ *  nextMovesPath: (string|undefined)
+ * }}
+ */
+gpub.opts.PositionOverrides;
+
+/**
  * The user can pass in defaults to apply to the SGFs during spec
  * creation.
  *
@@ -84,7 +105,7 @@ gpub.opts.SpecOptions = function(opt_options) {
   // They will also break if multiple types of positions (e.g., game
   // commentary, problems) are combined into one SGF.
   //
-  // It's generally recommended that the SGFs be rotated with a script and then
+  // It's generally recommended that the games be rotated with a script and then
   // saved that way. However, this might not always make sense.
 
   /**

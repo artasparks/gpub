@@ -33,17 +33,18 @@ gpub.spec = {
       rootGrouping: rootGrouping,
     });
 
-    var sgfs = options.sgfs;
-    for (var alias in sgfs) {
-      var sgfStr = sgfs[alias];
-      if (!sgfStr) {
-        throw new Error('No SGF String defined for key: ' + alias);
+    var games = options.games;
+    for (var gameId in games) {
+      var rawGameStr = games[gameId];
+      if (!rawGameStr) {
+        throw new Error('No game (SGF) string string defined for key: ' +
+            gameId);
       }
-      var mt = glift.parse.fromString(sgfStr);
-      cache.sgfMap[alias] = sgfStr;
-      cache.mtCache[alias] = mt;
-      if (!specDef.sgfMapping[alias]) {
-        specDef.sgfMapping[alias] = sgfStr;
+      var mt = glift.parse.fromString(rawGameStr);
+      cache.sgfMap[gameId] = rawGameStr;
+      cache.mtCache[gameId] = mt;
+      if (!specDef.sgfMapping[gameId]) {
+        specDef.sgfMapping[gameId] = rawGameStr;
       }
     }
 
@@ -51,17 +52,17 @@ gpub.spec = {
     if (glift.util.typeOf(grouping) === 'array') {
       var grp = /** @type {!Array<string>} */ (grouping);
       for (var i = 0; i < grp.length; i++) {
-        var alias = grp[i];
-        if (!options.sgfs[alias]) {
-          throw new Error('No corresponding SGF defined in options.sgfs ' +
-              'for id ' + alias);
+        var gameId = grp[i];
+        if (!options.games[gameId]) {
+          throw new Error('No corresponding Game defined in options.games' +
+              'for id ' + gameId);
         }
 
         // At this point, there is a 1x1 mapping between passed-in SGF string and
         // position. That need not be true generally, but it is true here.
         var position = new gpub.spec.Position({
-          alias: alias,
-          id: alias
+          gameId: gameId,
+          id: gameId,
         })
         rootGrouping.positions.push(position);
       }
@@ -81,7 +82,7 @@ gpub.spec = {
   },
 
   /**
-   * Process a spec by transforming the positions positions. All  SGFS are
+   * Process a spec by transforming the positions positions. All games are
    * grouped by type into new Grouping objects, if the types are not uniform,
    * and prepended to the sub-groupings list.
    *

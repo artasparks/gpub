@@ -76,7 +76,7 @@
   test('Testing getSgfId', function() {
     var gen = new gpub.book._Generator();
 
-    deepEqual(gen.getSgfId({alias: 'fooo'}), 'fooo');
+    deepEqual(gen.getSgfId({gameId: 'fooo'}), 'fooo');
     deepEqual(gen.getSgfId({sgfString: 'zed'}), 'zed');
   });
 })();

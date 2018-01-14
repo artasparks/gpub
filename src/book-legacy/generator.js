@@ -131,7 +131,7 @@ gpub.book._Generator.prototype = {
    *  - The movetree.
    *  - The 'flattened' object.
    *  - The context
-   *  - A unique name for the SGF (usually the sgf alias).
+   *  - A unique name for the SGF (usually the sgf game-id).
    */
   forEachSgf: function(spec, fn) {
     var mgr = this.manager(spec);
@@ -166,19 +166,19 @@ gpub.book._Generator.prototype = {
   },
 
   /**
-   * Given an SGF Object, returns the SGF ID. If the alias exists, just use the
-   * alias as the ID. Otherwise, use parts of the SGF String as the ID.
+   * Given an SGF Object, returns the SGF ID. If the game idexists, just use the
+   * game id as the ID. Otherwise, use parts of the SGF String as the ID.
    */
   getSgfId: function(sgfObj) {
-    var alias = sgfObj.alias;
-    if (alias) {
-      return alias;
+    var gameId = sgfObj.gameId;
+    if (gameId) {
+      return gameId;
     }
     var signature = this._sgfSignature(sgfObj.sgfString);
     if (signature) {
       return signature
     }
-    throw new Error('SGF Object contains neither alias nor an SGF String. ' + 
+    throw new Error('SGF Object contains neither gameId nor an SGF String. ' + 
         'Cannot generate an SGF Id.');
   },
 

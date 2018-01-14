@@ -37,7 +37,7 @@ gpub.spec.PositionType = {
 
 /**
  * @typedef {{
- *  alias: (string|undefined),
+ *  gameId: (string|undefined),
  *  id: (string|undefined),
  *  initialPosition: (string|undefined),
  *  nextMovesPath: (string|undefined),
@@ -62,20 +62,21 @@ gpub.spec.Position = function(opt_position) {
   }
 
   /**
-   * ID of this particular position. Required and must be unique
+   * ID of this particular position. Required and must be unique.
    * @const {string}
    */
   this.id = o.id;
 
-  if (!o.alias) {
-    throw new Error('SGF Alias must be defined')
+  if (!o.gameId) {
+    throw new Error('Game ID must be defined')
   }
 
   /**
-   * Alias of the SGF in the SGF mapping. Required and must be unique.
+   * Game Id of the SGF in the SGF mapping. Required. Each game must have a
+   * unique ID.
    * @const {string}
    */
-  this.alias = o.alias;
+  this.gameId = o.gameId;
 
   /**
    * An initial position, specified as a stringified Glift treepath.
@@ -110,8 +111,8 @@ gpub.spec.Position.prototype = {
    * @return {!gpub.spec.Position} this
    */
   validate:  function() {
-    if (this.alias == undefined) {
-      throw new Error('No SGF Alias');
+    if (this.gameId == undefined) {
+      throw new Error('No Game ID');
     }
     if (this.initialPosition == undefined) {
       throw new Error('No Initial Position');

@@ -32,7 +32,7 @@ gpub.opts.RawGrouping;
  *
  * @typedef {{
  *  id: (string|undefined),
- *  alias: (string),
+ *  gameId: (string),
  *  initialPosition: (string|undefined),
  *  nextMovesPath: (string|undefined),
  *  positionType: (string|undefined),

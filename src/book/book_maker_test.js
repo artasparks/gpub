@@ -12,7 +12,7 @@
     // First create the spec / rendered objs.
     var problem = testdata.sgfs.veryeasy
     var maker = gpub.init({
-        sgfs: {'sgf-1': problem},
+        games: {'sgf-1': problem},
         grouping: ['sgf-1'],
         specOptions: {
           positionType: 'PROBLEM',

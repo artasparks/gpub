@@ -5,16 +5,16 @@
     var cache = new gpub.util.MoveTreeCache();
     var sgf = '(;GM[1]AW[aa]AB[ba];B[bb]C[The End!])';
     var o = new gpub.Options({
-      sgfs: {'sgf-1': sgf},
+      games: {'sgf-1': sgf},
       grouping: [
         'sgf-1',
       ],
     }, cache);
     var spec = gpub.spec.create(o);
 
-    var alias = 'sgf-1';
+    var gameId = 'sgf-1';
     var mapping = {};
-    mapping[alias] = sgf;
+    mapping[gameId] = sgf;
     deepEqual(spec.sgfMapping, mapping);
 
     var grouping = spec.rootGrouping;
@@ -24,40 +24,40 @@
     deepEqual(grouping.positions.length, 1);
 
     var pos = grouping.positions[0];
-    deepEqual(pos.alias, alias);
-    deepEqual(pos.id, alias);
+    deepEqual(pos.gameId, gameId);
+    deepEqual(pos.id, gameId);
     deepEqual(pos.initialPosition, undefined);
     deepEqual(pos.nextMovesPath, undefined);
     deepEqual(pos.boardRegion, undefined);
     deepEqual(pos.positionType, undefined);
   });
 
-  test('create spec: two sgfs', function() {
+  test('create spec: two games', function() {
     var cache = new gpub.util.MoveTreeCache();
     var sgf1 = '(;GM[1]AW[aa]AB[ba];B[bb]C[The End!])';
     var sgf2 = '(;GM[1]GN[foo]AW[aa]AB[ba];B[bb];W[cc](;B[ab]'
         + 'C[Correct!])(;W[ac]C[Surprise!]))';
     var o = new gpub.Options({
-      sgfs: {'sgf-1': sgf1, 'sgf-2': sgf2},
+      games: {'sgf-1': sgf1, 'sgf-2': sgf2},
       grouping: ['sgf-1', 'sgf-2'],
     });
 
     var spec = gpub.spec.create(o, cache);
-    var alias1 = 'sgf-1', alias2 = 'sgf-2';
+    var gameId1 = 'sgf-1', gameId2 = 'sgf-2';
     var mapping = {};
-    mapping[alias1] = sgf1;
-    mapping[alias2] = sgf2;
+    mapping[gameId1] = sgf1;
+    mapping[gameId2] = sgf2;
     deepEqual(spec.sgfMapping, mapping);
     deepEqual(spec.rootGrouping.positions.length, 2);
-    deepEqual(spec.rootGrouping.positions[0].alias, alias1);
-    deepEqual(spec.rootGrouping.positions[1].alias, alias2);
+    deepEqual(spec.rootGrouping.positions[0].gameId, gameId1);
+    deepEqual(spec.rootGrouping.positions[1].gameId, gameId2);
   })
 
   test('Creating a Processed spec with problems', function() {
     var cache = new gpub.util.MoveTreeCache();
     var sgfs = testdata.sgfs;
     var opts = new gpub.Options({
-      sgfs: {
+      games: {
         'sgf-1': sgfs.trivialproblem,
         'sgf-2': sgfs.veryeasy,
         'sgf-3': sgfs.easy,
@@ -74,9 +74,9 @@
     });
     var spec = gpub.spec.create(opts, cache);
     ok(spec, 'spec should be defined')
-    deepEqual(Object.keys(spec.sgfMapping).length, 6, 'should have 6 sgfs');
-    deepEqual(spec.sgfMapping['sgf-1'], opts.sgfs['sgf-1'])
-    deepEqual(spec.sgfMapping['sgf-2'], opts.sgfs['sgf-2'])
+    deepEqual(Object.keys(spec.sgfMapping).length, 6, 'should have 6 games');
+    deepEqual(spec.sgfMapping['sgf-1'], opts.games['sgf-1'])
+    deepEqual(spec.sgfMapping['sgf-2'], opts.games['sgf-2'])
     deepEqual(spec.rootGrouping.positions.length, 6, 'should have 6 positions');
 
     var proc = gpub.spec.process(spec, cache);
@@ -100,7 +100,7 @@
   test('Create: one simple game, with variation', function() {
     var cache = new gpub.util.MoveTreeCache();
     var opts = new gpub.Options({
-      sgfs: {'sgf-1': oneVar},
+      games: {'sgf-1': oneVar},
       grouping: ['sgf-1'],
     });
     var spec = gpub.spec.create(opts, cache);
@@ -127,7 +127,7 @@
   test('Create with IdGenType=Path', function() {
     var cache = new gpub.util.MoveTreeCache();
     var opts = new gpub.Options({
-      sgfs: {'sgf-1': oneVar},
+      games: {'sgf-1': oneVar},
       grouping: ['sgf-1'],
     });
     var spec = gpub.spec.create(opts, cache);
@@ -140,7 +140,7 @@
   test('Create with IdGenType=Sequential', function() {
     var cache = new gpub.util.MoveTreeCache();
     var opts = new gpub.Options({
-      sgfs: {'sgf-1': oneVar},
+      games: {'sgf-1': oneVar},
       grouping: ['sgf-1'],
       specOptions: {
         idGenType: 'SEQUENTIAL',
@@ -156,7 +156,7 @@
   test('Create with IdGenType=Path, gggEasy44', function() {
     var cache = new gpub.util.MoveTreeCache();
     var opts = new gpub.Options({
-      sgfs: {'sgf-1': testdata.sgfs.gggEasy44},
+      games: {'sgf-1': testdata.sgfs.gggEasy44},
       grouping: ['sgf-1'],
       specOptions: {
         positionType: gpub.spec.PositionType.PROBLEM,

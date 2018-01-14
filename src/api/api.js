@@ -69,7 +69,7 @@ gpub.initFromSpec = function(spec) {
  *
  * {
  *  template: 'PROBLEM_EBOOK',
- *  sgfs: {
+ *  games: {
  *    <id>: <contents>
  *    ...
  *  }

@@ -17,7 +17,7 @@ gpub.util.MoveTreeCache = function(opt_sgfMapping, opt_mtCache) {
   this.sgfMap = opt_sgfMapping || {};
 
   /**
-   * @type {!Object<string, !glift.rules.MoveTree>} mapping from alias to
+   * @type {!Object<string, !glift.rules.MoveTree>} mapping from gameId to
    *    movetree.
    */
   this.mtCache = opt_mtCache || {};
@@ -26,35 +26,35 @@ gpub.util.MoveTreeCache = function(opt_sgfMapping, opt_mtCache) {
 gpub.util.MoveTreeCache.prototype = {
   /**
    * Get a movetree. If a movetree can't be found, throw an exception -- that
-   * means an alias hasn't been provided.
-   * @param {string} alias
+   * means a gameId hasn't been provided.
+   * @param {string} gameId
    * @return {!glift.rules.MoveTree}
    */
-  get: function(alias) {
-    var mt = this.mtCache[alias];
+  get: function(gameId) {
+    var mt = this.mtCache[gameId];
     if (mt) {
       return mt.getTreeFromRoot();
     }
-    if (this.sgfMap[alias]) {
-      var str = this.sgfMap[alias];
+    if (this.sgfMap[gameId]) {
+      var str = this.sgfMap[gameId];
       mt = glift.parse.fromString(str);
-      this.mtCache[alias] = mt;
+      this.mtCache[gameId] = mt;
     } else {
-      throw new Error('No SGF found for alias in sgfMap: ' + alias);
+      throw new Error('No SGF found for game id in sgfMap: ' + gameId);
     }
     return mt.getTreeFromRoot();
   },
 
   /**
    * Replace a movetree / SGF.
-   * @param {string} alias
+   * @param {string} gameId
    * @param {!glift.rules.MoveTree} movetree
    */
-  set: function(alias, movetree) {
-    if (!alias) {
-      throw new Error('Alias must be defined.');
+  set: function(gameId, movetree) {
+    if (!gameId) {
+      throw new Error('Game ID must be defined.');
     }
-    this.mtCache[alias] = movetree
-    this.sgfMap[alias] = movetree.toSgf();
+    this.mtCache[gameId] = movetree
+    this.sgfMap[gameId] = movetree.toSgf();
   },
 };

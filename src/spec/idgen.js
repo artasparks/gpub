@@ -6,7 +6,7 @@ goog.provide('gpub.spec.IdGenType');
  */
 gpub.spec.IdGenType = {
   /**
-   * Keep a counter for the relevant SGF and append that to the alias.
+   * Keep a counter for the relevant SGF and append that to the gameId.
    */
   SEQUENTIAL: 'SEQUENTIAL',
 
@@ -22,7 +22,7 @@ gpub.spec.IdGenType = {
 
 /**
  * Simple id generator. As currently designed, this only works for one game
- * alias.
+ * gameId.
  *
  * @param {gpub.spec.IdGenType} idType
  *
@@ -42,7 +42,7 @@ gpub.spec.IdGen = function(idType) {
   this.idSet_ = {};
 
   /**
-   * Map from alias to counter. Each alias gets its own ID counter so that IDs
+   * Map from gameId to counter. Each gameId gets its own ID counter so that IDs
    * are sequential for a particular raw SGF. This applies only to the
    * SEQUENTIAL IdGenType.
    *
@@ -54,18 +54,18 @@ gpub.spec.IdGen = function(idType) {
 gpub.spec.IdGen.prototype = {
   /**
    * Gets a new Position ID for a generated position.
-   * @param {string} alias
+   * @param {string} gameId
    * @param {string=} opt_initPath
    * @param {string=} opt_nextMovesPath
    * @return {string} A new ID, unique within the context of IdGen.
    */
-  next: function(alias, opt_initPath, opt_nextMovesPath) {
+  next: function(gameId, opt_initPath, opt_nextMovesPath) {
     var id = '';
     if (this.idType_ == gpub.spec.IdGenType.PATH) {
-      id = this.getPathId_(alias, opt_initPath, opt_nextMovesPath);
+      id = this.getPathId_(gameId, opt_initPath, opt_nextMovesPath);
     } else {
       // Default to sequental
-      id = this.getSequentialId_(alias);
+      id = this.getSequentialId_(gameId);
     }
     if (this.idSet_[id]) {
       throw new Error('Duplicate ID Detected: ' + id);
@@ -77,27 +77,27 @@ gpub.spec.IdGen.prototype = {
   /**
    * Gets a path-ID with the following format:
    *
-   * alias__initialpath__nextmoves
+   * gameId__initialpath__nextmoves
    *
    * Where the path string has been transformed as follows:
    * 0:5->1-5
    * 1.0->1_0
    * 5+->5p
    *
-   * @param {string} alias
+   * @param {string} gameId
    * @param {string=} opt_initPath
    * @param {string=} opt_nextMovesPath
    * @return {string} id
    * @private
    */
-  getPathId_: function(alias, opt_initPath, opt_nextMovesPath) {
+  getPathId_: function(gameId, opt_initPath, opt_nextMovesPath) {
     var repl = function(p) {
       return p.replace(/:/g, '-')
         .replace(/\./g, '_')
         .replace(/\+/g, 'p');
     };
     var ip = opt_initPath || 'z';
-    var id = alias + '__' + repl(ip);
+    var id = gameId + '__' + repl(ip);
     if (opt_nextMovesPath) {
       id += '__' + repl(opt_nextMovesPath);
     }
@@ -106,16 +106,16 @@ gpub.spec.IdGen.prototype = {
 
   /**
    * Gets a sequential ID.
-   * @param {string} alias
+   * @param {string} gameId
    * @return {string} new ID
    * @private
    */
-  getSequentialId_: function(alias) {
-    if (!this.counterMap_[alias]) {
-      this.counterMap_[alias] = 0;
+  getSequentialId_: function(gameId) {
+    if (!this.counterMap_[gameId]) {
+      this.counterMap_[gameId] = 0;
     }
-    var counter = this.counterMap_[alias];
-    this.counterMap_[alias]++;
-    return alias + '-' + counter;
+    var counter = this.counterMap_[gameId];
+    this.counterMap_[gameId]++;
+    return gameId + '-' + counter;
   },
 };

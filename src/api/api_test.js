@@ -22,7 +22,7 @@
   test('Testing full happy path, no exceptions', function() {
     var output = gpub.create({
       template: 'PROBLEM_EBOOK',
-      sgfs: {sgf: sgf},
+      games: {sgf: sgf},
       grouping: [
         'sgf',
       ],
@@ -36,7 +36,7 @@
   test('Testing full happy path, groupings', function() {
     var output = gpub.create({
       template: 'PROBLEM_EBOOK',
-      sgfs: {z1: sgf},
+      games: {z1: sgf},
       grouping: {
         title: 'zed',
         positions: [
@@ -52,7 +52,7 @@
 
   test('Testing full happy path: game commentary', function() { var output = gpub.create({
       template: 'GAME_COMMENTARY_EBOOK',
-      sgfs: {z1: sgf},
+      games: {z1: sgf},
       grouping: ['z1'],
     })
     ok(output, 'Output should be defined');
@@ -64,7 +64,7 @@
 
   // test('Testing PDF/X-1a:2001 compatibility (no exceptions)', function() {
     // var output = gpub.create({
-      // sgfs: [sgfs.base],
+      // games: {'zed': sgfs.base},
       // colorProfileFilePath: 'ISOcoated_v2_300_eci.icc',
       // pdfx1a: true
     // });

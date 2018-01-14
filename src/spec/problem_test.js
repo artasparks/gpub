@@ -8,7 +8,7 @@
     var idGen = new gpub.spec.IdGen(id);
     var pos = new gpub.spec.Position({
       id: id,
-      alias: id,
+      gameId: id,
     });
     var generated = gpub.spec.processProblems(
         mt, pos, idGen, new gpub.opts.SpecOptions()).generated;
@@ -21,7 +21,7 @@
 
     var root = new gpub.spec.Position({
       id: id + '-' + 0,
-      alias: id,
+      gameId: id,
       initialPosition: '0',
       labels: ['PROBLEM_ROOT', 'PROBLEM'],
     });
@@ -32,7 +32,7 @@
 
     var indet = new gpub.spec.Position({
       id: id + '-' + 3,
-      alias: id,
+      gameId: id,
       initialPosition: '0.1',
       nextMovesPath: '0',
       labels: ['INDETERMINATE', 'PROBLEM'],
@@ -43,7 +43,7 @@
 
     var incor = new gpub.spec.Position({
       id: id + '-' + 1,
-      alias: id,
+      gameId: id,
       initialPosition: '0',
       nextMovesPath: '0:2',
       labels: ['INCORRECT', 'PROBLEM'],
@@ -54,7 +54,7 @@
 
     var cor = new gpub.spec.Position({
       id: id + '-' + 2,
-      alias: id,
+      gameId: id,
       initialPosition: '0',
       nextMovesPath: '1',
       labels: ['CORRECT', 'PROBLEM'],

@@ -1,7 +1,7 @@
 (function() {
   module('gpub.spec.gameCommentary');
 
-  var alias = 'zed';
+  var gameId = 'zed';
   var specOpts = new gpub.opts.SpecOptions();
 
   test('Process basic game commentary', function() {
@@ -11,7 +11,7 @@
     var idGen = new gpub.spec.IdGen(id);
     var pos = new gpub.spec.Position({
       id: id,
-      alias: id,
+      gameId: id,
     });
 
     var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts).generated;
@@ -40,7 +40,7 @@
     var idGen = new gpub.spec.IdGen(id);
     var pos = new gpub.spec.Position({
       id: id,
-      alias: id,
+      gameId: id,
     });
     var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts).generated;
     deepEqual(gen.positions.length, 4);
@@ -85,7 +85,7 @@
     var idGen = new gpub.spec.IdGen(id);
     var pos = new gpub.spec.Position({
       id: id,
-      alias: id,
+      gameId: id,
     });
     var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts).generated;
     deepEqual(gen.positions.length, 1, 'num variations');
@@ -103,7 +103,7 @@
     var idGen = new gpub.spec.IdGen(id);
     var pos = new gpub.spec.Position({
       id: id,
-      alias: id,
+      gameId: id,
     });
 
     var proc = gpub.spec.processGameCommentary(mt, pos, idGen, new gpub.opts.SpecOptions({

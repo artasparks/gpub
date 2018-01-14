@@ -53,8 +53,8 @@ gpub.spec.Spec = function(opt_spec) {
   this.rootGrouping = new gpub.spec.Grouping(o.rootGrouping);
 
   /**
-   * Mapping from SGF Alias to SGF string. It's not required that this be a
-   * bijection, but it doesn't really make sense to duplicate SGFs in the
+   * Mapping from game id to raw game string (SGF). It's not required that this
+   * be a bijection, but it doesn't really make sense to duplicate games in the
    * mapping.
    *
    * @const {!Object<string, string>}

@@ -46,7 +46,7 @@ gpub.spec.Processor = function(spec, cache) {
   this.idGen_ = new gpub.spec.IdGen(spec.specOptions.idGenType);
 
   /**
-   * Mapping from alias to movetree.
+   * Mapping from gameId to movetree.
    * @const {!gpub.util.MoveTreeCache}
    * @private
    */
@@ -56,7 +56,7 @@ gpub.spec.Processor = function(spec, cache) {
   }
 
   /**
-   * Mapping from sgf alias to SGF string.
+   * Mapping from sgf gameId to SGF string.
    * @const {!Object<string, string>}
    * @private
    */
@@ -147,15 +147,12 @@ gpub.spec.Processor.prototype = {
   generatePositions_: function(posType, pos) {
     var mt = this.getMovetree_(pos);
     mt = this.possiblyRotate_(
-        mt, pos.alias, posType, this.originalSpec_.specOptions);
+        mt, pos.gameId, posType, this.originalSpec_.specOptions);
 
     // Create a new ID gen instance for creating IDs.
     var idGen = this.getIdGen_();
     switch(posType) {
       case 'GAME_COMMENTARY':
-        // TODO(kashomon): If this updates the movetree (via rotation) then the
-        // movetree needs to be updated in the cache and a new SGF needs to
-        // be retrieved.
         var proc = gpub.spec.processGameCommentary(
             mt, pos, idGen, this.originalSpec_.specOptions);
         this.storeNewMovetree_(pos, proc.movetree);
@@ -189,16 +186,16 @@ gpub.spec.Processor.prototype = {
    * @param {?glift.rules.MoveTree} mt
    */
   storeNewMovetree_: function(position, mt) {
-    var alias = position.alias;
+    var gameId = position.gameId;
     if (!mt) {
       // Could be null if no change is required
       return;
     }
-    if (!alias) {
+    if (!gameId) {
       // This shouldn't happen since we've already done a getMovetree_();
-      throw new Error('alias must be defined in order to store a new movetree.');
+      throw new Error('gameId must be defined in order to store a new movetree.');
     }
-    this.mtCache_.set(alias, mt);
+    this.mtCache_.set(gameId, mt);
   },
 
   /**
@@ -209,29 +206,29 @@ gpub.spec.Processor.prototype = {
    * @private
    */
   getMovetree_: function(position) {
-    var alias = position.alias;
-    if (!alias) {
-      throw new Error('No SGF alias defined for position object: '
+    var gameId = position.gameId;
+    if (!gameId) {
+      throw new Error('No game ID (sgf-id) defined for position object: '
           + JSON.stringify(position));
     }
-    return this.mtCache_.get(alias);
+    return this.mtCache_.get(gameId);
   },
 
   /**
    * Gets a movetree for an position
    *
    * @param {!glift.rules.MoveTree} movetree
-   * @param {string} alias
+   * @param {string} gameId
    * @param {!gpub.spec.PositionType} posType
    * @param {!gpub.opts.SpecOptions} opts
    * @return {!glift.rules.MoveTree}
    * @private
    */
-  possiblyRotate_: function(movetree, alias, posType, opts) {
+  possiblyRotate_: function(movetree, gameId, posType, opts) {
     if (opts.autoRotateCropTypes[posType] && opts.autoRotateCropPrefs) {
       var nmt = glift.orientation.autoRotateCrop(
           movetree, opts.autoRotateCropPrefs)
-      this.mtCache_.set(alias, nmt);
+      this.mtCache_.set(gameId, nmt);
       return nmt.getTreeFromRoot();
     }
     return movetree;

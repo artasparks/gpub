@@ -14,7 +14,7 @@ gpub.opts = {};
  * Typedef for options.
  *
  * @typedef {{
- *  sgfs: (!Object<string>|undefined),
+ *  games: (!Object<string>|undefined),
  *  grouping: (!gpub.opts.RawGrouping|!Array<string>|undefined),
  *  specOptions: (!gpub.opts.SpecOptionsDef|undefined),
  *  diagramOptions: (!gpub.opts.DiagramOptionsDef|undefined),
@@ -40,11 +40,15 @@ gpub.Options = function(opt_options) {
   var o = opt_options || {};
 
   /**
-   * A object, containing a bijection between ID and SGF-data. No default is
+   * A object, containing a bijection between ID and game-data. No default is
    * specified here: Must be explicitly passed in every time.
+   *
+   * Note: It's currently assumed that these games are specified as SGFs
+   * (although it's possible this might be configurable later).
+   *
    * @const {!Object<string, string>}
    */
-  this.sgfs = o.sgfs || {};
+  this.games = o.games || {};
 
   /**
    * An grouping must always be provided. This says how to group the SGFs in

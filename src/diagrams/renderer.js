@@ -163,7 +163,7 @@ gpub.diagrams.Renderer.prototype = {
       }
     }
 
-    var mt = this.cache_.get(pos.alias);
+    var mt = this.cache_.get(pos.gameId);
     var region = this.opts_.boardRegion;
     var init = glift.rules.treepath.parseInitialPath(pos.initialPosition);
     mt = mt.getTreeFromRoot(init);

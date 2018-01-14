@@ -11,7 +11,7 @@
 gpub.spec.processProblems = function(mt, position, idGen, opt) {
   var outPositions = [];
   var conditions = opt.problemConditions;
-  var alias = position.alias;
+  var gameId = position.gameId;
   mt = mt.newTreeRef();
 
   var ipString = glift.rules.treepath.toInitPathString;
@@ -22,6 +22,7 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
   });
 
   var processed = /** @type {!gpub.spec.Processed} */ ({
+    // Pass back the movetree only if it's modified (i.e., rotation).
     movetree: null,
     generated: gen,
   });
@@ -53,7 +54,7 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
     // - There are comments
     // - We're at the end of a branch.
     // - We're at the root
-    if (movetree.properties().getOneValue(glift.rules.prop.C) ||
+    if (movetree.properties().getComment() ||
         movetree.node().numChildren() === 0 ||
         (prevPos.length === initPos.length && sincePrevPos.length === 0)) {
       var label = newCor;
@@ -63,8 +64,8 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
       var ip = ipString(prevPos);
       var frag = fragString(sincePrevPos);
       var pos = new gpub.spec.Position({
-        id: idGen.next(alias, ip, frag),
-        alias: alias,
+        id: idGen.next(gameId, ip, frag),
+        gameId: gameId,
         initialPosition: ip,
         nextMovesPath: frag,
         labels: [label, gpub.spec.PositionType.PROBLEM],

@@ -5,7 +5,7 @@
     var cache = new gpub.util.MoveTreeCache();
     var sgf = '(;GM[1]AW[aa]AB[ba];B[bb]C[The End!])';
     var o = new gpub.Options({
-      sgfs: [sgf],
+      games: [sgf],
       ids: ['z1'],
       grouping: {
         title: 'foo',
@@ -27,7 +27,7 @@
     var cache = new gpub.util.MoveTreeCache();
     var sgf = '(;GM[1]AW[aa]AB[ba];B[bb]C[The End!])';
     var o = new gpub.Options({
-      sgfs: [sgf, sgf],
+      games: [sgf, sgf],
       ids: ['z1', 'z2'],
       grouping: {
         title: 'foo',
@@ -51,8 +51,8 @@
 
     deepEqual(gr.groupings.length, 2);
     deepEqual(gr.groupings[0].title, 'bar');
-    deepEqual(gr.groupings[0].positions[0].alias, 'z1');
+    deepEqual(gr.groupings[0].positions[0].gameId, 'z1');
     deepEqual(gr.groupings[1].title, 'biff');
-    deepEqual(gr.groupings[1].positions[0].alias, 'z2');
+    deepEqual(gr.groupings[1].positions[0].gameId, 'z2');
   })
 })();
