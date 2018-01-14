@@ -15,7 +15,7 @@
     var gameId = 'sgf-1';
     var mapping = {};
     mapping[gameId] = sgf;
-    deepEqual(spec.sgfMapping, mapping);
+    deepEqual(spec.gameMapping, mapping);
 
     var grouping = spec.rootGrouping;
     ok(grouping);
@@ -47,7 +47,7 @@
     var mapping = {};
     mapping[gameId1] = sgf1;
     mapping[gameId2] = sgf2;
-    deepEqual(spec.sgfMapping, mapping);
+    deepEqual(spec.gameMapping, mapping);
     deepEqual(spec.rootGrouping.positions.length, 2);
     deepEqual(spec.rootGrouping.positions[0].gameId, gameId1);
     deepEqual(spec.rootGrouping.positions[1].gameId, gameId2);
@@ -74,9 +74,9 @@
     });
     var spec = gpub.spec.create(opts, cache);
     ok(spec, 'spec should be defined')
-    deepEqual(Object.keys(spec.sgfMapping).length, 6, 'should have 6 games');
-    deepEqual(spec.sgfMapping['sgf-1'], opts.games['sgf-1'])
-    deepEqual(spec.sgfMapping['sgf-2'], opts.games['sgf-2'])
+    deepEqual(Object.keys(spec.gameMapping).length, 6, 'should have 6 games');
+    deepEqual(spec.gameMapping['sgf-1'], opts.games['sgf-1'])
+    deepEqual(spec.gameMapping['sgf-2'], opts.games['sgf-2'])
     deepEqual(spec.rootGrouping.positions.length, 6, 'should have 6 positions');
 
     var proc = gpub.spec.process(spec, cache);
@@ -104,7 +104,7 @@
       grouping: ['sgf-1'],
     });
     var spec = gpub.spec.create(opts, cache);
-    deepEqual(Object.keys(spec.sgfMapping).length, 1, 'Should have 1 sgf');
+    deepEqual(Object.keys(spec.gameMapping).length, 1, 'Should have 1 sgf');
 
     var proc = gpub.spec.process(spec, cache);
     ok(proc, 'should be defined');

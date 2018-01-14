@@ -6,7 +6,7 @@ goog.provide('gpub.spec.SpecDef');
  * @typedef {{
  *  version: (gpub.spec.SpecVersion|undefined),
  *  grouping: (!gpub.spec.Grouping|undefined),
- *  sgfMapping: (!Object<string, string>|undefined),
+ *  gameMapping: (!Object<string, string>|undefined),
  *  specOptions: (!gpub.opts.SpecOptions|undefined),
  *  diagramOptions: (!gpub.opts.DiagramOptions|undefined),
  *  templateOptions: (!gpub.opts.TemplateOptions|undefined),
@@ -53,16 +53,16 @@ gpub.spec.Spec = function(opt_spec) {
   this.rootGrouping = new gpub.spec.Grouping(o.rootGrouping);
 
   /**
-   * Mapping from game id to raw game string (SGF). It's not required that this
-   * be a bijection, but it doesn't really make sense to duplicate games in the
-   * mapping.
+   * Mapping from game id to raw game string (usu. SGF). It's not required that
+   * this be a bijection, but it doesn't really make sense to duplicate games
+   * in the mapping.
    *
    * @const {!Object<string, string>}
    */
-  this.sgfMapping =  {};
-  if (o.sgfMapping) {
-    for (var key in o.sgfMapping) {
-      this.sgfMapping[key] = o.sgfMapping[key];
+  this.gameMapping =  {};
+  if (o.gameMapping) {
+    for (var key in o.gameMapping) {
+      this.gameMapping[key] = o.gameMapping[key];
     }
   }
 

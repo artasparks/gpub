@@ -44,62 +44,6 @@ var createDirsSync = function(dirname) {
  * Walk a directory looking for things.
  * This thing is pretty overy designed, but it was fun to play around with it.
  */
-var walk = function(dir, filter, ignore, done) {
-  if (!dir) {
-    throw new Error('Directory must be defined. was ' + dir)
-  }
-  if (!filter) {
-    throw new Error('Filter must be defined. was ' + filter)
-  }
-  var walker = function(dir, cb) {
-    fs.readdir(dir, function(err, list) {
-      var results = [];
-      if (err) {
-        throw new Error('Error reading files: '  + err);
-      }
-      if (!list.length) {
-        return;
-      }
-      var next = function(index) {
-        if (index >= list.length) {
-          cb(results);
-          return
-        }
-        var f = list[index];
-        if (f === undefined) {
-          cb(results);
-          return
-        }
-        if (ignore(f)) {
-          next(index+1);
-          return
-        }
-        var absfile = path.join(dir, f);
-        if (filter(absfile)) {
-          results.push(absfile);
-        }
-        fs.stat(absfile, (err, stat) => {
-          if (stat && stat.isDirectory()) {
-            walker(absfile, (newres) => {
-              results = results.concat(newres);
-              next(index+1);
-            });
-          } else {
-            next(index+1);
-          }
-        });
-      };
-      next(0);
-    });
-  }
-  walker(dir, done);
-};
-
-
-/**
- * Walk a directory looking for things.
- * This thing is pretty overy designed, but it was fun to play around with it.
- */
 var walkSync = function(dir, filter, ignore) {
   if (!dir) {
     throw new Error('Directory must be defined. was ' + dir)
@@ -144,9 +88,6 @@ module.exports = {
     return fs.readdirSync(dir)
         .filter(f => gpub.glift.parse.knownGoFile(f));
   },
-
-  /** Walk the file system for files. */
-  walk: walk,
 
   /** Walk the file system for files synchronously. */
   walkSync: walkSync,
@@ -276,10 +217,10 @@ module.exports = {
 
     // Now, we must convert all the files into actual strings
     var idFileMap = {};
-    for (var id in out.spec.sgfMapping) {
-      var file = out.spec.sgfMapping[id];
+    for (var id in out.spec.gameMapping) {
+      var file = out.spec.gameMapping[id];
       out.idFileMap[id] = file;
-      out.spec.sgfMapping[id] = fs.readFileSync(file, 'utf8');
+      out.spec.gameMapping[id] = fs.readFileSync(file, 'utf8');
     }
     return out;
   },
@@ -300,7 +241,7 @@ module.exports = {
       newFileMap[id] = path.join(path.relative(outDir, dir), path.basename(file))
     }
 
-    spec.sgfMapping = newFileMap;
+    spec.gameMapping = newFileMap;
 
     var outDoc = '';
     var docExt = '.yaml';

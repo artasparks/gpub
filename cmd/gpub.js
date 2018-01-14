@@ -18,8 +18,15 @@ function listify(val) {
   return val.split(',');
 }
 
+var cmds = {
+  initSpec: 'init-spec',
+  process: 'process',
+  renderDiagrams: 'render-diagrams',
+  parse: 'parse',
+}
+
 program
-  .command('init-spec')
+  .command(cmds.initSpec)
   .option('-c, --no-crawl', 'Whether to not crawl the current directory looking for sgfs.', true)
   .option('-w, --crawl-dir <dir>', 'Directory to crawl looking for SGFs. Defaults to cwd', '')
   .option('-i, --init-type [init-type]',
@@ -49,7 +56,7 @@ program
   });
 
 program
-  .command('process')
+  .command(cmds.process)
   .option('-i, --input <spec-file>', 'Spec file to process into book-compatible form')
   .option('-o, --output [spec-file]', 'Output name for processed spec file. ' +
       'Defaults to input name + processed[.yaml|.json]', '')
@@ -64,7 +71,7 @@ program
 
 
 program
-  .command('render-diagrams')
+  .command(cmds.renderDiagrams)
   .option('-i, --input <spec-file>', 'Spec file from which to generate diagrams')
   .option('-o, --output-dir [dir]', 'Output directroy for generated diagrams. ' +
       'Defaults to spec-dir + /diagrams')
@@ -81,7 +88,7 @@ program
   });
 
 program
-  .command('parse')
+  .command(cmds.parse)
   .option('-f, --files <files>', 'Files to process (comma separated)', listify, [])
   .option('-o, --output-dir [dir]', 'Output directory. Defaults to cwd', '')
   .option('-i, --input-dir [dir]', 'Input directory. ' +
@@ -105,3 +112,11 @@ program
 program.parse(process.argv);
 
 if (!program.args.length) program.help();
+
+var cmdArg = program.args[0];
+// This feels like a massive hack but this commander thing doesn't have good
+// fallback logic.
+if (!cmds[cmdArg] && typeof cmdArg !== 'object') {
+  console.error('Unknown command: ' + cmdArg)
+  program.help();
+}

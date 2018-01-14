@@ -30,7 +30,7 @@
     var expMap = {};
     expMap[id0] = opt.games[id0];
     expMap[id1] = opt.games[id1];
-    deepEqual(spec.sgfMapping, expMap);
+    deepEqual(spec.gameMapping, expMap);
     deepEqual(spec.rootGrouping.positions.length, 2);
     deepEqual(spec.rootGrouping.positionType, 'PROBLEM');
     deepEqual(api.diagrams_, null);
@@ -38,7 +38,7 @@
     var expCache = {};
     expCache[id0] = glift.parse.fromString(opt.games[id0]);
     expCache[id1] = glift.parse.fromString(opt.games[id1]);
-    deepEqual(api.cache_.sgfMap, expMap, 'cache sgf map');
+    deepEqual(api.cache_.gameMap, expMap, 'cache sgf map');
     deepEqual(api.cache_.get(id0).toSgf(), expCache[id0].toSgf(), 'sgf1 text');
     deepEqual(api.cache_.get(id1).toSgf(), expCache[id1].toSgf(), 'sgf2 text');
   });

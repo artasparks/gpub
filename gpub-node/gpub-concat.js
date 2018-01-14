@@ -9542,7 +9542,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.35
+ * @version 0.3.36
  * --------------------------------------
  */
 (function(w) {
@@ -9567,7 +9567,7 @@ gpub.global = {
    * See: http://semver.org/
    * Currently in alpha.
    */
-  version: '0.4.1',
+  version: '0.5.0',
 };
 
 goog.provide('gpub.Options');
@@ -9586,7 +9586,7 @@ gpub.opts = {};
  * Typedef for options.
  *
  * @typedef {{
- *  sgfs: (!Object<string>|undefined),
+ *  games: (!Object<string>|undefined),
  *  grouping: (!gpub.opts.RawGrouping|!Array<string>|undefined),
  *  specOptions: (!gpub.opts.SpecOptionsDef|undefined),
  *  diagramOptions: (!gpub.opts.DiagramOptionsDef|undefined),
@@ -9612,11 +9612,16 @@ gpub.Options = function(opt_options) {
   var o = opt_options || {};
 
   /**
-   * A object, containing a bijection between ID and SGF-data. No default is
-   * specified here: Must be explicitly passed in every time.
+   * A object, containing a mapping between ID and game-data (typically in
+   * SGF). No default is specified here: Must be explicitly passed in every
+   * time.
+   *
+   * Note: It's currently assumed that these games are specified as SGFs
+   * (although it's possible this might be configurable later).
+   *
    * @const {!Object<string, string>}
    */
-  this.sgfs = o.sgfs || {};
+  this.games = o.games || {};
 
   /**
    * An grouping must always be provided. This says how to group the SGFs in
@@ -10105,7 +10110,7 @@ gpub.opts.RawGrouping;
  *
  * @typedef {{
  *  id: (string|undefined),
- *  alias: (string),
+ *  gameId: (string),
  *  initialPosition: (string|undefined),
  *  nextMovesPath: (string|undefined),
  *  positionType: (string|undefined),
@@ -10220,7 +10225,7 @@ gpub.opts.SpecOptions = function(opt_options) {
   // They will also break if multiple types of positions (e.g., game
   // commentary, problems) are combined into one SGF.
   //
-  // It's generally recommended that the SGFs be rotated with a script and then
+  // It's generally recommended that the games be rotated with a script and then
   // saved that way. However, this might not always make sense.
 
   /**
@@ -10417,24 +10422,25 @@ gpub.spec = {
       }));
 
     var specDef = /** @type {!gpub.spec.SpecDef} */ ({
-      sgfMapping: {},
+      gameMapping: {},
       specOptions: options.specOptions,
       diagramOptions: options.diagramOptions,
       templateOptions: options.templateOptions,
       rootGrouping: rootGrouping,
     });
 
-    var sgfs = options.sgfs;
-    for (var alias in sgfs) {
-      var sgfStr = sgfs[alias];
-      if (!sgfStr) {
-        throw new Error('No SGF String defined for key: ' + alias);
+    var games = options.games;
+    for (var gameId in games) {
+      var rawGameStr = games[gameId];
+      if (!rawGameStr) {
+        throw new Error('No game (SGF) string string defined for key: ' +
+            gameId);
       }
-      var mt = glift.parse.fromString(sgfStr);
-      cache.sgfMap[alias] = sgfStr;
-      cache.mtCache[alias] = mt;
-      if (!specDef.sgfMapping[alias]) {
-        specDef.sgfMapping[alias] = sgfStr;
+      var mt = glift.parse.fromString(rawGameStr);
+      cache.gameMap[gameId] = rawGameStr;
+      cache.mtCache[gameId] = mt;
+      if (!specDef.gameMapping[gameId]) {
+        specDef.gameMapping[gameId] = rawGameStr;
       }
     }
 
@@ -10442,17 +10448,17 @@ gpub.spec = {
     if (glift.util.typeOf(grouping) === 'array') {
       var grp = /** @type {!Array<string>} */ (grouping);
       for (var i = 0; i < grp.length; i++) {
-        var alias = grp[i];
-        if (!options.sgfs[alias]) {
-          throw new Error('No corresponding SGF defined in options.sgfs ' +
-              'for id ' + alias);
+        var gameId = grp[i];
+        if (!options.games[gameId]) {
+          throw new Error('No corresponding Game defined in options.games' +
+              'for id ' + gameId);
         }
 
         // At this point, there is a 1x1 mapping between passed-in SGF string and
         // position. That need not be true generally, but it is true here.
         var position = new gpub.spec.Position({
-          alias: alias,
-          id: alias
+          gameId: gameId,
+          id: gameId,
         })
         rootGrouping.positions.push(position);
       }
@@ -10472,7 +10478,7 @@ gpub.spec = {
   },
 
   /**
-   * Process a spec by transforming the positions positions. All  SGFS are
+   * Process a spec by transforming the positions positions. All games are
    * grouped by type into new Grouping objects, if the types are not uniform,
    * and prepended to the sub-groupings list.
    *
@@ -10499,7 +10505,7 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
   var outPositions = [];
   var ipString = glift.rules.treepath.toInitPathString;
   var fragString = glift.rules.treepath.toFragmentString;
-  var alias = position.alias;
+  var gameId = position.gameId;
   mt = mt.newTreeRef();
 
   var gen = new gpub.spec.Generated({
@@ -10534,8 +10540,8 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
       var ip = ipString(prevPos);
       var frag = fragString(sincePrevPos);
       var pos = new gpub.spec.Position({
-        id: idGen.next(alias, ip, frag),
-        alias: alias,
+        id: idGen.next(gameId, ip, frag),
+        gameId: gameId,
         initialPosition: ip,
         nextMovesPath: frag,
         labels: [lbl, gpub.spec.PositionType.GAME_COMMENTARY],
@@ -10755,7 +10761,7 @@ goog.provide('gpub.spec.IdGenType');
  */
 gpub.spec.IdGenType = {
   /**
-   * Keep a counter for the relevant SGF and append that to the alias.
+   * Keep a counter for the relevant SGF and append that to the gameId.
    */
   SEQUENTIAL: 'SEQUENTIAL',
 
@@ -10771,7 +10777,7 @@ gpub.spec.IdGenType = {
 
 /**
  * Simple id generator. As currently designed, this only works for one game
- * alias.
+ * gameId.
  *
  * @param {gpub.spec.IdGenType} idType
  *
@@ -10791,7 +10797,7 @@ gpub.spec.IdGen = function(idType) {
   this.idSet_ = {};
 
   /**
-   * Map from alias to counter. Each alias gets its own ID counter so that IDs
+   * Map from gameId to counter. Each gameId gets its own ID counter so that IDs
    * are sequential for a particular raw SGF. This applies only to the
    * SEQUENTIAL IdGenType.
    *
@@ -10803,18 +10809,18 @@ gpub.spec.IdGen = function(idType) {
 gpub.spec.IdGen.prototype = {
   /**
    * Gets a new Position ID for a generated position.
-   * @param {string} alias
+   * @param {string} gameId
    * @param {string=} opt_initPath
    * @param {string=} opt_nextMovesPath
    * @return {string} A new ID, unique within the context of IdGen.
    */
-  next: function(alias, opt_initPath, opt_nextMovesPath) {
+  next: function(gameId, opt_initPath, opt_nextMovesPath) {
     var id = '';
     if (this.idType_ == gpub.spec.IdGenType.PATH) {
-      id = this.getPathId_(alias, opt_initPath, opt_nextMovesPath);
+      id = this.getPathId_(gameId, opt_initPath, opt_nextMovesPath);
     } else {
       // Default to sequental
-      id = this.getSequentialId_(alias);
+      id = this.getSequentialId_(gameId);
     }
     if (this.idSet_[id]) {
       throw new Error('Duplicate ID Detected: ' + id);
@@ -10826,27 +10832,27 @@ gpub.spec.IdGen.prototype = {
   /**
    * Gets a path-ID with the following format:
    *
-   * alias__initialpath__nextmoves
+   * gameId__initialpath__nextmoves
    *
    * Where the path string has been transformed as follows:
    * 0:5->1-5
    * 1.0->1_0
    * 5+->5p
    *
-   * @param {string} alias
+   * @param {string} gameId
    * @param {string=} opt_initPath
    * @param {string=} opt_nextMovesPath
    * @return {string} id
    * @private
    */
-  getPathId_: function(alias, opt_initPath, opt_nextMovesPath) {
+  getPathId_: function(gameId, opt_initPath, opt_nextMovesPath) {
     var repl = function(p) {
       return p.replace(/:/g, '-')
         .replace(/\./g, '_')
         .replace(/\+/g, 'p');
     };
     var ip = opt_initPath || 'z';
-    var id = alias + '__' + repl(ip);
+    var id = gameId + '__' + repl(ip);
     if (opt_nextMovesPath) {
       id += '__' + repl(opt_nextMovesPath);
     }
@@ -10855,17 +10861,17 @@ gpub.spec.IdGen.prototype = {
 
   /**
    * Gets a sequential ID.
-   * @param {string} alias
+   * @param {string} gameId
    * @return {string} new ID
    * @private
    */
-  getSequentialId_: function(alias) {
-    if (!this.counterMap_[alias]) {
-      this.counterMap_[alias] = 0;
+  getSequentialId_: function(gameId) {
+    if (!this.counterMap_[gameId]) {
+      this.counterMap_[gameId] = 0;
     }
-    var counter = this.counterMap_[alias];
-    this.counterMap_[alias]++;
-    return alias + '-' + counter;
+    var counter = this.counterMap_[gameId];
+    this.counterMap_[gameId]++;
+    return gameId + '-' + counter;
   },
 };
 
@@ -10908,7 +10914,7 @@ gpub.spec.PositionType = {
 
 /**
  * @typedef {{
- *  alias: (string|undefined),
+ *  gameId: (string|undefined),
  *  id: (string|undefined),
  *  initialPosition: (string|undefined),
  *  nextMovesPath: (string|undefined),
@@ -10933,20 +10939,21 @@ gpub.spec.Position = function(opt_position) {
   }
 
   /**
-   * ID of this particular position. Required and must be unique
+   * ID of this particular position. Required and must be unique.
    * @const {string}
    */
   this.id = o.id;
 
-  if (!o.alias) {
-    throw new Error('SGF Alias must be defined')
+  if (!o.gameId) {
+    throw new Error('Game ID must be defined')
   }
 
   /**
-   * Alias of the SGF in the SGF mapping. Required and must be unique.
+   * Game Id of the SGF in the SGF mapping. Required. Each game must have a
+   * unique ID.
    * @const {string}
    */
-  this.alias = o.alias;
+  this.gameId = o.gameId;
 
   /**
    * An initial position, specified as a stringified Glift treepath.
@@ -10981,8 +10988,8 @@ gpub.spec.Position.prototype = {
    * @return {!gpub.spec.Position} this
    */
   validate:  function() {
-    if (this.alias == undefined) {
-      throw new Error('No SGF Alias');
+    if (this.gameId == undefined) {
+      throw new Error('No Game ID');
     }
     if (this.initialPosition == undefined) {
       throw new Error('No Initial Position');
@@ -11047,21 +11054,21 @@ gpub.spec.preprocessPosition = function(rawPos, idGen) {
   var rawPosObj = /** @type {!gpub.opts.RawPosition} */ ({});
   var posOpt = /** @type {gpub.spec.PositionTypedef} */ ({});
 
-  var alias = '';
+  var gameId = '';
   if (typeof rawPos === 'string') {
-    alias = /** @type {string} */ (rawPos);
+    gameId = /** @type {string} */ (rawPos);
   } else if (typeof rawPos === 'object') {
     rawPosObj = /** @type {!gpub.opts.RawPosition} */ (rawPos);
-    alias = rawPosObj.alias;
+    gameId = rawPosObj.gameId;
   } else {
     throw new Error('Bad type for grouping. ' +
         'Expected object or string but was: ' + typeof rawPos);
   }
-  if (!alias) {
-    throw new Error('SGF identifier (alias) ' +
-        'must be defined. Was: ' + alias);
+  if (!gameId) {
+    throw new Error('Game (SGF) identifier (gameId) ' +
+        'must be defined. Was: ' + gameId);
   }
-  posOpt.alias = alias;
+  posOpt.gameId = gameId;
 
   var initPosStr = undefined;
   if (rawPos.initialPosition) {
@@ -11081,7 +11088,7 @@ gpub.spec.preprocessPosition = function(rawPos, idGen) {
 
   var id = rawPosObj.id;
   if (!id) {
-    id = idGen.next(alias, initPosStr, nextMovesStr);
+    id = idGen.next(gameId, initPosStr, nextMovesStr);
   }
   posOpt.id = id;
 
@@ -11109,7 +11116,7 @@ gpub.spec.preprocessPosition = function(rawPos, idGen) {
 gpub.spec.processProblems = function(mt, position, idGen, opt) {
   var outPositions = [];
   var conditions = opt.problemConditions;
-  var alias = position.alias;
+  var gameId = position.gameId;
   mt = mt.newTreeRef();
 
   var ipString = glift.rules.treepath.toInitPathString;
@@ -11162,8 +11169,8 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
       var ip = ipString(prevPos);
       var frag = fragString(sincePrevPos);
       var pos = new gpub.spec.Position({
-        id: idGen.next(alias, ip, frag),
-        alias: alias,
+        id: idGen.next(gameId, ip, frag),
+        gameId: gameId,
         initialPosition: ip,
         nextMovesPath: frag,
         labels: [label, gpub.spec.PositionType.PROBLEM],
@@ -11240,7 +11247,7 @@ gpub.spec.Processor = function(spec, cache) {
   this.idGen_ = new gpub.spec.IdGen(spec.specOptions.idGenType);
 
   /**
-   * Mapping from alias to movetree.
+   * Mapping from gameId to movetree.
    * @const {!gpub.util.MoveTreeCache}
    * @private
    */
@@ -11250,11 +11257,11 @@ gpub.spec.Processor = function(spec, cache) {
   }
 
   /**
-   * Mapping from sgf alias to SGF string.
+   * Mapping from sgf gameId to SGF string.
    * @const {!Object<string, string>}
    * @private
    */
-  this.sgfMapping_ = spec.sgfMapping;
+  this.gameMapping_ = spec.gameMapping;
 
   /**
    * A top-level grouping, and ensuring the grouping is complete copy.
@@ -11275,7 +11282,7 @@ gpub.spec.Processor.prototype = {
     this.processGroup(this.rootGrouping_);
     return new gpub.spec.Spec({
       rootGrouping: this.rootGrouping_,
-      sgfMapping: this.sgfMapping_,
+      gameMapping: this.gameMapping_,
       specOptions: this.originalSpec_.specOptions,
       diagramOptions: this.originalSpec_.diagramOptions,
       templateOptions: this.originalSpec_.templateOptions,
@@ -11341,15 +11348,12 @@ gpub.spec.Processor.prototype = {
   generatePositions_: function(posType, pos) {
     var mt = this.getMovetree_(pos);
     mt = this.possiblyRotate_(
-        mt, pos.alias, posType, this.originalSpec_.specOptions);
+        mt, pos.gameId, posType, this.originalSpec_.specOptions);
 
     // Create a new ID gen instance for creating IDs.
     var idGen = this.getIdGen_();
     switch(posType) {
       case 'GAME_COMMENTARY':
-        // TODO(kashomon): If this updates the movetree (via rotation) then the
-        // movetree needs to be updated in the cache and a new SGF needs to
-        // be retrieved.
         var proc = gpub.spec.processGameCommentary(
             mt, pos, idGen, this.originalSpec_.specOptions);
         this.storeNewMovetree_(pos, proc.movetree);
@@ -11383,16 +11387,16 @@ gpub.spec.Processor.prototype = {
    * @param {?glift.rules.MoveTree} mt
    */
   storeNewMovetree_: function(position, mt) {
-    var alias = position.alias;
+    var gameId = position.gameId;
     if (!mt) {
       // Could be null if no change is required
       return;
     }
-    if (!alias) {
+    if (!gameId) {
       // This shouldn't happen since we've already done a getMovetree_();
-      throw new Error('alias must be defined in order to store a new movetree.');
+      throw new Error('gameId must be defined in order to store a new movetree.');
     }
-    this.mtCache_.set(alias, mt);
+    this.mtCache_.set(gameId, mt);
   },
 
   /**
@@ -11403,29 +11407,29 @@ gpub.spec.Processor.prototype = {
    * @private
    */
   getMovetree_: function(position) {
-    var alias = position.alias;
-    if (!alias) {
-      throw new Error('No SGF alias defined for position object: '
+    var gameId = position.gameId;
+    if (!gameId) {
+      throw new Error('No game ID (sgf-id) defined for position object: '
           + JSON.stringify(position));
     }
-    return this.mtCache_.get(alias);
+    return this.mtCache_.get(gameId);
   },
 
   /**
    * Gets a movetree for an position
    *
    * @param {!glift.rules.MoveTree} movetree
-   * @param {string} alias
+   * @param {string} gameId
    * @param {!gpub.spec.PositionType} posType
    * @param {!gpub.opts.SpecOptions} opts
    * @return {!glift.rules.MoveTree}
    * @private
    */
-  possiblyRotate_: function(movetree, alias, posType, opts) {
+  possiblyRotate_: function(movetree, gameId, posType, opts) {
     if (opts.autoRotateCropTypes[posType] && opts.autoRotateCropPrefs) {
       var nmt = glift.orientation.autoRotateCrop(
           movetree, opts.autoRotateCropPrefs)
-      this.mtCache_.set(alias, nmt);
+      this.mtCache_.set(gameId, nmt);
       return nmt.getTreeFromRoot();
     }
     return movetree;
@@ -11472,7 +11476,7 @@ goog.provide('gpub.spec.SpecDef');
  * @typedef {{
  *  version: (gpub.spec.SpecVersion|undefined),
  *  grouping: (!gpub.spec.Grouping|undefined),
- *  sgfMapping: (!Object<string, string>|undefined),
+ *  gameMapping: (!Object<string, string>|undefined),
  *  specOptions: (!gpub.opts.SpecOptions|undefined),
  *  diagramOptions: (!gpub.opts.DiagramOptions|undefined),
  *  templateOptions: (!gpub.opts.TemplateOptions|undefined),
@@ -11519,16 +11523,16 @@ gpub.spec.Spec = function(opt_spec) {
   this.rootGrouping = new gpub.spec.Grouping(o.rootGrouping);
 
   /**
-   * Mapping from SGF Alias to SGF string. It's not required that this be a
-   * bijection, but it doesn't really make sense to duplicate SGFs in the
-   * mapping.
+   * Mapping from game id to raw game string (usu. SGF). It's not required that
+   * this be a bijection, but it doesn't really make sense to duplicate games
+   * in the mapping.
    *
    * @const {!Object<string, string>}
    */
-  this.sgfMapping =  {};
-  if (o.sgfMapping) {
-    for (var key in o.sgfMapping) {
-      this.sgfMapping[key] = o.sgfMapping[key];
+  this.gameMapping =  {};
+  if (o.gameMapping) {
+    for (var key in o.gameMapping) {
+      this.gameMapping[key] = o.gameMapping[key];
     }
   }
 
@@ -12022,7 +12026,7 @@ gpub.diagrams.Renderer.prototype = {
       }
     }
 
-    var mt = this.cache_.get(pos.alias);
+    var mt = this.cache_.get(pos.gameId);
     var region = this.opts_.boardRegion;
     var init = glift.rules.treepath.parseInitialPath(pos.initialPosition);
     mt = mt.getTreeFromRoot(init);
@@ -14198,11 +14202,11 @@ goog.provide('gpub.util.MoveTreeCache');
 
 /**
  * Movetree cache
- * @param {(!Object<string, string>)=} opt_sgfMapping
+ * @param {(!Object<string, string>)=} opt_gameMapping
  * @param {(!Object<string, glift.rules.MoveTree>)=} opt_mtCache
  * @constructor @struct @final
  */
-gpub.util.MoveTreeCache = function(opt_sgfMapping, opt_mtCache) {
+gpub.util.MoveTreeCache = function(opt_gameMapping, opt_mtCache) {
   /**
    * Reference to the SGF mapping, for convenience.
    *
@@ -14210,10 +14214,10 @@ gpub.util.MoveTreeCache = function(opt_sgfMapping, opt_mtCache) {
    * we don't copy the map here.
    * @type {!Object<string, string>}
    */
-  this.sgfMap = opt_sgfMapping || {};
+  this.gameMap = opt_gameMapping || {};
 
   /**
-   * @type {!Object<string, !glift.rules.MoveTree>} mapping from alias to
+   * @type {!Object<string, !glift.rules.MoveTree>} mapping from gameId to
    *    movetree.
    */
   this.mtCache = opt_mtCache || {};
@@ -14222,36 +14226,36 @@ gpub.util.MoveTreeCache = function(opt_sgfMapping, opt_mtCache) {
 gpub.util.MoveTreeCache.prototype = {
   /**
    * Get a movetree. If a movetree can't be found, throw an exception -- that
-   * means an alias hasn't been provided.
-   * @param {string} alias
+   * means a gameId hasn't been provided.
+   * @param {string} gameId
    * @return {!glift.rules.MoveTree}
    */
-  get: function(alias) {
-    var mt = this.mtCache[alias];
+  get: function(gameId) {
+    var mt = this.mtCache[gameId];
     if (mt) {
       return mt.getTreeFromRoot();
     }
-    if (this.sgfMap[alias]) {
-      var str = this.sgfMap[alias];
+    if (this.gameMap[gameId]) {
+      var str = this.gameMap[gameId];
       mt = glift.parse.fromString(str);
-      this.mtCache[alias] = mt;
+      this.mtCache[gameId] = mt;
     } else {
-      throw new Error('No SGF found for alias in sgfMap: ' + alias);
+      throw new Error('No game string found for game id in gameMap: ' + gameId);
     }
     return mt.getTreeFromRoot();
   },
 
   /**
    * Replace a movetree / SGF.
-   * @param {string} alias
+   * @param {string} gameId
    * @param {!glift.rules.MoveTree} movetree
    */
-  set: function(alias, movetree) {
-    if (!alias) {
-      throw new Error('Alias must be defined.');
+  set: function(gameId, movetree) {
+    if (!gameId) {
+      throw new Error('Game ID must be defined.');
     }
-    this.mtCache[alias] = movetree
-    this.sgfMap[alias] = movetree.toSgf();
+    this.mtCache[gameId] = movetree
+    this.gameMap[gameId] = movetree.toSgf();
   },
 };
 
@@ -15986,7 +15990,7 @@ gpub.initFromSpec = function(spec) {
  *
  * {
  *  template: 'PROBLEM_EBOOK',
- *  sgfs: {
+ *  games: {
  *    <id>: <contents>
  *    ...
  *  }
@@ -16098,9 +16102,9 @@ gpub.Api.prototype = {
             'Must be serialized JSON or a gpub.spce.Spec object.');
       }
     } else {
-      // No spec option has been passed in; Process the incoming SGFS.
-      var sgfs = ref.opt_.sgfs;
-      if (!sgfs || glift.util.typeOf(sgfs) !== 'object' || sgfs.length === 0) {
+      // No spec option has been passed in; Process the incoming SGFS..
+      var games = ref.opt_.games;
+      if (!games || glift.util.typeOf(games) !== 'object') {
         throw new Error('SGF object-map must be defined and non-empty ' +
             'before spec creation');
       }
@@ -16224,7 +16228,7 @@ gpub.Api.prototype = {
     if (!this.cache_) {
       // If the user passes in the spec instead of starting from the beginning,
       // it's possible that the user has skipped diagram creation.
-      this.cache_ = new gpub.util.MoveTreeCache(spec.sgfMapping);
+      this.cache_ = new gpub.util.MoveTreeCache(spec.gameMapping);
     }
     return this.cache_;
   },

@@ -78,7 +78,7 @@ var methods = {
 
     var api = gpub.init({
       template: opts.templateType,
-      sgfs: idContentsMap,
+      games: idContentsMap,
       grouping: ids,
       specOptions: {
         positionType: opts.positionType,

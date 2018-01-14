@@ -1,6 +1,6 @@
 {
   "name": "gpub-go",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "GPub: Create and publish go books with Glift!",
   "preferGlobal": true,
   "bin": {

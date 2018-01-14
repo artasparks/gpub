@@ -60,7 +60,7 @@ gpub.spec.Processor = function(spec, cache) {
    * @const {!Object<string, string>}
    * @private
    */
-  this.sgfMapping_ = spec.sgfMapping;
+  this.gameMapping_ = spec.gameMapping;
 
   /**
    * A top-level grouping, and ensuring the grouping is complete copy.
@@ -81,7 +81,7 @@ gpub.spec.Processor.prototype = {
     this.processGroup(this.rootGrouping_);
     return new gpub.spec.Spec({
       rootGrouping: this.rootGrouping_,
-      sgfMapping: this.sgfMapping_,
+      gameMapping: this.gameMapping_,
       specOptions: this.originalSpec_.specOptions,
       diagramOptions: this.originalSpec_.diagramOptions,
       templateOptions: this.originalSpec_.templateOptions,

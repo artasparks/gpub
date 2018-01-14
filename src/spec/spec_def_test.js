@@ -19,7 +19,7 @@
       rootGrouping: {
         positions: positions
       },
-      sgfMapping: {
+      gameMapping: {
         'foo': sgf1,
         'bar': sgf2
       }
@@ -29,7 +29,7 @@
     ok(json, 'JSON serialization should be defined');
 
     var obj = JSON.parse(json);
-    deepEqual(obj.sgfMapping, spec.sgfMapping, 'mapping');
+    deepEqual(obj.gameMapping, spec.gameMapping, 'mapping');
     deepEqual(obj.rootGrouping.groupings, [], 'groupings');
     deepEqual(obj.rootGrouping.positions, positions, 'positions');
 
@@ -42,11 +42,11 @@
     var testSpec = '{\n'
         + '  \"rootGrouping\": {'
         + '  },'
-        + '  \"sgfMapping\": {'
+        + '  \"gameMapping\": {'
         + '     \"foo\": \"' + sgf + '\"\n'
         + '  }\n'
         + '}\n'
     var spec = gpub.spec.Spec.deserializeJson(testSpec);
-    deepEqual(spec.sgfMapping['foo'], sgf);
+    deepEqual(spec.gameMapping['foo'], sgf);
   });
 })()

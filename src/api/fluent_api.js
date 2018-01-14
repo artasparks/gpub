@@ -210,7 +210,7 @@ gpub.Api.prototype = {
     if (!this.cache_) {
       // If the user passes in the spec instead of starting from the beginning,
       // it's possible that the user has skipped diagram creation.
-      this.cache_ = new gpub.util.MoveTreeCache(spec.sgfMapping);
+      this.cache_ = new gpub.util.MoveTreeCache(spec.gameMapping);
     }
     return this.cache_;
   },

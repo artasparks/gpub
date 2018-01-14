@@ -2,11 +2,11 @@ goog.provide('gpub.util.MoveTreeCache');
 
 /**
  * Movetree cache
- * @param {(!Object<string, string>)=} opt_sgfMapping
+ * @param {(!Object<string, string>)=} opt_gameMapping
  * @param {(!Object<string, glift.rules.MoveTree>)=} opt_mtCache
  * @constructor @struct @final
  */
-gpub.util.MoveTreeCache = function(opt_sgfMapping, opt_mtCache) {
+gpub.util.MoveTreeCache = function(opt_gameMapping, opt_mtCache) {
   /**
    * Reference to the SGF mapping, for convenience.
    *
@@ -14,7 +14,7 @@ gpub.util.MoveTreeCache = function(opt_sgfMapping, opt_mtCache) {
    * we don't copy the map here.
    * @type {!Object<string, string>}
    */
-  this.sgfMap = opt_sgfMapping || {};
+  this.gameMap = opt_gameMapping || {};
 
   /**
    * @type {!Object<string, !glift.rules.MoveTree>} mapping from gameId to
@@ -35,12 +35,12 @@ gpub.util.MoveTreeCache.prototype = {
     if (mt) {
       return mt.getTreeFromRoot();
     }
-    if (this.sgfMap[gameId]) {
-      var str = this.sgfMap[gameId];
+    if (this.gameMap[gameId]) {
+      var str = this.gameMap[gameId];
       mt = glift.parse.fromString(str);
       this.mtCache[gameId] = mt;
     } else {
-      throw new Error('No SGF found for game id in sgfMap: ' + gameId);
+      throw new Error('No game string found for game id in gameMap: ' + gameId);
     }
     return mt.getTreeFromRoot();
   },
@@ -55,6 +55,6 @@ gpub.util.MoveTreeCache.prototype = {
       throw new Error('Game ID must be defined.');
     }
     this.mtCache[gameId] = movetree
-    this.sgfMap[gameId] = movetree.toSgf();
+    this.gameMap[gameId] = movetree.toSgf();
   },
 };

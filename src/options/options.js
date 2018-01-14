@@ -40,8 +40,9 @@ gpub.Options = function(opt_options) {
   var o = opt_options || {};
 
   /**
-   * A object, containing a bijection between ID and game-data. No default is
-   * specified here: Must be explicitly passed in every time.
+   * A object, containing a mapping between ID and game-data (typically in
+   * SGF). No default is specified here: Must be explicitly passed in every
+   * time.
    *
    * Note: It's currently assumed that these games are specified as SGFs
    * (although it's possible this might be configurable later).

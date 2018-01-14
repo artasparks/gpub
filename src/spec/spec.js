@@ -26,7 +26,7 @@ gpub.spec = {
       }));
 
     var specDef = /** @type {!gpub.spec.SpecDef} */ ({
-      sgfMapping: {},
+      gameMapping: {},
       specOptions: options.specOptions,
       diagramOptions: options.diagramOptions,
       templateOptions: options.templateOptions,
@@ -41,10 +41,10 @@ gpub.spec = {
             gameId);
       }
       var mt = glift.parse.fromString(rawGameStr);
-      cache.sgfMap[gameId] = rawGameStr;
+      cache.gameMap[gameId] = rawGameStr;
       cache.mtCache[gameId] = mt;
-      if (!specDef.sgfMapping[gameId]) {
-        specDef.sgfMapping[gameId] = rawGameStr;
+      if (!specDef.gameMapping[gameId]) {
+        specDef.gameMapping[gameId] = rawGameStr;
       }
     }
 
