@@ -68,6 +68,13 @@ gpub.spec.Processor = function(spec, cache) {
    * @private
    */
   this.rootGrouping_ = new gpub.spec.Grouping(spec.rootGrouping);
+
+  /**
+   * @const {!gpub.spec.PositionOverrider}
+   * @private
+   */
+  this.overrider_  = new gpub.spec.PositionOverrider(
+      spec.specOptions.positionOverrides);
 };
 
 gpub.spec.Processor.prototype = {
@@ -154,14 +161,14 @@ gpub.spec.Processor.prototype = {
     switch(posType) {
       case 'GAME_COMMENTARY':
         var proc = gpub.spec.processGameCommentary(
-            mt, pos, idGen, this.originalSpec_.specOptions);
+            mt, pos, idGen, this.overrider_, this.originalSpec_.specOptions);
         this.storeNewMovetree_(pos, proc.movetree);
         return proc.generated;
         break;
 
       case 'PROBLEM':
         var proc = gpub.spec.processProblems(
-            mt, pos, idGen, this.originalSpec_.specOptions);
+            mt, pos, idGen, this.overrider_, this.originalSpec_.specOptions);
         this.storeNewMovetree_(pos, proc.movetree);
         return proc.generated;
         break;

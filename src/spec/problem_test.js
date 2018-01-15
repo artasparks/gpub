@@ -1,6 +1,8 @@
 (function() {
   module('gpub.spec.problem');
 
+  var ov = new gpub.spec.PositionOverrider();
+
   test('That problem generation works', function() {
     var easySgf = testdata.sgfs.easy;
     var mt = glift.rules.movetree.getFromSgf(easySgf);
@@ -11,7 +13,7 @@
       gameId: id,
     });
     var generated = gpub.spec.processProblems(
-        mt, pos, idGen, new gpub.opts.SpecOptions()).generated;
+        mt, pos, idGen, ov, new gpub.opts.SpecOptions()).generated;
     ok(generated, 'Should be defined');
     deepEqual(generated.id, id);
     deepEqual(generated.positionType, gpub.spec.PositionType.EXAMPLE);

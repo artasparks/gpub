@@ -1,5 +1,6 @@
 goog.provide('gpub.opts.SpecOptions');
 goog.provide('gpub.opts.SpecOptionsDef');
+goog.provide('gpub.opts.PositionOverrides');
 
 goog.scope(function() {
 
@@ -12,6 +13,7 @@ goog.scope(function() {
  *  autoRotateCropPrefs: (!glift.orientation.AutoRotateCropPrefs|undefined),
  *  autoRotateCropTypes: (!Object<!gpub.spec.PositionType, boolean>|undefined),
  *  autoRotateGames: (boolean|undefined),
+ *  positionOverrides: (!Array<!gpub.opts.PositionOverrides>|undefined)
  * }}
  */
 gpub.opts.SpecOptionsDef;
@@ -25,18 +27,23 @@ gpub.opts.SpecOptionsDef;
  *
  *  location:
  *  move: Specify a main-line move number
+ *  <or>
+ *  initialPosition: where you *would* start.
+ *  nextMovesPath: where you *would* finish
  *
- *  initial-p
- *
+ *  Then, options you can override
+ *  showPreviousMoves: how many number moves to show, getting to the final position.
  *
  * @typedef {{
  *  gameId: string,
- *  move: (number|undefined),
+ *  moveNumber: (number|undefined),
  *  initialPosition: (string|undefined),
- *  nextMovesPath: (string|undefined)
+ *  nextMovesPath: (string|undefined),
+ *  showPreviousMoves: (number|undefined)
  * }}
  */
 gpub.opts.PositionOverrides;
+
 
 /**
  * The user can pass in defaults to apply to the SGFs during spec
@@ -136,6 +143,13 @@ gpub.opts.SpecOptions = function(opt_options) {
    * @const {boolean}
    */
   this.autoRotateGames = o.autoRotateGames || false;
+
+  /**
+   * Overrides for particular positions. Should have the format specified by:
+   * gpub.spec.PositionOverrides
+   * @const {!Array<gpub.opts.PositionOverrides>}
+   */
+  this.positionOverrides = o.positionOverrides || [];
 };
 
 /**

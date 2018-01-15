@@ -9542,7 +9542,7 @@ glift.svg.SvgObj.prototype = {
  *
  * @copyright Josh Hoak
  * @license MIT License (see LICENSE.txt)
- * @version 0.3.36
+ * @version 0.3.37
  * --------------------------------------
  */
 (function(w) {
@@ -9567,7 +9567,7 @@ gpub.global = {
    * See: http://semver.org/
    * Currently in alpha.
    */
-  version: '0.5.0',
+  version: '0.5.1',
 };
 
 goog.provide('gpub.Options');
@@ -10120,6 +10120,7 @@ gpub.opts.RawPosition;
 
 goog.provide('gpub.opts.SpecOptions');
 goog.provide('gpub.opts.SpecOptionsDef');
+goog.provide('gpub.opts.PositionOverrides');
 
 goog.scope(function() {
 
@@ -10132,6 +10133,7 @@ goog.scope(function() {
  *  autoRotateCropPrefs: (!glift.orientation.AutoRotateCropPrefs|undefined),
  *  autoRotateCropTypes: (!Object<!gpub.spec.PositionType, boolean>|undefined),
  *  autoRotateGames: (boolean|undefined),
+ *  positionOverrides: (!Array<!gpub.opts.PositionOverrides>|undefined)
  * }}
  */
 gpub.opts.SpecOptionsDef;
@@ -10145,18 +10147,23 @@ gpub.opts.SpecOptionsDef;
  *
  *  location:
  *  move: Specify a main-line move number
+ *  <or>
+ *  initialPosition: where you *would* start.
+ *  nextMovesPath: where you *would* finish
  *
- *  initial-p
- *
+ *  Then, options you can override
+ *  showPreviousMoves: how many number moves to show, getting to the final position.
  *
  * @typedef {{
  *  gameId: string,
- *  move: (number|undefined),
+ *  moveNumber: (number|undefined),
  *  initialPosition: (string|undefined),
- *  nextMovesPath: (string|undefined)
+ *  nextMovesPath: (string|undefined),
+ *  showPreviousMoves: (number|undefined)
  * }}
  */
 gpub.opts.PositionOverrides;
+
 
 /**
  * The user can pass in defaults to apply to the SGFs during spec
@@ -10256,6 +10263,13 @@ gpub.opts.SpecOptions = function(opt_options) {
    * @const {boolean}
    */
   this.autoRotateGames = o.autoRotateGames || false;
+
+  /**
+   * Overrides for particular positions. Should have the format specified by:
+   * gpub.spec.PositionOverrides
+   * @const {!Array<gpub.opts.PositionOverrides>}
+   */
+  this.positionOverrides = o.positionOverrides || [];
 };
 
 /**
@@ -10497,11 +10511,12 @@ goog.provide('gpub.spec.GameCommentary');
  * @param {!glift.rules.MoveTree} mt The movetree for the position.
  * @param {!gpub.spec.Position} position The position used for spec generation.
  * @param {!gpub.spec.IdGen} idGen
+ * @param {!gpub.spec.PositionOverrider} overrider
  * @param {!gpub.opts.SpecOptions} opt
  * @return {!gpub.spec.Processed} processed positions.
  * @package
  */
-gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
+gpub.spec.processGameCommentary = function(mt, position, idGen, overrider, opt) {
   var outPositions = [];
   var ipString = glift.rules.treepath.toInitPathString;
   var fragString = glift.rules.treepath.toFragmentString;
@@ -10539,6 +10554,22 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, opt) {
       }
       var ip = ipString(prevPos);
       var frag = fragString(sincePrevPos);
+
+      // Apply overrides, if necessary
+      var moveNum = onMainline ? prevPos.length + sincePrevPos.length : undefined;
+      var outPath = overrider.applyOverridesIfNecessary({
+        gameId: gameId,
+        moveNumber: moveNum,
+        initialPosition: ip,
+        nextMovesPath: frag,
+      }, prevPos, sincePrevPos);
+      if (outPath.initialPosition) {
+        ip = ipString(outPath.initialPosition);
+      }
+      if (outPath.nextMovesPath) {
+        frag = fragString(outPath.nextMovesPath);
+      }
+
       var pos = new gpub.spec.Position({
         id: idGen.next(gameId, ip, frag),
         gameId: gameId,
@@ -11003,6 +11034,150 @@ gpub.spec.Position.prototype = {
   }
 };
 
+goog.provide('gpub.spec.PositionOverrider');
+
+/**
+ * @param {!Array<!gpub.opts.PositionOverrides>} overrides
+ * @constructor @struct @final
+ */
+gpub.spec.PositionOverrider = function(overrides) {
+  this.overrides = overrides || [];
+
+  /**
+   * @const {!Object<string, !gpub.opts.PositionOverrides>}
+   */
+  this.lookup = {};
+  for (var i = 0; i < this.overrides.length; i++) {
+    var o = this.overrides[i];
+    var key = this.getKey({
+      gameId: o.gameId,
+      moveNumber: o.moveNumber,
+      initialPosition: o.initialPosition,
+      nextMovesPath: o.nextMovesPath,
+    });
+    if (o.showPreviousMoves && o.showPreviousMoves <= 0) {
+      throw new Error('PositionOverrides param showPreviousMoves must be >= 0. '
+          + 'Was:' + o.showPreviousMoves);
+    }
+    // Sanity check: make sure it's a number. This as actually surprisingly
+    // expensive so we should be careful only to do this if we're sure there's
+    // a problem.
+    if (typeof o.showPreviousMoves !== 'number') {
+      o.showPreviousMoves = parseInt(o.showPreviousMoves, 10);
+      if (isNaN(o.showPreviousMoves)) {
+        throw new Error('overrides.showPreviousMoves was parsed to NaN for'
+            + ' override: ' + JSON.stringify(o));
+      }
+    }
+    this.lookup[key] = o;
+  }
+};
+
+/**
+ * @typedef{{
+ *  gameId: string,
+ *  moveNumber: (number|undefined),
+ *  initialPosition: (string|undefined),
+ *  nextMovesPath: (string|undefined),
+ * }}
+ */
+gpub.spec.PositionKeyOpts;
+
+gpub.spec.PositionOverrider.prototype = {
+  /**
+   * @param {!gpub.spec.PositionKeyOpts} opts
+   * @return {string} the key for doing lookup
+   */
+  getKey: function(opts) {
+    var gameId = opts.gameId
+    if (!gameId) {
+      throw new Error('Game ID must be defined for each overrides; was'
+          + gameId);
+    }
+    var moveNumber = opts.moveNumber;
+    var initialPosition = opts.initialPosition;
+    var nextMovesPath = opts.nextMovesPath;
+    if (moveNumber === undefined &&
+        (initialPosition === undefined || nextMovesPath === undefined)) {
+      throw new Error('One of moveNumber or initialPosition + nextMovesPath must ' +
+          'be defined. The were, respectively, '
+          + moveNumber + ',' + initialPosition + ',' + nextMovesPath);
+    }
+    var key = gameId;
+    if (moveNumber !== undefined) {
+      key += '#' + moveNumber
+    } else {
+      key += '#' + initialPosition + '#' + nextMovesPath;
+    }
+    return key;
+  },
+
+  /**
+   * Get overrides for a key-opts. If both moveNumber and
+   * initialPosition+nextMovesPath is specified, try both and return the first
+   * thing that pops up, preferring moveNumber
+   *
+   * @param {!gpub.spec.PositionKeyOpts} opts
+   * @return {?gpub.opts.PositionOverrides} the position overrides or null
+   */
+  getOverride: function(opts) {
+    if (opts.moveNumber !== undefined) {
+      // first try with move number
+      var key = this.getKey({
+        gameId: opts.gameId,
+        moveNumber: opts.moveNumber,
+      })
+      var override = this.lookup[key];
+      if (override) { return override; }
+    }
+    if (opts.initialPosition && opts.nextMovesPath) {
+      var key = this.getKey({
+        gameId: opts.gameId,
+        initialPosition: opts.initialPosition,
+        nextMovesPath: opts.nextMovesPath,
+      })
+      var override = this.lookup[key];
+      if (override) { return override; }
+    }
+    return null;
+  },
+
+  /**
+   * @param {!gpub.spec.PositionKeyOpts} opts
+   * @param {!glift.rules.Treepath} initPos
+   * @param {!glift.rules.Treepath} nextMoves
+   *
+   * @return {{
+   *  initialPosition: (?glift.rules.Treepath),
+   *  nextMovesPath: (?glift.rules.Treepath),
+   * }}
+   */
+  applyOverridesIfNecessary: function(opts, initPos, nextMoves) {
+    var out = {
+      initialPosition: null,
+      nextMovesPath: null,
+    }
+    var o = this.getOverride(opts);
+    if (!o) {
+      return out;
+    }
+
+    // We found something! Let's apply the overrides.
+    var ip = initPos.slice();
+    var nm = nextMoves.slice();
+    if (o.showPreviousMoves && nm.length > o.showPreviousMoves) {
+      while (nm.length > o.showPreviousMoves) {
+        var v = nm.pop();
+        ip.push(v);
+      }
+      out.initialPosition = ip;
+      out.nextMovesPath = nm;
+    }
+    return out;
+  }
+}
+
+
 /**
  * Transform a raw grouping into a spec-grouping.
  * @param {!gpub.opts.RawGrouping} ingp
@@ -11109,11 +11284,12 @@ gpub.spec.preprocessPosition = function(rawPos, idGen) {
  * @param {!glift.rules.MoveTree} mt
  * @param {!gpub.spec.Position} position
  * @param {!gpub.spec.IdGen} idGen
+ * @param {!gpub.spec.PositionOverrider} overrider
  * @param {!gpub.opts.SpecOptions} opt
  * @return {!gpub.spec.Processed} processed positions.
  * @package
  */
-gpub.spec.processProblems = function(mt, position, idGen, opt) {
+gpub.spec.processProblems = function(mt, position, idGen, overrider, opt) {
   var outPositions = [];
   var conditions = opt.problemConditions;
   var gameId = position.gameId;
@@ -11168,6 +11344,22 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
       }
       var ip = ipString(prevPos);
       var frag = fragString(sincePrevPos);
+
+      // Apply overrides, if necessary
+      var moveNum = movetree.onMainline ? prevPos.length + sincePrevPos.length : undefined;
+      var outPath = overrider.applyOverridesIfNecessary({
+        gameId: gameId,
+        moveNumber: moveNum,
+        initialPosition: ip,
+        nextMovesPath: frag,
+      }, prevPos, sincePrevPos);
+      if (outPath.initialPosition) {
+        ip = ipString(outPath.initialPosition);
+      }
+      if (outPath.nextMovesPath) {
+        frag = fragString(outPath.nextMovesPath);
+      }
+
       var pos = new gpub.spec.Position({
         id: idGen.next(gameId, ip, frag),
         gameId: gameId,
@@ -11269,6 +11461,13 @@ gpub.spec.Processor = function(spec, cache) {
    * @private
    */
   this.rootGrouping_ = new gpub.spec.Grouping(spec.rootGrouping);
+
+  /**
+   * @const {!gpub.spec.PositionOverrider}
+   * @private
+   */
+  this.overrider_  = new gpub.spec.PositionOverrider(
+      spec.specOptions.positionOverrides);
 };
 
 gpub.spec.Processor.prototype = {
@@ -11355,14 +11554,14 @@ gpub.spec.Processor.prototype = {
     switch(posType) {
       case 'GAME_COMMENTARY':
         var proc = gpub.spec.processGameCommentary(
-            mt, pos, idGen, this.originalSpec_.specOptions);
+            mt, pos, idGen, this.overrider_, this.originalSpec_.specOptions);
         this.storeNewMovetree_(pos, proc.movetree);
         return proc.generated;
         break;
 
       case 'PROBLEM':
         var proc = gpub.spec.processProblems(
-            mt, pos, idGen, this.originalSpec_.specOptions);
+            mt, pos, idGen, this.overrider_, this.originalSpec_.specOptions);
         this.storeNewMovetree_(pos, proc.movetree);
         return proc.generated;
         break;

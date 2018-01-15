@@ -4,11 +4,12 @@
  * @param {!glift.rules.MoveTree} mt
  * @param {!gpub.spec.Position} position
  * @param {!gpub.spec.IdGen} idGen
+ * @param {!gpub.spec.PositionOverrider} overrider
  * @param {!gpub.opts.SpecOptions} opt
  * @return {!gpub.spec.Processed} processed positions.
  * @package
  */
-gpub.spec.processProblems = function(mt, position, idGen, opt) {
+gpub.spec.processProblems = function(mt, position, idGen, overrider, opt) {
   var outPositions = [];
   var conditions = opt.problemConditions;
   var gameId = position.gameId;
@@ -63,6 +64,22 @@ gpub.spec.processProblems = function(mt, position, idGen, opt) {
       }
       var ip = ipString(prevPos);
       var frag = fragString(sincePrevPos);
+
+      // Apply overrides, if necessary
+      var moveNum = movetree.onMainline ? prevPos.length + sincePrevPos.length : undefined;
+      var outPath = overrider.applyOverridesIfNecessary({
+        gameId: gameId,
+        moveNumber: moveNum,
+        initialPosition: ip,
+        nextMovesPath: frag,
+      }, prevPos, sincePrevPos);
+      if (outPath.initialPosition) {
+        ip = ipString(outPath.initialPosition);
+      }
+      if (outPath.nextMovesPath) {
+        frag = fragString(outPath.nextMovesPath);
+      }
+
       var pos = new gpub.spec.Position({
         id: idGen.next(gameId, ip, frag),
         gameId: gameId,

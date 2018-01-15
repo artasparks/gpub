@@ -3,6 +3,7 @@
 
   var gameId = 'zed';
   var specOpts = new gpub.opts.SpecOptions();
+  var ov = new gpub.spec.PositionOverrider();
 
   test('Process basic game commentary', function() {
     var sgf = '(;GM[1]C[A Game!];B[aa]C[Here\'s a move])';
@@ -14,7 +15,7 @@
       gameId: id,
     });
 
-    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts).generated;
+    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, ov, specOpts).generated;
     deepEqual(gen.positions.length, 2);
     deepEqual(gen.positions[0].id, id + '-0', 'gen-1 id');
     deepEqual(gen.positions[0].initialPosition, '0', 'gen-1 init pos');
@@ -42,7 +43,7 @@
       id: id,
       gameId: id,
     });
-    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts).generated;
+    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, ov, specOpts).generated;
     deepEqual(gen.positions.length, 4);
 
     var genLabels = gen.positionLabels();
@@ -87,7 +88,7 @@
       id: id,
       gameId: id,
     });
-    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, specOpts).generated;
+    var gen = gpub.spec.processGameCommentary(mt, pos, idGen, ov, specOpts).generated;
     deepEqual(gen.positions.length, 1, 'num variations');
     ok(gen.positions[0].nextMovesPath, '0:228', 'Testing nextmoves path');
 
@@ -106,7 +107,7 @@
       gameId: id,
     });
 
-    var proc = gpub.spec.processGameCommentary(mt, pos, idGen, new gpub.opts.SpecOptions({
+    var proc = gpub.spec.processGameCommentary(mt, pos, idGen, ov, new gpub.opts.SpecOptions({
       autoRotateGames: true,
     }));
     ok(proc.movetree, 'Processed movetree must be defined');
@@ -121,4 +122,60 @@
     deepEqual(genLabels['GAME_COMMENTARY'].length, 2);
   });
 
+  test('Show previous moves: moveNumber', function() {
+    var sgf = '(;GM[1]' +
+        ';B[qd] ;W[dd] ;B[pq] ;W[oc] ;B[dp] ;W[po] ;B[pe] ;W[md] ;B[qm]' + // mv 9
+        ';W[qq] ;B[qp] ;W[pp] ;B[qo] ;W[qn] ;B[pn] ;W[rn] ;B[rq] ;W[qr]' + // mv 18
+        ';W[ao] ;B[bo] ;W[sd] C[It was a great game!])' // mv 21
+    var mt = glift.parse.fromString(sgf);
+    var id = 'simple-id';
+    var idGen = new gpub.spec.IdGen(id);
+    var pos = new gpub.spec.Position({
+      id: id,
+      gameId: id,
+    });
+
+    var o = [{
+      gameId: id,
+      moveNumber: 21,
+      showPreviousMoves: 5,
+    }];
+    var overrider = new gpub.spec.PositionOverrider(o);
+
+    var proc = gpub.spec.processGameCommentary(mt, pos, idGen, overrider, specOpts);
+    var gen = proc.generated;
+    deepEqual(gen.positions.length, 1);
+    deepEqual(gen.positions[0].id, id + '-0', 'gen-1 id');
+    deepEqual(gen.positions[0].initialPosition, '16', 'gen-1 init pos');
+    deepEqual(gen.positions[0].nextMovesPath, '0:5', 'gen-1 next moves');
+  });
+
+  test('Show previous moves: initpos+nextmoves', function() {
+    var sgf = '(;GM[1]' +
+        ';B[qd] ;W[dd] ;B[pq] ;W[oc] ;B[dp] ;W[po] ;B[pe] ;W[md] ;B[qm]' + // mv 9
+        ';W[qq] ;B[qp] ;W[pp] ;B[qo] ;W[qn] ;B[pn] ;W[rn] ;B[rq] ;W[qr]' + // mv 18
+        ';W[ao] ;B[bo] ;W[sd] C[It was a great game!])' // mv 21
+    var mt = glift.parse.fromString(sgf);
+    var id = 'simple-id';
+    var idGen = new gpub.spec.IdGen(id);
+    var pos = new gpub.spec.Position({
+      id: id,
+      gameId: id,
+    });
+
+    var o = [{
+      gameId: id,
+      initialPosition: '0',
+      nextMovesPath: '0:21',
+      showPreviousMoves: 5,
+    }];
+    var overrider = new gpub.spec.PositionOverrider(o);
+
+    var proc = gpub.spec.processGameCommentary(mt, pos, idGen, overrider, specOpts);
+    var gen = proc.generated;
+    deepEqual(gen.positions.length, 1);
+    deepEqual(gen.positions[0].id, id + '-0', 'gen-1 id');
+    deepEqual(gen.positions[0].initialPosition, '16', 'gen-1 init pos');
+    deepEqual(gen.positions[0].nextMovesPath, '0:5', 'gen-1 next moves');
+  });
 })();
