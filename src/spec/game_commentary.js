@@ -100,6 +100,12 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, overrider, opt) 
       }
       spp.push(i);
 
+      // Users can specify to not use the next-moves path.
+      if (!opt.useNextMovesPath) {
+        pp = pp.concat(spp);
+        spp = [];
+      }
+
       // Note: there's no indicator when to break here. In other words, we
       // assume that the whole subtree is part of the problem, which might not
       // be true, but either we make this assumption or we introduce arbitrary

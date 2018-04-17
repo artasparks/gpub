@@ -22,6 +22,7 @@ specOptions:
   autoRotateGames: false
   positionOverrides: []
   maxDiagramDistance: 1
+  useNextMovesPath: false
 diagramOptions:
   diagramType: SVG
   boardRegion: AUTO
@@ -30,7 +31,7 @@ diagramOptions:
   typeOptions: {}
 templateOptions:
   metadata:
-    id: 4d579c18-2813-458b-b179-7d9d824883db
+    id: fe93ef56-533d-4b6a-9045-86e0493861c5
     title: My Go Book!
     subtitle: ''
     idType: uuid
@@ -44,7 +45,7 @@ templateOptions:
     rights: All Rights Reserved.
     publisher: ''
     authors: []
-    generationDate: '2018-04-17T04:58:06Z'
+    generationDate: '2018-04-17T16:47:53Z'
     publicationDate: ''
     addressLines: []
     permanenceOfPaper: true

@@ -15,703 +15,603 @@ rootGrouping:
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__000__0
-          gameId: minigo_game
-          initialPosition: '0'
-          nextMovesPath: '0'
-          labels:
-            - MAINLINE
-            - GAME_COMMENTARY
-        - id: minigo_game__001__0
+        - id: minigo_game__001
           gameId: minigo_game
           initialPosition: '1'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__002__0
+        - id: minigo_game__002
           gameId: minigo_game
           initialPosition: '2'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__003__0
+        - id: minigo_game__003
           gameId: minigo_game
           initialPosition: '3'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__004__0
+        - id: minigo_game__004
           gameId: minigo_game
           initialPosition: '4'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__005__0
+        - id: minigo_game__005
           gameId: minigo_game
           initialPosition: '5'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__006__0
+        - id: minigo_game__006
           gameId: minigo_game
           initialPosition: '6'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__007__0
+        - id: minigo_game__007
           gameId: minigo_game
           initialPosition: '7'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__008__0
+        - id: minigo_game__008
           gameId: minigo_game
           initialPosition: '8'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__009__0
+        - id: minigo_game__009
           gameId: minigo_game
           initialPosition: '9'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__010__0
+        - id: minigo_game__010
           gameId: minigo_game
           initialPosition: '10'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__011__0
+        - id: minigo_game__011
           gameId: minigo_game
           initialPosition: '11'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__012__0
+        - id: minigo_game__012
           gameId: minigo_game
           initialPosition: '12'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__013__0
+        - id: minigo_game__013
           gameId: minigo_game
           initialPosition: '13'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__014__0
+        - id: minigo_game__014
           gameId: minigo_game
           initialPosition: '14'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__015__0
+        - id: minigo_game__015
           gameId: minigo_game
           initialPosition: '15'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__016__0
+        - id: minigo_game__016
           gameId: minigo_game
           initialPosition: '16'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__017__0
+        - id: minigo_game__017
           gameId: minigo_game
           initialPosition: '17'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__018__0
+        - id: minigo_game__018
           gameId: minigo_game
           initialPosition: '18'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__019__0
+        - id: minigo_game__019
           gameId: minigo_game
           initialPosition: '19'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__020__0
+        - id: minigo_game__020
           gameId: minigo_game
           initialPosition: '20'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__021__0
+        - id: minigo_game__021
           gameId: minigo_game
           initialPosition: '21'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__022__0
+        - id: minigo_game__022
           gameId: minigo_game
           initialPosition: '22'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__023__0
+        - id: minigo_game__023
           gameId: minigo_game
           initialPosition: '23'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__024__0
+        - id: minigo_game__024
           gameId: minigo_game
           initialPosition: '24'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__025__0
+        - id: minigo_game__025
           gameId: minigo_game
           initialPosition: '25'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__026__0
+        - id: minigo_game__026
           gameId: minigo_game
           initialPosition: '26'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__027__0
+        - id: minigo_game__027
           gameId: minigo_game
           initialPosition: '27'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__028__0
+        - id: minigo_game__028
           gameId: minigo_game
           initialPosition: '28'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__029__0
+        - id: minigo_game__029
           gameId: minigo_game
           initialPosition: '29'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__030__0
+        - id: minigo_game__030
           gameId: minigo_game
           initialPosition: '30'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__031__0
+        - id: minigo_game__031
           gameId: minigo_game
           initialPosition: '31'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__032__0
+        - id: minigo_game__032
           gameId: minigo_game
           initialPosition: '32'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__033__0
+        - id: minigo_game__033
           gameId: minigo_game
           initialPosition: '33'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__034__0
+        - id: minigo_game__034
           gameId: minigo_game
           initialPosition: '34'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__035__0
+        - id: minigo_game__035
           gameId: minigo_game
           initialPosition: '35'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__036__0
+        - id: minigo_game__036
           gameId: minigo_game
           initialPosition: '36'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__037__0
+        - id: minigo_game__037
           gameId: minigo_game
           initialPosition: '37'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__038__0
+        - id: minigo_game__038
           gameId: minigo_game
           initialPosition: '38'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__039__0
+        - id: minigo_game__039
           gameId: minigo_game
           initialPosition: '39'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__040__0
+        - id: minigo_game__040
           gameId: minigo_game
           initialPosition: '40'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__041__0
+        - id: minigo_game__041
           gameId: minigo_game
           initialPosition: '41'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__042__0
+        - id: minigo_game__042
           gameId: minigo_game
           initialPosition: '42'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__043__0
+        - id: minigo_game__043
           gameId: minigo_game
           initialPosition: '43'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__044__0
+        - id: minigo_game__044
           gameId: minigo_game
           initialPosition: '44'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__045__0
+        - id: minigo_game__045
           gameId: minigo_game
           initialPosition: '45'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__046__0
+        - id: minigo_game__046
           gameId: minigo_game
           initialPosition: '46'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__047__0
+        - id: minigo_game__047
           gameId: minigo_game
           initialPosition: '47'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__048__0
+        - id: minigo_game__048
           gameId: minigo_game
           initialPosition: '48'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__049__0
+        - id: minigo_game__049
           gameId: minigo_game
           initialPosition: '49'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__050__0
+        - id: minigo_game__050
           gameId: minigo_game
           initialPosition: '50'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__051__0
+        - id: minigo_game__051
           gameId: minigo_game
           initialPosition: '51'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__052__0
+        - id: minigo_game__052
           gameId: minigo_game
           initialPosition: '52'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__053__0
+        - id: minigo_game__053
           gameId: minigo_game
           initialPosition: '53'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__054__0
+        - id: minigo_game__054
           gameId: minigo_game
           initialPosition: '54'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__055__0
+        - id: minigo_game__055
           gameId: minigo_game
           initialPosition: '55'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__056__0
+        - id: minigo_game__056
           gameId: minigo_game
           initialPosition: '56'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__057__0
+        - id: minigo_game__057
           gameId: minigo_game
           initialPosition: '57'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__058__0
+        - id: minigo_game__058
           gameId: minigo_game
           initialPosition: '58'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__059__0
+        - id: minigo_game__059
           gameId: minigo_game
           initialPosition: '59'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__060__0
+        - id: minigo_game__060
           gameId: minigo_game
           initialPosition: '60'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__061__0
+        - id: minigo_game__061
           gameId: minigo_game
           initialPosition: '61'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__062__0
+        - id: minigo_game__062
           gameId: minigo_game
           initialPosition: '62'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__063__0
+        - id: minigo_game__063
           gameId: minigo_game
           initialPosition: '63'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__064__0
+        - id: minigo_game__064
           gameId: minigo_game
           initialPosition: '64'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__065__0
+        - id: minigo_game__065
           gameId: minigo_game
           initialPosition: '65'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__066__0
+        - id: minigo_game__066
           gameId: minigo_game
           initialPosition: '66'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__067__0
+        - id: minigo_game__067
           gameId: minigo_game
           initialPosition: '67'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__068__0
+        - id: minigo_game__068
           gameId: minigo_game
           initialPosition: '68'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__069__0
+        - id: minigo_game__069
           gameId: minigo_game
           initialPosition: '69'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__070__0
+        - id: minigo_game__070
           gameId: minigo_game
           initialPosition: '70'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__071__0
+        - id: minigo_game__071
           gameId: minigo_game
           initialPosition: '71'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__072__0
+        - id: minigo_game__072
           gameId: minigo_game
           initialPosition: '72'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__073__0
+        - id: minigo_game__073
           gameId: minigo_game
           initialPosition: '73'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__074__0
+        - id: minigo_game__074
           gameId: minigo_game
           initialPosition: '74'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__075__0
+        - id: minigo_game__075
           gameId: minigo_game
           initialPosition: '75'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__076__0
+        - id: minigo_game__076
           gameId: minigo_game
           initialPosition: '76'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__077__0
+        - id: minigo_game__077
           gameId: minigo_game
           initialPosition: '77'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__078__0
+        - id: minigo_game__078
           gameId: minigo_game
           initialPosition: '78'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__079__0
+        - id: minigo_game__079
           gameId: minigo_game
           initialPosition: '79'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__080__0
+        - id: minigo_game__080
           gameId: minigo_game
           initialPosition: '80'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__081__0
+        - id: minigo_game__081
           gameId: minigo_game
           initialPosition: '81'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__082__0
+        - id: minigo_game__082
           gameId: minigo_game
           initialPosition: '82'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__083__0
+        - id: minigo_game__083
           gameId: minigo_game
           initialPosition: '83'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__084__0
+        - id: minigo_game__084
           gameId: minigo_game
           initialPosition: '84'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__085__0
+        - id: minigo_game__085
           gameId: minigo_game
           initialPosition: '85'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__086__0
+        - id: minigo_game__086
           gameId: minigo_game
           initialPosition: '86'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__087__0
+        - id: minigo_game__087
           gameId: minigo_game
           initialPosition: '87'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__088__0
+        - id: minigo_game__088
           gameId: minigo_game
           initialPosition: '88'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__089__0
+        - id: minigo_game__089
           gameId: minigo_game
           initialPosition: '89'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__090__0
+        - id: minigo_game__090
           gameId: minigo_game
           initialPosition: '90'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__091__0
+        - id: minigo_game__091
           gameId: minigo_game
           initialPosition: '91'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__092__0
+        - id: minigo_game__092
           gameId: minigo_game
           initialPosition: '92'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__093__0
+        - id: minigo_game__093
           gameId: minigo_game
           initialPosition: '93'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__094__0
+        - id: minigo_game__094
           gameId: minigo_game
           initialPosition: '94'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__095__0
+        - id: minigo_game__095
           gameId: minigo_game
           initialPosition: '95'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__096__0
+        - id: minigo_game__096
           gameId: minigo_game
           initialPosition: '96'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__097__0
+        - id: minigo_game__097
           gameId: minigo_game
           initialPosition: '97'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__098__0
+        - id: minigo_game__098
           gameId: minigo_game
           initialPosition: '98'
-          nextMovesPath: '0'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
-        - id: minigo_game__099__0
+        - id: minigo_game__099
           gameId: minigo_game
           initialPosition: '99'
-          nextMovesPath: '0'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: minigo_game__100
+          gameId: minigo_game
+          initialPosition: '100'
           labels:
             - MAINLINE
             - GAME_COMMENTARY
@@ -732,6 +632,7 @@ specOptions:
   autoRotateGames: false
   positionOverrides: []
   maxDiagramDistance: 1
+  useNextMovesPath: false
 diagramOptions:
   diagramType: SVG
   boardRegion: AUTO
@@ -740,7 +641,7 @@ diagramOptions:
   typeOptions: {}
 templateOptions:
   metadata:
-    id: 4d579c18-2813-458b-b179-7d9d824883db
+    id: fe93ef56-533d-4b6a-9045-86e0493861c5
     title: My Go Book!
     subtitle: ''
     idType: uuid
@@ -754,7 +655,7 @@ templateOptions:
     rights: All Rights Reserved.
     publisher: ''
     authors: []
-    generationDate: '2018-04-17T04:58:06Z'
+    generationDate: '2018-04-17T16:47:53Z'
     publicationDate: ''
     addressLines: []
     permanenceOfPaper: true

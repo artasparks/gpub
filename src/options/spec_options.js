@@ -157,6 +157,12 @@ gpub.opts.SpecOptions = function(opt_options) {
    * @const {number}
    */
   this.maxDiagramDistance = o.maxDiagramDistance || 50;
+
+  /**
+   * Whether to not use the next-moves path.
+   * @const {boolean}
+   */
+  this.useNextMovesPath = o.useNextMovesPath !== undefined ? o.useNextMovesPath : true;
 };
 
 /**

@@ -236,6 +236,111 @@ glift.util.colors = {
   }
 };
 
+// From: https://github.com/substack/node-deep-equal
+(function() {
+
+var pSlice = Array.prototype.slice;
+
+/**
+ * Test whether objects are equivalent.
+ * @param {!Object} actual
+ * @param {!Object} expected
+ * @param {!Object} opts
+ * @return {boolean}
+ */
+glift.util.deepEqual = function(actual, expected, opts) {
+  if (!opts) opts = {};
+  // 7.1. All identical values are equivalent, as determined by ===.
+  if (actual === expected) {
+    return true;
+
+  } else if (actual instanceof Date && expected instanceof Date) {
+    return actual.getTime() === expected.getTime();
+
+  // 7.3. Other pairs that do not both pass typeof value == 'object',
+  // equivalence is determined by ==.
+  } else if (!actual || !expected || typeof actual != 'object' && typeof expected != 'object') {
+    return opts.strict ? actual === expected : actual == expected;
+
+  // 7.4. For all other Object pairs, including Array objects, equivalence is
+  // determined by having the same number of owned properties (as verified
+  // with Object.prototype.hasOwnProperty.call), the same set of keys
+  // (although not necessarily the same order), equivalent values for every
+  // corresponding key, and an identical 'prototype' property. Note: this
+  // accounts for both named and indexed properties on Arrays.
+  } else {
+    return objEquiv(actual, expected, opts);
+  }
+}
+
+function isUndefinedOrNull(value) {
+  return value === null || value === undefined;
+}
+
+function isBuffer (x) {
+  if (!x || typeof x !== 'object' || typeof x.length !== 'number') return false;
+  if (typeof x.copy !== 'function' || typeof x.slice !== 'function') {
+    return false;
+  }
+  if (x.length > 0 && typeof x[0] !== 'number') return false;
+  return true;
+}
+
+function objEquiv(a, b, opts) {
+  var i, key;
+  if (isUndefinedOrNull(a) || isUndefinedOrNull(b))
+    return false;
+  // an identical 'prototype' property.
+  if (a.prototype !== b.prototype) return false;
+  //~~~I've managed to break Object.keys through screwy arguments passing.
+  //   Converting to array solves the problem.
+  if (glift.util.obj.isArguments(a)) {
+    if (!glift.util.obj.isArguments(b)) {
+      return false;
+    }
+    a = pSlice.call(a);
+    b = pSlice.call(b);
+    return glift.util.deepEqual(a, b, opts);
+  }
+  if (isBuffer(a)) {
+    if (!isBuffer(b)) {
+      return false;
+    }
+    if (a.length !== b.length) return false;
+    for (i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  }
+  try {
+    var ka = glift.util.obj.keys(a),
+        kb = glift.util.obj.keys(b);
+  } catch (e) {//happens when one is a string literal and the other isn't
+    return false;
+  }
+  // having the same number of owned properties (keys incorporates
+  // hasOwnProperty)
+  if (ka.length != kb.length)
+    return false;
+  //the same set of keys (although not necessarily the same order),
+  ka.sort();
+  kb.sort();
+  //~~~cheap key test
+  for (i = ka.length - 1; i >= 0; i--) {
+    if (ka[i] != kb[i])
+      return false;
+  }
+  //equivalent values for every corresponding key, and
+  //~~~possibly expensive deep test
+  for (i = ka.length - 1; i >= 0; i--) {
+    key = ka[i];
+    if (!glift.util.deepEqual(a[key], b[key], opts)) return false;
+  }
+  return typeof a === typeof b;
+}
+
+})();
+
 goog.provide('glift.enums');
 
 goog.require('glift');
@@ -392,6 +497,12 @@ goog.provide('glift.util.obj');
 
 goog.require('glift.util');
 
+goog.scope(function() {
+
+var supportsArgumentsClass = (function(){
+  return Object.prototype.toString.call(arguments)
+})() == '[object Arguments]';
+
 glift.util.obj = {
   /**
    * A helper for merging obj information (typically CSS or SVG rules).  This
@@ -421,6 +532,15 @@ glift.util.obj = {
   },
 
   /**
+   * Removes key/value pairs for the 'current' object when they are exactly the
+   * same in the defaults object.
+   * @param {!Object|!Array} current
+   * @param {!Object|!Array} defaults
+   */
+  removeDefaults: function(current, defaults) {
+  },
+
+  /**
    * Returns true if an object is empty. False otherwise.
    * @param {!Object} obj
    * @return {boolean}
@@ -430,8 +550,39 @@ glift.util.obj = {
       return false;
     }
     return true;
-  }
+  },
+
+  /**
+   * @param {!Object} obj Any JS object
+   * @return {!Array<string>} the keys for the object
+   */
+  keys: function(obj) {
+    var keys = [];
+    for (var key in obj) keys.push(key);
+    return keys;
+  },
+
+  /**
+   * Helper to determine if an object is 
+   * @param {!Object} obj
+   * @return {boolean} true if the object is an arguments arr. From
+   *    https://github.com/substack/node-deep-equal
+   */
+  isArguments: function(obj) {
+    if (supportsArgumentsClass) {
+      return Object.prototype.toString.call(obj) == '[object Arguments]';
+    } else {
+      return obj &&
+        typeof obj == 'object' &&
+        typeof obj.length == 'number' &&
+        Object.prototype.hasOwnProperty.call(obj, 'callee') &&
+        !Object.prototype.propertyIsEnumerable.call(obj, 'callee') ||
+        false;
+    }
+  },
 };
+
+});
 
 goog.provide('glift.Point');
 goog.provide('glift.PtStr');
@@ -743,7 +894,7 @@ glift.global = {
    *
    * Not yet stable.
    */
-  'core-version': '0.9.1'
+  'core-version': '0.9.2'
 };
 
 goog.provide('glift.flattener');
@@ -785,6 +936,8 @@ glift.flattener = {};
  *  - clearMarks: Whether to clear all the marks from the diagram. Note: this
  *    only affects marks and labels that are in the SGF and doesn't affect
  *    next-move-path labels (since that's the whole point of a next-moves-path.)
+ *  - ignoreLabels: Whether to ignore any label-mark suggestions. This has the
+ *    effect of clearing all labels
  *
  *  Options for problems
  *  - problemConditions: determine how to evaluate whether or not a position is
@@ -805,6 +958,7 @@ glift.flattener = {};
  *  showKoLocation: (boolean|undefined),
  *  problemConditions: (!glift.rules.ProblemConditions|undefined),
  *  clearMarks: (boolean|undefined),
+ *  ignoreLabels: (boolean|undefined)
  * }}
  */
 glift.flattener.Options;
@@ -959,6 +1113,10 @@ glift.flattener.flatten = function(movetreeInitial, opt_options) {
     glift.flattener.markKo_(markMap, goban.getKo());
   }
 
+  // Optionally clear all the labels in the map.
+  if (options.ignoreLabels) {
+    glift.flattener.clearLabels_(markMap);
+  }
 
   // Finally! Generate the intersections double-array.
   var board = glift.flattener.board.create(cropping, stoneMap, markMap);
@@ -1067,6 +1225,8 @@ glift.flattener.stoneMap_ = function(goban, nextStones) {
 
 
 /**
+ * Tracker for labels and symbols overlayed on stones
+ *
  * Example value:
  * {
  *  marks: {
@@ -1371,6 +1531,24 @@ glift.flattener.markKo_ = function(markMap, koLocation) {
     }
   }
 };
+
+
+/**
+ * Clear all the labels from a mark map.
+ *
+ * @param {!glift.flattener.MarkMap} markMap
+ * @private
+ */
+glift.flattener.clearLabels_ = function(markMap) {
+  var marks = markMap.marks;
+  for (var key in marks) {
+    var symbol = marks[key];
+    if (symbol === glift.flattener.symbols.TEXTLABEL) {
+      delete marks[key];
+    }
+  }
+  markMap.labels = {};
+}
 
 goog.provide('glift.flattener.board');
 goog.provide('glift.flattener.Board');
@@ -8517,6 +8695,26 @@ glift.rules.Treepath;
 glift.rules.AppliedTreepath;
 
 /**
+ * Options for finding findNextMovesPath.
+ *
+ * initTreepath: The initial treepath. If not specified or undefined, use the
+ *    current location in the movetree
+ * minusMovesOverride: Force findNextMoves to to return a
+ *    nextMovesPath of this length, starting from the init treepath.  The
+ *    actual nextMovesPath can be shorter if there's a break, but this sets an
+ *    upper limit.
+ * breakOnComment: Whether or not to break on comments on the main variation.
+ *    Defaults to true if unspecified.
+ *
+ * @typedef {{
+ *  initTreepath: (!glift.rules.Treepath|undefined),
+ *  minusMovesOverride: (number|undefined),
+ *  breakOnComment: (boolean|undefined),
+ * }}
+ */
+glift.rules.NextMovesPathOptions;
+
+/**
  * # Treepath
  *
  * A treepath is a list of variations that says how to travel through a tree of
@@ -8862,14 +9060,7 @@ glift.rules.treepath = {
    * the first move.
    *
    * @param {glift.rules.MoveTree} movetree A movetree, of course.
-   * @param {glift.rules.Treepath=} opt_initTreepath The initial treepath. If not
-   *    specified or undefined, use the current location in the movetree.
-   * @param {number=} opt_minusMovesOverride: Force findNextMoves to to return a
-   *    nextMovesPath of this length, starting from the init treepath.  The
-   *    actual nextMovesPath can be shorter. (Note: This option should be
-   *    deleted).
-   * @param {boolean=} opt_breakOnComment Whether or not to break on comments on the
-   *    main variation.  Defaults to true
+   * @param {glift.rules.NextMovesPathOptions=} opt_options options
    *
    * @return {{
    *  movetree: !glift.rules.MoveTree,
@@ -8882,12 +9073,12 @@ glift.rules.treepath = {
    * - nextMoves: A nextMovesPath, used to apply for the purpose of
    *    crafting moveNumbers.
    */
-  findNextMovesPath: function(
-      movetree, opt_initTreepath, opt_minusMovesOverride, opt_breakOnComment) {
-    var initTreepath = opt_initTreepath || movetree.treepathToHere();
-    var breakOnComment = opt_breakOnComment === false ? false : true;
+  findNextMovesPath: function(movetree, opt_options) {
+    var opt = opt_options || {};
+    var initTreepath = opt.initTreepath || movetree.treepathToHere();
+    var breakOnComment = opt.breakOnComment === undefined ? true : !!opt.breakOnComment;
     var mt = movetree.getTreeFromRoot(initTreepath);
-    var minusMoves = opt_minusMovesOverride || 1000;
+    var minusMoves = opt.minusMovesOverride || 1000;
     var nextMovesPath = [];
     var startMainline = mt.onMainline();
     for (var i = 0; mt.node().getParent() && i < minusMoves; i++) {
@@ -10283,6 +10474,12 @@ gpub.opts.SpecOptions = function(opt_options) {
    * @const {number}
    */
   this.maxDiagramDistance = o.maxDiagramDistance || 50;
+
+  /**
+   * Whether to not use the next-moves path.
+   * @const {boolean}
+   */
+  this.useNextMovesPath = o.useNextMovesPath !== undefined ? o.useNextMovesPath : true;
 };
 
 /**
@@ -10619,6 +10816,12 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, overrider, opt) 
         spp = [];
       }
       spp.push(i);
+
+      // Users can specify to not use the next-moves path.
+      if (!opt.useNextMovesPath) {
+        pp = pp.concat(spp);
+        spp = [];
+      }
 
       // Note: there's no indicator when to break here. In other words, we
       // assume that the whole subtree is part of the problem, which might not

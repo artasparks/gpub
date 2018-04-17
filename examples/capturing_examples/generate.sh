@@ -11,8 +11,8 @@ if [ -d "epub-book" ]; then
   rm -R epub-book
 fi
 
-if [ -d "diagrams" ]; then
-  rm -R diagrams
+if [ -d "gen-diagrams" ]; then
+  rm -R gen-diagrams
 fi
 
 if [ -f "epub-book.yaml" ]; then
@@ -35,8 +35,8 @@ INKS=/Applications/Inkscape.app/Contents/Resources/bin/inkscape
 if [ -f $INKS ]; then
   svgfiles=$(find . -type f -name '*.svg')
   for f in $svgfiles; do
-    svg=diagrams/$(basename $f)
-    png=diagrams/$(basename $f .svg).png
+    svg=gen-diagrams/$(basename $f)
+    png=gen-diagrams/$(basename $f .svg).png
     # Doesn't do a good job with fonts. =(
     # convert $PWD/$svg $PWD/$png
     $INKS -z -e $PWD/$png -w 500 $PWD/$svg

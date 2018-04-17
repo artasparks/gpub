@@ -29,7 +29,7 @@ module.exports = {
       var baseName = path.basename(inputFile, extName);
       outputFile = path.join(outDirName, baseName) + '-processed' + extName;
     }
-    console.log(outputFile);
+    console.log('Writing to: ' + outputFile);
 
     files.writeSpec(outputFile, outSpec, parsed.idFileMap, opts.format);
 

@@ -87,13 +87,14 @@ var methods = {
     var idFileMap = files.idToFileMap(sorted);
     var ids = files.createFileIds(sorted);
 
-    var api = gpub.init({
+    var gpubOpts = {
       template: opts.templateType,
       games: idContentsMap,
       grouping: ids,
       specOptions: {
         positionType: opts.positionType,
         maxDiagramDistance: maxDiaDist,
+        useNextMovesPath: opts.useNextMovesPath,
       },
       diagramOptions: {
         diagramType: opts.diagramType,
@@ -102,7 +103,9 @@ var methods = {
       templateOptions: {
         chapterSize: 25,
       }
-    }).createSpec();
+    };
+
+    var api = gpub.init(gpubOpts).createSpec();
 
     var spec = api.spec();
     files.writeSpec(opts.output, spec, idFileMap, opts.format);

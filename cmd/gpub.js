@@ -50,6 +50,8 @@ program
   // spec options
   .option('--max-diagram-distance <number>',
       'Max draw distance for diagrams', '50')
+  .option('--no-use-next-moves-path',
+      'Whether to use the next-moves path in diagram rendering', false)
 
   // Diagram rendering options
   .option('--ignore-render-labels', 'Whether to ignore rendering labels.')

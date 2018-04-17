@@ -16,7 +16,7 @@ module.exports = {
     var outputDir = '';
     if (!opts.outputDir) {
       var baseDirName = path.dirname(inputFile);
-      outputDir = path.join(baseDirName, 'diagrams');
+      outputDir = path.join(baseDirName, 'gen-diagrams');
     } else {
       outputDir = baseDirName
     }
