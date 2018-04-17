@@ -16,6 +16,8 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, overrider, opt) 
   var gameId = position.gameId;
   mt = mt.newTreeRef();
 
+  var maxDiagramDistance = opt.maxDiagramDistance;
+
   var gen = new gpub.spec.Generated({
     id: position.id
   });
@@ -36,11 +38,15 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, overrider, opt) 
   var initPos = mt.treepathToHere();
   var mainlineLbl = 'MAINLINE';
   var variationLbl = 'VARIATION';
-  var pathRecurse = function(movetree, prevPos, sincePrevPos) {
+  var pathRecurse = function(movetree, prevPos, sincePrevPos, sinceLastDiagram) {
     var onMainline = movetree.onMainline();
     // Process positions that are terminal or have a comment.
     if (movetree.properties().getComment() ||
-        movetree.node().numChildren() === 0) {
+        movetree.node().numChildren() === 0 ||
+        sinceLastDiagram >= maxDiagramDistance) {
+      // We're breaking. Mark the indicator as such.
+      sinceLastDiagram = 0;
+
       var lbl = mainlineLbl;
       if (!onMainline) {
         lbl = variationLbl;
@@ -98,11 +104,11 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, overrider, opt) 
       // assume that the whole subtree is part of the problem, which might not
       // be true, but either we make this assumption or we introduce arbitrary
       // constraints.
-      pathRecurse(nmt, pp, spp);
+      pathRecurse(nmt, pp, spp, sinceLastDiagram+1);
     }
   }
 
-  pathRecurse(mt, initPos, []);
+  pathRecurse(mt, initPos, [], 1);
   gen.positions = outPositions;
   return processed;
 }

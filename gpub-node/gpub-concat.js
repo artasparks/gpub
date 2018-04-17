@@ -9796,11 +9796,17 @@ gpub.opts.DiagramOptions = function(opt_options) {
   this.goIntersectionSize = o.goIntersectionSize || undefined;
 
   /**
-   * Whether or not to clear the marks from the diagram. Note: this just
+   * Whether to clear the marks from the diagram. Note: this just
    * affects marks that exist as part of the movetree.
    * @const {boolean|undefined}
    */
   this.clearMarks = o.clearMarks || undefined;
+
+  /**
+   * Whether to ignore rendering labels.
+   * @const {boolean|undefined}
+   */
+  this.ignoreRenderLabels = o.ignoreRenderLabels || undefined
 
   /**
    * Option-overrides for specific diagram types.
@@ -10270,6 +10276,13 @@ gpub.opts.SpecOptions = function(opt_options) {
    * @const {!Array<gpub.opts.PositionOverrides>}
    */
   this.positionOverrides = o.positionOverrides || [];
+
+  /**
+   * How often should we draw diagrams? This is useful primarily for game
+   * commentary. Set to <= 1 to draw every diagram.
+   * @const {number}
+   */
+  this.maxDiagramDistance = o.maxDiagramDistance || 50;
 };
 
 /**
@@ -10523,6 +10536,8 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, overrider, opt) 
   var gameId = position.gameId;
   mt = mt.newTreeRef();
 
+  var maxDiagramDistance = opt.maxDiagramDistance;
+
   var gen = new gpub.spec.Generated({
     id: position.id
   });
@@ -10543,11 +10558,15 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, overrider, opt) 
   var initPos = mt.treepathToHere();
   var mainlineLbl = 'MAINLINE';
   var variationLbl = 'VARIATION';
-  var pathRecurse = function(movetree, prevPos, sincePrevPos) {
+  var pathRecurse = function(movetree, prevPos, sincePrevPos, sinceLastDiagram) {
     var onMainline = movetree.onMainline();
     // Process positions that are terminal or have a comment.
     if (movetree.properties().getComment() ||
-        movetree.node().numChildren() === 0) {
+        movetree.node().numChildren() === 0 ||
+        sinceLastDiagram >= maxDiagramDistance) {
+      // We're breaking. Mark the indicator as such.
+      sinceLastDiagram = 0;
+
       var lbl = mainlineLbl;
       if (!onMainline) {
         lbl = variationLbl;
@@ -10605,11 +10624,11 @@ gpub.spec.processGameCommentary = function(mt, position, idGen, overrider, opt) 
       // assume that the whole subtree is part of the problem, which might not
       // be true, but either we make this assumption or we introduce arbitrary
       // constraints.
-      pathRecurse(nmt, pp, spp);
+      pathRecurse(nmt, pp, spp, sinceLastDiagram+1);
     }
   }
 
-  pathRecurse(mt, initPos, []);
+  pathRecurse(mt, initPos, [], 1);
   gen.positions = outPositions;
   return processed;
 }
@@ -10883,7 +10902,17 @@ gpub.spec.IdGen.prototype = {
         .replace(/\+/g, 'p');
     };
     var ip = opt_initPath || 'z';
-    var id = gameId + '__' + repl(ip);
+    var ipstr = repl(ip);
+
+    // Silly thing. Make sure IDs sort lexigraphically by the initial number if
+    // the initial string is a number.
+    if (/^\d$/.test(ipstr)) {
+      ipstr = '00' + ipstr;
+    } else if (/^\d\d$/.test(ipstr)) {
+      ipstr = '0' + ipstr;
+    }
+
+    var id = gameId + '__' + ipstr;
     if (opt_nextMovesPath) {
       id += '__' + repl(opt_nextMovesPath);
     }
@@ -12235,6 +12264,7 @@ gpub.diagrams.Renderer.prototype = {
       autoBoxCropOnVariation: this.opts_.autoBoxCropOnVariation,
       regionRestrictions: this.opts_.regionRestrictions,
       clearMarks: this.opts_.clearMarks,
+      ignoreLabels: this.opts_.ignoreRenderLabels,
     };
     var flattened = glift.flattener.flatten(mt, flattenOpts);
     var dr = this.diagramRenderer();

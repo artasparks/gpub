@@ -97,7 +97,17 @@ gpub.spec.IdGen.prototype = {
         .replace(/\+/g, 'p');
     };
     var ip = opt_initPath || 'z';
-    var id = gameId + '__' + repl(ip);
+    var ipstr = repl(ip);
+
+    // Silly thing. Make sure IDs sort lexigraphically by the initial number if
+    // the initial string is a number.
+    if (/^\d$/.test(ipstr)) {
+      ipstr = '00' + ipstr;
+    } else if (/^\d\d$/.test(ipstr)) {
+      ipstr = '0' + ipstr;
+    }
+
+    var id = gameId + '__' + ipstr;
     if (opt_nextMovesPath) {
       id += '__' + repl(opt_nextMovesPath);
     }

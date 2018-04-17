@@ -32,7 +32,7 @@ program
   .option('-i, --init-type [init-type]',
       'Optional simplified initialization types. One of {PROBLEM_EBOOK, COMMENTARY_LATEX}.',
       'COMMENTARY_LATEX')
-  .option('-o, --output-file <file>',
+  .option('-o, --output <file>',
       'File to write the yaml to defaults to go-book[.yaml|.json] in current directory',
       'go-book')
   .option('-f, --format <format>',
@@ -46,6 +46,13 @@ program
       'Default position type for processing SGFs', 'PROBLEM')
   .option('-d, --diagram-type <diagram-type>', 
       'Diagram type for diagram image generation', 'SVG')
+
+  // spec options
+  .option('--max-diagram-distance <number>',
+      'Max draw distance for diagrams', '50')
+
+  // Diagram rendering options
+  .option('--ignore-render-labels', 'Whether to ignore rendering labels.')
 
   .description('Initializes a book spec')
   .action(function(options) {

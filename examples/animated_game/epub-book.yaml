@@ -1,0 +1,56 @@
+version: V1
+rootGrouping:
+  positionType: GAME_COMMENTARY
+  positions:
+    - id: minigo_game
+      gameId: minigo_game
+  generated: {}
+  groupings: []
+gameMapping:
+  minigo_game: sgfs/minigo_game.sgf
+specOptions:
+  positionType: GAME_COMMENTARY
+  idGenType: PATH
+  problemConditions:
+    GB: []
+    C:
+      - Correct
+      - is correct
+  autoRotateCropTypes:
+    PROBLEM: true
+    POSITION_VARIATIONS: true
+  autoRotateGames: false
+  positionOverrides: []
+  maxDiagramDistance: 1
+diagramOptions:
+  diagramType: SVG
+  boardRegion: AUTO
+  autoBoxCropOnVariation: false
+  ignoreRenderLabels: true
+  typeOptions: {}
+templateOptions:
+  metadata:
+    id: 4d579c18-2813-458b-b179-7d9d824883db
+    title: My Go Book!
+    subtitle: ''
+    idType: uuid
+    idName: baduk-epub-id
+    isbn10: ''
+    isbn13: ''
+    uriId: 'http://github.com/Kashomon/gpub'
+    lang: en
+    subject: 'Go, Baduk, Wei-qi, Board Games, Strategy Games'
+    description: ''
+    rights: All Rights Reserved.
+    publisher: ''
+    authors: []
+    generationDate: '2018-04-17T04:58:06Z'
+    publicationDate: ''
+    addressLines: []
+    permanenceOfPaper: true
+  frontmatter:
+    generateToc: true
+  appendices: {}
+  chapterSize: 25
+  pdfx1a: false
+  azw3Format: false

@@ -1,0 +1,215 @@
+version: V1
+rootGrouping:
+  positionType: PROBLEM
+  positions:
+    - id: simple
+      gameId: simple
+    - id: 19_19_first_5_moves
+      gameId: 19_19_first_5_moves
+    - id: lotsa-stones
+      gameId: lotsa-stones
+    - id: more_capture_9x9
+      gameId: more_capture_9x9
+    - id: more_capture_9x9_capture
+      gameId: more_capture_9x9_capture
+    - id: empty_19
+      gameId: empty_19
+    - id: simple_9x9
+      gameId: simple_9x9
+    - id: simple_9x9_capture
+      gameId: simple_9x9_capture
+    - id: territory_9x9
+      gameId: territory_9x9
+    - id: territory_9x9_no_count
+      gameId: territory_9x9_no_count
+    - id: two-stones
+      gameId: two-stones
+  generated:
+    simple:
+      id: simple
+      positionType: EXAMPLE
+      positions:
+        - id: simple__0
+          gameId: simple
+          initialPosition: '0'
+          labels:
+            - PROBLEM_ROOT
+            - PROBLEM
+        - id: simple__0__0
+          gameId: simple
+          initialPosition: '0'
+          nextMovesPath: '0'
+          labels:
+            - INCORRECT
+            - PROBLEM
+    19_19_first_5_moves:
+      id: 19_19_first_5_moves
+      positionType: EXAMPLE
+      positions:
+        - id: 19_19_first_5_moves__0
+          gameId: 19_19_first_5_moves
+          initialPosition: '0'
+          labels:
+            - PROBLEM_ROOT
+            - PROBLEM
+    lotsa-stones:
+      id: lotsa-stones
+      positionType: EXAMPLE
+      positions:
+        - id: lotsa-stones__0
+          gameId: lotsa-stones
+          initialPosition: '0'
+          labels:
+            - PROBLEM_ROOT
+            - PROBLEM
+        - id: lotsa-stones__0__0
+          gameId: lotsa-stones
+          initialPosition: '0'
+          nextMovesPath: '0'
+          labels:
+            - INCORRECT
+            - PROBLEM
+    more_capture_9x9:
+      id: more_capture_9x9
+      positionType: EXAMPLE
+      positions:
+        - id: more_capture_9x9__0
+          gameId: more_capture_9x9
+          initialPosition: '0'
+          labels:
+            - PROBLEM_ROOT
+            - PROBLEM
+    more_capture_9x9_capture:
+      id: more_capture_9x9_capture
+      positionType: EXAMPLE
+      positions:
+        - id: more_capture_9x9_capture__0
+          gameId: more_capture_9x9_capture
+          initialPosition: '0'
+          labels:
+            - PROBLEM_ROOT
+            - PROBLEM
+    empty_19:
+      id: empty_19
+      positionType: EXAMPLE
+      positions:
+        - id: empty_19__0
+          gameId: empty_19
+          initialPosition: '0'
+          labels:
+            - PROBLEM_ROOT
+            - PROBLEM
+    simple_9x9:
+      id: simple_9x9
+      positionType: EXAMPLE
+      positions:
+        - id: simple_9x9__0
+          gameId: simple_9x9
+          initialPosition: '0'
+          labels:
+            - PROBLEM_ROOT
+            - PROBLEM
+    simple_9x9_capture:
+      id: simple_9x9_capture
+      positionType: EXAMPLE
+      positions:
+        - id: simple_9x9_capture__0
+          gameId: simple_9x9_capture
+          initialPosition: '0'
+          labels:
+            - PROBLEM_ROOT
+            - PROBLEM
+    territory_9x9:
+      id: territory_9x9
+      positionType: EXAMPLE
+      positions:
+        - id: territory_9x9__0
+          gameId: territory_9x9
+          initialPosition: '0'
+          labels:
+            - PROBLEM_ROOT
+            - PROBLEM
+    territory_9x9_no_count:
+      id: territory_9x9_no_count
+      positionType: EXAMPLE
+      positions:
+        - id: territory_9x9_no_count__0
+          gameId: territory_9x9_no_count
+          initialPosition: '0'
+          labels:
+            - PROBLEM_ROOT
+            - PROBLEM
+    two-stones:
+      id: two-stones
+      positionType: EXAMPLE
+      positions:
+        - id: two-stones__0
+          gameId: two-stones
+          initialPosition: '0'
+          labels:
+            - PROBLEM_ROOT
+            - PROBLEM
+        - id: two-stones__0__0
+          gameId: two-stones
+          initialPosition: '0'
+          nextMovesPath: '0'
+          labels:
+            - INCORRECT
+            - PROBLEM
+  groupings: []
+gameMapping:
+  simple: sgfs/simple.sgf
+  19_19_first_5_moves: sgfs/19_19_first_5_moves.sgf
+  lotsa-stones: sgfs/lotsa-stones.sgf
+  more_capture_9x9: sgfs/more_capture_9x9.sgf
+  more_capture_9x9_capture: sgfs/more_capture_9x9_capture.sgf
+  empty_19: sgfs/empty_19.sgf
+  simple_9x9: sgfs/simple_9x9.sgf
+  simple_9x9_capture: sgfs/simple_9x9_capture.sgf
+  territory_9x9: sgfs/territory_9x9.sgf
+  territory_9x9_no_count: sgfs/territory_9x9_no_count.sgf
+  two-stones: sgfs/two-stones.sgf
+specOptions:
+  positionType: PROBLEM
+  idGenType: PATH
+  problemConditions:
+    GB: []
+    C:
+      - Correct
+      - is correct
+  autoRotateCropTypes:
+    PROBLEM: true
+    POSITION_VARIATIONS: true
+  autoRotateGames: false
+  positionOverrides: []
+diagramOptions:
+  diagramType: SVG
+  boardRegion: AUTO
+  autoBoxCropOnVariation: false
+  typeOptions: {}
+templateOptions:
+  metadata:
+    id: 031f9798-3ae5-4814-aece-1e889b75855c
+    title: My Go Book!
+    subtitle: ''
+    idType: uuid
+    idName: baduk-epub-id
+    isbn10: ''
+    isbn13: ''
+    uriId: 'http://github.com/Kashomon/gpub'
+    lang: en
+    subject: 'Go, Baduk, Wei-qi, Board Games, Strategy Games'
+    description: ''
+    rights: All Rights Reserved.
+    publisher: ''
+    authors: []
+    generationDate: '2018-04-16T23:41:43Z'
+    publicationDate: ''
+    addressLines: []
+    permanenceOfPaper: true
+  frontmatter:
+    generateToc: true
+  appendices: {}
+  chapterSize: 25
+  pdfx1a: false
+  azw3Format: false

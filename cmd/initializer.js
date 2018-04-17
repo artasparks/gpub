@@ -16,11 +16,17 @@ const initTypeOverrides= {
     positionType: 'PROBLEM',
     diagramType: 'GNOS',
   },
+
+  COMMENTARY_EBOOK: {
+    templateType: 'COMMENTARY_EBOOK',
+    positionType: 'GAME_COMMENTARY',
+    diagramType: 'SVG',
+  },
   COMMENTARY_LATEX: {
     templateType: 'COMMENTARY_LATEX',
     positionType: 'GAME_COMMENTARY',
     diagramType: 'GNOS',
-  }
+  },
 }
 
 var methods = {
@@ -51,9 +57,14 @@ var methods = {
       throw new Error('position-type must be specified. was: '
           + opts.positionType);
     }
-    if (!opts.outputFile) {
+    if (!opts.output) {
       throw new Error('output-file must be specified. was: '
-          + opts.outputFile);
+          + opts.output);
+    }
+    var maxDiaDist = parseInt(opts.maxDiagramDistance, 10);
+    if (isNaN(maxDiaDist)) {
+      throw new Error('--maix-diagram-distance could not be parsed. was: '
+          + opts.maxDiagramDistance);
     }
 
     var crawl = opts.crawl;
@@ -82,9 +93,11 @@ var methods = {
       grouping: ids,
       specOptions: {
         positionType: opts.positionType,
+        maxDiagramDistance: maxDiaDist,
       },
       diagramOptions: {
         diagramType: opts.diagramType,
+        ignoreRenderLabels: opts.ignoreRenderLabels,
       },
       templateOptions: {
         chapterSize: 25,
@@ -92,7 +105,7 @@ var methods = {
     }).createSpec();
 
     var spec = api.spec();
-    files.writeSpec(opts.outputFile, spec, idFileMap, opts.format);
+    files.writeSpec(opts.output, spec, idFileMap, opts.format);
   },
 };
 

@@ -150,6 +150,13 @@ gpub.opts.SpecOptions = function(opt_options) {
    * @const {!Array<gpub.opts.PositionOverrides>}
    */
   this.positionOverrides = o.positionOverrides || [];
+
+  /**
+   * How often should we draw diagrams? This is useful primarily for game
+   * commentary. Set to <= 1 to draw every diagram.
+   * @const {number}
+   */
+  this.maxDiagramDistance = o.maxDiagramDistance || 50;
 };
 
 /**
