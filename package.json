@@ -17,7 +17,7 @@
     "email": "jrhoak@gmail.com"
   },
   "engines": {
-    "node": ">=8.9.3"
+    "node": ">=10.0.0"
   },
   "scripts": {
     "test": "gulp"
@@ -35,13 +35,14 @@
     "gulp": "^3.9.1",
     "gulp-chmod": "^2.0.0",
     "gulp-concat": "^2.6.0",
-    "gulp-qunit": "^1.5.0",
+    "gulp-qunit": "^1.5.2",
     "gulp-size": "^2.1.0",
-    "mocha": "^4.0.1",
+    "mocha": "^4.1.0",
     "through2": "^2.0.1"
   },
   "dependencies": {
     "commander": "^2.11.0",
-    "js-yaml": "^3.10.0"
+    "js-yaml": "^3.10.0",
+    "npm": "^6.0.0"
   }
 }

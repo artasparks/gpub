@@ -30,7 +30,8 @@ program
   .option('-c, --no-crawl', 'Whether to not crawl the current directory looking for sgfs.', true)
   .option('-w, --crawl-dir <dir>', 'Directory to crawl looking for SGFs. Defaults to cwd', '')
   .option('-i, --init-type [init-type]',
-      'Optional simplified initialization types. One of {PROBLEM_EBOOK, COMMENTARY_LATEX}.',
+      'Optional simplified initialization types. ' +
+      'One of: {PROBLEM_EBOOK, PROBLEM_LATEX, COMMENTARY_EBOOK, COMMENTARY_LATEX}.',
       'COMMENTARY_LATEX')
   .option('-o, --output <file>',
       'File to write the yaml to defaults to go-book[.yaml|.json] in current directory',

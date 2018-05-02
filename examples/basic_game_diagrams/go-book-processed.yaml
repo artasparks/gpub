@@ -1,0 +1,365 @@
+version: V1
+rootGrouping:
+  positionType: GAME_COMMENTARY
+  positions:
+    - id: 1521484645-minigo-gpu-player-hrq8h
+      gameId: 1521484645-minigo-gpu-player-hrq8h
+    - id: 1521484660-minigo-gpu-player-qkqjp
+      gameId: 1521484660-minigo-gpu-player-qkqjp
+    - id: 1521484777-minigo-gpu-player-gmjsg
+      gameId: 1521484777-minigo-gpu-player-gmjsg
+    - id: 1521484800-minigo-gpu-player-bf9f4
+      gameId: 1521484800-minigo-gpu-player-bf9f4
+    - id: 1521484806-minigo-gpu-player-bmmxf
+      gameId: 1521484806-minigo-gpu-player-bmmxf
+  generated:
+    1521484645-minigo-gpu-player-hrq8h:
+      id: 1521484645-minigo-gpu-player-hrq8h
+      positionType: EXAMPLE
+      positions:
+        - id: 1521484645-minigo-gpu-player-hrq8h__049
+          gameId: 1521484645-minigo-gpu-player-hrq8h
+          initialPosition: '49'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484645-minigo-gpu-player-hrq8h__099
+          gameId: 1521484645-minigo-gpu-player-hrq8h
+          initialPosition: '99'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484645-minigo-gpu-player-hrq8h__149
+          gameId: 1521484645-minigo-gpu-player-hrq8h
+          initialPosition: '149'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484645-minigo-gpu-player-hrq8h__199
+          gameId: 1521484645-minigo-gpu-player-hrq8h
+          initialPosition: '199'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484645-minigo-gpu-player-hrq8h__249
+          gameId: 1521484645-minigo-gpu-player-hrq8h
+          initialPosition: '249'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484645-minigo-gpu-player-hrq8h__299
+          gameId: 1521484645-minigo-gpu-player-hrq8h
+          initialPosition: '299'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484645-minigo-gpu-player-hrq8h__349
+          gameId: 1521484645-minigo-gpu-player-hrq8h
+          initialPosition: '349'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484645-minigo-gpu-player-hrq8h__399
+          gameId: 1521484645-minigo-gpu-player-hrq8h
+          initialPosition: '399'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484645-minigo-gpu-player-hrq8h__430
+          gameId: 1521484645-minigo-gpu-player-hrq8h
+          initialPosition: '430'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+    1521484660-minigo-gpu-player-qkqjp:
+      id: 1521484660-minigo-gpu-player-qkqjp
+      positionType: EXAMPLE
+      positions:
+        - id: 1521484660-minigo-gpu-player-qkqjp__049
+          gameId: 1521484660-minigo-gpu-player-qkqjp
+          initialPosition: '49'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484660-minigo-gpu-player-qkqjp__099
+          gameId: 1521484660-minigo-gpu-player-qkqjp
+          initialPosition: '99'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484660-minigo-gpu-player-qkqjp__149
+          gameId: 1521484660-minigo-gpu-player-qkqjp
+          initialPosition: '149'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484660-minigo-gpu-player-qkqjp__199
+          gameId: 1521484660-minigo-gpu-player-qkqjp
+          initialPosition: '199'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484660-minigo-gpu-player-qkqjp__249
+          gameId: 1521484660-minigo-gpu-player-qkqjp
+          initialPosition: '249'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484660-minigo-gpu-player-qkqjp__299
+          gameId: 1521484660-minigo-gpu-player-qkqjp
+          initialPosition: '299'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484660-minigo-gpu-player-qkqjp__349
+          gameId: 1521484660-minigo-gpu-player-qkqjp
+          initialPosition: '349'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484660-minigo-gpu-player-qkqjp__399
+          gameId: 1521484660-minigo-gpu-player-qkqjp
+          initialPosition: '399'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484660-minigo-gpu-player-qkqjp__425
+          gameId: 1521484660-minigo-gpu-player-qkqjp
+          initialPosition: '425'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+    1521484777-minigo-gpu-player-gmjsg:
+      id: 1521484777-minigo-gpu-player-gmjsg
+      positionType: EXAMPLE
+      positions:
+        - id: 1521484777-minigo-gpu-player-gmjsg__049
+          gameId: 1521484777-minigo-gpu-player-gmjsg
+          initialPosition: '49'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484777-minigo-gpu-player-gmjsg__099
+          gameId: 1521484777-minigo-gpu-player-gmjsg
+          initialPosition: '99'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484777-minigo-gpu-player-gmjsg__149
+          gameId: 1521484777-minigo-gpu-player-gmjsg
+          initialPosition: '149'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484777-minigo-gpu-player-gmjsg__199
+          gameId: 1521484777-minigo-gpu-player-gmjsg
+          initialPosition: '199'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484777-minigo-gpu-player-gmjsg__249
+          gameId: 1521484777-minigo-gpu-player-gmjsg
+          initialPosition: '249'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484777-minigo-gpu-player-gmjsg__299
+          gameId: 1521484777-minigo-gpu-player-gmjsg
+          initialPosition: '299'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484777-minigo-gpu-player-gmjsg__349
+          gameId: 1521484777-minigo-gpu-player-gmjsg
+          initialPosition: '349'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484777-minigo-gpu-player-gmjsg__399
+          gameId: 1521484777-minigo-gpu-player-gmjsg
+          initialPosition: '399'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484777-minigo-gpu-player-gmjsg__438
+          gameId: 1521484777-minigo-gpu-player-gmjsg
+          initialPosition: '438'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+    1521484800-minigo-gpu-player-bf9f4:
+      id: 1521484800-minigo-gpu-player-bf9f4
+      positionType: EXAMPLE
+      positions:
+        - id: 1521484800-minigo-gpu-player-bf9f4__049
+          gameId: 1521484800-minigo-gpu-player-bf9f4
+          initialPosition: '49'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484800-minigo-gpu-player-bf9f4__099
+          gameId: 1521484800-minigo-gpu-player-bf9f4
+          initialPosition: '99'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484800-minigo-gpu-player-bf9f4__149
+          gameId: 1521484800-minigo-gpu-player-bf9f4
+          initialPosition: '149'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484800-minigo-gpu-player-bf9f4__199
+          gameId: 1521484800-minigo-gpu-player-bf9f4
+          initialPosition: '199'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484800-minigo-gpu-player-bf9f4__249
+          gameId: 1521484800-minigo-gpu-player-bf9f4
+          initialPosition: '249'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484800-minigo-gpu-player-bf9f4__299
+          gameId: 1521484800-minigo-gpu-player-bf9f4
+          initialPosition: '299'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484800-minigo-gpu-player-bf9f4__349
+          gameId: 1521484800-minigo-gpu-player-bf9f4
+          initialPosition: '349'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484800-minigo-gpu-player-bf9f4__399
+          gameId: 1521484800-minigo-gpu-player-bf9f4
+          initialPosition: '399'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484800-minigo-gpu-player-bf9f4__413
+          gameId: 1521484800-minigo-gpu-player-bf9f4
+          initialPosition: '413'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+    1521484806-minigo-gpu-player-bmmxf:
+      id: 1521484806-minigo-gpu-player-bmmxf
+      positionType: EXAMPLE
+      positions:
+        - id: 1521484806-minigo-gpu-player-bmmxf__049
+          gameId: 1521484806-minigo-gpu-player-bmmxf
+          initialPosition: '49'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484806-minigo-gpu-player-bmmxf__099
+          gameId: 1521484806-minigo-gpu-player-bmmxf
+          initialPosition: '99'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484806-minigo-gpu-player-bmmxf__149
+          gameId: 1521484806-minigo-gpu-player-bmmxf
+          initialPosition: '149'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484806-minigo-gpu-player-bmmxf__199
+          gameId: 1521484806-minigo-gpu-player-bmmxf
+          initialPosition: '199'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484806-minigo-gpu-player-bmmxf__249
+          gameId: 1521484806-minigo-gpu-player-bmmxf
+          initialPosition: '249'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484806-minigo-gpu-player-bmmxf__299
+          gameId: 1521484806-minigo-gpu-player-bmmxf
+          initialPosition: '299'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484806-minigo-gpu-player-bmmxf__349
+          gameId: 1521484806-minigo-gpu-player-bmmxf
+          initialPosition: '349'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484806-minigo-gpu-player-bmmxf__399
+          gameId: 1521484806-minigo-gpu-player-bmmxf
+          initialPosition: '399'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484806-minigo-gpu-player-bmmxf__449
+          gameId: 1521484806-minigo-gpu-player-bmmxf
+          initialPosition: '449'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+        - id: 1521484806-minigo-gpu-player-bmmxf__452
+          gameId: 1521484806-minigo-gpu-player-bmmxf
+          initialPosition: '452'
+          labels:
+            - MAINLINE
+            - GAME_COMMENTARY
+  groupings: []
+gameMapping:
+  1521484645-minigo-gpu-player-hrq8h: sgfs/1521484645-minigo-gpu-player-hrq8h.sgf
+  1521484660-minigo-gpu-player-qkqjp: sgfs/1521484660-minigo-gpu-player-qkqjp.sgf
+  1521484777-minigo-gpu-player-gmjsg: sgfs/1521484777-minigo-gpu-player-gmjsg.sgf
+  1521484800-minigo-gpu-player-bf9f4: sgfs/1521484800-minigo-gpu-player-bf9f4.sgf
+  1521484806-minigo-gpu-player-bmmxf: sgfs/1521484806-minigo-gpu-player-bmmxf.sgf
+specOptions:
+  positionType: GAME_COMMENTARY
+  idGenType: PATH
+  problemConditions:
+    GB: []
+    C:
+      - Correct
+      - is correct
+  autoRotateCropTypes:
+    PROBLEM: true
+    POSITION_VARIATIONS: true
+  autoRotateGames: false
+  positionOverrides: []
+  maxDiagramDistance: 50
+  useNextMovesPath: false
+diagramOptions:
+  diagramType: SVG
+  boardRegion: AUTO
+  autoBoxCropOnVariation: false
+  ignoreRenderLabels: true
+  typeOptions: {}
+templateOptions:
+  metadata:
+    id: c03e76b6-cbec-44a9-b514-a6e70fef02ca
+    title: My Go Book!
+    subtitle: ''
+    idType: uuid
+    idName: baduk-epub-id
+    isbn10: ''
+    isbn13: ''
+    uriId: 'http://github.com/Kashomon/gpub'
+    lang: en
+    subject: 'Go, Baduk, Wei-qi, Board Games, Strategy Games'
+    description: ''
+    rights: All Rights Reserved.
+    publisher: ''
+    authors: []
+    generationDate: '2018-05-01T11:18:28Z'
+    publicationDate: ''
+    addressLines: []
+    permanenceOfPaper: true
+  frontmatter:
+    generateToc: true
+  appendices: {}
+  chapterSize: 25
+  pdfx1a: false
+  azw3Format: false

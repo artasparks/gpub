@@ -1,0 +1,69 @@
+version: V1
+rootGrouping:
+  positionType: GAME_COMMENTARY
+  positions:
+    - id: 1521484645-minigo-gpu-player-hrq8h
+      gameId: 1521484645-minigo-gpu-player-hrq8h
+    - id: 1521484660-minigo-gpu-player-qkqjp
+      gameId: 1521484660-minigo-gpu-player-qkqjp
+    - id: 1521484777-minigo-gpu-player-gmjsg
+      gameId: 1521484777-minigo-gpu-player-gmjsg
+    - id: 1521484800-minigo-gpu-player-bf9f4
+      gameId: 1521484800-minigo-gpu-player-bf9f4
+    - id: 1521484806-minigo-gpu-player-bmmxf
+      gameId: 1521484806-minigo-gpu-player-bmmxf
+  generated: {}
+  groupings: []
+gameMapping:
+  1521484645-minigo-gpu-player-hrq8h: sgfs/1521484645-minigo-gpu-player-hrq8h.sgf
+  1521484660-minigo-gpu-player-qkqjp: sgfs/1521484660-minigo-gpu-player-qkqjp.sgf
+  1521484777-minigo-gpu-player-gmjsg: sgfs/1521484777-minigo-gpu-player-gmjsg.sgf
+  1521484800-minigo-gpu-player-bf9f4: sgfs/1521484800-minigo-gpu-player-bf9f4.sgf
+  1521484806-minigo-gpu-player-bmmxf: sgfs/1521484806-minigo-gpu-player-bmmxf.sgf
+specOptions:
+  positionType: GAME_COMMENTARY
+  idGenType: PATH
+  problemConditions:
+    GB: []
+    C:
+      - Correct
+      - is correct
+  autoRotateCropTypes:
+    PROBLEM: true
+    POSITION_VARIATIONS: true
+  autoRotateGames: false
+  positionOverrides: []
+  maxDiagramDistance: 50
+  useNextMovesPath: false
+diagramOptions:
+  diagramType: SVG
+  boardRegion: AUTO
+  autoBoxCropOnVariation: false
+  ignoreRenderLabels: true
+  typeOptions: {}
+templateOptions:
+  metadata:
+    id: c03e76b6-cbec-44a9-b514-a6e70fef02ca
+    title: My Go Book!
+    subtitle: ''
+    idType: uuid
+    idName: baduk-epub-id
+    isbn10: ''
+    isbn13: ''
+    uriId: 'http://github.com/Kashomon/gpub'
+    lang: en
+    subject: 'Go, Baduk, Wei-qi, Board Games, Strategy Games'
+    description: ''
+    rights: All Rights Reserved.
+    publisher: ''
+    authors: []
+    generationDate: '2018-05-01T11:18:28Z'
+    publicationDate: ''
+    addressLines: []
+    permanenceOfPaper: true
+  frontmatter:
+    generateToc: true
+  appendices: {}
+  chapterSize: 25
+  pdfx1a: false
+  azw3Format: false
